@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attributes>
+    <mapAttribute>
+        <stringAttribute key="BLD::Info|cmd" value="make --no-print-directory"/>
+        <stringAttribute key="BLD::Info|defaultSpec" value="bootloader"/>
+        <stringAttribute key="BLD::Info|redirDir|bootloader" value="bootloader"/>
+        <stringAttribute key="BLD::Info|redirRoot" value=""/>
+        <listAttribute key="BLD::Info|specs">
+            <stringAttribute value="bootloader"/>
+        </listAttribute>
+        <intAttribute key="BuildSupportEnabled" value="1"/>
+    </mapAttribute>
+</attributes>

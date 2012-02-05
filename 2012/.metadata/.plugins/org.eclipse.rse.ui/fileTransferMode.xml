@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mode>
+<info extension="html" mode="text" name="*"/>
+<info extension="tx" mode="binary" name="*.pot"/>
+<info extension="txt" mode="text" name="*.tdd"/>
+<info extension="shtml" mode="text" name="*"/>
+<info extension="cf" mode="binary" name="*"/>
+<info extension="wvr" mode="binary" name="*"/>
+<info extension="tdd" mode="binary" name="*"/>
+<info extension="edb" mode="binary" name="*"/>
+<info extension="htm" mode="text" name="*"/>
+<info extension="pot" mode="binary" name="*"/>
+<info extension="wva" mode="binary" name="*"/>
+</mode>

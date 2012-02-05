@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<attributes>
+    <mapAttribute>
+        <listAttribute key="BLD::Info|Tools">
+            <stringAttribute value="Build Target Rule"/>
+        </listAttribute>
+        <booleanAttribute key="BLD::Info|Tool|Build Target Rule|passAble" value="true"/>
+        <stringAttribute key="BLD::Info|cmd" value="make --no-print-directory"/>
+        <stringAttribute key="BLD::Info|defaultSpec" value="default"/>
+        <stringAttribute key="BLD::Info|redirDir|default" value="default"/>
+        <stringAttribute key="BLD::Info|redirRoot" value=""/>
+        <listAttribute key="BLD::Info|specs">
+            <stringAttribute value="default"/>
+        </listAttribute>
+        <intAttribute key="BuildSupportEnabled" value="1"/>
+    </mapAttribute>
+</attributes>
