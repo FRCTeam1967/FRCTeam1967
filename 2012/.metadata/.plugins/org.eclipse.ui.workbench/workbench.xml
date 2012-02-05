@@ -33,16 +33,15 @@
 <part id="1"/>
 <part id="2"/>
 <part id="3"/>
+<part id="4"/>
+<part id="5"/>
+<part id="6"/>
 </presentation>
 </folder>
 </info>
 </editorArea>
 <editor id="com.windriver.ide.devcenter.internal.DevCenterEditor" name="Dev Center" partName="Getting Started Resources" title="Getting Started Resources" tooltip="" workbook="DefaultEditorWorkbook">
 <input factoryID="com.windriver.ide.devcenter.internal.DevCenterEditorInputFactory"/>
-</editor>
-<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="Target.cpp" partName="Target.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/2010ImageDemo/Target.cpp" title="Target.cpp" tooltip="2010ImageDemo/Target.cpp" workbook="DefaultEditorWorkbook">
-<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/2010ImageDemo/Target.cpp"/>
-<editorState selectionHPixel="0" selectionLength="27" selectionOffset="1986"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="Target.h" partName="Target.h" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/2010ImageDemo/Target.h" title="Target.h" tooltip="2010ImageDemo/Target.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/2010ImageDemo/Target.h"/>
@@ -52,26 +51,32 @@
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/2010ImageDemo/MyRobot.cpp"/>
 <editorState selectionHPixel="0" selectionLength="0" selectionOffset="4942"/>
 </editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="Camera.cpp" partName="Camera.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/CameraExperiments/Camera.cpp" title="Camera.cpp" tooltip="CameraExperiments/Camera.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/Camera.cpp"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="0"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="jankyRobot.h" partName="jankyRobot.h" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyRobot.h" title="jankyRobot.h" tooltip="CameraExperiments/jankyRobot.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/jankyRobot.h"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="296"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.h" partName="jankyTargeting.h" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyTargeting.h" title="jankyTargeting.h" tooltip="CameraExperiments/jankyTargeting.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/jankyTargeting.h"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="719"/>
+</editor>
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.cpp" partName="jankyTargeting.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTargeting.cpp" title="jankyTargeting.cpp" tooltip="CameraExperiments/jankyTargeting.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/jankyTargeting.cpp"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="1045"/>
+</editor>
 </editors>
 <views>
-<view id="com.windriver.ide.debug.ui.osobjects.KOView" partName="Kernel Objects"/>
-<view id="org.eclipse.ui.views.TaskList" partName="Tasks"/>
-<view id="com.windriver.ide.ui.build.WRBuildConsoleView" partName="Build Console">
-<viewState>
-<buildArgsViewState traceBuildRun="true">
-<buildArgs selection=""/>
-</buildArgsViewState>
-</viewState>
-</view>
-<view id="org.eclipse.ui.views.PropertySheet" partName="Properties"/>
-<view id="org.eclipse.pde.runtime.LogView" partName="Error Log"/>
 <view id="biz.junginger.newsfeed.eclipse.FeedView" partName="Feeds">
 <viewState/>
 </view>
+<view id="com.windriver.ide.debug.ui.osobjects.KOView" partName="Kernel Objects"/>
+<view id="org.eclipse.ui.views.TaskList" partName="Tasks"/>
 <view id="com.windriver.ide.ui.project.WRFileView" partName="File Navigator">
 <viewState LINK_NAVIGATOR_TO_EDITOR="0" columnDefaultLayout="100:381:90:50" columnLayout="100:381:0:0" showDateColumn="false" showPathColumn="true" showSizeColumn="false" sorter="0">
-<filters>
-<filter element=".project" ignoreCase="true" isEnabled="false" isFromExtension="true" isFullPathMatch="false"/>
+<filters>&#x0A;<filter element=".project" ignoreCase="true" isEnabled="false" isFromExtension="true" isFullPathMatch="false"/>
 <filter element=".wr*" ignoreCase="true" isEnabled="false" isFromExtension="true" isFullPathMatch="false"/>
 <filter element="*.d" ignoreCase="true" isEnabled="false" isFromExtension="true" isFullPathMatch="false"/>
 <filter element="Makefile" ignoreCase="true" isEnabled="false" isFromExtension="true" isFullPathMatch="false"/>
@@ -86,23 +91,29 @@
 </filters>
 </viewState>
 </view>
+<view id="org.eclipse.ui.views.ContentOutline" partName="Outline">
+<viewState/>
+</view>
+<view id="org.eclipse.ui.console.ConsoleView" partName="Console"/>
 <view id="org.eclipse.rse.ui.view.systemView" partName="Remote Systems">
 <viewState horizontalPosition="0" linkWithEditor="f" release="2.0.0" showFilterPools="f" verticalPosition="0">
 <expanded>
 <element path="Conn///Team1967-C.Local"/>
 </expanded>
-<selection>
-<element path="Conn///Team1967-C.Local"/>
-</selection>
 </viewState>
 </view>
-<view id="org.eclipse.ui.views.ContentOutline" partName="Outline">
-<viewState/>
+<view id="com.windriver.ide.ui.build.WRBuildConsoleView" partName="Build Console">
+<viewState>
+<buildArgsViewState traceBuildRun="true">
+<buildArgs selection=""/>
+</buildArgsViewState>
+</viewState>
 </view>
-<view id="org.eclipse.ui.console.ConsoleView" partName="Console"/>
+<view id="org.eclipse.ui.views.PropertySheet" partName="Properties"/>
 <view id="org.eclipse.ui.navigator.ProjectExplorer" partName="Project Explorer">
 <viewState CommonNavigator.LINKING_ENABLED="0" CommonNavigator.LINKING_ENABLED.delayed="0" org.eclipse.cdt.ui.cview.groupincludes="true" org.eclipse.cdt.ui.editor.CUChildren="false" org.eclipse.ui.navigator.resources.workingSets.showTopLevelWorkingSets="0"/>
 </view>
+<view id="org.eclipse.pde.runtime.LogView" partName="Error Log"/>
 <view id="org.eclipse.ui.views.ProblemView" partName="Problems">
 <viewState columnWidth0="250" columnWidth1="75" columnWidth2="150" columnWidth3="60" columnWidth4="0" horizontalPosition="0" verticalPosition="0">
 <columnOrder columnOrderIndex="0"/>
@@ -292,6 +303,13 @@
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/2010ImageDemo/Target.cpp"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/2010ImageDemo/Target.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/2010ImageDemo/MyRobot.cpp"/>
+<editor factoryID="com.windriver.ide.devcenter.internal.DevCenterEditorInputFactory" id="com.windriver.ide.devcenter.internal.DevCenterEditor"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/GyroSample/Camera.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/Camera.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/jankyRobot.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/jankyTargeting.h"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/jankyTargeting.cpp"/>
+<editor factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" uri="file:/C:/WindRiver/vxworks-6.3/target/h/WPILib/Task.h"/>
 </editors>
 <item historyLabel="Getting Started Resources" index="0"/>
 <item historyLabel="Target.cpp" index="1">
@@ -303,8 +321,132 @@
 <item historyLabel="MyRobot.cpp" index="3">
 <position/>
 </item>
-<item active="true" historyLabel="Target.cpp" index="1">
-<position info="not_deleted" x="1986" y="27"/>
+<item historyLabel="Target.cpp" index="1">
+<position/>
+</item>
+<item historyLabel="Getting Started Resources" index="4"/>
+<item historyLabel="Camera.cpp" index="5">
+<position/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position/>
+</item>
+<item historyLabel="jankyRobot.h" index="7">
+<position/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position info="not_deleted" x="2843" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position info="not_deleted" x="108" y="0"/>
+</item>
+<item historyLabel="jankyRobot.h" index="7">
+<position info="not_deleted" x="296" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position info="not_deleted" x="108" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position info="not_deleted" x="735" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position info="not_deleted" x="157" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="157" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="4950" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position info="not_deleted" x="18" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position info="not_deleted" x="3015" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="86" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="542" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="243" y="1"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position info="not_deleted" x="5" y="0"/>
+</item>
+<item historyLabel="jankyRobot.h" index="7">
+<position info="not_deleted" x="296" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position info="not_deleted" x="3015" y="0"/>
+</item>
+<item historyLabel="Task.h" index="10">
+<position info="not_deleted" x="1461" y="32"/>
+</item>
+<item historyLabel="Camera.cpp" index="6">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="243" y="1"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="451" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="349" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="244" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="8">
+<position info="not_deleted" x="719" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="244" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="9">
+<position/>
+</item>
+<item active="true" historyLabel="jankyTargeting.cpp" index="9">
+<position info="not_deleted" x="937" y="0"/>
 </item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
@@ -320,11 +462,22 @@
 <trimItem IMemento.internal.id="org.eclipse.jface.action.StatusLineManager"/>
 <trimItem IMemento.internal.id="org.eclipse.ui.internal.HeapStatus"/>
 <trimItem IMemento.internal.id="org.eclipse.ui.internal.progress.ProgressRegion"/>
-<trimItem IMemento.internal.id="org.eclipse.ui.internal.intro.impl.presentations.IntroLaunchBar"/>
 </trimArea>
 </trimLayout>
 </window>
 <mruList>
+<file factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="Task.h" tooltip="C:\WindRiver\vxworks-6.3\target\h\WPILib\Task.h">
+<persistable uri="file:/C:/WindRiver/vxworks-6.3/target/h/WPILib/Task.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.cpp" tooltip="CameraExperiments/jankyTargeting.cpp">
+<persistable path="/CameraExperiments/jankyTargeting.cpp"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.h" tooltip="CameraExperiments/jankyTargeting.h">
+<persistable path="/CameraExperiments/jankyTargeting.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyRobot.h" tooltip="CameraExperiments/jankyRobot.h">
+<persistable path="/CameraExperiments/jankyRobot.h"/>
+</file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="MyRobot.cpp" tooltip="2010ImageDemo/MyRobot.cpp">
 <persistable path="/2010ImageDemo/MyRobot.cpp"/>
 </file>
