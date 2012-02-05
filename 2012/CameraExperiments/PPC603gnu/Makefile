@@ -52,7 +52,7 @@ CC_ARCH_SPEC = -mcpu=603 -mstrict-align -mno-implicit-fp  -mlongcall
 LIBPATH = 
 LIBS = 
 
-IDE_INCLUDES = -I$(WIND_BASE)/target/h/WPILib -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
+IDE_INCLUDES = -I$(WIND_BASE)/target/h/WPILib -I$(WS_ROOT_DIR)/include -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
 
 IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a 
 
@@ -99,7 +99,7 @@ GyroSample/$(MODE_DIR)/% : DEBUGFLAGS_Partial-Image-Linker =
 GyroSample/$(MODE_DIR)/% : DEBUGFLAGS_Librarian = 
 GyroSample/$(MODE_DIR)/% : DEBUGFLAGS_Assembler = -O2 -fstrength-reduce -fno-builtin
 endif
-GyroSample/$(MODE_DIR)/% : IDE_INCLUDES = -I$(WIND_BASE)/target/h/WPILib -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
+GyroSample/$(MODE_DIR)/% : IDE_INCLUDES = -I$(WIND_BASE)/target/h/WPILib -I$(WS_ROOT_DIR)/include -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
 GyroSample/$(MODE_DIR)/% : IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a 
 GyroSample/$(MODE_DIR)/% : PROJECT_TYPE = DKM
 GyroSample/$(MODE_DIR)/% : DEFINES = 
@@ -143,7 +143,7 @@ GyroSample_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Partial-Image-Linker =
 GyroSample_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Librarian = 
 GyroSample_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Assembler = -O2 -fstrength-reduce -fno-builtin
 endif
-GyroSample_partialImage/$(MODE_DIR)/% : IDE_INCLUDES = -I$(WIND_BASE)/target/h/WPILib -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
+GyroSample_partialImage/$(MODE_DIR)/% : IDE_INCLUDES = -I$(WIND_BASE)/target/h/WPILib -I$(WS_ROOT_DIR)/include -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
 GyroSample_partialImage/$(MODE_DIR)/% : IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a 
 GyroSample_partialImage/$(MODE_DIR)/% : PROJECT_TYPE = DKM
 GyroSample_partialImage/$(MODE_DIR)/% : DEFINES = 
@@ -162,7 +162,12 @@ GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.o : C:/Docu
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
-OBJECTS_GyroSample_partialImage = GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.o
+GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/dev_C++/janksters1967/2012/classes/jankyTargeting.cpp
+	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+
+OBJECTS_GyroSample_partialImage = GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.o \
+	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.o
 
 GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage.o : $(OBJECTS_GyroSample_partialImage)
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc -r -nostdlib -Wl,-X  -o "$@" $(OBJECTS_GyroSample_partialImage) $(LIBPATH) $(LIBS) $(ADDED_LIBPATH) $(ADDED_LIBS)  && if [ "$(EXPAND_DBG)" = "1" ]; then plink "$@";fi
@@ -174,7 +179,7 @@ _clean :: GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage_clean
 GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage_clean : 
 	$(TRACE_FLAG)if [ -d "GyroSample_partialImage" ]; then cd "GyroSample_partialImage"; rm -rf $(MODE_DIR); fi
 
-DEP_FILES := GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.d
+DEP_FILES := GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.d
 -include $(DEP_FILES)
 
 

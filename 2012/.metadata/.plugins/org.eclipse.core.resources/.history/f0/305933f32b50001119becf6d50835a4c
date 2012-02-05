@@ -2,8 +2,6 @@
 #include "nivision.h"
 #define WRITE_IMAGES
 #include "math.h"
-#include "jankyRobot.h"
-
 /**
  * This is a demo program showing the use of the Gyro for driving in a straight
  * line. The Gyro object in the library returns the heading with 0.0 representing
@@ -79,7 +77,7 @@ public:
 //		char debugout[100];
 
 		SmartDashboard *smarty = SmartDashboard::GetInstance();
-		AxisCamera& camera = AxisCamera::GetInstance(CAMERA_IP); 
+		AxisCamera& camera = AxisCamera::GetInstance("10.19.67.11"); 
 		camera.WriteResolution(AxisCamera::kResolution_320x240); 
 		camera.WriteBrightness(50); 
 //		camera.WriteWhiteBalance(kWhiteBalance_Automatic);		

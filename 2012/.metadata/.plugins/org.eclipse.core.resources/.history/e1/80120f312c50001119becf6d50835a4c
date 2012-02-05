@@ -2,7 +2,7 @@
 #include "nivision.h"
 #define WRITE_IMAGES
 #include "math.h"
-#include "jankyRobot.h"
+#include <../include/jankyRobot.h>
 
 /**
  * This is a demo program showing the use of the Gyro for driving in a straight

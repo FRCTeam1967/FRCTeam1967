@@ -17,4 +17,21 @@
 		<nature>org.eclipse.cdt.core.cnature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>jankyRobot.h</name>
+			<type>1</type>
+			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyRobot.h</location>
+		</link>
+		<link>
+			<name>jankyTargeting.h</name>
+			<type>1</type>
+			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyTargeting.h</location>
+		</link>
+		<link>
+			<name>jankyTargeting.cpp</name>
+			<type>1</type>
+			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTargeting.cpp</location>
+		</link>
+	</linkedResources>
 </projectDescription>

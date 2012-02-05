@@ -20,11 +20,16 @@
 <pathentry kind="con" path="com.windriver.ide.core.build.model.WR_USERDEFINED_CONTAINER"/>
 </storageModule>
 <storageModule moduleId="scannerConfiguration"/>
+
+<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 <storageModule moduleId="userdefinedContainer">
+<includePath path="$(WIND_BASE)/target/h/WPILib"/>
+<includePath path="$(WS_ROOT_DIR)/include"/>
+<includePath path="$(WIND_BASE)/target/h"/>
+<includePath path="$(WIND_BASE)/target/h/wrn/coreip"/>
 <indexAllFiles value="false"/>
 <initialized value="true"/>
 </storageModule>
-<storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 </cconfiguration>
 </storageModule>
 </cproject>
