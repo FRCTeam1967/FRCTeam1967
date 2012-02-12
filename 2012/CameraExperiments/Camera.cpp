@@ -22,7 +22,6 @@ class GyroSample : public SimpleRobot
 {
 	RobotDrive myRobot; // robot drive system
 	Gyro gyro;
-//	HSLImage image;
 	Joystick stick;
 	JoystickButton button;
 //	JoystickButton calbutton; //camera calibration-white balance
@@ -82,18 +81,13 @@ public:
 		{
 			myRobot.ArcadeDrive(stick);       
 			
-//			dslcd->Clear();
-			
-			if (button.Get()==true){ 
+			if (button.Get()==true) 
 
 				targ.ProcessOneImage();
-
-			}
-			
-			//compute distance
-			
-			Wait(0.005);	}
-
+				
+		}		
+		
+		Wait(0.005);
 	}
 };
 

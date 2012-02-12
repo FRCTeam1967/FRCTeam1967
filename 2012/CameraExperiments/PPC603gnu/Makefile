@@ -166,8 +166,13 @@ GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.o :
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
+GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting_draft.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/dev_C++/janksters1967/2012/CameraExperiments/jankyTargeting_draft.cpp
+	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+
 OBJECTS_GyroSample_partialImage = GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.o \
-	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.o
+	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.o \
+	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting_draft.o
 
 GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage.o : $(OBJECTS_GyroSample_partialImage)
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc -r -nostdlib -Wl,-X  -o "$@" $(OBJECTS_GyroSample_partialImage) $(LIBPATH) $(LIBS) $(ADDED_LIBPATH) $(ADDED_LIBS)  && if [ "$(EXPAND_DBG)" = "1" ]; then plink "$@";fi
@@ -179,7 +184,7 @@ _clean :: GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage_clean
 GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage_clean : 
 	$(TRACE_FLAG)if [ -d "GyroSample_partialImage" ]; then cd "GyroSample_partialImage"; rm -rf $(MODE_DIR); fi
 
-DEP_FILES := GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.d
+DEP_FILES := GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting_draft.d
 -include $(DEP_FILES)
 
 
