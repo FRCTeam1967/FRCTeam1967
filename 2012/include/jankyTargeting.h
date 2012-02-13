@@ -15,8 +15,10 @@
 #define WRITE_IMAGES
 #define INHEIGHT 18.0
 #define PIXHEIGHT 240.0
+#define PIXWIDTH 320.0
 #define MIN_SCORE 85.0
 #define MIN_PARAREA 500.0
+
 
 
 typedef struct BogeyInfo_t {
@@ -27,9 +29,30 @@ typedef struct BogeyInfo_t {
 	int BogeyPMCX;
 	int BogeyPMCY;
 	int BogeySCORE;
+	int BogeyTop;
+	int BogeyLeft;
 	//int BogeyRATIO;
 		
 } BogeyInfo;
+
+
+#define RPM_DEADBANDx4 400
+
+class JankyShooter {
+public:
+	JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort);
+	virtual ~JankyShooter(void);
+	void setTargetRPM(int desiredrpm);
+	void DoCalculations(void);
+	int GetCurrentRPM(void) {return CurrentRPMx4 / 4;};
+	
+	//Member variables
+	int CurrentRPMx4;
+	int TargetRPMx4;
+	Jaguar ShooterMotor;
+	Encoder ShooterEncoder;
+	float MotorSpeed;
+};
 
 
 class JankyTargeting {
@@ -39,11 +62,12 @@ public:
 	bool GetImage(void);
 	bool isImageValid(void);
 	bool GetParticles (void);
-//	int GetNumValidBogies (void);
 	bool ProcessOneImage(void);
 	bool DoImageProcessing(void);
 	int GetValues(void);
 	void PrintBogey(void); 
+	int ChooseBogey(void);
+	void MoveTurret(void);
 	
 	
 	// Member variables
@@ -54,10 +78,6 @@ public:
 	int tempparticles;
 	bool gotparticles;
 	int particles;
-	vector<ParticleAnalysisReport>* vPAR;
-	ParticleAnalysisReport* par;
-	int numValidBogies;
-	BogeyInfo bogies[4];
 	float PI; 
 	float inpx; 
 	float imh;
@@ -65,7 +85,12 @@ public:
 	int BRcenterx;
 	int BRcentery;
 	int visualdistance;
+	vector<ParticleAnalysisReport>* vPAR;
+	ParticleAnalysisReport* par;
+	int numValidBogies;
 	int aspectratio;
+	BogeyInfo bogies[4];
+	int targetBogey;
 	
 };
 

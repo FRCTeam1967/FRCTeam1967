@@ -6,6 +6,59 @@
 
 #include "jankyTargeting.h" 
 
+JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
+	ShooterMotor(JagPort),
+	ShooterEncoder(EncoderAPort,EncoderBPort)
+{
+	ShooterEncoder.Start();
+	ShooterMotor.Set(0.0);
+	TargetRPMx4 = 0;
+	CurrentRPMx4 = 0;
+	MotorSpeed = 0;
+}
+
+JankyShooter::~JankyShooter(void)
+{
+	ShooterEncoder.Stop();
+}
+
+void JankyShooter::setTargetRPM(int desiredrpm)
+{
+	TargetRPMx4 = desiredrpm * 4;
+	DoCalculations();
+}
+
+void JankyShooter::DoCalculations(void)
+{
+	int suspectRPM = (int)ShooterEncoder.GetRate();
+	
+	//filtering out noise from the encoder 
+	if (suspectRPM < -40000 || suspectRPM > 40000)
+		return;
+	
+	CurrentRPMx4 = ((CurrentRPMx4 * 7) + suspectRPM) / 8;
+	
+	if (TargetRPMx4 > CurrentRPMx4 + RPM_DEADBANDx4)
+	{
+		MotorSpeed = MotorSpeed + 0.02;
+	}
+	else if (TargetRPMx4 < CurrentRPMx4 - RPM_DEADBANDx4)
+	{
+		MotorSpeed = MotorSpeed - 0.02;
+	}
+	
+	if (MotorSpeed > 1.0)
+		MotorSpeed = 1.0;
+	
+	if (MotorSpeed < 0.0)
+		MotorSpeed = 0.0;
+	
+	SmartDashboard::GetInstance()->PutInt("CurrentRPM",CurrentRPMx4);
+	SmartDashboard::GetInstance()->PutDouble("Motor Speed",MotorSpeed);
+	
+	ShooterMotor.Set(MotorSpeed);
+}
+
 /// Constructor - do initialization here initialization-we are using these, not creating new variables
 JankyTargeting::JankyTargeting(void)
 {
@@ -21,7 +74,6 @@ JankyTargeting::JankyTargeting(void)
 	BRcenterx = 0.0;
 	BRcentery = 0.0; 
 	
-	
 	Wait(1.0);
 }
 
@@ -35,20 +87,18 @@ bool JankyTargeting::GetImage(void)
 {
 	AxisCamera& camera = AxisCamera::GetInstance(CAMERA_IP); 
 	
-		if (camera.IsFreshImage()==true)
-		{ 
-			success = camera.GetImage((ColorImage*)&hsl);
-			
-			if (success==1)
+	if (camera.IsFreshImage()==true)
+	{ 
+		success = camera.GetImage((ColorImage*)&hsl);
+		if (success==1)
+		{
+			if (isImageValid()==true)
 			{
-				if (isImageValid()==true)
-				{
-					return true;
-				}
-			}	
-		}
-		
-		return false;		
+				return true;
+			}
+		}	
+	}
+	return false;		
 }
 
 bool JankyTargeting::isImageValid()
@@ -72,16 +122,14 @@ bool JankyTargeting::DoImageProcessing(void)
 			return true;
 		}			
 	}
-	
 	return false;
-
 }	
 
 bool JankyTargeting::GetParticles (void)
 {
 	particles = samwise->GetNumberParticles();
-	
 	smarty->PutInt("particles",particles);
+	
 	if (particles >0)
 	{	
 		vPAR = samwise->GetOrderedParticleAnalysisReports();
@@ -99,7 +147,6 @@ int JankyTargeting::GetValues(void)
 		BRcenterx = (int)(par->boundingRect.left + par->boundingRect.width*0.5);
 		BRcentery = (int)(par->boundingRect.top + par->boundingRect.height*0.5);
 		PI = 3.14159265;
-		
 		inpx = (INHEIGHT) / par->boundingRect.height; // inches per pixels (proportion) 
 		imh = PIXHEIGHT * inpx; // image height in inches
 		visualdistance = (int)(0.5 * imh) / tan (27.0*PI/180.0); // PI/180 is converting radians to degrees
@@ -112,51 +159,40 @@ void JankyTargeting::PrintBogey(void)
 	
 	for (int i=0;i<numValidBogies; i++)
 	{
-		
-		printf("Bogey #=%d, PS=%d,D=%04d ",i,bogies[i].BogeySCORE,bogies[i].BogeyVD);
-		printf("BRC=%d,%d,PCM=%d,%d\n ",bogies[i].BogeyBRCX,bogies[i].BogeyBRCY, bogies[i].BogeyPMCX,bogies[i].BogeyPMCY);
-	
+		printf("Bogey #=%d,PS=%d,D=%04d ",i,bogies[i].BogeySCORE,bogies[i].BogeyVD);
+		printf("BRC=%d,%d,PCM=%d,%d\n",bogies[i].BogeyBRCX,bogies[i].BogeyBRCY, bogies[i].BogeyPMCX,bogies[i].BogeyPMCY);
 	}
 }
 
-
-
-
-
-
-//TODO Remember to delete vpar, samwise
-
  bool JankyTargeting::ProcessOneImage(void)
 {
-	// HOW DO YOU PROGRAM A FUNCTION THAT USES OTHER FUNCTIONS (THEY ARE ALL DEFINITIONS!)???
 	 numValidBogies = 0;
 	 if (GetImage()==true)
 	{
 		if (DoImageProcessing()==true)
 			if (GetParticles()==true)
 			{
-				
 				for (int i=0 ; i<vPAR->size() && i<3 ; i++)
 				{
 					par = &(*vPAR)[i];
+					if (par->particleArea < MIN_PARAREA)
+						break;
 					GetValues();
-					if (rect_score>MIN_SCORE)
+					if (rect_score > MIN_SCORE)
 					{	
 						bogies[numValidBogies].BogeyBRCX=BRcenterx;
 						bogies[numValidBogies].BogeyBRCY=BRcentery;
+						bogies[numValidBogies].BogeyTop=par->boundingRect.top;
+						bogies[numValidBogies].BogeyLeft=par->boundingRect.left;
 						bogies[numValidBogies].BogeyVD=visualdistance;
 						bogies[numValidBogies].BogeyPMCX=par->center_mass_x;
 						bogies[numValidBogies].BogeyPMCY=par->center_mass_y;
 						bogies[numValidBogies].BogeySCORE=rect_score;
-						//bogies[numValidBogies].BogeyRATIO=aspect_ratio;
-						
+						//bogies[numValidBogies].BogeyRATIO=aspect_ratio;						
+
 						numValidBogies ++;
-					}	
-					
-					if(par->particleArea<MIN_PARAREA)
-						break;
+					}
 				}
-				
 				PrintBogey();
 			}													
 	}
@@ -165,93 +201,28 @@ void JankyTargeting::PrintBogey(void)
 	
 	delete vPAR;
 	delete samwise;
-	
-}
-	
-
-
-/*	int count = 0;
-	int fayz = 0; 
-	AxisCamera& camera = AxisCamera::GetInstance(CAMERA_IP); 
-		if (camera.IsFreshImage()==true)
-		{ 
-			count++;		
-			smarty->PutInt("Number of fresh images",count);
-			int success = camera.GetImage((ColorImage*)&canon);
-			if ( canon.GetHeight()!=0 && canon.GetWidth()!=0 ) {
-				fayz++;
-	#ifdef WRITE_IMAGES									
-				canon.Write("hsl.jpg");
-	#endif			
-				smarty->PutInt("Number of valid images",fayz);
-	//			BinaryImage* samwise = canon.ThresholdHSL(154,231,33,255,131,255);
-	//			BinaryImage* samwise = canon.ThresholdHSL(185,255,95,255,65,255);
-	//			BinaryImage* samwise = canon.ThresholdHSL(120,170,60,255,100,253);
-	//last threshold is correct one for blue color	
-	#ifdef WRITE_IMAGES
-				int tempparticles = samwise->GetNumberParticles();
-				smarty->PutInt("Number of threshold particles",tempparticles);
-				bool gotparticles = false;
-				if (tempparticles > 0)
-					gotparticles = true;
-				if (gotparticles == true)
-					samwise->Write("purple.bmp");	
-	#endif	
-				Image* imaqImage = samwise->GetImaqImage();
-				imaqConvexHull(imaqImage,imaqImage,TRUE);
-	#ifdef WRITE_IMAGES									
-				if (gotparticles == true)
-					samwise->Write("convex.bmp");
-	#endif
-				int particles = samwise->GetNumberParticles();
-				smarty->PutInt("Number of convex particles",particles);
-				vector<ParticleAnalysisReport>* vPAR = samwise->GetOrderedParticleAnalysisReports();
-				if (vPAR) 	// Sanity - did we get a report back?
-				{
-					printf("Particle Analysis Report for Particles follows:\n");
-					for (int i=0 ; i<vPAR->size() ; i++)
-					{
-						//char temp [100];
-						float d=1.0;
-						ParticleAnalysisReport& par = (*vPAR)[i];	// Get the i-th entry from the vector - "Report # i"
-						// Calculate score
-						// Avoid floating point disasters by multiplying before dividing
-						int rect_score = (int)(((par.particleArea) / (par.boundingRect.width*par.boundingRect.height))*100.0);
-					float rect_score = par.particleArea / (par.boundingRect.width*par.boundingRect.height);
-						int BRcenterx = (int)(par.boundingRect.left + par.boundingRect.width*0.5);
-						int BRcentery = (int)(par.boundingRect.top + par.boundingRect.height*0.5);
-		bob				bogies[i].BRcenterX = alsdkjfas dfjaslkdjf asljf sakjf 
-						bogies[i].visualDistance = adslkfjasd fjslk fjasdkfj 
-	
-						//float distance = 0.00000051169*pow (par.particleArea, 2)-0.01611*par.particleArea+178.2972;
-						//find different equation based on BR width, then compare accuracy
-						//#-particle number, A-particle area, PS-particle score, BRC-bounding rect. center, PCM-particle center, D=distance 
-						if (i==0)
-						{
-							float PI = 3.14159265; 
-							float inpx = 24.0 / par.boundingRect.width; //inches per pixels (proportion)
-							float imw = 320.0 * inpx; //image width in inches
-							printf("inches per pixels=%f,image width=%f\n",inpx,imw);
-							d = (0.5 * imw) / tan (27.0*PI/180.0); //PI/180 is converting radians to degrees
-						}
-						printf("#=%d,A=%04.2f,PS=%d,D=%04f",i,par.particleArea,rect_score,d);
-						printf(" BRW=%d,BRC=%d,%d,PCM=%d,%d\n",par.boundingRect.width,BRcenterx,BRcentery,par.center_mass_x,par.center_mass_y);
-						// Escape hatch - early - just want to deal with first 4 reports MAX.
-						if (i == 3)
-							break;
-					}
-					delete vPAR;
-				}			
-				{
-					samwise->GetParticleAnalysisReport(x, &report);
-				}				
-				delete samwise;
-			}
-		}
-						
 }
 
-*/
+int JankyTargeting::ChooseBogey(void)
+{
+	targetBogey=-1;
+	
+	if (numValidBogies==1)
+		targetBogey=0; //index starts at 0
+}
+
+void JankyTargeting::MoveTurret(void)
+{
+	if (targetBogey!=-1)
+	{
+		int widthOffset = (int)(bogies[targetBogey].BogeyLeft + bogies[targetBogey].BogeyBRCX)-(PIXWIDTH/2);
+		int normalizedHOffset = (widthOffset * 100) / (PIXWIDTH/2);
+		smarty->PutInt("Horizontal Offset",normalizedHOffset);
+//		printf("Target Bogey=%d,WidthOffset=%d\n",targetBogey,widthOffset);
+	}
+//TODO give values to jaguars and move turret to adjust for error	
+}
+
 
 
 

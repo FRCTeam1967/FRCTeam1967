@@ -20,7 +20,7 @@
  */
 class GyroSample : public SimpleRobot
 {
-	RobotDrive myRobot; // robot drive system
+//	RobotDrive myRobot; // robot drive system
 	Gyro gyro;
 	Joystick stick;
 	JoystickButton button;
@@ -29,62 +29,56 @@ class GyroSample : public SimpleRobot
 	
 public:
 	GyroSample(void):
-		myRobot(1, 2),		// initialize the sensors in initialization list
+//		myRobot(1, 2),		// initialize the sensors in initialization list
 		gyro(1),
 		stick(1),
 		button(&stick, 1)
 //		calbutton(&stick, 2)
 	{
-		myRobot.SetExpiration(0.1);
+//		myRobot.SetExpiration(0.1);
 	}
-	
-	/**
-	 * Drive in a straight line using the gyro.
-	 * This short program uses simple proportional to correct for errors in heading.
-	 * Proportional control simply means that the amount of correction to the heading is
-	 * proportional to the error. Since we are trying to drive straight, then the
-	 * desired gyro value is 0.0. The gyro heading, which varies from 0.0 as the robot
-	 * turns is supplied as the curve parameter to the Drive method. This method takes
-	 * values from -1 to 1 to represent turns left and right. 0 is no turn.
-	 * 
-	 * While the gyro heading is 0.0 (the desired heading) there will be no turn. As the
-	 * heading increases in either direction, it results in a proportionally larger
-	 * turn to counteract the error. The angle is divided by 30 to scale the value so
-	 * the robot doesn't turn too fast or too slowly while correcting.
-	 */
+
 	void Autonomous(void)
 	{
-		gyro.Reset();
+/*		gyro.Reset();
 		while (IsAutonomous())
 		{
 			float angle = gyro.GetAngle();			// current heading (0 = target)
 			if (angle > 10)
-				myRobot.Drive (1.0, 0.0);
+//				myRobot.Drive (1.0, 0.0);
 			else {
 				if (angle < -10)
-					myRobot.Drive (-1.0, 0.0);
+//					myRobot.Drive (-1.0, 0.0);
 				else {
-					myRobot.Drive(0.0, 0.0);					
+//					myRobot.Drive(0.0, 0.0);					
 				}
 			}
 			//myRobot.Drive(-1.0, -angle / 30.0);		// proportionally drive in a straight line
 			Wait(0.004);
 		}
-		myRobot.Drive(0.0, 0.0); 	// stop robot
-	}
+//		myRobot.Drive(0.0, 0.0); 	// stop robot
+*/	}
 	
 	void OperatorControl(void)
 	{ 
 		JankyTargeting targ;
+		JankyShooter shoot(SHOOTER_JAGUAR_CHANNEL,SHOOTER_ENCODER_A,SHOOTER_ENCODER_B);
+		SmartDashboard* smarty = SmartDashboard::GetInstance();
 		
 		while (IsOperatorControl())
 		{
-			myRobot.ArcadeDrive(stick);       
+//			myRobot.ArcadeDrive(stick);       
+			
+			shoot.setTargetRPM(500);
+			
+			smarty->PutDouble("Encoder Rate",shoot.GetCurrentRPM());
 			
 			if (button.Get()==true) 
-
+			{
 				targ.ProcessOneImage();
-				
+				targ.ChooseBogey();
+				targ.MoveTurret();
+			}
 		}		
 		
 		Wait(0.005);

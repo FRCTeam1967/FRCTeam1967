@@ -12,4 +12,10 @@
 
 #define CAMERA_IP "10.19.67.11"
 
+#define SHOOTER_JAGUAR_CHANNEL 1
+#define SHOOTER_ENCODER_A 3
+#define SHOOTER_ENCODER_B 2
+
 #endif
+
+
