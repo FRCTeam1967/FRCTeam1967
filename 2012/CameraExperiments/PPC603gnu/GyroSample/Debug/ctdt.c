@@ -7,7 +7,7 @@
 /*       -fdollars-in-identifiers flag.                   */
 
 
-void _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_94BA6A81();
+void _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954();
 
 void _GLOBAL__I__Z20FRC_userClassFactoryv();
 
@@ -34,7 +34,7 @@ void _GLOBAL__I_AxisCamera_debugFlag();
 extern void (*_ctors[])();
 void (*_ctors[])() =
     {
-    _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_94BA6A81,
+    _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954,
     _GLOBAL__I__Z20FRC_userClassFactoryv,
     _GLOBAL__I__ZN12JankyShooterC2Eiii,
     _GLOBAL__I__ZN12PrintCommandC2EPKc,
@@ -49,7 +49,7 @@ void (*_ctors[])() =
     0
     };
 
-void _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_94BA6A81();
+void _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954();
 
 void _GLOBAL__D__Z20FRC_userClassFactoryv();
 
@@ -72,7 +72,7 @@ void _GLOBAL__D_AxisCamera_debugFlag();
 extern void (*_dtors[])();
 void (*_dtors[])() =
     {
-    _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_94BA6A81,
+    _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954,
     _GLOBAL__D__Z20FRC_userClassFactoryv,
     _GLOBAL__D__ZN12JankyShooterC2Eiii,
     _GLOBAL__D__ZN9Scheduler9_instanceE,

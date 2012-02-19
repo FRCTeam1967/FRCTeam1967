@@ -8,13 +8,27 @@
 
 JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	ShooterMotor(JagPort),
-	ShooterEncoder(EncoderAPort,EncoderBPort)
+	ShooterEncoder(EncoderAPort,EncoderBPort,false,Encoder::k1X),
+	PID(0.03,0.03,0.03,&ShooterEncoder,&ShooterMotor)
 {
 	ShooterEncoder.Start();
 	ShooterMotor.Set(0.0);
 	TargetRPMx4 = 0;
 	CurrentRPMx4 = 0;
 	MotorSpeed = 0;
+	PID.SetInputRange(0.0,20000.0);
+	PID.SetOutputRange(0.0,1.0);
+	PID.SetSetpoint(0.0);
+	PID.Enable();
+	EncoderTimer.Reset();
+	EncoderTimer.Start();
+	PreviousCount=0;
+	PreviousTime=0;
+	PreviousRPM=0;
+	SmartDashboard::GetInstance()->PutDouble("Delta Time", -1.0);
+	SmartDashboard::GetInstance()->PutInt("Delta Count", -1);
+	GetCurrentRPM();
+		
 }
 
 JankyShooter::~JankyShooter(void)
@@ -22,13 +36,69 @@ JankyShooter::~JankyShooter(void)
 	ShooterEncoder.Stop();
 }
 
+int JankyShooter::GetCurrentRPM(void)
+{
+	
+	ShooterMotor.SetSpeed(0.6);
+	
+	int CurrentCount= ShooterEncoder.Get();
+	
+	double CurrentTime= EncoderTimer.Get();
+	
+	long CurrentRPM= ((long)((float)(CurrentCount-PreviousCount)/(CurrentTime-PreviousTime)))/6;
+	
+	//current count (tick/sec)-need to convert-RPM-x60 sec, /360 ticks = (1/6)
+	
+	CurrentRPM = (PreviousRPM * 15 + CurrentRPM) / 16;
+	
+	double DeltaTime=CurrentTime-PreviousTime;
+	
+	int DeltaCount=CurrentCount-PreviousCount;
+	
+	if (CurrentCount<PreviousCount || DeltaCount>10000)
+	{
+		PreviousCount=CurrentCount;
+		PreviousTime=CurrentTime;
+		
+		return PreviousRPM;
+	}
+	if (CurrentRPM>10000 || CurrentRPM<=0)
+	{
+		if (CurrentRPM!=0)
+		{	
+		SmartDashboard::GetInstance()->PutDouble("Delta Time", DeltaTime);
+		SmartDashboard::GetInstance()->PutInt("Delta Count", DeltaCount);
+		
+		}
+		return PreviousRPM;
+	}
+	else
+	{	
+		PreviousCount=CurrentCount;
+	
+		PreviousTime=CurrentTime;
+		
+		PreviousRPM=(int)CurrentRPM;
+	
+		SmartDashboard::GetInstance()->PutDouble("Current Encoder Value", CurrentCount);
+		if (CurrentRPM > 10000 || CurrentRPM < 0)
+			SmartDashboard::GetInstance()->PutString("Test", "Help!");
+		
+		SmartDashboard::GetInstance()->PutInt("Current RPM",(int)CurrentRPM);
+		
+	
+		return (int)CurrentRPM;
+	}	
+}
 void JankyShooter::setTargetRPM(int desiredrpm)
 {
 	TargetRPMx4 = desiredrpm * 4;
-	DoCalculations();
+	PID.SetSetpoint(TargetRPMx4);
+	SmartDashboard::GetInstance()->PutDouble("PIDOutput",PID.m_pidOutput);
+//	DoCalculations();
 }
 
-void JankyShooter::DoCalculations(void)
+void JankyShooter::DoCalculations(void) //adjust RPM
 {
 	int suspectRPM = (int)ShooterEncoder.GetRate();
 	
@@ -223,7 +293,15 @@ void JankyTargeting::MoveTurret(void)
 //TODO give values to jaguars and move turret to adjust for error	
 }
 
-
+int JankyTargeting::CalculateShootingSpeed(void)
+{
+	float gravity = 32.174;
+//TODO check to see if code needs to be in radians or degrees! 
+	float launchAngle = 1.13446;
+	float hoopHeight = 98.0;
+	float launchHeight = 36.0;
+	int desiredrpm = (int)(visualdistance * (sqrt(gravity/(visualdistance*tan(launchAngle)-hoopHeight + launchHeight))/(sqrt(2)*cos(launchAngle))));
+}
 
 
 

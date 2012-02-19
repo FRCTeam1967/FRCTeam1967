@@ -68,20 +68,22 @@ public:
 		while (IsOperatorControl())
 		{
 //			myRobot.ArcadeDrive(stick);       
-			
-			shoot.setTargetRPM(500);
-			
-			smarty->PutDouble("Encoder Rate",shoot.GetCurrentRPM());
-			
+			shoot.GetCurrentRPM();
 			if (button.Get()==true) 
 			{
+				
 				targ.ProcessOneImage();
 				targ.ChooseBogey();
 				targ.MoveTurret();
+				targ.CalculateShootingSpeed();
+				shoot.setTargetRPM(shoot.GiveDesiredRPM());
+				smarty->PutInt("Desired RPM",shoot.GiveDesiredRPM());
+				smarty->PutDouble("Encoder Rate",shoot.GetCurrentRPM());
+				
 			}
 		}		
 		
-		Wait(0.005);
+		Wait(0.05);
 	}
 };
 

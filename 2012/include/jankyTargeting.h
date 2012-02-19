@@ -44,7 +44,10 @@ public:
 	virtual ~JankyShooter(void);
 	void setTargetRPM(int desiredrpm);
 	void DoCalculations(void);
-	int GetCurrentRPM(void) {return CurrentRPMx4 / 4;};
+	int GetCurrentRPM(void); 
+	int GiveDesiredRPM(){
+		return TargetRPMx4;
+	};
 	
 	//Member variables
 	int CurrentRPMx4;
@@ -52,6 +55,13 @@ public:
 	Jaguar ShooterMotor;
 	Encoder ShooterEncoder;
 	float MotorSpeed;
+	PIDController PID;
+	Timer EncoderTimer;
+	int PreviousCount;
+	double PreviousTime;
+	int PreviousRPM;
+	
+	
 };
 
 
@@ -68,7 +78,7 @@ public:
 	void PrintBogey(void); 
 	int ChooseBogey(void);
 	void MoveTurret(void);
-	
+	int CalculateShootingSpeed(void);
 	
 	// Member variables
 	SmartDashboard *smarty;
