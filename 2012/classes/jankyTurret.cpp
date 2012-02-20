@@ -19,12 +19,12 @@ void JankyTurret::Set(float DesiredMotorValue)
 	bool LeftLimPress= TurretLeft.Get();
 	bool RightLimPress= TurretRight.Get();
 
-	//positive motor value would hit left limit switch (counterclockwise), vice versa for negative value
-	if (DesiredMotorValue>0.0 && LeftLimPress==true)
+	
+	if (DesiredMotorValue>0.0 && RightLimPress==true)
 	{
 		Jaguar::Set(0.0);
 	}
-	else if(DesiredMotorValue<0.0 && RightLimPress==true)
+	else if(DesiredMotorValue<0.0 && LeftLimPress==true)
 	{
 		Jaguar::Set(0.0);
 	}
