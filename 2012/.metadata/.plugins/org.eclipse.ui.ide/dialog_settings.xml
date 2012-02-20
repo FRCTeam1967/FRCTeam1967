@@ -2,8 +2,8 @@
 <section name="Workbench">
 	<section name="SaveAsDialogSettings">
 		<item key="DIALOG_X_ORIGIN" value="702"/>
-		<item key="DIALOG_FONT_NAME" value="1|Tahoma|8.4|0|WINDOWS|1|-14|0|0|0|400|0|0|0|1|0|0|0|0|Tahoma"/>
 		<item key="DIALOG_HEIGHT" value="604"/>
+		<item key="DIALOG_FONT_NAME" value="1|Tahoma|8.4|0|WINDOWS|1|-14|0|0|0|400|0|0|0|1|0|0|0|0|Tahoma"/>
 		<item key="DIALOG_Y_ORIGIN" value="185"/>
 		<item key="DIALOG_WIDTH" value="525"/>
 	</section>

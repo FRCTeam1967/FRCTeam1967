@@ -19,7 +19,7 @@ JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	PID.SetInputRange(0.0,20000.0);
 	PID.SetOutputRange(0.0,1.0);
 	PID.SetSetpoint(0.0);
-	PID.Enable();
+//	PID.Enable();
 	EncoderTimer.Reset();
 	EncoderTimer.Start();
 	PreviousCount=0;
@@ -38,8 +38,6 @@ JankyShooter::~JankyShooter(void)
 
 int JankyShooter::GetCurrentRPM(void)
 {
-	
-	ShooterMotor.SetSpeed(0.6);
 	
 	int CurrentCount= ShooterEncoder.Get();
 	
@@ -92,29 +90,29 @@ int JankyShooter::GetCurrentRPM(void)
 }
 void JankyShooter::setTargetRPM(int desiredrpm)
 {
-	TargetRPMx4 = desiredrpm * 4;
-	PID.SetSetpoint(TargetRPMx4);
-	SmartDashboard::GetInstance()->PutDouble("PIDOutput",PID.m_pidOutput);
-//	DoCalculations();
+	TargetRPMx4 = desiredrpm;
+//	PID.SetSetpoint(TargetRPMx4);
+//	SmartDashboard::GetInstance()->PutDouble("PIDOutput",PID.m_pidOutput);
+	DoCalculations();
 }
 
 void JankyShooter::DoCalculations(void) //adjust RPM
 {
-	int suspectRPM = (int)ShooterEncoder.GetRate();
+	int suspectRPM = (int)GetCurrentRPM();
 	
 	//filtering out noise from the encoder 
-	if (suspectRPM < -40000 || suspectRPM > 40000)
+	if (suspectRPM < -10000 || suspectRPM > 10000)
 		return;
 	
-	CurrentRPMx4 = ((CurrentRPMx4 * 7) + suspectRPM) / 8;
+	CurrentRPMx4 = suspectRPM;
 	
 	if (TargetRPMx4 > CurrentRPMx4 + RPM_DEADBANDx4)
 	{
-		MotorSpeed = MotorSpeed + 0.02;
+		MotorSpeed = MotorSpeed + 0.005;
 	}
 	else if (TargetRPMx4 < CurrentRPMx4 - RPM_DEADBANDx4)
 	{
-		MotorSpeed = MotorSpeed - 0.02;
+		MotorSpeed = MotorSpeed - 0.005;
 	}
 	
 	if (MotorSpeed > 1.0)

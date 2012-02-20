@@ -16,6 +16,8 @@
 #define SHOOTER_ENCODER_A 3
 #define SHOOTER_ENCODER_B 2
 
+#define FLASHRING_RELAY 1
+
 #endif
 
 

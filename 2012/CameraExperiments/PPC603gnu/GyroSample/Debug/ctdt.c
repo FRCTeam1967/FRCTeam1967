@@ -7,9 +7,11 @@
 /*       -fdollars-in-identifiers flag.                   */
 
 
-void _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954();
+void _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_550985CC();
 
 void _GLOBAL__I__Z20FRC_userClassFactoryv();
+
+void _GLOBAL__I__ZN11JankyTurretC2Eiii();
 
 void _GLOBAL__I__ZN12JankyShooterC2Eiii();
 
@@ -34,8 +36,9 @@ void _GLOBAL__I_AxisCamera_debugFlag();
 extern void (*_ctors[])();
 void (*_ctors[])() =
     {
-    _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954,
+    _GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_550985CC,
     _GLOBAL__I__Z20FRC_userClassFactoryv,
+    _GLOBAL__I__ZN11JankyTurretC2Eiii,
     _GLOBAL__I__ZN12JankyShooterC2Eiii,
     _GLOBAL__I__ZN12PrintCommandC2EPKc,
     _GLOBAL__I__ZN9Scheduler9_instanceE,
@@ -49,9 +52,11 @@ void (*_ctors[])() =
     0
     };
 
-void _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954();
+void _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_550985CC();
 
 void _GLOBAL__D__Z20FRC_userClassFactoryv();
+
+void _GLOBAL__D__ZN11JankyTurretC2Eiii();
 
 void _GLOBAL__D__ZN12JankyShooterC2Eiii();
 
@@ -72,8 +77,9 @@ void _GLOBAL__D_AxisCamera_debugFlag();
 extern void (*_dtors[])();
 void (*_dtors[])() =
     {
-    _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_9B873954,
+    _GLOBAL__D__GLOBAL__I_C__Documents_and_Settings_Team1967_My_Documents_dev_C___janksters1967_2012_CameraExperiments_jankyTargeting_draft_cpp_05647D79_550985CC,
     _GLOBAL__D__Z20FRC_userClassFactoryv,
+    _GLOBAL__D__ZN11JankyTurretC2Eiii,
     _GLOBAL__D__ZN12JankyShooterC2Eiii,
     _GLOBAL__D__ZN9Scheduler9_instanceE,
     _GLOBAL__D_wpi_error_s_ModuleIndexOutOfRange,

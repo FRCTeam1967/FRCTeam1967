@@ -24,6 +24,8 @@ class GyroSample : public SimpleRobot
 	Gyro gyro;
 	Joystick stick;
 	JoystickButton button;
+	Jaguar pidTestMotor;
+	Relay LEDRelay;
 //	JoystickButton calbutton; //camera calibration-white balance
 	
 	
@@ -32,8 +34,10 @@ public:
 //		myRobot(1, 2),		// initialize the sensors in initialization list
 		gyro(1),
 		stick(1),
-		button(&stick, 1)
-//		calbutton(&stick, 2)
+		pidTestMotor(7),
+		button(&stick, 1),
+		LEDRelay(FLASHRING_RELAY)
+
 	{
 //		myRobot.SetExpiration(0.1);
 	}
@@ -64,23 +68,57 @@ public:
 		JankyTargeting targ;
 		JankyShooter shoot(SHOOTER_JAGUAR_CHANNEL,SHOOTER_ENCODER_A,SHOOTER_ENCODER_B);
 		SmartDashboard* smarty = SmartDashboard::GetInstance();
+//		pidTestMotor.Set(0.5);
+		PIDController PIDTurret(0.008,0.002,0.000012,&gyro,&pidTestMotor);
+		gyro.Reset();
+		float p, i, d;
+		std::string tempstring;
+		smarty->PutString("P", "0.008");
+		smarty->PutString("I", "0.002");
+		smarty->PutString("D", "0.000012");
 		
 		while (IsOperatorControl())
 		{
 //			myRobot.ArcadeDrive(stick);       
-			shoot.GetCurrentRPM();
-			if (button.Get()==true) 
+	//		shoot.GetCurrentRPM();
+			
+			smarty->PutDouble("Gyro Angle",gyro.GetAngle());
+			
+			
+			if (button.Get()==true)
+			{
+				LEDRelay.Set(Relay::kOn);
+			}
+			else 
+				LEDRelay.Set(Relay::kOff); 
+			
+//			float desired=abs(stick.GetY() *1000) + 100;
+//			smarty->PutInt("Desired RPM1", (int)desired);
+			
+			tempstring=smarty->GetString("P");
+			sscanf(tempstring.c_str(), "%f", &p);
+			
+			tempstring=smarty->GetString("I");
+			sscanf(tempstring.c_str(), "%f", &i);
+
+			tempstring=smarty->GetString("D");
+			sscanf(tempstring.c_str(), "%f", &d);
+			
+			PIDTurret.SetPID(p,i,d);
+
+			
+					
 			{
 				
-				targ.ProcessOneImage();
-				targ.ChooseBogey();
-				targ.MoveTurret();
-				targ.CalculateShootingSpeed();
-				shoot.setTargetRPM(shoot.GiveDesiredRPM());
-				smarty->PutInt("Desired RPM",shoot.GiveDesiredRPM());
-				smarty->PutDouble("Encoder Rate",shoot.GetCurrentRPM());
+		//		targ.ProcessOneImage();
+		//		targ.ChooseBogey();
+		//		targ.MoveTurret();
+//				shoot.setTargetRPM((int)desired);
+				
 				
 			}
+		
+		 	
 		}		
 		
 		Wait(0.05);

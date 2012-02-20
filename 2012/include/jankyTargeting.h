@@ -11,6 +11,8 @@
 #include "nivision.h"
 #include "math.h"
 
+#include "jankyTurret.h"
+
 #define USE_CENTER_OF_MASS
 #define WRITE_IMAGES
 #define INHEIGHT 18.0
@@ -18,8 +20,6 @@
 #define PIXWIDTH 320.0
 #define MIN_SCORE 85.0
 #define MIN_PARAREA 500.0
-
-
 
 typedef struct BogeyInfo_t {
 	
@@ -36,7 +36,8 @@ typedef struct BogeyInfo_t {
 } BogeyInfo;
 
 
-#define RPM_DEADBANDx4 400
+#define RPM_DEADBANDx4 100
+
 
 class JankyShooter {
 public:
