@@ -24,7 +24,6 @@ class GyroSample : public SimpleRobot
 	Gyro gyro;
 	Joystick stick;
 	JoystickButton button;
-	Jaguar pidTestMotor;
 	Relay LEDRelay;
 //	JoystickButton calbutton; //camera calibration-white balance
 	
@@ -34,7 +33,6 @@ public:
 //		myRobot(1, 2),		// initialize the sensors in initialization list
 		gyro(1),
 		stick(1),
-		pidTestMotor(7),
 		button(&stick, 1),
 		LEDRelay(FLASHRING_RELAY)
 
@@ -65,25 +63,16 @@ public:
 	
 	void OperatorControl(void)
 	{ 
-		JankyTargeting targ;
+		JankyTurret turret(7,11,10);
+		JankyTargeting targ(&turret);
+		
 		JankyShooter shoot(SHOOTER_JAGUAR_CHANNEL,SHOOTER_ENCODER_A,SHOOTER_ENCODER_B);
 		SmartDashboard* smarty = SmartDashboard::GetInstance();
-//		pidTestMotor.Set(0.5);
-		PIDController PIDTurret(0.008,0.002,0.000012,&gyro,&pidTestMotor);
-		gyro.Reset();
-		float p, i, d;
-		std::string tempstring;
-		smarty->PutString("P", "0.008");
-		smarty->PutString("I", "0.002");
-		smarty->PutString("D", "0.000012");
 		
 		while (IsOperatorControl())
 		{
 //			myRobot.ArcadeDrive(stick);       
 	//		shoot.GetCurrentRPM();
-			
-			smarty->PutDouble("Gyro Angle",gyro.GetAngle());
-			
 			
 			if (button.Get()==true)
 			{
@@ -95,24 +84,14 @@ public:
 //			float desired=abs(stick.GetY() *1000) + 100;
 //			smarty->PutInt("Desired RPM1", (int)desired);
 			
-			tempstring=smarty->GetString("P");
-			sscanf(tempstring.c_str(), "%f", &p);
-			
-			tempstring=smarty->GetString("I");
-			sscanf(tempstring.c_str(), "%f", &i);
-
-			tempstring=smarty->GetString("D");
-			sscanf(tempstring.c_str(), "%f", &d);
-			
-			PIDTurret.SetPID(p,i,d);
-
 			
 					
 			{
 				
-		//		targ.ProcessOneImage();
-		//		targ.ChooseBogey();
-		//		targ.MoveTurret();
+				targ.ProcessOneImage();
+				targ.ChooseBogey();
+				targ.MoveTurret();
+				targ.InteractivePIDSetup();
 //				shoot.setTargetRPM((int)desired);
 				
 				

@@ -170,7 +170,7 @@ GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting_dra
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
-GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTurret.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/dev_C++/janksters1967/2012/CameraExperiments/jankyTurret.cpp
+GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTurret.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/dev_C++/janksters1967/2012/classes/jankyTurret.cpp
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 

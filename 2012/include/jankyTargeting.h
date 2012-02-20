@@ -21,6 +21,10 @@
 #define MIN_SCORE 85.0
 #define MIN_PARAREA 500.0
 
+#define TURRET_P 0.0125
+#define TURRET_I 0.0008
+#define TURRET_D 0.0
+
 typedef struct BogeyInfo_t {
 	
 	int BogeyBRCX;
@@ -66,9 +70,9 @@ public:
 };
 
 
-class JankyTargeting {
+class JankyTargeting : public PIDSource {
 public:
-	JankyTargeting(void);  // Initialization goes here - Constructor
+	JankyTargeting(JankyTurret* pTurret);  // Initialization goes here - Constructor
 	virtual ~JankyTargeting(void); // Destructor - clean up all things before dying.
 	bool GetImage(void);
 	bool isImageValid(void);
@@ -80,6 +84,13 @@ public:
 	int ChooseBogey(void);
 	void MoveTurret(void);
 	int CalculateShootingSpeed(void);
+	
+	// PID Controller related functions
+	double PIDGet(void);
+	void InteractivePIDSetup();
+	int normalizedHOffset;
+	PIDController PIDTurret;
+	
 	
 	// Member variables
 	SmartDashboard *smarty;

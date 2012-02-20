@@ -19,7 +19,7 @@ JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	PID.SetInputRange(0.0,20000.0);
 	PID.SetOutputRange(0.0,1.0);
 	PID.SetSetpoint(0.0);
-//	PID.Enable();
+	PID.Enable();
 	EncoderTimer.Reset();
 	EncoderTimer.Start();
 	PreviousCount=0;
@@ -127,8 +127,10 @@ void JankyShooter::DoCalculations(void) //adjust RPM
 	ShooterMotor.Set(MotorSpeed);
 }
 
+
 /// Constructor - do initialization here initialization-we are using these, not creating new variables
-JankyTargeting::JankyTargeting(void)
+JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
+	PIDTurret(TURRET_P, TURRET_I, TURRET_D, this, pTurret)
 {
 	AxisCamera& camera = AxisCamera::GetInstance(CAMERA_IP); 
 	smarty = SmartDashboard::GetInstance();
@@ -141,7 +143,18 @@ JankyTargeting::JankyTargeting(void)
 	visualdistance = 1.0;
 	BRcenterx = 0.0;
 	BRcentery = 0.0; 
+	normalizedHOffset = 0.0;
 	
+	PIDTurret.SetInputRange(-100.0, 100.0);
+	PIDTurret.SetOutputRange(-1.0, 1.0);
+	PIDTurret.SetSetpoint(0.0);
+//	PIDTurret.Enable();
+
+	SmartDashboard* smarty = SmartDashboard::GetInstance();
+	smarty->PutString("P-turret", "0.008");
+	smarty->PutString("I-turret", "0.002");
+	smarty->PutString("D-turret", "0.000012");
+
 	Wait(1.0);
 }
 
@@ -149,6 +162,12 @@ JankyTargeting::JankyTargeting(void)
 JankyTargeting::~JankyTargeting(void)
 {
 	
+}
+
+// implement PIDGet for pIDSource functionality
+double JankyTargeting::PIDGet(void)
+{
+	return (double)normalizedHOffset;
 }
 
 bool JankyTargeting::GetImage(void)
@@ -275,7 +294,7 @@ int JankyTargeting::ChooseBogey(void)
 {
 	targetBogey=-1;
 	
-	if (numValidBogies==1)
+	if (numValidBogies>=1)
 		targetBogey=0; //index starts at 0
 }
 
@@ -284,8 +303,9 @@ void JankyTargeting::MoveTurret(void)
 	if (targetBogey!=-1)
 	{
 		int widthOffset = (int)(bogies[targetBogey].BogeyLeft + bogies[targetBogey].BogeyBRCX)-(PIXWIDTH/2);
-		int normalizedHOffset = (widthOffset * 100) / (PIXWIDTH/2);
+		normalizedHOffset = (widthOffset * 100) / (PIXWIDTH/2);
 		smarty->PutInt("Horizontal Offset",normalizedHOffset);
+		
 //		printf("Target Bogey=%d,WidthOffset=%d\n",targetBogey,widthOffset);
 	}
 //TODO give values to jaguars and move turret to adjust for error	
@@ -301,7 +321,22 @@ int JankyTargeting::CalculateShootingSpeed(void)
 	int desiredrpm = (int)(visualdistance * (sqrt(gravity/(visualdistance*tan(launchAngle)-hoopHeight + launchHeight))/(sqrt(2)*cos(launchAngle))));
 }
 
+void JankyTargeting::InteractivePIDSetup(void)
+{
+	SmartDashboard* smarty = SmartDashboard::GetInstance();
+	float p, i, d;
+	std::string tempstring;
 
+	tempstring=smarty->GetString("P-turret");
+	sscanf(tempstring.c_str(), "%f", &p);
+	
+	tempstring=smarty->GetString("I-turret");
+	sscanf(tempstring.c_str(), "%f", &i);
 
+	tempstring=smarty->GetString("D-turret");
+	sscanf(tempstring.c_str(), "%f", &d);
+	
+	PIDTurret.SetPID(p,i,d);
+}
 
 

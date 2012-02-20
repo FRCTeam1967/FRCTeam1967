@@ -33,6 +33,8 @@
 <part id="1"/>
 <part id="2"/>
 <part id="3"/>
+<part id="4"/>
+<part id="5"/>
 </presentation>
 </folder>
 </info>
@@ -40,17 +42,25 @@
 <editor id="com.windriver.ide.devcenter.internal.DevCenterEditor" name="Dev Center" partName="Getting Started Resources" title="Getting Started Resources" tooltip="" workbook="DefaultEditorWorkbook">
 <input factoryID="com.windriver.ide.devcenter.internal.DevCenterEditorInputFactory"/>
 </editor>
-<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="Camera.cpp" partName="Camera.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/CameraExperiments/Camera.cpp" title="Camera.cpp" tooltip="CameraExperiments/Camera.cpp" workbook="DefaultEditorWorkbook">
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="Camera.cpp" partName="Camera.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/CameraExperiments/Camera.cpp" title="Camera.cpp" tooltip="CameraExperiments/Camera.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/Camera.cpp"/>
-<editorState selectionHPixel="0" selectionLength="0" selectionOffset="2273"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="2540"/>
 </editor>
 <editor id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.h" partName="jankyTargeting.h" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyTargeting.h" title="jankyTargeting.h" tooltip="CameraExperiments/jankyTargeting.h" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/jankyTargeting.h"/>
-<editorState selectionHPixel="0" selectionLength="0" selectionOffset="670"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="1329"/>
 </editor>
-<editor id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.cpp" partName="jankyTargeting.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTargeting.cpp" title="jankyTargeting.cpp" tooltip="CameraExperiments/jankyTargeting.cpp" workbook="DefaultEditorWorkbook">
+<editor activePart="true" focus="true" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.cpp" partName="jankyTargeting.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTargeting.cpp" title="jankyTargeting.cpp" tooltip="CameraExperiments/jankyTargeting.cpp" workbook="DefaultEditorWorkbook">
 <input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/jankyTargeting.cpp"/>
-<editorState selectionHPixel="0" selectionLength="0" selectionOffset="2852"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="644"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTurret.cpp" partName="jankyTurret.cpp" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTurret.cpp" title="jankyTurret.cpp" tooltip="CameraExperiments/jankyTurret.cpp" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/jankyTurret.cpp"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="221"/>
+</editor>
+<editor id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTurret.h" partName="jankyTurret.h" path="C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyTurret.h" title="jankyTurret.h" tooltip="CameraExperiments/jankyTurret.h" workbook="DefaultEditorWorkbook">
+<input factoryID="org.eclipse.ui.part.FileEditorInputFactory" path="/CameraExperiments/jankyTurret.h"/>
+<editorState selectionHPixel="0" selectionLength="0" selectionOffset="252"/>
 </editor>
 </editors>
 <views>
@@ -305,156 +315,158 @@
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/Camera.cpp"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/jankyTargeting.h"/>
 <editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/jankyTargeting.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/jankyTurret.cpp"/>
+<editor factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" path="/CameraExperiments/jankyTurret.h"/>
 </editors>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="266" y="62"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="824" y="0"/>
-</item>
 <item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2639" y="0"/>
+<position info="not_deleted" x="1856" y="4"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3353" y="0"/>
 </item>
 <item historyLabel="jankyTargeting.h" index="1">
-<position info="not_deleted" x="1183" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="824" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2061" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2079" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="1650" y="0"/>
+<position info="not_deleted" x="1351" y="0"/>
 </item>
 <item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2786" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="1797" y="0"/>
+<position info="not_deleted" x="1856" y="4"/>
 </item>
 <item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2786" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="852" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2575" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="968" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2575" y="0"/>
+<position info="not_deleted" x="1870" y="0"/>
 </item>
 <item historyLabel="jankyTargeting.h" index="1">
-<position info="not_deleted" x="1183" y="0"/>
+<position info="not_deleted" x="1351" y="0"/>
 </item>
 <item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2698" y="0"/>
+<position/>
 </item>
 <item historyLabel="jankyTargeting.h" index="1">
-<position info="not_deleted" x="670" y="0"/>
+<position info="not_deleted" x="1944" y="0"/>
 </item>
 <item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2884" y="0"/>
+<position/>
 </item>
 <item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2750" y="0"/>
+<position info="not_deleted" x="1870" y="0"/>
+</item>
+<item historyLabel="jankyTurret.cpp" index="3">
+<position info="not_deleted" x="523" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position/>
+</item>
+<item historyLabel="jankyTurret.cpp" index="3">
+<position info="not_deleted" x="95" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3740" y="0"/>
 </item>
 <item historyLabel="jankyTargeting.h" index="1">
-<position info="not_deleted" x="670" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2884" y="0"/>
+<position info="not_deleted" x="1944" y="0"/>
 </item>
 <item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2671" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2567" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2671" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2562" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2564" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2567" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2737" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2367" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2737" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2258" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2571" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="1769" y="11"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2536" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2683" y="12"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2306" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2852" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2306" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="1205" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2109" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2465" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2278" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2852" y="0"/>
-</item>
-<item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2278" y="0"/>
-</item>
-<item historyLabel="jankyTargeting.cpp" index="2">
-<position info="not_deleted" x="2852" y="0"/>
+<position info="not_deleted" x="1870" y="0"/>
 </item>
 <item historyLabel="jankyTargeting.h" index="1">
-<position info="not_deleted" x="670" y="0"/>
+<position info="not_deleted" x="1891" y="17"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3889" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="1891" y="17"/>
 </item>
 <item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2278" y="0"/>
+<position info="not_deleted" x="1870" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="1891" y="17"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3889" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3887" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="7184" y="0"/>
 </item>
 <item historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2454" y="0"/>
+<position info="not_deleted" x="2360" y="0"/>
 </item>
-<item active="true" historyLabel="Camera.cpp" index="0">
-<position info="not_deleted" x="2222" y="51"/>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="1891" y="17"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="1884" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="7184" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="8254" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="0">
+<position info="not_deleted" x="2018" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="8254" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3131" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="531" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="8249" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="0">
+<position info="not_deleted" x="2018" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="0">
+<position info="not_deleted" x="2634" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="1964" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="8095" y="0"/>
+</item>
+<item historyLabel="jankyTurret.cpp" index="3">
+<position info="not_deleted" x="221" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="8095" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3350" y="1"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="1329" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3350" y="1"/>
+</item>
+<item historyLabel="jankyTargeting.h" index="1">
+<position info="not_deleted" x="1329" y="0"/>
+</item>
+<item historyLabel="jankyTurret.cpp" index="3">
+<position info="not_deleted" x="221" y="0"/>
+</item>
+<item historyLabel="jankyTurret.h" index="4">
+<position/>
+</item>
+<item historyLabel="jankyTurret.cpp" index="3">
+<position info="not_deleted" x="221" y="0"/>
+</item>
+<item historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3891" y="0"/>
+</item>
+<item historyLabel="Camera.cpp" index="0">
+<position info="not_deleted" x="2540" y="0"/>
+</item>
+<item active="true" historyLabel="jankyTargeting.cpp" index="2">
+<position info="not_deleted" x="3891" y="0"/>
 </item>
 </navigationHistory>
 <input factoryID="org.eclipse.ui.internal.model.ResourceFactory" path="/" type="8"/>
@@ -462,9 +474,6 @@
 <workbenchWindowAdvisor/>
 <actionBarAdvisor/>
 <trimLayout>
-<trimArea IMemento.internal.id="16384">
-<trimItem IMemento.internal.id="leftbottom"/>
-</trimArea>
 <trimArea IMemento.internal.id="128">
 <trimItem IMemento.internal.id="org.eclipse.ui.internal.WorkbenchWindow.topBar"/>
 </trimArea>
@@ -477,6 +486,15 @@
 </trimLayout>
 </window>
 <mruList>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTurret.h" tooltip="CameraExperiments/jankyTurret.h">
+<persistable path="/CameraExperiments/jankyTurret.h"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTurret.cpp" tooltip="CameraExperiments/jankyTurret.cpp">
+<persistable path="/CameraExperiments/jankyTurret.cpp"/>
+</file>
+<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyRobot.h" tooltip="CameraExperiments/jankyRobot.h">
+<persistable path="/CameraExperiments/jankyRobot.h"/>
+</file>
 <file factoryID="org.eclipse.ui.ide.FileStoreEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="SmartDashboard.h" tooltip="C:\WindRiver\vxworks-6.3\target\h\WPILib\SmartDashboard\SmartDashboard.h">
 <persistable uri="file:/C:/WindRiver/vxworks-6.3/target/h/WPILib/SmartDashboard/SmartDashboard.h"/>
 </file>
@@ -497,9 +515,6 @@
 </file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyTargeting.h" tooltip="CameraExperiments/jankyTargeting.h">
 <persistable path="/CameraExperiments/jankyTargeting.h"/>
-</file>
-<file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="jankyRobot.h" tooltip="CameraExperiments/jankyRobot.h">
-<persistable path="/CameraExperiments/jankyRobot.h"/>
 </file>
 <file factoryID="org.eclipse.ui.part.FileEditorInputFactory" id="org.eclipse.cdt.ui.editor.CEditor" name="MyRobot.cpp" tooltip="2010ImageDemo/MyRobot.cpp">
 <persistable path="/2010ImageDemo/MyRobot.cpp"/>

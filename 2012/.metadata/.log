@@ -32906,3 +32906,53 @@ java.io.FileNotFoundException
 
 !ENTRY org.eclipse.cdt.ui 2 0 2012-02-19 15:21:02.828
 !MESSAGE The 'org.eclipse.cdt.ui.DOMCompletionProposalComputer' proposal computer from the 'org.eclipse.cdt.ui' plug-in did not complete normally. The extension took too long to return from the 'computeCompletionProposals()' operation.
+
+!ENTRY edu.wpi.FIRSTDownloader 4 0 2012-02-19 17:07:55.968
+!MESSAGE Unable to connect to robot using IP: 10.19.67.2:21
+
+!ENTRY edu.wpi.FIRSTDownloader 4 0 2012-02-19 17:08:30.046
+!MESSAGE Unable to connect to robot using IP: 10.19.67.2:21
+
+!ENTRY com.windriver.ide.target 1 0 2012-02-19 17:12:43.968
+!MESSAGE C:\WindRiver\workbench-3.0\foundation\4.1.1\x86-win32\bin\tgtsvr.exe -n VxWorks6x_10.19.67.2 -B wdbrpc -V -R "C:/Documents and Settings/Team1967/My Documents/dev_C++" -RW -Bt 3 -c C:\WindRiver\WPILib\cRIOFRC_vxWorks -A 10.19.67.2
+
+!ENTRY com.windriver.ide.target 4 0 2012-02-19 17:13:25.390
+!MESSAGE Error connecting to 'VxWorks6x_10.19.67.2' (Registry localhost). Failed to launch target server
+Possibly caused by: Back-end not connected.
+
+Removed dead entry from Registry!
+!STACK 0
+com.windriver.ide.target.exceptions.TargetServiceException: Error connecting to 'VxWorks6x_10.19.67.2' (Registry localhost). Failed to launch target server
+Possibly caused by: Back-end not connected.
+
+Removed dead entry from Registry!
+Caused by: com.windriver.ide.target.exceptions.TargetServerDiedException: Back-end not connected
+	at com.windriver.ide.target.wizard.connectstrategies.tgtsvr.TargetServerLauncher.threadLaunchTargetServer(TargetServerLauncher.java:497)
+	at com.windriver.ide.target.wizard.connectstrategies.tgtsvr.TargetServerLauncher.launch(TargetServerLauncher.java:562)
+	at com.windriver.ide.target.processes.ProcessLauncher.run(ProcessLauncher.java:133)
+	at java.lang.Thread.run(Thread.java:595)
+
+!ENTRY com.windriver.ide.target 1 0 2012-02-19 17:13:35.453
+!MESSAGE C:\WindRiver\workbench-3.0\foundation\4.1.1\x86-win32\bin\tgtsvr.exe -n VxWorks6x_10.19.67.2 -B wdbrpc -V -R "C:/Documents and Settings/Team1967/My Documents/dev_C++" -RW -Bt 3 -c C:\WindRiver\WPILib\cRIOFRC_vxWorks -A 10.19.67.2
+
+!ENTRY com.windriver.ide.target 4 0 2012-02-19 17:14:16.453
+!MESSAGE Error connecting to 'VxWorks6x_10.19.67.2' (Registry localhost). Failed to launch target server
+Possibly caused by: Back-end not connected.
+
+Removed dead entry from Registry!
+!STACK 0
+com.windriver.ide.target.exceptions.TargetServiceException: Error connecting to 'VxWorks6x_10.19.67.2' (Registry localhost). Failed to launch target server
+Possibly caused by: Back-end not connected.
+
+Removed dead entry from Registry!
+Caused by: com.windriver.ide.target.exceptions.TargetServerDiedException: Back-end not connected
+	at com.windriver.ide.target.wizard.connectstrategies.tgtsvr.TargetServerLauncher.threadLaunchTargetServer(TargetServerLauncher.java:497)
+	at com.windriver.ide.target.wizard.connectstrategies.tgtsvr.TargetServerLauncher.launch(TargetServerLauncher.java:562)
+	at com.windriver.ide.target.processes.ProcessLauncher.run(ProcessLauncher.java:133)
+	at java.lang.Thread.run(Thread.java:595)
+
+!ENTRY com.windriver.ide.target 1 0 2012-02-19 17:16:41.140
+!MESSAGE C:\WindRiver\workbench-3.0\foundation\4.1.1\x86-win32\bin\tgtsvr.exe -n VxWorks6x_10.19.67.2 -B wdbrpc -V -R "C:/Documents and Settings/Team1967/My Documents/dev_C++" -RW -Bt 3 -c C:\WindRiver\WPILib\cRIOFRC_vxWorks -A 10.19.67.2
+
+!ENTRY com.windriver.ide.target 1 0 2012-02-19 17:16:55.437
+!MESSAGE cmd /c start '"VxWorks6x_10.19.67.2@Team1967-C - Target Console"'  C:\WindRiver\workbench-3.0\foundation\4.1.1\x86-win32\bin\wtxConsole.exe -io -s -n -w  VxWorks6x_10.19.67.2@Team1967-C

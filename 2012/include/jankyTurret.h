@@ -9,7 +9,7 @@
 
 #include "jankyRobot.h"
 
-class JankyTurret : Jaguar {
+class JankyTurret : public Jaguar {
 public:
 	JankyTurret(int JagPort, int LimLeft, int LimRight );
 	virtual ~JankyTurret(void);
