@@ -76,7 +76,7 @@ public:
 			
 			if (button.Get()==true)
 			{
-				LEDRelay.Set(Relay::kOn);
+				LEDRelay.Set(Relay::kForward);
 			}
 			else 
 				LEDRelay.Set(Relay::kOff); 

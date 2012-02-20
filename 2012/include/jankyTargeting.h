@@ -12,6 +12,7 @@
 #include "math.h"
 
 #include "jankyTurret.h"
+#include "jankyShooter.h"
 
 #define USE_CENTER_OF_MASS
 #define WRITE_IMAGES
@@ -40,36 +41,6 @@ typedef struct BogeyInfo_t {
 } BogeyInfo;
 
 
-#define RPM_DEADBANDx4 100
-
-
-class JankyShooter {
-public:
-	JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort);
-	virtual ~JankyShooter(void);
-	void setTargetRPM(int desiredrpm);
-	void DoCalculations(void);
-	int GetCurrentRPM(void); 
-	int GiveDesiredRPM(){
-		return TargetRPMx4;
-	};
-	
-	//Member variables
-	int CurrentRPMx4;
-	int TargetRPMx4;
-	Jaguar ShooterMotor;
-	Encoder ShooterEncoder;
-	float MotorSpeed;
-	PIDController PID;
-	Timer EncoderTimer;
-	int PreviousCount;
-	double PreviousTime;
-	int PreviousRPM;
-	
-	
-};
-
-
 class JankyTargeting : public PIDSource {
 public:
 	JankyTargeting(JankyTurret* pTurret);  // Initialization goes here - Constructor
@@ -89,7 +60,7 @@ public:
 	double PIDGet(void);
 	void InteractivePIDSetup();
 	int normalizedHOffset;
-	PIDController PIDTurret;
+	SendablePIDController PIDTurret;
 	
 	
 	// Member variables

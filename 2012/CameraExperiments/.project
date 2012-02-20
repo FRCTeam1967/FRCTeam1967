@@ -34,6 +34,16 @@
 			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyTargeting.h</location>
 		</link>
 		<link>
+			<name>jankyShooter.h</name>
+			<type>1</type>
+			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyShooter.h</location>
+		</link>
+		<link>
+			<name>jankyShooter.cpp</name>
+			<type>1</type>
+			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyShooter.cpp</location>
+		</link>
+		<link>
 			<name>jankyTurret.cpp</name>
 			<type>1</type>
 			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTurret.cpp</location>

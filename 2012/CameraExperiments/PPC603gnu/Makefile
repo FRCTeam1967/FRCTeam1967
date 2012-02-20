@@ -162,6 +162,10 @@ GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.o : C:/Docu
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
 
+GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyShooter.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/dev_C++/janksters1967/2012/classes/jankyShooter.cpp
+	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+
 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/dev_C++/janksters1967/2012/classes/jankyTargeting.cpp
 	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
@@ -175,6 +179,7 @@ GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTurret.o : C:
 
 
 OBJECTS_GyroSample_partialImage = GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.o \
+	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyShooter.o \
 	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.o \
 	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting_draft.o \
 	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTurret.o
@@ -189,8 +194,8 @@ _clean :: GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage_clean
 GyroSample_partialImage/$(MODE_DIR)/GyroSample_partialImage_clean : 
 	$(TRACE_FLAG)if [ -d "GyroSample_partialImage" ]; then cd "GyroSample_partialImage"; rm -rf $(MODE_DIR); fi
 
-DEP_FILES := GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting_draft.d \
-	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTurret.d
+DEP_FILES := GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/Camera.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyShooter.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting.d \
+	 GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTargeting_draft.d GyroSample_partialImage/$(MODE_DIR)/Objects/CameraExperiments/jankyTurret.d
 -include $(DEP_FILES)
 
 
