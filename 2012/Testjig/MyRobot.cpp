@@ -16,6 +16,7 @@ class RobotDemo : public SimpleRobot
     JoystickButton button;
     JoystickButton ballbutton;
     Solenoid ballpusher;
+    Jaguar conveyor;
     //InternalButton originalfire;
     
 public:
@@ -25,7 +26,8 @@ public:
 		gamecomponent(2),// as they are declared above.
 		button(&stick, 1),
 		ballbutton(&gamecomponent,7),
-		ballpusher (5)
+		ballpusher (5),
+		conveyor(8)
 	{
 		myRobot.SetExpiration(0.1);
 	}
@@ -80,6 +82,8 @@ public:
 			
 			else
 				ballpusher.Set(false);
+			
+			conveyor.Set(gamecomponent.GetY());
 			
 			/* internal button test-fails
 			
