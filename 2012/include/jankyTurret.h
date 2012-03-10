@@ -9,7 +9,7 @@
 
 #include "jankyRobot.h"
 
-class JankyTurret : public Jaguar {
+class JankyTurret : public Jaguar  {
 public:
 	JankyTurret(int JagPort, int LimLeft, int LimRight );
 	virtual ~JankyTurret(void);
@@ -19,6 +19,7 @@ public:
 	DigitalInput TurretRight;
 	float Deadband;
 	
+	virtual void PIDWrite(float writeval) { Set(writeval); };
 	virtual void Set(float DesiredMotorValue);
 	void JankyTurret::SetDeadband(float DB);
 	

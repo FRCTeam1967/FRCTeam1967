@@ -8,9 +8,9 @@
 
 /// Constructor - do initialization here initialization-we are using these, not creating new variables
 JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
-	PIDTurret(TURRET_P, TURRET_I, TURRET_D, this, pTurret)
+	PIDTurret(TURRET_P, TURRET_I, TURRET_D, this, pTurret),
+	camera(AxisCamera::GetInstance(CAMERA_IP))
 {
-	AxisCamera& camera = AxisCamera::GetInstance(CAMERA_IP); 
 	smarty = SmartDashboard::GetInstance();
 	camera.WriteResolution(AxisCamera::kResolution_320x240); 
 	camera.WriteBrightness(50); 	
@@ -22,15 +22,12 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	BRcenterx = 0.0;
 	BRcentery = 0.0; 
 	normalizedHOffset = 0.0;
+	numImagesProcessed = 0;
 	
 	PIDTurret.SetInputRange(-100.0, 100.0);
-	PIDTurret.SetOutputRange(-1.0, 1.0);
+	PIDTurret.SetOutputRange(-0.1,0.1);
 	PIDTurret.SetSetpoint(0.0);
-	PIDTurret.Enable();
-
-	SmartDashboard* smarty = SmartDashboard::GetInstance();
-	smarty->PutData("PID_Turret", &PIDTurret);
-	
+//PID Values: P--0.0014, I--0.0001, D--0.0000045 (possible values--still needs more tuning)
 	smarty->PutString("P-turret", "0.008");
 	smarty->PutString("I-turret", "0.002");
 	smarty->PutString("D-turret", "0.000012");
@@ -47,13 +44,11 @@ JankyTargeting::~JankyTargeting(void)
 // implement PIDGet for pIDSource functionality
 double JankyTargeting::PIDGet(void)
 {
-	return (double)normalizedHOffset;
+	return (double)(normalizedHOffset * -1.0);
 }
 
 bool JankyTargeting::GetImage(void)
 {
-	AxisCamera& camera = AxisCamera::GetInstance(CAMERA_IP); 
-	
 	if (camera.IsFreshImage()==true)
 	{ 
 		success = camera.GetImage((ColorImage*)&hsl);
@@ -63,7 +58,7 @@ bool JankyTargeting::GetImage(void)
 			{
 				return true;
 			}
-		}	
+		}
 	}
 	return false;		
 }
@@ -78,24 +73,40 @@ bool JankyTargeting::isImageValid()
 
 bool JankyTargeting::DoImageProcessing(void)
 {
-	samwise = hsl.ThresholdHSL(120,170,60,255,100,253);
+	bool isSuccessful = false;
+	BinaryImage* firstBinaryImage = NULL;
+	BinaryImage* readyForConvexHull = NULL;
 	
-	if (samwise !=NULL)
+	firstBinaryImage = hsl.ThresholdHSL(120,186,60,255,0,255);
+	
+	if (firstBinaryImage !=NULL)
 	{
-		Image* imaqImage = samwise->GetImaqImage();
-		if (imaqImage!=NULL)
+		// Prune down # particles by removing all small stuff before convexHull.
+		readyForConvexHull = firstBinaryImage->RemoveSmallObjects(false, 2);
+
+		if (readyForConvexHull != NULL)
 		{
-			imaqConvexHull(imaqImage,imaqImage,TRUE);
-			return true;
-		}			
+			samwise = readyForConvexHull->ConvexHull(false);
+			
+			if (samwise != NULL)
+				isSuccessful = true;
+		}
 	}
-	return false;
+	
+	if (readyForConvexHull)
+		delete readyForConvexHull;
+
+	if (firstBinaryImage)
+		delete firstBinaryImage;
+	
+	return isSuccessful;
 }	
 
 bool JankyTargeting::GetParticles (void)
 {
 	particles = samwise->GetNumberParticles();
 	smarty->PutInt("particles",particles);
+	printf("Particles = %d\n", particles);
 	
 	if (particles >0)
 	{	
@@ -133,10 +144,14 @@ void JankyTargeting::PrintBogey(void)
 
  bool JankyTargeting::ProcessOneImage(void)
 {
+	 PIDTurret.Enable();
 	 numValidBogies = 0;
 	 if (GetImage()==true)
 	{
-		if (DoImageProcessing()==true)
+		 numImagesProcessed++;
+		 smarty->PutInt("Images Processed", numImagesProcessed);
+		 
+		 if (DoImageProcessing()==true)
 			if (GetParticles()==true)
 			{
 				for (int i=0 ; i<vPAR->size() && i<3 ; i++)
@@ -182,28 +197,34 @@ void JankyTargeting::MoveTurret(void)
 {
 	if (targetBogey!=-1)
 	{
-		int widthOffset = (int)(bogies[targetBogey].BogeyLeft + bogies[targetBogey].BogeyBRCX)-(PIXWIDTH/2);
+		int widthOffset = (int)(bogies[targetBogey].BogeyBRCX)-(PIXWIDTH/2);
 		normalizedHOffset = (widthOffset * 100) / (PIXWIDTH/2);
 		smarty->PutInt("Horizontal Offset",normalizedHOffset);
-		
+		printf("widthOffset(+/-160)=%d, Horiz Offset(+/-100) = %d\n", widthOffset, normalizedHOffset);
 //		printf("Target Bogey=%d,WidthOffset=%d\n",targetBogey,widthOffset);
+	}
+	
+	else
+	{
+		normalizedHOffset = 0;
 	}
 //TODO give values to jaguars and move turret to adjust for error	
 }
 
-int JankyTargeting::CalculateShootingSpeed(void)
+/*
+ int JankyTargeting::CalculateShootingSpeed(void)
 {
 	float gravity = 32.174;
 //TODO check to see if code needs to be in radians or degrees! 
 	float launchAngle = 1.13446;
 	float hoopHeight = 98.0;
 	float launchHeight = 36.0;
-	int desiredrpm = (int)(visualdistance * (sqrt(gravity/(visualdistance*tan(launchAngle)-hoopHeight + launchHeight))/(sqrt(2)*cos(launchAngle))));
+	int ShooterRPM = (int)(visualdistance * (sqrt(gravity/(visualdistance*tan(launchAngle)-hoopHeight + launchHeight))/(sqrt(2)*cos(launchAngle))));
 }
+*/
 
 void JankyTargeting::InteractivePIDSetup(void)
 {
-	SmartDashboard* smarty = SmartDashboard::GetInstance();
 	float p, i, d;
 	std::string tempstring;
 
@@ -219,4 +240,8 @@ void JankyTargeting::InteractivePIDSetup(void)
 	PIDTurret.SetPID(p,i,d);
 }
 
+void JankyTargeting::StopPID(void)
+{
+	PIDTurret.Disable();
+}
 

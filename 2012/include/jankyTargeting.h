@@ -54,16 +54,17 @@ public:
 	void PrintBogey(void); 
 	int ChooseBogey(void);
 	void MoveTurret(void);
-	int CalculateShootingSpeed(void);
-	
+	//int CalculateShootingSpeed(void);
+	void StopPID(void);
 	// PID Controller related functions
 	double PIDGet(void);
 	void InteractivePIDSetup();
 	int normalizedHOffset;
-	SendablePIDController PIDTurret;
+	PIDController PIDTurret;
 	
 	
 	// Member variables
+	AxisCamera& camera;
 	SmartDashboard *smarty;
 	BinaryImage *samwise;
 	HSLImage hsl;
@@ -84,6 +85,7 @@ public:
 	int aspectratio;
 	BogeyInfo bogies[4];
 	int targetBogey;
+	int numImagesProcessed;
 	
 };
 
