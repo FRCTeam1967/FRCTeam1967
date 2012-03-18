@@ -9,7 +9,7 @@
 JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	ShooterMotor(JagPort),
 	ShooterEncoder(EncoderAPort,EncoderBPort,false,Encoder::k1X),
-	PID(0.03,0.03,0.03,&ShooterEncoder,&ShooterMotor)
+	PID(0.02,0.03,0.01,&ShooterEncoder,&ShooterMotor)
 {
 	ShooterEncoder.Start();
 	ShooterMotor.Set(0.0);
@@ -28,7 +28,7 @@ JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	SmartDashboard::GetInstance()->PutDouble("Delta Time", -1.0);
 	SmartDashboard::GetInstance()->PutInt("Delta Count", -1);
 	GetCurrentRPM();
-		
+	SmartDashboard::GetInstance()->PutString("P-shooter", "0.000006");	
 }
 
 JankyShooter::~JankyShooter(void)
@@ -98,21 +98,32 @@ void JankyShooter::setTargetRPM(int desiredrpm)
 
 void JankyShooter::DoCalculations(void) //adjust RPM
 {
+	float proportion;
+	std::string tempstring;
+
+	tempstring=SmartDashboard::GetInstance()->GetString("P-shooter");
+	sscanf(tempstring.c_str(), "%f", &proportion);
+						
 	int suspectRPM = (int)GetCurrentRPM();
+	
+	int deadband= (int)0.1*TargetRPMx4;
 	
 	//filtering out noise from the encoder 
 	if (suspectRPM < -10000 || suspectRPM > 10000)
 		return;
 	
 	CurrentRPMx4 = suspectRPM;
-	
-	if (TargetRPMx4 > CurrentRPMx4 + RPM_DEADBANDx4)
+		
+	double RPMerror = (CurrentRPMx4 - TargetRPMx4);
+	double ChangeSpeed = proportion*RPMerror;
+		
+	if (TargetRPMx4 < 1300 && TargetRPMx4 !=0)
 	{
-		MotorSpeed = MotorSpeed + 0.005;
+		MotorSpeed = 0.15;
 	}
-	else if (TargetRPMx4 < CurrentRPMx4 - RPM_DEADBANDx4)
+	else if (TargetRPMx4 > CurrentRPMx4 + deadband || TargetRPMx4 < CurrentRPMx4 - deadband)
 	{
-		MotorSpeed = MotorSpeed - 0.005;
+		MotorSpeed = MotorSpeed - ChangeSpeed;
 	}
 	
 	if (MotorSpeed > 1.0)
@@ -123,7 +134,9 @@ void JankyShooter::DoCalculations(void) //adjust RPM
 	
 	SmartDashboard::GetInstance()->PutInt("CurrentRPM",CurrentRPMx4);
 	SmartDashboard::GetInstance()->PutDouble("Motor Speed",MotorSpeed);
-	
+	SmartDashboard::GetInstance()->PutDouble("RPMError",RPMerror);
+	SmartDashboard::GetInstance()->PutDouble("Change in Speed",ChangeSpeed);
+				
 	ShooterMotor.Set(MotorSpeed);
 }
 
