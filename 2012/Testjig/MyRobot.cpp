@@ -17,6 +17,7 @@ class RobotDemo : public SimpleRobot
     JoystickButton ballbutton;
     Solenoid ballpusher;
     Jaguar conveyor;
+    Compressor compressor;
     //InternalButton originalfire;
     
 public:
@@ -25,9 +26,11 @@ public:
 		stick(1),
 		gamecomponent(2),// as they are declared above.
 		button(&stick, 1),
-		ballbutton(&gamecomponent,7),
-		ballpusher (5),
-		conveyor(8)
+		ballbutton(&gamecomponent,6),
+		ballpusher (6),
+		conveyor(8),
+		compressor(8,2)
+		
 	{
 		myRobot.SetExpiration(0.1);
 	}
@@ -57,7 +60,7 @@ public:
 				
 		smarty->PutString("setRPM","0");
 		
-		
+		compressor.Start();
 		
 		//smarty->PutData("Fire", &originalfire);
 
@@ -71,11 +74,9 @@ public:
 			sscanf(rpm.c_str(), "%f", &nrpm);
 			
 			smarty->PutInt("Integer RPM", (int)nrpm);
-						
-					
+									
 			shoot.setTargetRPM((int)nrpm);
-			
-			
+												
 			if (ballbutton.Get()==true)
 				
 				ballpusher.Set(true);
@@ -101,7 +102,7 @@ public:
 			*/
 			
 			myRobot.ArcadeDrive(stick); // drive with arcade style (use right stick)
-			Wait(0.005);				// wait for a motor update time
+			Wait(0.05);				// wait for a motor update time
 		}
 	}
 };
