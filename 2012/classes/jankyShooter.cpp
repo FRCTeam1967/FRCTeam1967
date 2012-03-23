@@ -22,6 +22,8 @@ JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 //	PID.Enable();
 	EncoderTimer.Reset();
 	EncoderTimer.Start();
+	ShooterTimer.Reset();
+	ShooterTimer.Start();
 	PreviousCount=0;
 	PreviousTime=0;
 	PreviousRPM=0;
@@ -93,7 +95,13 @@ void JankyShooter::setTargetRPM(int desiredrpm)
 	TargetRPMx4 = desiredrpm;
 //	PID.SetSetpoint(TargetRPMx4);
 //	SmartDashboard::GetInstance()->PutDouble("PIDOutput",PID.m_pidOutput);
-	DoCalculations();
+	
+	if (ShooterTimer.Get()>MINSHOOT_WAIT)
+	{	
+		DoCalculations();
+		ShooterTimer.Reset();
+	}
+	
 }
 
 void JankyShooter::DoCalculations(void) //adjust RPM

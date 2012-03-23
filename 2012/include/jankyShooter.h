@@ -10,6 +10,8 @@
 #include "jankyRobot.h"
 
 #define RPM_DEADBANDx4 100
+#define MINSHOOT_WAIT 0.05
+
 
 
 class JankyShooter {
@@ -18,7 +20,7 @@ public:
 	virtual ~JankyShooter(void);
 	void setTargetRPM(int desiredrpm);
 	void DoCalculations(void);
-	int GetCurrentRPM(void); 
+	int GetCurrentRPM(void);
 	int GiveDesiredRPM(){
 		return TargetRPMx4;
 	};
@@ -34,7 +36,7 @@ public:
 	int PreviousCount;
 	double PreviousTime;
 	int PreviousRPM;
-	
+	Timer ShooterTimer;
 	
 };
 
