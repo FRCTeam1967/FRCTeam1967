@@ -21,10 +21,17 @@
 #define PIXWIDTH 320.0
 #define MIN_SCORE 85.0
 #define MIN_PARAREA 500.0
+#define BOGEY_H 2
+#define BOGEY_M 1
+#define BOGEY_L 0
+#define CENTER_Y (PIXHEIGHT/2.0)
+#define DEADBAND_Y 20
 
 #define TURRET_P 0.0125
 #define TURRET_I 0.0008
 #define TURRET_D 0.0
+
+#define numEntries 4
 
 typedef struct BogeyInfo_t {
 	
@@ -36,7 +43,9 @@ typedef struct BogeyInfo_t {
 	int BogeySCORE;
 	int BogeyTop;
 	int BogeyLeft;
+	int BogeyLMH;
 	//int BogeyRATIO;
+
 		
 } BogeyInfo;
 
@@ -55,10 +64,12 @@ public:
 	int ChooseBogey(void);
 	void MoveTurret(void);
 	//int CalculateShootingSpeed(void);
+	void ChooseLMH(void);
 	void StopPID(void);
 	// PID Controller related functions
 	double PIDGet(void);
 	void InteractivePIDSetup();
+	int VisToActDist(void);
 	int normalizedHOffset;
 	PIDController PIDTurret;
 	

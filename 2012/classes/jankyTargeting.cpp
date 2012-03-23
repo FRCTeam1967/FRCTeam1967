@@ -11,6 +11,8 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	PIDTurret(TURRET_P, TURRET_I, TURRET_D, this, pTurret),
 	camera(AxisCamera::GetInstance(CAMERA_IP))
 {
+	vPAR = NULL;
+	samwise = NULL;
 	smarty = SmartDashboard::GetInstance();
 	camera.WriteResolution(AxisCamera::kResolution_320x240); 
 	camera.WriteBrightness(50); 	
@@ -18,16 +20,18 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	success = 0;
 	gotparticles = false;
 	numValidBogies = 0;
-	visualdistance = 1.0;
-	BRcenterx = 0.0;
-	BRcentery = 0.0; 
-	normalizedHOffset = 0.0;
+	visualdistance = 1; //1.0
+	BRcenterx = 0; //0.0
+	BRcentery = 0; //0.0
+	normalizedHOffset = 0; //0.0
 	numImagesProcessed = 0;
 	
 	PIDTurret.SetInputRange(-100.0, 100.0);
 	PIDTurret.SetOutputRange(-0.1,0.1);
 	PIDTurret.SetSetpoint(0.0);
 //PID Values: P--0.0014, I--0.0001, D--0.0000045 (possible values--still needs more tuning)
+//PID valules (3.22): P-0.0008 I-0.0001, D-0	
+	
 	smarty->PutString("P-turret", "0.008");
 	smarty->PutString("I-turret", "0.002");
 	smarty->PutString("D-turret", "0.000012");
@@ -144,6 +148,7 @@ void JankyTargeting::PrintBogey(void)
 
  bool JankyTargeting::ProcessOneImage(void)
 {
+	 //RMW - it may be bad to call Enable() on every image inbound...
 	 PIDTurret.Enable();
 	 numValidBogies = 0;
 	 if (GetImage()==true)
@@ -176,13 +181,17 @@ void JankyTargeting::PrintBogey(void)
 					}
 				}
 				PrintBogey();
-			}													
+				ChooseLMH();
+			}
+		 
 	}
 	else
 		return false;
 	
 	delete vPAR;
 	delete samwise;
+	vPAR = NULL;
+	samwise = NULL;
 }
 
 int JankyTargeting::ChooseBogey(void)
@@ -191,6 +200,49 @@ int JankyTargeting::ChooseBogey(void)
 	
 	if (numValidBogies>=1)
 		targetBogey=0; //index starts at 0
+}
+
+void JankyTargeting::ChooseLMH(void)
+{
+	for (int i=0 ; i<numValidBogies ; i++)
+	{
+		if (bogies[i].BogeyPMCY > (int)CENTER_Y - DEADBAND_Y && bogies[i].BogeyPMCY < (int)CENTER_Y + DEADBAND_Y)
+		{
+			bogies[i].BogeyLMH = BOGEY_M;
+		}
+		else if (bogies[i].BogeyPMCY < (int)CENTER_Y - DEADBAND_Y)
+		{
+			bogies[i].BogeyLMH = BOGEY_H;
+		}
+		else
+//		(bogies[i].BogeyPMCY > (int)CENTER_Y + DEADBAND_Y)
+		{
+			bogies[i].BogeyLMH = BOGEY_L;
+		}
+	}
+	
+	std::string out = "";
+	std::string level = "";
+	
+	for (int i=0 ; i<numValidBogies ; i++)
+	{
+		if (bogies[i].BogeyLMH == BOGEY_H)
+		{
+			level = "H";
+			out = out + level;
+		}
+		else if (bogies[i].BogeyLMH == BOGEY_M)
+		{
+			level = "M";
+			out = out + level;
+		}
+		else
+		{
+			level = "L";
+			out = out + level;
+		}
+	}
+	smarty->PutString("Hoops in View",out);
 }
 
 void JankyTargeting::MoveTurret(void)
@@ -206,7 +258,8 @@ void JankyTargeting::MoveTurret(void)
 	
 	else
 	{
-		normalizedHOffset = 0;
+		normalizedHOffset = 0.0;
+		smarty->PutInt("Horizontal Offset",normalizedHOffset);
 	}
 //TODO give values to jaguars and move turret to adjust for error	
 }
@@ -238,6 +291,15 @@ void JankyTargeting::InteractivePIDSetup(void)
 	sscanf(tempstring.c_str(), "%f", &d);
 	
 	PIDTurret.SetPID(p,i,d);
+
+	float P= PIDTurret.GetP();
+	float I= PIDTurret.GetI();
+	float D= PIDTurret.GetD();
+	
+	float E= PIDTurret.GetError();
+
+	printf("P=%f, I=%f, D=%f, E=%f\n", P, I, D, E);
+
 }
 
 void JankyTargeting::StopPID(void)
@@ -245,3 +307,31 @@ void JankyTargeting::StopPID(void)
 	PIDTurret.Disable();
 }
 
+int JankyTargeting::VisToActDist(void) 
+{
+	int visArr[]={60,72,84,96};
+	
+	int actArr[]={61,73,85,97};
+	
+	int visdist= visualdistance;
+	
+	for (int i=0; i<numEntries; i++)
+	{		
+		if (visdist<visArr[0])
+					
+			return (actArr[0]);
+		
+		else if (visdist>=visArr[i] && visdist<visArr[i+1])
+			
+		{	
+			int R=((visdist-visArr[i])/(visArr[i+1]-visArr[i]));
+		
+			return (actArr[i]+ R*(actArr[i+1]-actArr[i]));
+		}
+		
+		else if (visdist>visArr[3])
+			
+			return (actArr[3]);		
+	}
+	return 0;
+}

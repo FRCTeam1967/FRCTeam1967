@@ -84,6 +84,7 @@ public:
 			{
 				LEDRelay.Set(Relay::kForward);
 				targ.ProcessOneImage();
+				//targ.ChooseLMH();
 				targ.ChooseBogey();
 				targ.MoveTurret();
 				targ.InteractivePIDSetup();
@@ -96,7 +97,7 @@ public:
 			}
 			
 			
-			
+			 
 			
 //			float desired=abs(stick.GetY() *1000) + 100;
 //			smarty->PutInt("Desired RPM1", (int)desired);
