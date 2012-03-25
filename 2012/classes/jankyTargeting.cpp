@@ -6,6 +6,7 @@
 
 #include "jankyTargeting.h" 
 
+
 /// Constructor - do initialization here initialization-we are using these, not creating new variables
 JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	PIDTurret(TURRET_P, TURRET_I, TURRET_D, this, pTurret),
@@ -304,34 +305,108 @@ void JankyTargeting::InteractivePIDSetup(void)
 
 void JankyTargeting::StopPID(void)
 {
+	//RMW May want to set a flag which makes our GetPID() return a zero error instead.
 	PIDTurret.Disable();
 }
 
 int JankyTargeting::VisToActDist(void) 
 {
-	int visArr[]={60,72,84,96};
+	// RMW move these to the class level -- proving difficult? Make em static.
+	// Or just make these static so they are not re-allocated on the stack each time.
 	
-	int actArr[]={61,73,85,97};
+	static int actArr[]={108,120,132,144,156,168,180,192,204,216,228};
+	static int visArr[]={60,72,84,96};
+	static int actvisArr[]={61,73,85,97};
+	int numEntries = 4;//sizeof(visArr / sizeof(int));
+	//TODO change entry number
 	
-	int visdist= visualdistance;
+	smarty->PutInt("Number of Elements-visArray", numEntries);
+	
+	int visdist= visualdistance;	
+	
+	if (visdist<visArr[0])
+						
+		return (actvisArr[0]);
+	
+	if (visdist>visArr[numEntries-1])
+		
+		return (actvisArr[numEntries-1]);	
 	
 	for (int i=0; i<numEntries; i++)
 	{		
-		if (visdist<visArr[0])
-					
-			return (actArr[0]);
 		
-		else if (visdist>=visArr[i] && visdist<visArr[i+1])
+		if (visdist>=visArr[i] && visdist<visArr[i+1])
 			
-		{	
-			int R=((visdist-visArr[i])/(visArr[i+1]-visArr[i]));
+		 {	
+			float R=((visdist-visArr[i])/(visArr[i+1]-visArr[i]));
 		
-			return (actArr[i]+ R*(actArr[i+1]-actArr[i]));
-		}
-		
-		else if (visdist>visArr[3])
+			return (actvisArr[i]+ (int)(R*(actvisArr[i+1]-actvisArr[i])));
+		 }
 			
-			return (actArr[3]);		
+	}	
+	
+		return 0;
+}
+//TODO control-end of non-void
+
+int JankyTargeting::ActDisttoRPM(int actdist)
+{
+
+	/* MEDIUM TEST
+		
+	12 feet 1915
+	13 feet 1970
+	14 feet 2050
+	15 feet 2120-30
+	16 feet 2170
+			
+	*/
+	static int MedDisArr[]={144,156,168,180,192};
+	static int MedRPMArr[]={1915,1970,2050,2130,2170};
+	static int HighDisArr[]={108,120,132,144,156,168,180,192,204,216,228};
+	static int HighRPMArr[]={2000,2050,2100,2150,2200,2300,2380,2290,2400,2570,2630};
+	
+	int preferredLMH;
+	int numEntries;
+	int *outputRPM;
+	int *actArr;
+		
+	if (preferredLMH==1)
+	{	
+		actArr = HighDisArr;
+		outputRPM = HighRPMArr;
+		numEntries=11;
+	}	
+	else
+	{	
+		actArr = MedDisArr;
+		outputRPM = MedRPMArr;
+        numEntries=5;
 	}
-	return 0;
+	
+						
+	if (actdist<actArr[0])
+								
+		return (outputRPM[0]);
+			
+	if(actdist>actArr[numEntries-1])
+							
+		return (outputRPM[numEntries-1]);
+			
+		for (int i=0; i<numEntries; i++)
+				
+		{					
+				if (actdist>=actArr[i] && actdist<actArr[i+1])
+						
+					{			
+						float R=((actdist-actArr[i])/(actArr[i+1]-actArr[i]));
+						
+						return (outputRPM[i] + (int)(R*(outputRPM[i+1]-outputRPM[i])));
+					}	
+							
+		}
+
+			return 0;
+			
+			
 }

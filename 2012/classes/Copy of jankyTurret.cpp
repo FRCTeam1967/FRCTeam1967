@@ -6,8 +6,7 @@ JankyTurret::JankyTurret(int JagPort, int LimLeft, int LimRight):
 	TurretLeft(LimLeft),
 	TurretRight(LimRight)
 {
-	Deadband = 0.01;
-	SmartDashboard::GetInstance()->PutDouble("Turret Motor Value", 0.0);
+	Deadband = 0.05;
 }
 
 JankyTurret::~JankyTurret(void)
@@ -20,12 +19,12 @@ void JankyTurret::Set(float DesiredMotorValue)
 	bool LeftLimPress= TurretLeft.Get();
 	bool RightLimPress= TurretRight.Get();
 
-	
-	if (DesiredMotorValue>0.0 && RightLimPress==true)
+	//positive motor value would hit left limit switch (counterclockwise), vice versa for negative value
+	if (DesiredMotorValue>0.0 && LeftLimPress==true)
 	{
 		Jaguar::Set(0.0);
 	}
-	else if(DesiredMotorValue<0.0 && LeftLimPress==true)
+	else if(DesiredMotorValue<0.0 && RightLimPress==true)
 	{
 		Jaguar::Set(0.0);
 	}
@@ -35,10 +34,6 @@ void JankyTurret::Set(float DesiredMotorValue)
 			Jaguar::Set(0.0);
 		else
 			Jaguar::Set(DesiredMotorValue);
-			//printf("Turret Motor Value=%f\n",DesiredMotorValue);
-	
-			SmartDashboard::GetInstance()->PutDouble("Turret Motor Value", DesiredMotorValue);
-			
 	}
 }
 

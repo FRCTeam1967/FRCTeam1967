@@ -27,11 +27,11 @@
 #define CENTER_Y (PIXHEIGHT/2.0)
 #define DEADBAND_Y 20
 
-#define TURRET_P 0.0125
-#define TURRET_I 0.0008
-#define TURRET_D 0.0
+#define TURRET_P 0.001 //0.0125
+#define TURRET_I 0.00003 //0.0008
+#define TURRET_D 0.005 //0.0
 
-#define numEntries 4
+#define NUMENTRIES 11
 
 typedef struct BogeyInfo_t {
 	
@@ -70,6 +70,7 @@ public:
 	double PIDGet(void);
 	void InteractivePIDSetup();
 	int VisToActDist(void);
+	int ActDisttoRPM(int actDist);
 	int normalizedHOffset;
 	PIDController PIDTurret;
 	
