@@ -24,6 +24,9 @@ class GyroSample : public SimpleRobot
 	Gyro gyro;
 	Joystick stick;
 	JoystickButton button;
+	JoystickButton button_H;
+	JoystickButton button_M;
+	JoystickButton button_L;
 	//JoystickButton setrpm;
 	Relay LEDRelay;
 //	JoystickButton calbutton; //camera calibration-white balance
@@ -35,6 +38,9 @@ public:
 		gyro(1),
 		stick(2),
 		button(&stick,5),
+		button_H(&stick,1),
+		button_M(&stick,2),
+		button_L(&stick,3),
 		LEDRelay(FLASHRING_RELAY)
 
 	{
@@ -72,22 +78,37 @@ public:
 		
 		while (IsOperatorControl())
 		{
-//			myRobot.ArcadeDrive(stick);       
-	//		shoot.GetCurrentRPM();
-			
-			
-			
+		//	myRobot.ArcadeDrive(stick);       
+		//	shoot.GetCurrentRPM();
 		//	float lazysusan =stick.GetZ();
 		//	turret.Set(lazysusan);
 			
 			if (button.Get()==true)
 			{
 				LEDRelay.Set(Relay::kForward);
-				targ.ProcessOneImage();
-				//targ.ChooseLMH();
-				targ.ChooseBogey();
-				targ.MoveTurret();
-				targ.InteractivePIDSetup();
+				if (button_H.Get()==true)
+				{
+					targ.SetLMHTarget(BOGEY_H);
+					smarty->PutString("Targeting","High Button Pressed");
+				}
+				if (button_M.Get()==true)
+				{
+					targ.SetLMHTarget(BOGEY_M);
+					smarty->PutString("Targeting","Medium Button Pressed");
+				}
+				if (button_L.Get()==true)
+				{
+					targ.SetLMHTarget(BOGEY_L);
+					smarty->PutString("Targeting","Low Button Pressed");
+				}
+				
+				if (button_H.Get()==true || button_M.Get()==true || button_L.Get()==true)
+				{
+					targ.ProcessOneImage();
+					targ.ChooseBogey();
+					targ.MoveTurret();
+					targ.InteractivePIDSetup();
+				}
 			}
 			else 
 			{

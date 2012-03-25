@@ -25,6 +25,7 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	BRcentery = 0; //0.0
 	normalizedHOffset = 0; //0.0
 	numImagesProcessed = 0;
+	preferredLMH = -1;
 	
 	PIDTurret.SetInputRange(-100.0, 100.0);
 	PIDTurret.SetOutputRange(-0.1,0.1);
@@ -32,9 +33,9 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 //PID Values: P--0.0014, I--0.0001, D--0.0000045 (possible values--still needs more tuning)
 //PID valules (3.22): P-0.0008 I-0.0001, D-0	
 	
-	smarty->PutString("P-turret", "0.008");
-	smarty->PutString("I-turret", "0.002");
-	smarty->PutString("D-turret", "0.000012");
+	smarty->PutString("P-turret", "0.001");
+	smarty->PutString("I-turret", "0.00003");
+	smarty->PutString("D-turret", "0.005");
 
 	Wait(1.0);
 }
@@ -194,12 +195,59 @@ void JankyTargeting::PrintBogey(void)
 	samwise = NULL;
 }
 
+void JankyTargeting::SetLMHTarget(int ChosenTarget)
+{
+	preferredLMH = ChosenTarget;
+}
+ 
 int JankyTargeting::ChooseBogey(void)
 {
 	targetBogey=-1;
+
+	int found[4];
+	int numFound = 0;
 	
 	if (numValidBogies>=1)
-		targetBogey=0; //index starts at 0
+	{
+		targetBogey=0;
+		if (preferredLMH==BOGEY_L)
+		{
+			preferredLMH==BOGEY_M;
+		}
+		else if (preferredLMH==BOGEY_H)
+		{
+			for (int i=0; i<numValidBogies; i++)
+			{
+				if (bogies[i].BogeyLMH == BOGEY_H)
+					targetBogey = i;
+			}
+		}
+		else if (preferredLMH==BOGEY_M)
+		{
+			for (int i=0; i<numValidBogies; i++)
+			{
+				if(bogies[i].BogeyLMH == BOGEY_M)
+				{
+					found[numFound++] = i;
+				}
+			}
+			if (numFound > 0)
+			{
+				if (numFound == 1)
+				{
+					targetBogey = found[0];
+				}
+				else 
+				{
+					if (bogies[found[0]].BogeyPMCX > bogies[found[1]].BogeyPMCX)
+						targetBogey = found[0];
+					else
+						targetBogey = found[1];
+				}
+			}
+		}
+	}
+	smarty->PutInt("Visual Distance",bogies[targetBogey].BogeyVD);
 }
 
 void JankyTargeting::ChooseLMH(void)
