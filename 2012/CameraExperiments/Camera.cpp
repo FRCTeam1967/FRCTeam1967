@@ -24,6 +24,7 @@ class GyroSample : public SimpleRobot
 	Gyro gyro;
 	Joystick stick;
 	JoystickButton button;
+	//JoystickButton setrpm;
 	Relay LEDRelay;
 //	JoystickButton calbutton; //camera calibration-white balance
 	
@@ -32,8 +33,8 @@ public:
 	GyroSample(void):
 //		myRobot(1, 2),		// initialize the sensors in initialization list
 		gyro(1),
-		stick(1),
-		button(&stick, 1),
+		stick(2),
+		button(&stick,5),
 		LEDRelay(FLASHRING_RELAY)
 
 	{
@@ -74,30 +75,33 @@ public:
 //			myRobot.ArcadeDrive(stick);       
 	//		shoot.GetCurrentRPM();
 			
+			
+			
+		//	float lazysusan =stick.GetZ();
+		//	turret.Set(lazysusan);
+			
 			if (button.Get()==true)
 			{
 				LEDRelay.Set(Relay::kForward);
-			}
-			else 
-				LEDRelay.Set(Relay::kOff); 
-			
-//			float desired=abs(stick.GetY() *1000) + 100;
-//			smarty->PutInt("Desired RPM1", (int)desired);
-			
-			
-					
-			{
-				
 				targ.ProcessOneImage();
+				//targ.ChooseLMH();
 				targ.ChooseBogey();
 				targ.MoveTurret();
 				targ.InteractivePIDSetup();
-//				shoot.setTargetRPM((int)desired);
-				
+			}
+			else 
+			{
+				LEDRelay.Set(Relay::kOff); 
+				targ.StopPID();
 				
 			}
-		
-		 	
+			
+			
+			 
+			
+//			float desired=abs(stick.GetY() *1000) + 100;
+//			smarty->PutInt("Desired RPM1", (int)desired);
+//			shoot.setTargetRPM((int)desired);
 		}		
 		
 		Wait(0.05);

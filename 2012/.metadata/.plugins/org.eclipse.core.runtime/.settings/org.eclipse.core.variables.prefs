@@ -1,3 +1,0 @@
-#Sun Feb 05 10:18:50 PST 2012
-eclipse.preferences.version=1
-org.eclipse.core.variables.valueVariables=<?xml version\="1.0" encoding\="UTF-8"?>\r\n<valueVariables>\r\n<valueVariable description\="Wind River Installation Home Directory" name\="WIND_HOME" readOnly\="false" value\="${wrs\:WIND_HOME}"/>\r\n</valueVariables>\r\n
