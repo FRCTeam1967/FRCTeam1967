@@ -33,10 +33,14 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	PIDTurret.SetSetpoint(0.0);
 //PID Values: P--0.0014, I--0.0001, D--0.0000045 (possible values--still needs more tuning)
 //PID valules (3.22): P-0.0008 I-0.0001, D-0	
-	
-	smarty->PutString("P-turret", "0.001");
-	smarty->PutString("I-turret", "0.00003");
-	smarty->PutString("D-turret", "0.005");
+
+	char initstr[20];
+	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("P-turret", TURRET_P));
+	smarty->PutString("P-turret", initstr);
+	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("I-turret", TURRET_I));
+	smarty->PutString("I-turret", initstr);
+	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("D-turret", TURRET_D));
+	smarty->PutString("D-turret", initstr);
 
 	Wait(1.0);
 }
@@ -123,7 +127,7 @@ bool JankyTargeting::GetParticles (void)
 		return false;
 }
 
-int JankyTargeting::GetValues(void)
+void JankyTargeting::GetValues(void)
 {
 	if (vPAR)
 	{
@@ -133,7 +137,7 @@ int JankyTargeting::GetValues(void)
 		PI = 3.14159265;
 		inpx = (INHEIGHT) / par->boundingRect.height; // inches per pixels (proportion) 
 		imh = PIXHEIGHT * inpx; // image height in inches
-		visualdistance = (int)(0.5 * imh) / tan (27.0*PI/180.0); // PI/180 is converting radians to degrees
+		visualdistance = (int)((0.5 * imh) / tan (27.0*PI/180.0)); // PI/180 is converting radians to degrees
 	}		
 }
 
@@ -148,8 +152,10 @@ void JankyTargeting::PrintBogey(void)
 	}
 }
 
- bool JankyTargeting::ProcessOneImage(void)
+bool JankyTargeting::ProcessOneImage(void)
 {
+	bool success = true;
+	
 	 //RMW - it may be bad to call Enable() on every image inbound...
 	 PIDTurret.Enable();
 	 numValidBogies = 0;
@@ -161,7 +167,7 @@ void JankyTargeting::PrintBogey(void)
 		 if (DoImageProcessing()==true)
 			if (GetParticles()==true)
 			{
-				for (int i=0 ; i<vPAR->size() && i<3 ; i++)
+				for (unsigned int i=0 ; i<vPAR->size() && i<3 ; i++)
 				{
 					par = &(*vPAR)[i];
 					if (par->particleArea < MIN_PARAREA)
@@ -188,12 +194,18 @@ void JankyTargeting::PrintBogey(void)
 		 
 	}
 	else
-		return false;
-	
-	delete vPAR;
-	delete samwise;
+		success = false;
+
+	 if (vPAR)
+		 delete vPAR;
+	 
+	 if (samwise)
+		 delete samwise;
+	 
 	vPAR = NULL;
 	samwise = NULL;
+	
+	return success;
 }
 
 void JankyTargeting::SetLMHTarget(int ChosenTarget)
@@ -201,7 +213,7 @@ void JankyTargeting::SetLMHTarget(int ChosenTarget)
 	preferredLMH = ChosenTarget;
 }
  
-int JankyTargeting::ChooseBogey(void)
+void JankyTargeting::ChooseBogey(void)
 {
 	targetBogey=-1;
 
@@ -211,11 +223,16 @@ int JankyTargeting::ChooseBogey(void)
 	if (numValidBogies>=1)
 	{
 		targetBogey=0;
+		
+		// 
+		// Specifically disallowing LOW targets.
+		//
 		if (preferredLMH==BOGEY_L)
 		{
-			preferredLMH==BOGEY_M;
+			preferredLMH=BOGEY_M;
 		}
-		else if (preferredLMH==BOGEY_H)
+		
+		if (preferredLMH==BOGEY_H)
 		{
 			for (int i=0; i<numValidBogies; i++)
 			{
@@ -248,6 +265,7 @@ int JankyTargeting::ChooseBogey(void)
 			}
 		}
 	}
+	
 	smarty->PutInt("Visual Distance",bogies[targetBogey].BogeyVD);
 }
 
@@ -298,8 +316,8 @@ void JankyTargeting::MoveTurret(void)
 {
 	if (targetBogey!=-1)
 	{
-		int widthOffset = (int)(bogies[targetBogey].BogeyBRCX)-(PIXWIDTH/2);
-		normalizedHOffset = (widthOffset * 100) / (PIXWIDTH/2);
+		int widthOffset = (int)(bogies[targetBogey].BogeyBRCX)-(int)(PIXWIDTH/2);
+		normalizedHOffset = (widthOffset * 100) / (int)(PIXWIDTH/2);
 		smarty->PutInt("Horizontal Offset",normalizedHOffset);
 		printf("widthOffset(+/-160)=%d, Horiz Offset(+/-100) = %d\n", widthOffset, normalizedHOffset);
 //		printf("Target Bogey=%d,WidthOffset=%d\n",targetBogey,widthOffset);
@@ -307,7 +325,7 @@ void JankyTargeting::MoveTurret(void)
 	
 	else
 	{
-		normalizedHOffset = 0.0;
+		normalizedHOffset = 0;
 		smarty->PutInt("Horizontal Offset",normalizedHOffset);
 	}
 //TODO give values to jaguars and move turret to adjust for error	
@@ -330,25 +348,32 @@ void JankyTargeting::InteractivePIDSetup(void)
 	float p, i, d;
 	std::string tempstring;
 
+	//
+	// Pull values from the smart dashboard and then put them into preferences.
+	//
+	
 	tempstring=smarty->GetString("P-turret");
 	sscanf(tempstring.c_str(), "%f", &p);
+	Preferences::GetInstance()->PutDouble("P-turret", p);
 	
 	tempstring=smarty->GetString("I-turret");
 	sscanf(tempstring.c_str(), "%f", &i);
+	Preferences::GetInstance()->PutDouble("I-turret", i);
 
 	tempstring=smarty->GetString("D-turret");
 	sscanf(tempstring.c_str(), "%f", &d);
+	Preferences::GetInstance()->PutDouble("D-turret", d);
 	
 	PIDTurret.SetPID(p,i,d);
 
-	float P= PIDTurret.GetP();
+/*	float P= PIDTurret.GetP();
 	float I= PIDTurret.GetI();
 	float D= PIDTurret.GetD();
 	
 	float E= PIDTurret.GetError();
 
 	printf("P=%f, I=%f, D=%f, E=%f\n", P, I, D, E);
-
+*/
 }
 
 void JankyTargeting::StopPID(void)
@@ -362,99 +387,90 @@ int JankyTargeting::VisToActDist(void)
 	// RMW move these to the class level -- proving difficult? Make em static.
 	// Or just make these static so they are not re-allocated on the stack each time.
 	
-	static int actArr[]={108,120,132,144,156,168,180,192,204,216,228};
 	static int visArr[]={60,72,84,96};
 	static int actvisArr[]={61,73,85,97};
 	int numEntries = 4;//sizeof(visArr / sizeof(int));
 	//TODO change entry number
 	
-	smarty->PutInt("Number of Elements-visArray", numEntries);
+//	smarty->PutInt("Number of Elements-visArray", numEntries);
 	
-	int visdist= visualdistance;	
+	int visdist = bogies[targetBogey].BogeyVD;	
 	
 	if (visdist<visArr[0])
-						
 		return (actvisArr[0]);
 	
 	if (visdist>visArr[numEntries-1])
-		
 		return (actvisArr[numEntries-1]);	
 	
 	for (int i=0; i<numEntries; i++)
 	{		
-		
 		if (visdist>=visArr[i] && visdist<visArr[i+1])
-			
 		 {	
 			float R=((visdist-visArr[i])/(visArr[i+1]-visArr[i]));
 		
 			return (actvisArr[i]+ (int)(R*(actvisArr[i+1]-actvisArr[i])));
 		 }
-			
 	}	
 	
-		return 0;
+	// Return something 'sane' if we were to get here. Shouldnt ever happen though.
+	return actvisArr[0];
 }
 //TODO control-end of non-void
 
 int JankyTargeting::ActDisttoRPM(int actdist)
 {
-
-	/* MEDIUM TEST
-		
-	12 feet 1915
-	13 feet 1970
-	14 feet 2050
-	15 feet 2120-30
-	16 feet 2170
-			
-	*/
+	// Table for use with conveyer - not kicker
 	static int MedDisArr[]={144,156,168,180,192};
 	static int MedRPMArr[]={1915,1970,2050,2130,2170};
+	
+	// Table for use with conveyer - not kicker
 	static int HighDisArr[]={108,120,132,144,156,168,180,192,204,216,228};
 	static int HighRPMArr[]={2000,2050,2100,2150,2200,2300,2380,2290,2400,2570,2630};
 	
-	int preferredLMH;
 	int numEntries;
 	int *outputRPM;
 	int *actArr;
 		
-	if (preferredLMH==1)
+	if (preferredLMH==BOGEY_H)
 	{	
 		actArr = HighDisArr;
 		outputRPM = HighRPMArr;
 		numEntries=11;
 	}	
-	else
+	else	// We're only allowing High and Medium - so the rest is medium...
 	{	
 		actArr = MedDisArr;
 		outputRPM = MedRPMArr;
         numEntries=5;
 	}
 	
-						
 	if (actdist<actArr[0])
-								
 		return (outputRPM[0]);
 			
 	if(actdist>actArr[numEntries-1])
-							
 		return (outputRPM[numEntries-1]);
 			
-		for (int i=0; i<numEntries; i++)
-				
-		{					
-				if (actdist>=actArr[i] && actdist<actArr[i+1])
-						
-					{			
-						float R=((actdist-actArr[i])/(actArr[i+1]-actArr[i]));
-						
-						return (outputRPM[i] + (int)(R*(outputRPM[i+1]-outputRPM[i])));
-					}	
-							
-		}
+	for (int i=0; i<numEntries; i++)
+	{					
+			if (actdist>=actArr[i] && actdist<actArr[i+1])
+				{			
+					float R=((actdist-actArr[i])/(actArr[i+1]-actArr[i]));
+					
+					return (outputRPM[i] + (int)(R*(outputRPM[i+1]-outputRPM[i])));
+				}	
+	}
 
-			return 0;
-			
-			
+	// Return something 'sane' if we get here which should never happen.
+	return outputRPM[0];
+}
+
+int JankyTargeting::GetCalculatedRPM(void)
+{
+	int actDistance = VisToActDist();
+	int calcRPM = ActDisttoRPM(actDistance);
+	
+	smarty->PutInt("Actual distance calculated", actDistance);
+	smarty->PutInt("Actual RPM calculated", calcRPM);
+	
+	return calcRPM;
 }

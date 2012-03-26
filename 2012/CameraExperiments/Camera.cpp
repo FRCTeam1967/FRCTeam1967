@@ -75,6 +75,7 @@ public:
 		
 		JankyShooter shoot(SHOOTER_JAGUAR_CHANNEL,SHOOTER_ENCODER_A,SHOOTER_ENCODER_B);
 		SmartDashboard* smarty = SmartDashboard::GetInstance();
+		int rpmForShooter=0;
 		
 		while (IsOperatorControl())
 		{
@@ -104,29 +105,35 @@ public:
 				
 				if (button_H.Get()==true || button_M.Get()==true || button_L.Get()==true)
 				{
-					targ.ProcessOneImage();
-					targ.ChooseBogey();
-					targ.MoveTurret();
-					targ.InteractivePIDSetup();
+					if (targ.ProcessOneImage())
+					{
+						targ.ChooseBogey();
+						targ.MoveTurret();
+						rpmForShooter = targ.GetCalculatedRPM();
+						// Set the shooter speed here.
+						
+						targ.InteractivePIDSetup();
+					}
 				}
 			}
 			else 
 			{
 				LEDRelay.Set(Relay::kOff); 
 				targ.StopPID();
-				
+				// Set shooter speed to zero.
 			}
-			
-			
-			 
 			
 //			float desired=abs(stick.GetY() *1000) + 100;
 //			smarty->PutInt("Desired RPM1", (int)desired);
 //			shoot.setTargetRPM((int)desired);
+
+			Wait(0.05);
 		}		
-		
-		Wait(0.05);
+
+		// After teleop runs, save preferences again.
+		Preferences::GetInstance()->Save();
 	}
+	
 };
 
 START_ROBOT_CLASS(GyroSample);

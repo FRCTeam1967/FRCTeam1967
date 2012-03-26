@@ -31,8 +31,6 @@
 #define TURRET_I 0.00003
 #define TURRET_D 0.005
 
-#define numEntries 4
-
 typedef struct BogeyInfo_t {
 	
 	int BogeyBRCX;
@@ -59,10 +57,11 @@ public:
 	bool GetParticles (void);
 	bool ProcessOneImage(void);
 	bool DoImageProcessing(void);
-	int GetValues(void);
+	void GetValues(void);
 	void PrintBogey(void); 
-	int ChooseBogey(void);
+	void ChooseBogey(void);
 	void MoveTurret(void);
+	int GetCalculatedRPM(void);
 	//int CalculateShootingSpeed(void);
 	void ChooseLMH(void);
 	void SetLMHTarget(int preferredLMH);
@@ -71,6 +70,8 @@ public:
 	double PIDGet(void);
 	void InteractivePIDSetup();
 	int VisToActDist(void);
+	int ActDisttoRPM(int actdist);
+
 	int normalizedHOffset;
 	PIDController PIDTurret;
 	
