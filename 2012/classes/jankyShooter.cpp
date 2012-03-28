@@ -92,6 +92,7 @@ int JankyShooter::GetCurrentRPM(void)
 }
 void JankyShooter::setTargetRPM(int desiredrpm)
 {
+	
 	TargetRPMx4 = desiredrpm;
 //	PID.SetSetpoint(TargetRPMx4);
 //	SmartDashboard::GetInstance()->PutDouble("PIDOutput",PID.m_pidOutput);

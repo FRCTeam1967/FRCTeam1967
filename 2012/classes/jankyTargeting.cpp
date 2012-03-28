@@ -29,7 +29,7 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	preferredLMH = -1;
 	
 	PIDTurret.SetInputRange(-100.0, 100.0);
-	PIDTurret.SetOutputRange(-0.1,0.1);
+	PIDTurret.SetOutputRange(-0.2, 0.2);
 	PIDTurret.SetSetpoint(0.0);
 //PID Values: P--0.0014, I--0.0001, D--0.0000045 (possible values--still needs more tuning)
 //PID valules (3.22): P-0.0008 I-0.0001, D-0	
