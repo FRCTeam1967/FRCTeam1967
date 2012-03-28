@@ -30,6 +30,7 @@ class GyroSample : public SimpleRobot
 	//JoystickButton setrpm;
 	Relay LEDRelay;
 //	JoystickButton calbutton; //camera calibration-white balance
+	//Victor TestTurret;
 	
 	
 public:
@@ -42,6 +43,7 @@ public:
 		button_M(&stick,2),
 		button_L(&stick,3),
 		LEDRelay(FLASHRING_RELAY)
+	//	TestTurret(7)
 
 	{
 //		myRobot.SetExpiration(0.1);
@@ -80,10 +82,8 @@ public:
 		while (IsOperatorControl())
 		{
 		//	myRobot.ArcadeDrive(stick);       
-		//	shoot.GetCurrentRPM();
-		//	float lazysusan =stick.GetZ();
-		//	turret.Set(lazysusan);
-			
+			shoot.GetCurrentRPM();
+						
 			if (button.Get()==true)
 			{
 				LEDRelay.Set(Relay::kForward);
@@ -110,16 +110,19 @@ public:
 						targ.ChooseBogey();
 						targ.MoveTurret();
 						rpmForShooter = targ.GetCalculatedRPM();
-						// Set the shooter speed here.
-						
+						shoot.setTargetRPM(rpmForShooter);
 						targ.InteractivePIDSetup();
 					}
 				}
+				targ.StopPID();
+				shoot.setTargetRPM(0);
 			}
 			else 
 			{
+				float lazysusan =stick.GetZ();
+				turret.Set(lazysusan);
 				LEDRelay.Set(Relay::kOff); 
-				targ.StopPID();
+				
 				// Set shooter speed to zero.
 			}
 			
