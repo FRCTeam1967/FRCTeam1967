@@ -9,12 +9,13 @@
 
 #include "jankyRobot.h"
 
-class JankyTurret : public Jaguar  {
+class JankyTurret : public Victor {
 public:
 	JankyTurret(int JagPort, int LimLeft, int LimRight );
 	virtual ~JankyTurret(void);
 	
-//	Jaguar TurretMotor;
+	//Jaguar TurretMotor;
+	//Victor TurretMotor;
 	DigitalInput TurretLeft;
 	DigitalInput TurretRight;
 	float Deadband;

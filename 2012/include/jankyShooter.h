@@ -28,7 +28,7 @@ public:
 	//Member variables
 	int CurrentRPMx4;
 	int TargetRPMx4;
-	Jaguar ShooterMotor;
+	Victor ShooterMotor;
 	Encoder ShooterEncoder;
 	float MotorSpeed;
 	PIDController PID;
