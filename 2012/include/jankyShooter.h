@@ -8,6 +8,9 @@
 #define _JANKYSHOOTER_H
 
 #include "jankyRobot.h"
+#define SHOOTER_P 0.0
+#define SHOOTER_I 0.0
+#define SHOOTER_D 0.0
 
 #define RPM_DEADBANDx4 100
 #define MINSHOOT_WAIT 0.05
@@ -40,4 +43,47 @@ public:
 	
 };
 
+class JankyShooter2: public Victor,Encoder {
+public:
+	JankyShooter2(int JagPort, int EncoderAPort, int EncoderBPort);
+	virtual ~JankyShooter2(void);
+	void setTargetRPM(int desiredrpm);
+	int GetCurrentRPM(void); 
+	int GiveDesiredRPM(){
+		return TargetRPMx4;
+	};
+	virtual double  PIDGet(){
+		static int value = 0;
+		SmartDashboard::GetInstance()->PutInt("PIDGet",value++);
+		return (double)GetCurrentRPM();
+	};
+	virtual void  PIDWrite(double Err){
+		static int value2 = 0;
+		SmartDashboard::GetInstance()->PutInt("PIDWrite",value2++);
+		
+		MotorSpeed=MotorSpeed + Err;
+		
+		if (MotorSpeed<0.0)
+			MotorSpeed=0.0;
+		if (MotorSpeed>1.0)
+			MotorSpeed=1.0;
+		SmartDashboard::GetInstance()->PutDouble("Speed of Motor",MotorSpeed);
+		//SmartDashboard::GetInstance()->PutDouble("VictorGet",Victor::Get());
+		//Victor::Set(MotorSpeed);
+		
+	};
+	void Set(double Motor);
+	void InteractivePIDSetup(void);
+		
+	//Member variables
+	int CurrentRPMx4;
+	int TargetRPMx4;
+	float MotorSpeed;
+	PIDController PID;
+	Timer EncoderTimer;
+	int PreviousCount;
+	double PreviousTime;
+	int PreviousRPM;
+	
+};
 #endif
