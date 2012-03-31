@@ -137,7 +137,8 @@ void JankyTargeting::GetValues(void)
 		PI = 3.14159265;
 		inpx = (INHEIGHT) / par->boundingRect.height; // inches per pixels (proportion) 
 		imh = PIXHEIGHT * inpx; // image height in inches
-		visualdistance = (int)((0.5 * imh) / tan (27.0*PI/180.0)); // PI/180 is converting radians to degrees
+		visualdistance = (int)(1.12*(0.5 * imh) / 0.302); // PI/180 is converting radians to degrees
+		//visualdistance = (int)((0.5 * imh) / tan (17.5*PI/180.0)); // PI/180 is converting radians to degrees
 	}		
 }
 
@@ -387,16 +388,16 @@ int JankyTargeting::VisToActDist(void)
 	// RMW move these to the class level -- proving difficult? Make em static.
 	// Or just make these static so they are not re-allocated on the stack each time.
 	
-	static int visArr[]={60,72,84,96};
-	static int actvisArr[]={61,73,85,97};
-	int numEntries = 4;//sizeof(visArr / sizeof(int));
+	//static int visArr[]={72,74,78,84,92,102};
+	//static int actvisArr[]={108,120,132,144,156,178};
+	//int numEntries = 6;//sizeof(visArr / sizeof(int));
 	//TODO change entry number
 	
 //	smarty->PutInt("Number of Elements-visArray", numEntries);
 	
 	int visdist = bogies[targetBogey].BogeyVD;	
 	
-	if (visdist<visArr[0])
+	/*if (visdist<visArr[0])
 		return (actvisArr[0]);
 	
 	if (visdist>visArr[numEntries-1])
@@ -411,9 +412,10 @@ int JankyTargeting::VisToActDist(void)
 			return (actvisArr[i]+ (int)(R*(actvisArr[i+1]-actvisArr[i])));
 		 }
 	}	
-	
+	*/
 	// Return something 'sane' if we were to get here. Shouldnt ever happen though.
-	return actvisArr[0];
+	//return actvisArr[0]; 
+	return visdist;
 }
 //TODO control-end of non-void
 
@@ -422,10 +424,12 @@ int JankyTargeting::ActDisttoRPM(int actdist)
 	// Table for use with conveyer - not kicker
 	static int MedDisArr[]={144,156,168,180,192};
 	static int MedRPMArr[]={1915,1970,2050,2130,2170};
+//	static int MedRPMArr[]={1615,1670,1750,1830,1870};
 	
 	// Table for use with conveyer - not kicker
 	static int HighDisArr[]={108,120,132,144,156,168,180,192,204,216,228};
 	static int HighRPMArr[]={2000,2050,2100,2150,2200,2300,2380,2290,2400,2570,2630};
+//	static int HighRPMArr[]={1700,1750,1800,1850,1900,2000,2080,1990,2100,2270,2330};
 	
 	int numEntries;
 	int *outputRPM;
@@ -445,10 +449,10 @@ int JankyTargeting::ActDisttoRPM(int actdist)
 	}
 	
 	if (actdist<actArr[0])
-		return (outputRPM[0]);
+		return (outputRPM[0]*0.93);
 			
 	if(actdist>actArr[numEntries-1])
-		return (outputRPM[numEntries-1]);
+		return (outputRPM[numEntries-1]*0.93);
 			
 	for (int i=0; i<numEntries; i++)
 	{					
@@ -456,12 +460,12 @@ int JankyTargeting::ActDisttoRPM(int actdist)
 				{			
 					float R=((actdist-actArr[i])/(actArr[i+1]-actArr[i]));
 					
-					return (outputRPM[i] + (int)(R*(outputRPM[i+1]-outputRPM[i])));
+					return ((outputRPM[i] + (int)(R*(outputRPM[i+1]-outputRPM[i])))*0.93);
 				}	
 	}
 
 	// Return something 'sane' if we get here which should never happen.
-	return outputRPM[0];
+	return (outputRPM[0]*0.93);
 }
 
 int JankyTargeting::GetCalculatedRPM(void)

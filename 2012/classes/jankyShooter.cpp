@@ -130,11 +130,12 @@ void JankyShooter::DoCalculations(void) //adjust RPM
 	{
 		MotorSpeed = 0.15;
 	}
+	else if (TargetRPMx4 == 0)
+		MotorSpeed = 0;
 	else if (TargetRPMx4 > CurrentRPMx4 + deadband || TargetRPMx4 < CurrentRPMx4 - deadband)
 	{
 		MotorSpeed = MotorSpeed - ChangeSpeed;
 	}
-	
 	if (MotorSpeed > 1.0)
 		MotorSpeed = 1.0;
 	
@@ -143,8 +144,8 @@ void JankyShooter::DoCalculations(void) //adjust RPM
 	
 	SmartDashboard::GetInstance()->PutInt("CurrentRPM",CurrentRPMx4);
 	SmartDashboard::GetInstance()->PutDouble("Motor Speed",MotorSpeed);
-	SmartDashboard::GetInstance()->PutDouble("RPMError",RPMerror);
-	SmartDashboard::GetInstance()->PutDouble("Change in Speed",ChangeSpeed);
+	//SmartDashboard::GetInstance()->PutDouble("RPMError",RPMerror);
+	//SmartDashboard::GetInstance()->PutDouble("Change in Speed",ChangeSpeed);
 				
 	ShooterMotor.Set(MotorSpeed);
 }
