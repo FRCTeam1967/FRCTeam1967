@@ -78,7 +78,7 @@ public:
 		//cheetah(7),	 //Victor 7; for the turret
 		lynx(6),     //Victor 8; for elevator
 		//panther(10), //Victor 10; for pusing ball into turret
-		compressor(8, 2), // (UINT32 pressureSwitchChannel, UINT32 compressorRelayChannel)
+		compressor(5, 1), // (UINT32 pressureSwitchChannel, UINT32 compressorRelayChannel)
 		gyro(1),          // port #; gyro is analog
 		solenoid(5), // relay # = 5; for the bridge tipper
 		shepard(6),  // relay # = 6; for the ball kicker that pushes the ball into the turret
@@ -87,7 +87,7 @@ public:
 		high(2),
 		middle(3), //switch for middle hoop AUTONOMOUS
 		twosec(4), //switch for 2 second delay AUTONOMOUS
-		fivesec(5), //switch for 5 second DELAY AUTONOMOUS
+		fivesec(8), //switch for 5 second DELAY AUTONOMOUS
 		Gandalf(&gamecomponent,1),
 		Smeagol(&driver, 2),      // 
 		Frodo(&gamecomponent, 4), // Frodo is controlled using button #4 on the second joystick
@@ -98,7 +98,7 @@ public:
 		button_M(&gamecomponent,2),
 		autotarget(&gamecomponent,5),
 		button_L(&gamecomponent,3),
-		flashring(1),
+		flashring(2),
 		turret(7,11,10),
 		shooter(5,6,7),
 		targeting(&turret),
@@ -287,6 +287,7 @@ public:
 	 ****************************************/
 	void OperatorControl(void)
 	{
+//TODO put in servo for lower camera--look in WPI to set	
 		myRobot.SetSafetyEnabled(true);
 		//SL Earth.Start(); // turns on Earth
 		SmartDashboard *smarty = SmartDashboard::GetInstance();
@@ -307,6 +308,7 @@ public:
 			float angle = gyro.GetAngle();
 			bool balance = Smeagol.Get();
 			smarty->PutDouble("Gyro Value",angle);
+			int NumFail = -1;
 			//bool light = Pippin.Get();
 			//SL float speed = Earth.GetRate();
 			//float number = shooter.Get();
@@ -316,16 +318,16 @@ public:
 			bool finder = autotarget.Get();
 			//bool targetandspin = autodistanceandspin.Get();
 			smarty->PutString("Targeting Activation","");
-			dslcd->Clear();
-			sprintf(debugout,"Number=%f",angle); 
-			dslcd->Printf(DriverStationLCD::kUser_Line2,2,debugout);
+			//dslcd->Clear();
+			//sprintf(debugout,"Number=%f",angle); 
+			//dslcd->Printf(DriverStationLCD::kUser_Line2,2,debugout);
 			//SL sprintf(debugout,"Number=%f",speed);
 			//SL dslcd->Printf(DriverStationLCD::kUser_Line4,4,debugout);
 			//sprintf(debugout,"Number=%f",number);
-			dslcd->Printf(DriverStationLCD::kUser_Line1,1,debugout);
-			sprintf(debugout,"Finder=%u",finder);
-			dslcd->Printf(DriverStationLCD::kUser_Line5,5,debugout);
-			dslcd->UpdateLCD(); // update the Driver Station with the information in the code
+			//dslcd->Printf(DriverStationLCD::kUser_Line1,1,debugout);
+			//sprintf(debugout,"Finder=%u",finder);
+			//dslcd->Printf(DriverStationLCD::kUser_Line5,5,debugout);
+			//dslcd->UpdateLCD(); // update the Driver Station with the information in the code
 		    // sprintf(debugout,"Number=%u",maxi);
 			// dslcd->Printf(DriverstationLCD::kUser_Line6,5,debugout)
 						bool basketballpusher = julesverne.Get();
@@ -391,6 +393,7 @@ public:
 				{
 					if (targeting.ProcessOneImage())
 					{
+						NumFail = 0;
 						smarty->PutString("Targeting Activation","YES");
 						targeting.ChooseBogey();
 						targeting.MoveTurret();
@@ -398,24 +401,27 @@ public:
 						shooter.setTargetRPM(rpmForShooter);
 						targeting.InteractivePIDSetup();
 					}
+					else
+					{
+						NumFail++;
+						if (NumFail > 10)
+							targeting.StopPID();
+					}
 					shooter.setTargetRPM(rpmForShooter);
 				}	
 				
 				else 
 				{	
 					smarty->PutString("Targeting Activation","NO");
-					shooter.setTargetRPM(2000);
+					shooter.setTargetRPM(0);
 					targeting.StopPID();
 				}	
-				
-	
-	
 			}
 			else
 			{	
 				flashring.Set(Relay::kOff);
 				targeting.StopPID();
-				turret.Set(0.3*lazysusan);	// the lazy susan would turn right & left based on how far the person moves the right joystick#2 side to side
+				turret.Set(lazysusan);	// the lazy susan would turn right & left based on how far the person moves the right joystick#2 side to side
 				
 				//targeting.StopPID();
 				//if (elevator)           //shooter would move at full speed if button is pressed
@@ -432,7 +438,7 @@ public:
 					shooter.setTargetRPM((int)2000);
 				
 				else
-					shooter.setTargetRPM(2000);
+					shooter.setTargetRPM(0);
 					 
 				 //               else if (mediumspeed)
 								//shooter.setTargetRPM((int)0);
