@@ -29,7 +29,7 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	preferredLMH = -1;
 	
 	PIDTurret.SetInputRange(-100.0, 100.0);
-	PIDTurret.SetOutputRange(-0.2, 0.2);
+	PIDTurret.SetOutputRange(-1.0, 1.0);
 	PIDTurret.SetSetpoint(0.0);
 //PID Values: P--0.0014, I--0.0001, D--0.0000045 (possible values--still needs more tuning)
 //PID valules (3.22): P-0.0008 I-0.0001, D-0	
@@ -116,7 +116,7 @@ bool JankyTargeting::GetParticles (void)
 {
 	particles = samwise->GetNumberParticles();
 	smarty->PutInt("particles",particles);
-	printf("Particles = %d\n", particles);
+	//printf("Particles = %d\n", particles);
 	
 	if (particles >0)
 	{	
@@ -144,12 +144,12 @@ void JankyTargeting::GetValues(void)
 
 void JankyTargeting::PrintBogey(void)
 {
-	printf("New Bogey Report - # Valid bogies=%d\n", numValidBogies);
+	//printf("New Bogey Report - # Valid bogies=%d\n", numValidBogies);
 	
 	for (int i=0;i<numValidBogies; i++)
 	{
-		printf("Bogey #=%d,PS=%d,D=%04d ",i,bogies[i].BogeySCORE,bogies[i].BogeyVD);
-		printf("BRC=%d,%d,PCM=%d,%d\n",bogies[i].BogeyBRCX,bogies[i].BogeyBRCY, bogies[i].BogeyPMCX,bogies[i].BogeyPMCY);
+		//printf("Bogey #=%d,PS=%d,D=%04d ",i,bogies[i].BogeySCORE,bogies[i].BogeyVD);
+		//printf("BRC=%d,%d,PCM=%d,%d\n",bogies[i].BogeyBRCX,bogies[i].BogeyBRCY, bogies[i].BogeyPMCX,bogies[i].BogeyPMCY);
 	}
 }
 

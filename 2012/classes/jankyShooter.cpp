@@ -125,7 +125,9 @@ void JankyShooter::DoCalculations(void) //adjust RPM
 		
 	double RPMerror = (CurrentRPMx4 - TargetRPMx4);
 	double ChangeSpeed = proportion*RPMerror;
-		
+	
+//TODO change proportion based on error
+	
 	if (TargetRPMx4 < 1300 && TargetRPMx4 !=0)
 	{
 		MotorSpeed = 0.15;
@@ -161,7 +163,7 @@ JankyShooter2::JankyShooter2(int JagPort, int EncoderAPort, int EncoderBPort):
 	CurrentRPMx4 = 0;
 	MotorSpeed = 0;
 	PID.SetInputRange(0.0,3000.0);
-	PID.SetOutputRange(-1.0,1.0);
+	PID.SetOutputRange(0.0,1.0);
 	PID.SetSetpoint(0.0);
 	PID.Enable();
 	EncoderTimer.Reset();
