@@ -1,0 +1,56 @@
+Wind River Workbench setup (2012 notes)
+
+Projects are now setup with an expectation of being relative to the so-called "Workspace" root
+directory (in Eclipse/Wind River parlance). So, it is important to have the git repository
+and the WRWB home/root be intertwined. The code repository is orgnized (recently) as:
+/docs/
+/code/
+/code/include/
+/code/classes/
+/code/<projectname>/
+
+The Wind River workbench root needs to be pointed to the /code/ directory in order to work
+automatically. As an example...
+
+c:\dev\robotics\  (at this location -- clone our repository FRCTeam1967)
+This will result in:
+c:\dev\robotics\FRCTeam1967\
+With this example, the Wind River workspace home/root should be:
+c:\dev\robotics\FRCTeam1967\code\
+
+Background/Explanation
+
+Wind River Workbench will ask for a workspace 'home' each time it is launched unless the user 
+clicks the 'use as default' checkbox. Projects can be located anywhere, but currently we have
+organized them under /code/<projectname> such as /code/CompleteRobot/ and /code/Testjig/.
+
+Once Wind River is installed, and the workspace root is set to <git-repo-root>/code/, you may
+do a one-time 'Import' of the existing workspace/projects if you wish.
+File->Import... General->Existing Projects Into Workspace (then will bring up a browse-dialog
+which should be in the correct location... the code/ directory) -- then there will be projects
+to select to import or not import. This is up to you which ones to import.
+
+Once these are in place, if you desire to add a .cpp or .h file to the existing project, this
+must be done carefully to ensure that files are added in a "relative manner" rather than
+an absolute manner. The problem is that each computer can check out a repo in any location and
+this causes problems building and maintaining a codebase across many computers as the projects
+expect files in specific locations which may not be available. Relative pathing is used to
+solve this problem.
+
+Adding a file to an existing project...
+1. Right-click on the project name (left pane) and select New->File...
+2. Click 'Advanced >>' and then "link file to filesystem"
+3. At this point, you cannot use the browse... button but must type the path/filename in manually
+   in order for this to work.
+4. The filename should be added in a particular format: WS_ROOT_DIR/<directory>/filename
+   Example: WS_ROOT_DIR/classes/jankyTurret.cpp
+   Example: WS_ROOT_DIR/include/jankyRobot.h
+5. At this point, the project should automatically open the file and the left-pane should show the
+   newly added filename and should NOT have an exclamation point or 'x' on it. You should be able
+   to double-click on the file and it will open the file in the code window without issue.
+6. Once this is complete, the file is now part of the project. Changes such as this will cause a
+   change to occur in /code/<projectname>/.project which will need to be checked in.
+
+TODO:
+- Making a new project by copying an exisitng project
+- Making a new project (without copying an existing one)
