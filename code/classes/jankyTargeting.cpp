@@ -449,10 +449,10 @@ int JankyTargeting::ActDisttoRPM(int actdist)
 	}
 	
 	if (actdist<actArr[0])
-		return (outputRPM[0]*0.93);
+		return (int)((double)outputRPM[0]*0.93);
 			
 	if(actdist>actArr[numEntries-1])
-		return (outputRPM[numEntries-1]*0.93);
+		return (int)((double)outputRPM[numEntries-1]*0.93);
 			
 	for (int i=0; i<numEntries; i++)
 	{					
@@ -460,12 +460,12 @@ int JankyTargeting::ActDisttoRPM(int actdist)
 				{			
 					float R=((actdist-actArr[i])/(actArr[i+1]-actArr[i]));
 					
-					return ((outputRPM[i] + (int)(R*(outputRPM[i+1]-outputRPM[i])))*0.93);
+					return (int)((outputRPM[i] + (int)(R*(double)(outputRPM[i+1]-outputRPM[i])))*0.93);
 				}	
 	}
 
 	// Return something 'sane' if we get here which should never happen.
-	return (outputRPM[0]*0.93);
+	return (int)((double)outputRPM[0]*0.93);
 }
 
 int JankyTargeting::GetCalculatedRPM(void)

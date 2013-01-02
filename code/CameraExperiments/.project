@@ -21,37 +21,37 @@
 		<link>
 			<name>jankyTurret.h</name>
 			<type>1</type>
-			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyTurret.h</location>
+			<locationURI>WS_ROOT_DIR/include/jankyTurret.h</locationURI>
 		</link>
 		<link>
 			<name>jankyRobot.h</name>
 			<type>1</type>
-			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyRobot.h</location>
+			<locationURI>WS_ROOT_DIR/include/jankyRobot.h</locationURI>
 		</link>
 		<link>
 			<name>jankyTargeting.h</name>
 			<type>1</type>
-			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyTargeting.h</location>
+			<locationURI>WS_ROOT_DIR/include/jankyTargeting.h</locationURI>
 		</link>
 		<link>
 			<name>jankyShooter.h</name>
 			<type>1</type>
-			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/include/jankyShooter.h</location>
+			<locationURI>WS_ROOT_DIR/include/jankyShooter.h</locationURI>
 		</link>
 		<link>
 			<name>jankyShooter.cpp</name>
 			<type>1</type>
-			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyShooter.cpp</location>
+			<locationURI>WS_ROOT_DIR/classes/jankyShooter.cpp</locationURI>
 		</link>
 		<link>
 			<name>jankyTurret.cpp</name>
 			<type>1</type>
-			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTurret.cpp</location>
+			<locationURI>WS_ROOT_DIR/classes/jankyTurret.cpp</locationURI>
 		</link>
 		<link>
 			<name>jankyTargeting.cpp</name>
 			<type>1</type>
-			<location>C:/Documents and Settings/Team1967/My Documents/dev_C++/janksters1967/2012/classes/jankyTargeting.cpp</location>
+			<locationURI>WS_ROOT_DIR/classes/jankyTargeting.cpp</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
