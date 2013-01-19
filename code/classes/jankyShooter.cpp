@@ -8,9 +8,10 @@
 
 JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	ShooterMotor(JagPort),
-	ShooterEncoder(EncoderAPort,EncoderBPort,false,Encoder::k1X),
+	ShooterEncoder(EncoderAPort,EncoderBPort,false,ShooterEncoder.k1X),
 	PID(0.02,0.03,0.01,&ShooterEncoder,&ShooterMotor)
 {
+	RPMerrorOld = 0;
 	ShooterEncoder.Start();
 	ShooterMotor.Set(0.0);
 	TargetRPMx4 = 0;
@@ -27,10 +28,11 @@ JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	PreviousCount=0;
 	PreviousTime=0;
 	PreviousRPM=0;
-	SmartDashboard::GetInstance()->PutDouble("Delta Time", -1.0);
-	SmartDashboard::GetInstance()->PutInt("Delta Count", -1);
+	SmartDashboard::PutNumber("Delta Time", -1.0);
+	SmartDashboard::PutNumber("Delta Count", -1);
 	GetCurrentRPM();
-	SmartDashboard::GetInstance()->PutString("P-shooter", "0.000006");	
+	SmartDashboard::PutString("P-shooter", "0.000006");
+	SmartDashboard::PutString("D-shooter", "0.0001");
 }
 
 JankyShooter::~JankyShooter(void)
@@ -66,8 +68,8 @@ int JankyShooter::GetCurrentRPM(void)
 	{
 		if (CurrentRPM!=0)
 		{	
-		SmartDashboard::GetInstance()->PutDouble("Delta Time", DeltaTime);
-		SmartDashboard::GetInstance()->PutInt("Delta Count", DeltaCount);
+		SmartDashboard::PutNumber("Delta Time", DeltaTime);
+		SmartDashboard::PutNumber("Delta Count", DeltaCount);
 		
 		}
 		return PreviousRPM;
@@ -80,11 +82,11 @@ int JankyShooter::GetCurrentRPM(void)
 		
 		PreviousRPM=(int)CurrentRPM;
 	
-		SmartDashboard::GetInstance()->PutDouble("Current Encoder Value", CurrentCount);
+		SmartDashboard::PutNumber("Current Encoder Value", CurrentCount);
 		if (CurrentRPM > 10000 || CurrentRPM < 0)
-			SmartDashboard::GetInstance()->PutString("Test", "Help!");
+			SmartDashboard::PutString("Test", "Help!");
 		
-		SmartDashboard::GetInstance()->PutInt("Current RPM",(int)CurrentRPM);
+		SmartDashboard::PutNumber("Current RPM",(int)CurrentRPM);
 		
 	
 		return (int)CurrentRPM;
@@ -107,12 +109,13 @@ void JankyShooter::setTargetRPM(int desiredrpm)
 
 void JankyShooter::DoCalculations(void) //adjust RPM
 {
+	/*
 	float proportion;
 	std::string tempstring;
 
 	tempstring=SmartDashboard::GetInstance()->GetString("P-shooter");
 	sscanf(tempstring.c_str(), "%f", &proportion);
-						
+	
 	int suspectRPM = (int)GetCurrentRPM();
 	
 	int deadband= (int)0.1*TargetRPMx4;
@@ -124,9 +127,9 @@ void JankyShooter::DoCalculations(void) //adjust RPM
 	CurrentRPMx4 = suspectRPM;
 		
 	double RPMerror = (CurrentRPMx4 - TargetRPMx4);
-	double ChangeSpeed = proportion*RPMerror;
+	double ChangeSpeed = proportion*RPMerror;  
+
 	
-//TODO change proportion based on error
 	
 	if (TargetRPMx4 < 1300 && TargetRPMx4 !=0)
 	{
@@ -150,14 +153,80 @@ void JankyShooter::DoCalculations(void) //adjust RPM
 	//SmartDashboard::GetInstance()->PutDouble("Change in Speed",ChangeSpeed);
 				
 	ShooterMotor.Set(MotorSpeed);
+	
+
+*/
+	float proportion;
+	std::string tempstring;
+
+	tempstring=SmartDashboard::GetString("P-shooter");
+	sscanf(tempstring.c_str(), "%f", &proportion);
+	
+	//derivative variable-added start-4.6.12 SUPERAWESOME
+
+	float derivative;
+	std::string tempstring2;
+
+	tempstring2=SmartDashboard::GetString("D-shooter");
+	sscanf(tempstring2.c_str(), "%f", &derivative);
+
+	//derivative-added done
+	
+	
+						
+	int suspectRPM = (int)GetCurrentRPM();
+	
+	int deadband= (int)0.1*TargetRPMx4;
+	
+	//filtering out noise from the encoder 
+	if (suspectRPM < -10000 || suspectRPM > 10000)
+		return;
+	
+	CurrentRPMx4 = suspectRPM;
+		
+	double RPMerror = (CurrentRPMx4 - TargetRPMx4);
+	double RPMrate = (RPMerror-RPMerrorOld); //added 4.6.12 SUPERAWESOME
+  	double ChangeSpeed=proportion*RPMerror + derivative*RPMrate; // -added 4.6.12 SUPERAWESOME
+	//TODO RPMerrorOld-instantiate, deltatime
+	
+	
+	if (TargetRPMx4 < 1300 && TargetRPMx4 !=0)
+	{
+		MotorSpeed = 0.15;
+	}
+	else if (TargetRPMx4 == 0)
+		MotorSpeed = 0;
+	else if (TargetRPMx4 > CurrentRPMx4 + deadband || TargetRPMx4 < CurrentRPMx4 - deadband)
+	{
+		MotorSpeed = MotorSpeed - ChangeSpeed;
+	}
+	if (MotorSpeed > 1.0)
+		MotorSpeed = 1.0;
+	
+	if (MotorSpeed < 0.0)
+		MotorSpeed = 0.0;
+	
+	SmartDashboard::PutNumber("CurrentRPM",CurrentRPMx4);
+	SmartDashboard::PutNumber("Motor Speed",MotorSpeed);
+	//SmartDashboard::GetInstance()->PutDouble("RPMError",RPMerror);
+	//SmartDashboard::GetInstance()->PutDouble("Change in Speed",ChangeSpeed);
+				
+	ShooterMotor.Set(MotorSpeed);
+	
+	RPMerrorOld=RPMerror; //added 4.6.12 SUPERAWESOME
+
 }
+
+
+
 
 JankyShooter2::JankyShooter2(int JagPort, int EncoderAPort, int EncoderBPort):
 	Victor(JagPort),
-	Encoder(EncoderAPort,EncoderBPort,false,Encoder::k1X),
+	ShooterEncoder(EncoderAPort,EncoderBPort,false,ShooterEncoder.k1X),
+	//PID(0.02,0.03,0.01,this,this)
 	PID(0.02,0.03,0.01,this,this)
 {
-	Encoder::Start();
+	ShooterEncoder.Start();
 	Victor::Set(0.0);
 	TargetRPMx4 = 0;
 	CurrentRPMx4 = 0;
@@ -171,29 +240,29 @@ JankyShooter2::JankyShooter2(int JagPort, int EncoderAPort, int EncoderBPort):
 	PreviousCount=0;
 	PreviousTime=0;
 	PreviousRPM=0;
-	SmartDashboard::GetInstance()->PutDouble("Delta Time", -1.0);
-	SmartDashboard::GetInstance()->PutInt("Delta Count", -1);
+	SmartDashboard::PutNumber("Delta Time", -1.0);
+	SmartDashboard::PutNumber("Delta Count", -1);
 	GetCurrentRPM();
 	char initstr[20];
 	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("P-shooter", SHOOTER_P));
-	SmartDashboard::GetInstance()->PutString("P-shooter", initstr);
+	SmartDashboard::PutString("P-shooter", initstr);
 	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("I-shooter", SHOOTER_I));
-	SmartDashboard::GetInstance()->PutString("I-shooter", initstr);
+	SmartDashboard::PutString("I-shooter", initstr);
 	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("D-shooter", SHOOTER_D));
-	SmartDashboard::GetInstance()->PutString("D-shooter", initstr);	
-	SmartDashboard::GetInstance()->PutString("Set Called","No");
+	SmartDashboard::PutString("D-shooter", initstr);	
+	SmartDashboard::PutString("Set Called","No");
 }
 
 JankyShooter2::~JankyShooter2(void)
 {
-	Encoder::Stop();
+	ShooterEncoder.Stop();
 	PID.Disable();
 }
 
 int JankyShooter2::GetCurrentRPM(void)
 {
 	
-	int CurrentCount= Encoder::Get();
+	int CurrentCount= ShooterEncoder.Get();
 	
 	double CurrentTime= EncoderTimer.Get();
 	
@@ -218,8 +287,8 @@ int JankyShooter2::GetCurrentRPM(void)
 	{
 		if (CurrentRPM!=0)
 		{	
-		SmartDashboard::GetInstance()->PutDouble("Delta Time", DeltaTime);
-		SmartDashboard::GetInstance()->PutInt("Delta Count", DeltaCount);
+		SmartDashboard::PutNumber("Delta Time", DeltaTime);
+		SmartDashboard::PutNumber("Delta Count", DeltaCount);
 		
 		}
 		return PreviousRPM;
@@ -232,11 +301,11 @@ int JankyShooter2::GetCurrentRPM(void)
 		
 		PreviousRPM=(int)CurrentRPM;
 	
-		SmartDashboard::GetInstance()->PutDouble("Current Encoder Value", CurrentCount);
+		SmartDashboard::PutNumber("Current Encoder Value", CurrentCount);
 		if (CurrentRPM > 10000 || CurrentRPM < 0)
-			SmartDashboard::GetInstance()->PutString("Test", "Help!");
+			SmartDashboard::PutString("Test", "Help!");
 		
-		SmartDashboard::GetInstance()->PutInt("Current RPM",(int)CurrentRPM);
+		SmartDashboard::PutNumber("Current RPM",(int)CurrentRPM);
 		
 	
 		return (int)CurrentRPM;
@@ -259,10 +328,12 @@ void JankyShooter2::Set(double Motor)
 {
 	if (Motor < 0.0)
 		Victor::Set(0.0);
+	if (Motor > 1.0)
+		Victor::Set(1.0);
 	else
 		Victor::Set(Motor);
-	SmartDashboard::GetInstance()->PutString("Set Called","Yes");
-	SmartDashboard::GetInstance()->PutDouble("VictorGet",Victor::Get());
+	SmartDashboard::PutString("Set Called","Yes");
+	SmartDashboard::PutNumber("VictorGet",Victor::Get());
 }
 
 void JankyShooter2::InteractivePIDSetup(void)
@@ -274,15 +345,15 @@ void JankyShooter2::InteractivePIDSetup(void)
 	// Pull values from the smart dashboard and then put them into preferences.
 	//
 	
-	tempstring=SmartDashboard::GetInstance()->GetString("P-shooter");
+	tempstring=SmartDashboard::GetString("P-shooter");
 	sscanf(tempstring.c_str(), "%f", &p);
 	Preferences::GetInstance()->PutDouble("P-shooter", p);
 	
-	tempstring=SmartDashboard::GetInstance()->GetString("I-shooter");
+	tempstring=SmartDashboard::GetString("I-shooter");
 	sscanf(tempstring.c_str(), "%f", &i);
 	Preferences::GetInstance()->PutDouble("I-shooter", i);
 
-	tempstring=SmartDashboard::GetInstance()->GetString("D-shooter");
+	tempstring=SmartDashboard::GetString("D-shooter");
 	sscanf(tempstring.c_str(), "%f", &d);
 	Preferences::GetInstance()->PutDouble("D-shooter", d);
 	

@@ -8,9 +8,9 @@ JankyTurret::JankyTurret(int JagPort, int LimLeft, int LimRight):
 	TurretRight(LimRight)
 {
 	Deadband = 0.056;
-	SmartDashboard::GetInstance()->PutDouble("Turret Motor Value", 0.0);
-	SmartDashboard::GetInstance()->PutString("Left Limit Switch", "Unpressed");
-	SmartDashboard::GetInstance()->PutString("Right Limit Switch", "Unpressed");
+	SmartDashboard::PutNumber("Turret Motor Value", 0.0);
+	SmartDashboard::PutString("Left Limit Switch", "Unpressed");
+	SmartDashboard::PutString("Right Limit Switch", "Unpressed");
 }
 
 JankyTurret::~JankyTurret(void)
@@ -25,23 +25,23 @@ void JankyTurret::Set(float DesiredMotorValue)
 	bool LeftLimPress= TurretLeft.Get();
 	bool RightLimPress= TurretRight.Get();
 
-	SmartDashboard::GetInstance()->PutDouble("Turret Motor Value", DesiredMotorValue);
+	SmartDashboard::PutNumber("Turret Motor Value", DesiredMotorValue);
 	//TurretMotor.Set(DesiredMotorValue);
 	
 	if (DesiredMotorValue>0.0 && RightLimPress==false)
 	{
 		Victor::Set(0.0);
-		SmartDashboard::GetInstance()->PutString("Right Limit Switch", "Pressed");
+		SmartDashboard::PutString("Right Limit Switch", "Pressed");
 	}
 	else if(DesiredMotorValue<0.0 && LeftLimPress==false)
 	{
 		Victor::Set(0.0);
-		SmartDashboard::GetInstance()->PutString("Left Limit Switch", "Pressed");
+		SmartDashboard::PutString("Left Limit Switch", "Pressed");
 	}
 	else
 	{
-		SmartDashboard::GetInstance()->PutString("Left Limit Switch", "Unpressed");
-		SmartDashboard::GetInstance()->PutString("Right Limit Switch", "Unpressed");
+		SmartDashboard::PutString("Left Limit Switch", "Unpressed");
+		SmartDashboard::PutString("Right Limit Switch", "Unpressed");
 		if (DesiredMotorValue < Deadband && DesiredMotorValue > Deadband * -1.0)
 			Victor::Set(0.0);
 		else

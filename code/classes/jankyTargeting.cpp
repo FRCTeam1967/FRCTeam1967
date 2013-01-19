@@ -14,7 +14,7 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 {
 	vPAR = NULL;
 	samwise = NULL;
-	smarty = SmartDashboard::GetInstance();
+//	smarty = SmartDashboard::GetInstance();
 	camera.WriteResolution(AxisCamera::kResolution_320x240); 
 	camera.WriteBrightness(50); 	
 //	camera.WriteWhiteBalance(kWhiteBalance_Automatic);
@@ -30,17 +30,19 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	
 	PIDTurret.SetInputRange(-100.0, 100.0);
 	PIDTurret.SetOutputRange(-1.0, 1.0);
-	PIDTurret.SetSetpoint(0.0);
+	PIDTurret.SetSetpoint(-6.0);
 //PID Values: P--0.0014, I--0.0001, D--0.0000045 (possible values--still needs more tuning)
 //PID valules (3.22): P-0.0008 I-0.0001, D-0	
+//Madera PID Values P--0.005000, I--0.000020, D--0.001000
+//Madera PID Values P--0.009000, I--0.000020, D--0.001000
 
 	char initstr[20];
 	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("P-turret", TURRET_P));
-	smarty->PutString("P-turret", initstr);
+	SmartDashboard::PutString("P-turret", initstr);
 	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("I-turret", TURRET_I));
-	smarty->PutString("I-turret", initstr);
+	SmartDashboard::PutString("I-turret", initstr);
 	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("D-turret", TURRET_D));
-	smarty->PutString("D-turret", initstr);
+	SmartDashboard::PutString("D-turret", initstr);
 
 	Wait(1.0);
 }
@@ -115,7 +117,7 @@ bool JankyTargeting::DoImageProcessing(void)
 bool JankyTargeting::GetParticles (void)
 {
 	particles = samwise->GetNumberParticles();
-	smarty->PutInt("particles",particles);
+	SmartDashboard::PutNumber("particles",particles);
 	//printf("Particles = %d\n", particles);
 	
 	if (particles >0)
@@ -163,7 +165,7 @@ bool JankyTargeting::ProcessOneImage(void)
 	 if (GetImage()==true)
 	{
 		 numImagesProcessed++;
-		 smarty->PutInt("Images Processed", numImagesProcessed);
+		 SmartDashboard::PutNumber("Images Processed", numImagesProcessed);
 		 
 		 if (DoImageProcessing()==true)
 			if (GetParticles()==true)
@@ -267,7 +269,7 @@ void JankyTargeting::ChooseBogey(void)
 		}
 	}
 	
-	smarty->PutInt("Visual Distance",bogies[targetBogey].BogeyVD);
+	SmartDashboard::PutNumber("Visual Distance",bogies[targetBogey].BogeyVD);
 }
 
 void JankyTargeting::ChooseLMH(void)
@@ -319,7 +321,7 @@ void JankyTargeting::MoveTurret(void)
 	{
 		int widthOffset = (int)(bogies[targetBogey].BogeyBRCX)-(int)(PIXWIDTH/2);
 		normalizedHOffset = (widthOffset * 100) / (int)(PIXWIDTH/2);
-		smarty->PutInt("Horizontal Offset",normalizedHOffset);
+		SmartDashboard::PutNumber("Horizontal Offset",normalizedHOffset);
 		printf("widthOffset(+/-160)=%d, Horiz Offset(+/-100) = %d\n", widthOffset, normalizedHOffset);
 //		printf("Target Bogey=%d,WidthOffset=%d\n",targetBogey,widthOffset);
 	}
@@ -327,7 +329,7 @@ void JankyTargeting::MoveTurret(void)
 	else
 	{
 		normalizedHOffset = 0;
-		smarty->PutInt("Horizontal Offset",normalizedHOffset);
+		SmartDashboard::PutNumber("Horizontal Offset",normalizedHOffset);
 	}
 //TODO give values to jaguars and move turret to adjust for error	
 }
@@ -423,12 +425,14 @@ int JankyTargeting::ActDisttoRPM(int actdist)
 {
 	// Table for use with conveyer - not kicker
 	static int MedDisArr[]={144,156,168,180,192};
-	static int MedRPMArr[]={1915,1970,2050,2130,2170};
+	static int MedRPMArr[]={1865,1920,2000,2080,2120};
+//	static int MedRPMArr[]={1915,1970,2050,2130,2170};
 //	static int MedRPMArr[]={1615,1670,1750,1830,1870};
 	
 	// Table for use with conveyer - not kicker
 	static int HighDisArr[]={108,120,132,144,156,168,180,192,204,216,228};
-	static int HighRPMArr[]={2000,2050,2100,2150,2200,2300,2380,2290,2400,2570,2630};
+	static int HighRPMArr[]={1950,2000,2050,2100,2150,2250,2330,2240,2350,2520,2580};
+//	static int HighRPMArr[]={2000,2050,2100,2150,2200,2300,2380,2290,2400,2570,2630};
 //	static int HighRPMArr[]={1700,1750,1800,1850,1900,2000,2080,1990,2100,2270,2330};
 	
 	int numEntries;
@@ -473,8 +477,8 @@ int JankyTargeting::GetCalculatedRPM(void)
 	int actDistance = VisToActDist();
 	int calcRPM = ActDisttoRPM(actDistance);
 	
-	smarty->PutInt("Actual distance calculated", actDistance);
-	smarty->PutInt("Actual RPM calculated", calcRPM);
+	SmartDashboard::PutNumber("Actual distance calculated", actDistance);
+	SmartDashboard::PutNumber("Actual RPM calculated", calcRPM);
 	
 	return calcRPM;
 }

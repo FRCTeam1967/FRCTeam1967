@@ -27,9 +27,9 @@
 #define CENTER_Y ((PIXHEIGHT/2.0) + 20)
 #define DEADBAND_Y 30
 
-#define TURRET_P 0.002 //try 0.008
-#define TURRET_I 0.00001
-#define TURRET_D 0.001
+#define TURRET_P 0.009 //used to be 0.008
+#define TURRET_I 0.00002 //used to be 0.00001
+#define TURRET_D 0.001 //used to be 0.001
 
 typedef struct BogeyInfo_t {
 	

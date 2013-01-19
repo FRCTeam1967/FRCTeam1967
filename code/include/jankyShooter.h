@@ -40,10 +40,10 @@ public:
 	double PreviousTime;
 	int PreviousRPM;
 	Timer ShooterTimer;
-	
+	double RPMerrorOld;
 };
 
-class JankyShooter2: public Victor,Encoder {
+class JankyShooter2: public Victor,PIDSource {
 public:
 	JankyShooter2(int JagPort, int EncoderAPort, int EncoderBPort);
 	virtual ~JankyShooter2(void);
@@ -52,30 +52,34 @@ public:
 	int GiveDesiredRPM(){
 		return TargetRPMx4;
 	};
-	virtual double  PIDGet(){
+	virtual double PIDGet(){
 		static int value = 0;
-		SmartDashboard::GetInstance()->PutInt("PIDGet",value++);
+		//SmartDashboard::GetInstance()->PutInt("PIDGet",value++);
+		SmartDashboard::PutNumber("PID RPM",GetCurrentRPM());
+		SmartDashboard::PutNumber("PID Error",PID.GetError());
 		return (double)GetCurrentRPM();
 	};
-	virtual void  PIDWrite(double Err){
+	virtual void PIDWrite(double Err){
 		static int value2 = 0;
-		SmartDashboard::GetInstance()->PutInt("PIDWrite",value2++);
-		
+		SmartDashboard::PutNumber("PIDWrite",value2++);
+
 		MotorSpeed=MotorSpeed + Err;
 		
 		if (MotorSpeed<0.0)
 			MotorSpeed=0.0;
 		if (MotorSpeed>1.0)
 			MotorSpeed=1.0;
-		SmartDashboard::GetInstance()->PutDouble("Speed of Motor",MotorSpeed);
-		//SmartDashboard::GetInstance()->PutDouble("VictorGet",Victor::Get());
+		SmartDashboard::PutNumber("Speed of Motor",MotorSpeed);
+		//SmartDashboard::PutNumber("VictorGet",Victor::Get());
 		//Victor::Set(MotorSpeed);
 		
 	};
-	void Set(double Motor);
+	virtual void Set(double Motor);
 	void InteractivePIDSetup(void);
 		
 	//Member variables
+	
+	Encoder ShooterEncoder;
 	int CurrentRPMx4;
 	int TargetRPMx4;
 	float MotorSpeed;
