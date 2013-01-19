@@ -56,9 +56,9 @@ public:
 		
 		JankyShooter shoot(SHOOTER_JAGUAR_CHANNEL,SHOOTER_ENCODER_A,SHOOTER_ENCODER_B);
 		
-		SmartDashboard* smarty = SmartDashboard::GetInstance();
+//		SmartDashboard* smarty = SmartDashboard::GetInstance();
 				
-		smarty->PutString("setRPM","0");
+		SmartDashboard::PutString("setRPM","0");
 		
 		compressor.Start();
 		
@@ -73,7 +73,7 @@ public:
 			
 			sscanf(rpm.c_str(), "%f", &nrpm);
 			
-			smarty->PutInt("Integer RPM", (int)nrpm);
+			SmartDashboard::PutNumber("Integer RPM", (int)nrpm);
 									
 			shoot.setTargetRPM((int)nrpm);
 												

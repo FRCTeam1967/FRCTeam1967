@@ -19,8 +19,6 @@
 //uncomment USE_HARDWIRED_RPM to disable calculating RPM from distance function
 #define USE_HARDWIRED_RPM 
 #define HARDWIRED_RPM 1300
-#define LMOTOR_PORT 1
-#define RMOTOR_PORT 2
 /***************************************************************************************************
  * This is a demo program showing the use of the RobotBase class.                                  *
  * The SimpleRobot class is the base of a robot application that will automatically call your      *
@@ -30,13 +28,13 @@
 class RobotDemo : public SimpleRobot // Class = Begin
 {
 	/* Class is the same thing as Begin. Code also beging w/ parenthesis and end w/ parenthesis */
-/*	Victor fr; //front right drive motor
+	Victor fr; //front right drive motor
 	Victor fl; //front left drive motor
 	Victor rr; //rear right drive motor
 	Victor rl; //rear left drive motor
-*/
-	Victor leftMotor; //motor for test chassis
-	Victor rightMotor; //motor for test chassis
+
+//	Victor leftMotor; //motor for test chassis
+//	Victor rightMotor; //motor for test chassis
 	RobotDrive myRobot; // robot drive system   
 	Joystick driver;    // driving Joystick for driver
 	Joystick gamecomponent; //joystick for game component
@@ -77,15 +75,12 @@ class RobotDemo : public SimpleRobot // Class = Begin
 public:
 	RobotDemo(void):
 		//DIO 8 does not work
-/*		fr(2),
+		fr(2),
 		fl(3),
 		rr(1),
 		rl(4),
-*/
-		leftMotor(LMOTOR_PORT),
-		rightMotor(RMOTOR_PORT),
-//		myRobot(fl,rl,fr,rr),	// these must be initialized in the same order (#s in parenthesis refer to port numbers) 3,4,2,1
-		myRobot(leftMotor,rightMotor), 
+
+		myRobot(fl,rl,fr,rr),	// these must be initialized in the same order (#s in parenthesis refer to port numbers) 3,4,2,1 
 		driver(1),              // as they are declared above. joystick #1 for driving
 		gamecomponent(2),       // joystick #2 for game component
 		//cheetah(7),	 //Victor 7; for the turret

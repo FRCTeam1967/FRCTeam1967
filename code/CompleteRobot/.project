@@ -29,9 +29,19 @@
 			<locationURI>WS_ROOT_DIR/include/jankyRobot.h</locationURI>
 		</link>
 		<link>
+			<name>jankyShooter.cpp</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/classes/jankyShooter.cpp</locationURI>
+		</link>
+		<link>
 			<name>jankyTurret.cpp</name>
 			<type>1</type>
 			<locationURI>WS_ROOT_DIR/classes/jankyTurret.cpp</locationURI>
+		</link>
+		<link>
+			<name>jankyTargeting.cpp</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/classes/jankyTargeting.cpp</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

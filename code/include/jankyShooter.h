@@ -53,7 +53,7 @@ public:
 		return TargetRPMx4;
 	};
 	virtual double PIDGet(){
-		static int value = 0;
+		//static int value = 0;
 		//SmartDashboard::GetInstance()->PutInt("PIDGet",value++);
 		SmartDashboard::PutNumber("PID RPM",GetCurrentRPM());
 		SmartDashboard::PutNumber("PID Error",PID.GetError());
