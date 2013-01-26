@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<projectDescription>
+	<name>JankyRobotStarter</name>
+	<comment></comment>
+	<projects>
+	</projects>
+	<buildSpec>
+		<buildCommand>
+			<name>com.windriver.ide.core.wrbuilder</name>
+			<arguments>
+			</arguments>
+		</buildCommand>
+	</buildSpec>
+	<natures>
+		<nature>com.windriver.ide.core.wrnature</nature>
+		<nature>com.windriver.ide.core.wrcorenature</nature>
+		<nature>org.eclipse.cdt.core.cnature</nature>
+		<nature>org.eclipse.cdt.core.ccnature</nature>
+	</natures>
+	<linkedResources>
+		<link>
+			<name>jankyRobotTemplate.cpp</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/classes/jankyRobotTemplate.cpp</locationURI>
+		</link>
+		<link>
+			<name>jankyRobotTemplate.h</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/include/jankyRobotTemplate.h</locationURI>
+		</link>
+	</linkedResources>
+</projectDescription>

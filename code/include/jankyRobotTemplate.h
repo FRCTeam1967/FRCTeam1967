@@ -6,7 +6,7 @@
 
 #ifndef _JANKYROBOTTEMPLATE_H
 #define _JANKYROBOTTEMPLATE_H
-#include "jankyRobot.h"
+
 #define LEFT_FRONT 1
 #define RIGHT_FRONT 2
 #define LEFT_REAR 3
@@ -14,6 +14,7 @@
 #define LEFT 5
 #define RIGHT 6
 #define DEFAULT_NUMBER_MOTORS 4
+#define DEFAULT_CHANNEL_CONFLICT 0
 
 class JankyRobotTemplate : public SimpleRobot	{
 public:
@@ -29,10 +30,13 @@ public:
 	Victor * pRR;
 	Victor * pL;
 	Victor * pR;
+	int numberMotors;
+	int fourVictorChannels[4];
+	int twoVictorChannels[2];
 	
 	void RobotInit();
 	void CheckMotor();
-	bool CompareChannels(int channels[]);
+	void CompareChannels();
 	void ResetVictorChannels();
 	
 };
