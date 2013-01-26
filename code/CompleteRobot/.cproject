@@ -23,7 +23,6 @@
 
 <storageModule moduleId="org.eclipse.cdt.core.language.mapping"/>
 <storageModule moduleId="userdefinedContainer">
-<includePath path="$(HOME)/My Documents/dev_C++/janksters1967/2012/include"/>
 <indexAllFiles value="false"/>
 <initialized value="true"/>
 </storageModule>
