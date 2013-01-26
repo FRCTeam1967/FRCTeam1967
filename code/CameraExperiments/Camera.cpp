@@ -76,7 +76,6 @@ public:
 		JankyTargeting targ(&turret);
 		
 		JankyShooter shoot(SHOOTER_JAGUAR_CHANNEL,SHOOTER_ENCODER_A,SHOOTER_ENCODER_B);
-		SmartDashboard* smarty = SmartDashboard::GetInstance();
 		int rpmForShooter=0;
 		
 		while (IsOperatorControl())
@@ -90,17 +89,17 @@ public:
 				if (button_H.Get()==true)
 				{
 					targ.SetLMHTarget(BOGEY_H);
-					smarty->PutString("Targeting","High Button Pressed");
+					SmartDashboard::PutString("Targeting","High Button Pressed");
 				}
 				if (button_M.Get()==true)
 				{
 					targ.SetLMHTarget(BOGEY_M);
-					smarty->PutString("Targeting","Medium Button Pressed");
+					SmartDashboard::PutString("Targeting","Medium Button Pressed");
 				}
 				if (button_L.Get()==true)
 				{
 					targ.SetLMHTarget(BOGEY_L);
-					smarty->PutString("Targeting","Low Button Pressed");
+					SmartDashboard::PutString("Targeting","Low Button Pressed");
 				}
 				
 				if (button_H.Get()==true || button_M.Get()==true || button_L.Get()==true)
