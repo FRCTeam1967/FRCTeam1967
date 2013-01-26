@@ -50,6 +50,8 @@ Adding a file to an existing project...
    to double-click on the file and it will open the file in the code window without issue.
 6. Once this is complete, the file is now part of the project. Changes such as this will cause a
    change to occur in /code/<projectname>/.project which will need to be checked in.
+Note: If a project doesn't build after this process, go to the Project menu and select Clean. This 
+will remove any previous build temp files.
 
 TODO:
 - Making a new project by copying an exisitng project
