@@ -14,6 +14,19 @@
 
 JankyRobotTemplate::JankyRobotTemplate()
 {
+}
+
+/*
+ * Default destructor
+ */
+JankyRobotTemplate::~JankyRobotTemplate()
+{
+	
+}
+
+void JankyRobotTemplate::RobotInit()
+{
+	printf("JankyRobotInit: Newing victors and RobotDrive\n");
 	SmartDashboard::PutNumber("Left Front Victor Channel",LEFT_FRONT);
 	SmartDashboard::PutNumber("Right Front Victor Channel",RIGHT_FRONT);
 	SmartDashboard::PutNumber("Left Rear Victor Channel",LEFT_REAR);
@@ -28,36 +41,150 @@ JankyRobotTemplate::JankyRobotTemplate()
 	SmartDashboard::PutString("Motor Number Status","Default");
 	SmartDashboard::PutString("Status of Channels","Default");
 	
-	numberMotors = DEFAULT_NUMBER_MOTORS;
-}
+	//numberMotors = DEFAULT_NUMBER_MOTORS;
 
-/*
- * Default destructor
- */
-JankyRobotTemplate::~JankyRobotTemplate()
-{
-	
-}
-
-void JankyRobotTemplate::RobotInit()
-{
 	pLF = new Victor(LEFT_FRONT);
-	fourVictorChannels[0] = LEFT_FRONT;
+	//fourVictorChannels[0] = LEFT_FRONT;
 	pRF = new Victor(RIGHT_FRONT);
-	fourVictorChannels[0] = RIGHT_FRONT;
+	//fourVictorChannels[1] = RIGHT_FRONT;
 	pLR = new Victor(LEFT_REAR);
-	fourVictorChannels[0] = LEFT_REAR;
+	//fourVictorChannels[2] = LEFT_REAR;
 	pRR = new Victor(RIGHT_REAR);
-	fourVictorChannels[0] = RIGHT_REAR;
-	
-	pL = new Victor(LEFT);
-	twoVictorChannels[0] = LEFT;
-	pR = new Victor(RIGHT);
-	twoVictorChannels[0] = RIGHT;
+	//fourVictorChannels[3] = RIGHT_REAR;
 	
 	pRobot = new RobotDrive(pLF, pRF, pLR, pRR);
 }
 
+void JankyRobotTemplate::AutonomousInit()
+{
+	printf("JankyRobotAutonomous: Setting up Watchdog\n");
+	Watchdog &dog = this->GetWatchdog();
+	dog.SetEnabled(true);
+	dog.SetExpiration(0.1);
+	pRobot->SetSafetyEnabled(true);
+}
+
+void JankyRobotTemplate::OperatorControlInit()
+{
+	printf("JankyRobotTeleop: Setting up Watchdog\n");
+	Watchdog &dog = this->GetWatchdog();
+	dog.SetEnabled(true);
+	dog.SetExpiration(0.1);
+	pRobot->SetSafetyEnabled(true);
+}
+
+void JankyRobotTemplate::ProgramIsAlive()
+{
+	this->GetWatchdog().Feed();
+	Wait(0.002);
+}
+
+void JankyRobotTemplate::JankyRobotError(const char *pMessage)
+{
+	printf("JankyError:%s\n",pMessage);
+}
+
+void JankyRobotTemplate::TankDrive(GenericHID *leftStick, GenericHID *rightStick, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->TankDrive(leftStick, rightStick, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::TankDrive(GenericHID &leftStick, GenericHID &rightStick, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->TankDrive(leftStick, rightStick, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::TankDrive(GenericHID *leftStick, UINT32 leftAxis, GenericHID *rightStick, UINT32 rightAxis, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->TankDrive(leftStick, leftAxis, rightStick, rightAxis, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");}
+
+void JankyRobotTemplate::TankDrive(GenericHID &leftStick, UINT32 leftAxis, GenericHID &rightStick, UINT32 rightAxis, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->TankDrive(leftStick, leftAxis, rightStick, rightAxis, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::TankDrive(float leftValue, float rightValue, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->TankDrive(leftValue, rightValue, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::ArcadeDrive(GenericHID *stick, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->ArcadeDrive(stick, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::ArcadeDrive(GenericHID &stick, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->ArcadeDrive(stick, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::ArcadeDrive(GenericHID *moveStick, UINT32 moveChannel, GenericHID *rotateStick, UINT32 rotateChannel, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->ArcadeDrive(moveStick, moveChannel, rotateStick, rotateChannel, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::ArcadeDrive(GenericHID &moveStick, UINT32 moveChannel, GenericHID &rotateStick, UINT32 rotateChannel, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->ArcadeDrive(moveStick, moveChannel, rotateStick, rotateChannel, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+void JankyRobotTemplate::ArcadeDrive(float moveValue, float rotateValue, bool squaredInputs)
+{
+	if (pRobot)
+	{
+		pRobot->ArcadeDrive(moveValue, rotateValue, squaredInputs);
+	}
+	else
+		JankyRobotError("TankDrive: no pRobot");
+}
+
+
+/*
 void JankyRobotTemplate::CheckMotor()
 {
 	numberMotors = SmartDashboard::GetNumber("Number of Motors");
@@ -187,5 +314,6 @@ void JankyRobotTemplate::ResetVictorChannels()
 		SmartDashboard::PutString("Status of Channels","Conflict");
 	}
 }
+*/
 
 
