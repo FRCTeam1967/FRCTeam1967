@@ -84,6 +84,32 @@ void JankyRobotTemplate::JankyRobotError(const char *pMessage)
 	printf("JankyError:%s\n",pMessage);
 }
 
+void JankyRobotTemplate::SetNumberMotors()
+{
+	int numberMotors = SmartDashboard::GetNumber("Number of Motors");
+	if (numberMotors == 2)
+	{
+		delete pRobot;
+		delete pLF;
+		delete pRF;
+		delete pLR;
+		delete pRR;
+		
+		pL = new Victor(LEFT);
+		pR = new Victor(RIGHT);
+		
+		pRobot = new RobotDrive(pL, pR);
+	}
+	else if (numberMotors == 4)
+	{
+		JankyRobotError("Motors: No change in number of motors");
+	}
+	else
+	{
+		JankyRobotError("Motors: Not a valid number of motors");
+	}
+}
+
 void JankyRobotTemplate::TankDrive(GenericHID *leftStick, GenericHID *rightStick, bool squaredInputs)
 {
 	if (pRobot)

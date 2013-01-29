@@ -35,6 +35,7 @@ public:
 	void OperatorControlInit();
 	void ProgramIsAlive();
 	void JankyRobotError(const char *pMessage);
+	void SetNumberMotors();
 	void TankDrive(GenericHID *leftStick, GenericHID *rightStick, bool squaredInputs = true);
 	void TankDrive(GenericHID &leftStick, GenericHID &rightStick, bool squaredInputs = true);
 	void TankDrive(GenericHID *leftStick, UINT32 leftAxis, GenericHID *rightStick, UINT32 rightAxis, bool squaredInputs = true);
