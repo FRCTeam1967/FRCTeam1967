@@ -9,7 +9,8 @@
  *
  * @brief Abstract superclass of tasks (run on a separate thread).
  * Call Start() to begin the task and Pause() to temporarily pause it.
- * The inheriting class must implement Run() at a minimum.
+ * The inheriting class must implement Run() which will be called again and
+ * again when the task is in 'Start/Running' mode.
  */
 class JankyTask {
  public:
@@ -17,7 +18,7 @@ class JankyTask {
    * @brief Constructor which takes an optional taskname. In the absence of a task name,
    *        a task name will be created based upon the current system-time.
    */
-  JankyTask(const char* taskName = NULL);
+  JankyTask(const char* taskName = NULL, UINT32 priority = Task::kDefaultPriority);
   virtual ~JankyTask();
 
   /**
@@ -55,8 +56,8 @@ class JankyTask {
  private:
   bool enabled_;
   bool running_;
+  bool isDead_;
   Task* task_;
-  Timer* timer_;
 };
 
-#endif  // VISION_VISION_PROCESS_H_
+#endif  // JANKYTASK_H_

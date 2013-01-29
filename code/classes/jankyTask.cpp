@@ -1,22 +1,28 @@
 #include "jankyTask.h"
 #include <string>
 
-JankyTask::JankyTask(const char* taskName) {
+JankyTask::JankyTask(const char* taskName, UINT32 priority) {
   std::string name = taskName;
+  char tmp[30];
+
   if (!taskName)
   {
-    name = "jankyTask-" + getTime();  // TODO:Holly - not sure what time function to call for a 'unique' number here.
+    itoa(GetUsClock(), tmp, 29);
+    name = "jankyTask-" + tmp;
   }
 
   enabled_ = false;
   running_ = true;
+  isDead_ = false;
 
-  task_ = new Task(name.c_str(), (FUNCPTR)JankyTask::JankyStarterTask, 200);
+  task_ = new Task(name.c_str(), (FUNCPTR)JankyTask::JankyStarterTask, priority);
   task_->Start((UINT32)this);
 }
 
 JankyTask::~JankyTask(){
   task_->Terminate();
+
+  delete task_;   // Now kill the WPI class for the task.
 }
 
 void JankyTask::JankyPrivateStarterTask(JankyTask* task) {
@@ -28,6 +34,8 @@ void JankyTask::JankyPrivateStarterTask(JankyTask* task) {
     else
       Wait(0.05);   // 50 ms wait period while task is 'paused'
   }
+
+  isDead_ = true; // Falling off the edge of the earth...
 }
 
 void JankyTask::Start() {
@@ -40,4 +48,11 @@ void JankyTask::Pause() {
 
 void JankyTask::Terminate() {
   running_ = false;
+
+  // Above told the task to exit on the next loop around.
+  // That could take 2ms or 50ms based on whether it's in pause or run and how long
+  // the actual Run() routine takes too. So we have to wait until we're really terminated here.
+  while (!isDead_) {
+    Wait(0.02); // Wait until we're really dead on that task.
+  }
 }
