@@ -9,7 +9,7 @@
  * the driver station or the field controls.
  */ 
 
-class MyRobotTaskTestjig : public CounterTaskTestjig
+class MyRobotTaskTestjig : public SimpleRobot
 {
 	Joystick stick; // only joystick
 	
