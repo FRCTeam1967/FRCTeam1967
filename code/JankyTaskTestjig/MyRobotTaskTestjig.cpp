@@ -1,6 +1,6 @@
 #include "WPILib.h"
 #include "jankyRobotTemplate.h"
-#include "CounterTaskTestjig.h"
+#include "CounterTask.h"
 
 /**
  * This is a demo program showing the use of the RobotBase class.
@@ -12,6 +12,7 @@
 class MyRobotTaskTestjig : public SimpleRobot
 {
 	Joystick stick; // only joystick
+	CounterTask testTask;
 	
 public:
 	MyRobotTaskTestjig(void):
@@ -39,18 +40,18 @@ public:
 			bool isButtonPressed = stick.GetRawButton(3);
 			if (isButtonPressed)
 			{
-				int taskCounter = this.ReturnCounter();
+				int taskCounter = testTask.ReturnCounter();
 				SmartDashboard::PutNumber("Task Counter",taskCounter);
 			}			
 			
 			float leftYaxis = stick.GetY();
 			float rightYaxis = stick.GetRawAxis(5);	//RawAxis(5);
-			TankDrive(leftYaxis,rightYaxis); 	// drive with arcade style (use right stick)for joystick 1
+			//TankDrive(leftYaxis,rightYaxis); 	// drive with arcade style (use right stick)for joystick 1
 			SmartDashboard::PutNumber("Left Axis",leftYaxis);
 			SmartDashboard::PutNumber("Right Axis",rightYaxis);	
 		}
 	}
 };
 
-START_ROBOT_CLASS(JankyRobotStarter);
+START_ROBOT_CLASS(MyRobotTaskTestjig);
 

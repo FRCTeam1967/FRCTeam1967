@@ -4,13 +4,14 @@
 
 /// JankyRobotTemplate for a simple robot for 2013
 
-#ifndef _COUNTERTASKTESTJIG_H
-#define _COUNTERTASKTESTJIG_H
+#ifndef _COUNTERTASK_H
+#include "jankyTask.h"
+#define _COUNTERTASK_H
 
-class CounterTaskTestjig : public JankyTask	{
+class CounterTask : public JankyTask	{
 public:
-	CounterTaskTestjig(void);
-	virtual ~CounterTaskTestjig(void);
+	CounterTask(void);
+	virtual ~CounterTask(void);
 	
 	virtual void Run();
 	int ReturnCounter();
