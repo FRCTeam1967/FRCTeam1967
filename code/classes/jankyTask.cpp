@@ -1,3 +1,5 @@
+#include "WPILib.h"
+#include <stdlib.h>
 #include "jankyTask.h"
 #include <string>
 
@@ -7,26 +9,28 @@ JankyTask::JankyTask(const char* taskName, UINT32 priority) {
 
   if (!taskName)
   {
-    itoa(GetUsClock(), tmp, 29);
-    name = "jankyTask-" + tmp;
+	double fpgaTimestamp = Timer::GetFPGATimestamp();
+	int myTime = (int)fpgaTimestamp;
+    //itoa(myTime, tmp, 29);
+    //name = "jankyTask-" + tmp;
   }
 
   enabled_ = false;
   running_ = true;
   isDead_ = false;
 
-  task_ = new Task(name.c_str(), (FUNCPTR)JankyTask::JankyStarterTask, priority);
+  task_ = new Task(name.c_str(), (FUNCPTR)JankyTask::JankyPrivateStarterTask, priority);
   task_->Start((UINT32)this);
 }
 
 JankyTask::~JankyTask(){
-  task_->Terminate();
+  task_->Stop();
 
   delete task_;   // Now kill the WPI class for the task.
 }
 
 void JankyTask::JankyPrivateStarterTask(JankyTask* task) {
-  while (running_) {
+  while (task->running_) {
     if (task->enabled_) {
       task->Run();
       Wait(0.002);  // Only wait 2ms when task is active.
@@ -35,7 +39,7 @@ void JankyTask::JankyPrivateStarterTask(JankyTask* task) {
       Wait(0.05);   // 50 ms wait period while task is 'paused'
   }
 
-  isDead_ = true; // Falling off the edge of the earth...
+  task->isDead_ = true; // Falling off the edge of the earth...
 }
 
 void JankyTask::Start() {

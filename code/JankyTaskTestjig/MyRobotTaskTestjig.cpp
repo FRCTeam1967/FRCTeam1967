@@ -31,6 +31,7 @@ public:
 	void OperatorControl(void)
 	{
 		//OperatorControlInit();
+		testTask.Start();
 		
 		while (IsOperatorControl())
 		{
