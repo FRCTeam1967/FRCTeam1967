@@ -35,7 +35,17 @@ generate_sources ::
 
 # main entry point for post processing after the build
 post_build :: $(POST_BUILD_STEP) deploy_output
-	@echo ""
+	@echo Janky Deploy-Helper Executing - Copying output to c:\\jankyoutput\\janky.out
+	@mkdir -p c:/jankyoutput
+	@rm c:/jankyoutput/*
+# RMW - Not entirely proud here. PROJECT_TARGETS is multiple files - the the final
+#       output .out file. So copy them all, and then copy *.out to janky.out which
+#       only works because there will only be one .out file. If for some reason,
+#       the build directory had multiple .out files, this post-build would end in an error.
+# A real fix would be to find the variable name that contains the final .out file ONLY.
+	@cp $(PROJECT_TARGETS) c:/jankyoutput
+	@cp c:/jankyoutput/*.out c:/jankyoutput/janky.out
+#	ls -l c:/jankyoutput
 
 # entry point for deploying output after the build
 deploy_output ::
