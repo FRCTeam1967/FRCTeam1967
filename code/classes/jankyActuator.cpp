@@ -12,11 +12,11 @@
  * Default constructor
  */
 
-JankyActuator::JankyActuator()
+JankyActuator::JankyActuator(int pistonChannel)
 {
 	bActuating = false;
 	cycleTimer.Reset();
-	pPiston = new Solenoid(PISTON_CHANNEL);
+	pPiston = new Solenoid(pistonChannel);
 }
 
 /*

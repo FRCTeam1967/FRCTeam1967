@@ -15,9 +15,10 @@
 
 class JankyActuator : public JankyTask	{
 public:
-	JankyActuator(void);
+	JankyActuator(int pistonChannel);
 	virtual ~JankyActuator(void);
 	
+	//Member functions
 	void Go();
 	virtual void Run();
 	

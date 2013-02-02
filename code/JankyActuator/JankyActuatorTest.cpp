@@ -10,7 +10,8 @@ class JankyActuatorTest : public JankyRobotTemplate
 	
 public:
 	JankyActuatorTest(void):
-		stick(1)		// as they are declared above.
+		stick(1),	
+		testActuator(2)		//JankyActuator (solenoid or piston channel)
 
 	{
 	
