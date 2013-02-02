@@ -34,6 +34,16 @@
 			<locationURI>WS_ROOT_DIR/include/jankyActuator.h</locationURI>
 		</link>
 		<link>
+			<name>jankyRobotTemplate.cpp</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/classes/jankyRobotTemplate.cpp</locationURI>
+		</link>
+		<link>
+			<name>jankyRobotTemplate.h</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/include/jankyRobotTemplate.h</locationURI>
+		</link>
+		<link>
 			<name>jankyActuator.cpp</name>
 			<type>1</type>
 			<locationURI>WS_ROOT_DIR/classes/jankyActuator.cpp</locationURI>

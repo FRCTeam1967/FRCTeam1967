@@ -7,12 +7,14 @@ class JankyActuatorTest : public JankyRobotTemplate
 {
 	Joystick stick; // only joystick
 	JankyActuator testActuator;
+	Compressor compressor;
 	
 public:
 	JankyActuatorTest(void):
 		stick(1),	
-		testActuator(2)		//JankyActuator (solenoid or piston channel)
-
+		testActuator(6),		//JankyActuator (solenoid or piston channel)
+		compressor(5,4)
+		
 	{
 	
 	}
@@ -26,6 +28,8 @@ public:
 	void OperatorControl(void)
 	{
 		OperatorControlInit();
+		compressor.Start();
+		testActuator.Start();
 		
 		while (IsOperatorControl())
 		{
@@ -33,6 +37,7 @@ public:
 			//No need to do waits because ProgramIsAlive function does a wait. //Wait(0.005);
 			
 			bool isButtonPressed = stick.GetRawButton(3);
+			SmartDashboard::PutNumber("Actuator Button Status",isButtonPressed);
 			if (isButtonPressed)
 			{
 				testActuator.Go();

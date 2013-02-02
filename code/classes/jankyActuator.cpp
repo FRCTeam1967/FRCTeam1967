@@ -1,7 +1,7 @@
 /*
  * jankyActuator.cpp
  *
- *  Created on: Jan 21, 2013
+ *  Created on: Feb 2, 2013
  *      Author: Team1967
  */
 
@@ -38,19 +38,27 @@ void JankyActuator::Go()
 }
 
 void JankyActuator::Run()
-{
-	if(cycleTimer.HasPeriodPassed(CYCLE_TIME))
+{	
+	if(cycleTimer.Get() > CYCLE_TIME)
 	{
 		bActuating = false;
 		cycleTimer.Stop();
 		cycleTimer.Reset();
 	}
-	else if(bActuating == true)
-	{
-		pPiston->Set(! cycleTimer.HasPeriodPassed(1200));
-	}
 	else
 	{
-		
+		if (bActuating == true)
+		{
+			if (cycleTimer.Get() < ACTUATION_TIME)
+			{
+				pPiston->Set(true);
+			}
+			
+			else
+			{
+				pPiston->Set(false);
+			}	
+		}	
 	}
 }
+

@@ -9,9 +9,8 @@
 #include "WPILib.h"
 #define _JANKYACTUATOR_H
 
-#define CYCLE_TIME 3500
-#define ACTUATION_TIME 1200
-#define PISTON_CHANNEL 1
+#define CYCLE_TIME 3.5
+#define ACTUATION_TIME 1.2
 
 class JankyActuator : public JankyTask	{
 public:
