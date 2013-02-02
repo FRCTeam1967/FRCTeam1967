@@ -46,6 +46,13 @@ post_build :: $(POST_BUILD_STEP) deploy_output
 # A real fix would be to find the variable name that contains the final .out file ONLY.
 	@cp $(PROJECT_TARGETS) c:/jankyoutput
 	@cp c:/jankyoutput/*.out c:/jankyoutput/janky.out
+	@echo "Deployed project information - " >c:/jankyoutput/janky.txt
+	@date >>c:/jankyoutput/janky.txt
+	@echo. >>c:/jankyoutput/janky.txt
+	@echo "Files built from: $(PROJECT_TARGETS)" >>c:/jankyoutput/janky.txt
+	@echo. >>c:/jankyoutput/janky.txt
+	@ls -l $(PROJECT_TARGETS) >>c:/jankyoutput/janky.txt
+	@echo. >>c:/jankyoutput/janky.txt
 #	ls -l c:/jankyoutput
 
 # entry point for deploying output after the build
