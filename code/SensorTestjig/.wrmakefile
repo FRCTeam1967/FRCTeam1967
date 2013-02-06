@@ -37,6 +37,7 @@ generate_sources ::
 post_build :: $(POST_BUILD_STEP) deploy_output
 	@echo Janky Deploy-Helper Executing - Copying output to c:\\jankyoutput\\janky.out
 	@mkdir -p c:/jankyoutput
+	@echo "junk file" >c:/jankyoutput/junk.out
 	@rm c:/jankyoutput/*
 # RMW - Not entirely proud here. PROJECT_TARGETS is multiple files - the the final
 #       output .out file. So copy them all, and then copy *.out to janky.out which
@@ -45,6 +46,13 @@ post_build :: $(POST_BUILD_STEP) deploy_output
 # A real fix would be to find the variable name that contains the final .out file ONLY.
 	@cp $(PROJECT_TARGETS) c:/jankyoutput
 	@cp c:/jankyoutput/*.out c:/jankyoutput/janky.out
+	@echo "Deployed project information - " >c:/jankyoutput/janky.txt
+	@date >>c:/jankyoutput/janky.txt
+	@echo. >>c:/jankyoutput/janky.txt
+	@echo "Files built from: $(PROJECT_TARGETS)" >>c:/jankyoutput/janky.txt
+	@echo. >>c:/jankyoutput/janky.txt
+	@ls -l $(PROJECT_TARGETS) >>c:/jankyoutput/janky.txt
+	@echo. >>c:/jankyoutput/janky.txt
 #	ls -l c:/jankyoutput
 
 # entry point for deploying output after the build
