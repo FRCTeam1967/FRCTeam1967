@@ -1,18 +1,19 @@
 #include "WPILib.h"
 #include "jankyRobot.h"
 #include "jankyRobotTemplate.h"
+#include "jankySensor.h"
 
-/**
- * This is a demo program showing the use of the RobotBase class.
- * The SimpleRobot class is the base of a robot application that will automatically call your
- * Autonomous and OperatorControl methods at the right time as controlled by the switches on
- * the driver station or the field controls.
- */ 
+/************************************************************************************************
+ * This is a demo program showing the use of the RobotBase class.                               *
+ * The SimpleRobot class is the base of a robot application that will automatically call your   *
+ * Autonomous and OperatorControl methods at the right time as controlled by the switches on    *
+ * the driver station or the field controls.													*
+ ************************************************************************************************/ 
 
 class SensorTestjig : public JankyRobotTemplate
 {
 	Joystick stick; // only joystick
-	DigitalInput sensor;
+	JankySensor sensor;
 	
 public:
 	SensorTestjig(void):
@@ -33,6 +34,14 @@ public:
 	{
 		OperatorControlInit();
 		
+		int Reportedtransitioncount =0;
+		int Actualtransitioncount =0;
+		
+		bool Reportedprevious =0;
+		bool Actualprevious =0;
+		
+		int DeltaSensor=0;
+		
 		while (IsOperatorControl())
 		{
 			ProgramIsAlive();
@@ -44,14 +53,40 @@ public:
 			SmartDashboard::PutNumber("Left Axis",leftYaxis);
 			SmartDashboard::PutNumber("Right Axis",rightYaxis);	
 			
-			bool buttonPressed = stick.GetRawButton(3);
-			if (buttonPressed)
+			//bool buttonPressed = stick.GetRawButton(3);
+			/*if (buttonPressed)
 			{
-				bool sensorValue = sensor.Get();
-				SmartDashboard::PutNumber("Sensor Value",sensorValue);
-			}
-			SmartDashboard::PutNumber("Is Sensor Button Pressed",buttonPressed);
+			*/
+			//SmartDashboard::PutNumber("Reported Sensor Value",reportedsensorValue);
+			//SmartDashboard::PutNumber("Actual Sensor Value",actualsensorValue);
+			//}
+			//SmartDashboard::PutNumber("Is Sensor Button Pressed",buttonPressed);
 			
+			bool ReportedsensorValue = sensor.Get();
+			bool ActualsensorValue = sensor.GetRaw();
+			
+			SmartDashboard::PutNumber("Reported Sensor Value",ReportedsensorValue);
+			SmartDashboard::PutNumber("Actual Sensor Value",ActualsensorValue);
+						
+			
+			if (ActualsensorValue != Actualprevious)
+			{
+				++Actualtransitioncount;
+				SmartDashboard::PutNumber("Transitions in Actual Sensor Value", Actualtransitioncount);
+				Actualprevious =ActualsensorValue;
+			}
+			
+			if (ReportedsensorValue != Reportedprevious)
+			{
+		
+				++Reportedtransitioncount;
+				SmartDashboard::PutNumber("Transitions in Reported Sensor Value", Reportedtransitioncount);
+				Reportedprevious =ReportedsensorValue;
+			}
+			
+			DeltaSensor = Actualtransitioncount - Reportedtransitioncount;
+			
+			SmartDashboard::PutNumber("Delta Sensor Transitions", DeltaSensor);
 		}
 	}
 };
