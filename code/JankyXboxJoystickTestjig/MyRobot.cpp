@@ -28,12 +28,7 @@ public:
 
 	void Autonomous(void)
 	{
-		/*
-		myRobot.SetSafetyEnabled(false);
-		myRobot.Drive(-0.5, 0.0); 	// drive forwards half speed
-		Wait(2.0); 				//    for 2 seconds
-		myRobot.Drive(0.0, 0.0); 	// stop robot
-		*/
+		
 	}
 
 	void OperatorControl(void)
@@ -48,24 +43,32 @@ public:
 		bool buttonBackBool;
 		bool buttonStartBool;
 		
-		float trigger;
-		float leftTankDrive;
-		float rightTankDrive;
+		float leftTrigger;
+		float rightTrigger;
+		float leftYAxis;
+		float rightYAxis;
+		float leftXAxis;
+		float rightXAxis;
 		
 		myRobot.SetSafetyEnabled(true);
 		
 		while (IsOperatorControl())
 		{
+			leftYAxis = newStick.GetLeftYAxis();
+			rightYAxis = newStick.GetRightYAxis();
+			SmartDashboard::PutNumber("Left Y Axis", leftYAxis);
+			SmartDashboard::PutNumber("Right Y Axis", rightYAxis);
 			
-			
-			leftTankDrive = newStick.UseTankDriveLeft();
-			rightTankDrive = newStick.UseTankDriveRight();
-			
-			SmartDashboard::PutNumber("tank LEFT", leftTankDrive);
-			SmartDashboard::PutNumber("tank RIGHT", rightTankDrive);
-			
-			trigger = newStick.GetTriggerValue();
-			SmartDashboard::PutNumber("trigger", trigger);
+			leftXAxis = newStick.GetLeftXAxis();
+			rightXAxis = newStick.GetRightXAxis();
+			SmartDashboard::PutNumber("Left X Axis", leftXAxis);
+			SmartDashboard::PutNumber("Right X Axis", rightXAxis);
+						
+			leftTrigger = newStick.GetLeftThrottle();
+			SmartDashboard::PutNumber("left trigger", leftTrigger);
+
+			rightTrigger = newStick.GetRightThrottle();
+			SmartDashboard::PutNumber("right trigger", rightTrigger);
 			
 			buttonABool = newStick.GetButtonA();
 			SmartDashboard::PutNumber("buttonA",buttonABool);

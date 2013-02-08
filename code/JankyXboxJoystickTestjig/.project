@@ -23,5 +23,10 @@
 			<type>1</type>
 			<locationURI>WS_ROOT_DIR/classes/jankyXboxJoystick.cpp</locationURI>
 		</link>
+		<link>
+			<name>jankyXboxJoystick.h</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/include/jankyXboxJoystick.h</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

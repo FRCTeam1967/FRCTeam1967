@@ -11,12 +11,9 @@
 /**********************************************************************************************
  * This is a demo program showing the use of the Joystick class. 
  * The Joystick class will automatically call the controls on the joystick in 
- * order to be applied onto the robot. 
+ * order to be applied to the robot. 
  * JankyXboxJoystick class uses specifically the Xbox controller.
  **********************************************************************************************/ 
-//JankyXboxJoystick : public Joystick
-//{
-
 
 /************************
 * Default constructor  *
@@ -24,16 +21,7 @@
 	
 jankyXboxJoystick::jankyXboxJoystick(int portNumber) : Joystick (portNumber)
 {
-		buttonA = new JoystickButton (this, BUTTON_A),
-        buttonB = new JoystickButton (this, BUTTON_B),
-        buttonX = new JoystickButton (this, BUTTON_X),
-        buttonY = new JoystickButton (this, BUTTON_Y),
-        buttonLB = new JoystickButton (this, BUTTON_LB),
-        buttonRB = new JoystickButton (this, BUTTON_RB),
-        buttonBack = new JoystickButton (this, BUTTON_BACK),
-        buttonStart = new JoystickButton (this, BUTTON_START),
-        buttonThumbLeftButton = new JoystickButton (this, THUMBSTICK_LEFT_BUTTON),
-        buttonThumbRightButton = new JoystickButton (this, THUMBSTICK_RIGHT_BUTTON);
+		
 }
 
 jankyXboxJoystick::~jankyXboxJoystick()
@@ -41,59 +29,121 @@ jankyXboxJoystick::~jankyXboxJoystick()
 	
 }
 
+/**
+ * Get button value (true or false) of button A (bottom button). 
+ */
 bool jankyXboxJoystick::GetButtonA()
 {
-	bool buttonAbool = buttonA->Get();
+	return Joystick::GetRawButton(BUTTON_A_PORT);
 }
 
+/**
+ * Get button value (true or false) of button B (right most button). 
+ */
 bool jankyXboxJoystick::GetButtonB()
 {
-	bool buttonBbool = buttonB->Get();
+	return Joystick::GetRawButton(BUTTON_B_PORT);
 }
 
+/**
+ * Get button value (true or false) of button X (left most button). 
+ */
 bool jankyXboxJoystick::GetButtonX()
 {
-	bool buttonXbool = buttonX->Get();
+	return Joystick::GetRawButton(BUTTON_X_PORT);
 }
 
+/**
+ * Get button value (true or false) of button Y (top button). 
+ */
 bool jankyXboxJoystick::GetButtonY()
 {
-	bool buttonYbool = buttonY->Get();
+	return Joystick::GetRawButton(BUTTON_Y_PORT);
 }
 
+/**
+ * Get button value (true or false) of button A (bottom button). 
+ */
 bool jankyXboxJoystick::GetButtonLB()
 {
-	bool buttonLBbool = buttonLB->Get();
+	return Joystick::GetRawButton(BUTTON_LB_PORT);
 }
 
+/**
+ * Get button value (true or false) of button A (bottom button). 
+ */
 bool jankyXboxJoystick::GetButtonRB()
 {
-	bool buttonRBbool = buttonRB->Get();
+	return Joystick::GetRawButton(BUTTON_RB_PORT);
 }
 
+/**
+ * Get button value (true or false) of button A (bottom button). 
+ */
 bool jankyXboxJoystick::GetButtonBack()
 {
-	bool buttonStartBool = buttonBack->Get();
+	return Joystick::GetRawButton(BUTTON_BACK_PORT);
 }
 
+/**
+ * Get button value (true or false) of button A (bottom button). 
+ */
 bool jankyXboxJoystick::GetButtonStart()
 {
-	bool buttonBackBool = buttonStart->Get();
+	return Joystick::GetRawButton(BUTTON_START_PORT);
 }
 
-float jankyXboxJoystick::GetTriggerValue() 
+/**
+ * Returns float from left trigger
+ */
+float jankyXboxJoystick::GetLeftThrottle() 
 {
-	float trigger = GetThrottle();
+	float leftThrottle = GetThrottle();
+	if (leftThrottle > 0) {
+		return leftThrottle;
+	}
+	else return 0;
 }
 
-float jankyXboxJoystick::UseTankDriveLeft ()
+/**
+ * Returns float from right trigger
+ */
+float jankyXboxJoystick::GetRightThrottle() 
 {
-	float x = 0 - GetY();
+	float rightThrottle = GetThrottle();
+	if (rightThrottle < 0) {
+		rightThrottle = rightThrottle * -1;
+		return rightThrottle;
+	}
+	else return 0;
 }
 
-float jankyXboxJoystick::UseTankDriveRight ()
+/**
+ * Get the state of the left thumbstick axis. Returns a float value.
+ */
+float jankyXboxJoystick::GetLeftXAxis ()
 {
-	float y = 0 - GetRawAxis(RIGHT_Y_AXIS_CHANNEL);
+	float x = GetRawAxis(LEFT_X_AXIS_CHANNEL);
+	return x;
 }
 
+/**
+ * Get the state of the right thumbstick axis. Returns a float value.
+ */
+float jankyXboxJoystick::GetLeftYAxis ()
+{
+	float y = (GetRawAxis(LEFT_Y_AXIS_CHANNEL) * -1);
+	return y;
+}
 
+float jankyXboxJoystick::GetRightXAxis ()
+{
+	float x = GetRawAxis(RIGHT_X_AXIS_CHANNEL);
+	return x;
+}
+
+float jankyXboxJoystick::GetRightYAxis ()
+{
+	float y = (GetRawAxis(RIGHT_Y_AXIS_CHANNEL) * -1);
+	return y;
+}
