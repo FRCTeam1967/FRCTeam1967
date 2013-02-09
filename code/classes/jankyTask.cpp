@@ -1,5 +1,4 @@
 #include "WPILib.h"
-#include <stdlib.h>
 #include "jankyTask.h"
 #include <string>
 
@@ -9,10 +8,9 @@ JankyTask::JankyTask(const char* taskName, UINT32 priority) {
 
   if (!taskName)
   {
-	double fpgaTimestamp = Timer::GetFPGATimestamp();
-	int myTime = (int)fpgaTimestamp;
-    //itoa(myTime, tmp, 29);
-    //name = "jankyTask-" + tmp;
+    sprintf(tmp, "%d", GetFPGATime());
+    name = "jankyTask-";
+    name += tmp;
   }
 
   enabled_ = false;
