@@ -20,8 +20,13 @@ public:
 	//Member functions
 	void Go();
 	virtual void Run();
+	void Reset(void);
+	void SetFullCycleTime(int cycleTime);
+	void SetActuationTime(int actuationTime);
 	
 	//Member variables
+	int iFullCycleTime;
+	int iFullActuationTime;
 	bool bActuating;
 	Timer cycleTimer;
 	Solenoid * pPiston;
