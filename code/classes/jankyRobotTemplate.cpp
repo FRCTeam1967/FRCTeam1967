@@ -7,6 +7,7 @@
 
 #include "WPILib.h"
 #include "jankyRobotTemplate.h"
+#include <string>
 
 /*
  * Default constructor
@@ -14,6 +15,7 @@
 
 JankyRobotTemplate::JankyRobotTemplate()
 {
+	
 }
 
 /*
@@ -38,21 +40,17 @@ void JankyRobotTemplate::RobotInit()
 	SmartDashboard::PutNumber("Number of Motors",DEFAULT_NUMBER_MOTORS);
 	SmartDashboard::PutNumber("Conflict Channel",DEFAULT_CHANNEL_CONFLICT);
 	
-	SmartDashboard::PutString("Motor Number Status","Default");
+	SmartDashboard::PutString("Motor Number Status","Default 4");
 	SmartDashboard::PutString("Status of Channels","Default");
 	
-	//numberMotors = DEFAULT_NUMBER_MOTORS;
-
-	pLF = new Victor(LEFT_FRONT);
-	//fourVictorChannels[0] = LEFT_FRONT;
-	pRF = new Victor(RIGHT_FRONT);
-	//fourVictorChannels[1] = RIGHT_FRONT;
-	pLR = new Victor(LEFT_REAR);
-	//fourVictorChannels[2] = LEFT_REAR;
-	pRR = new Victor(RIGHT_REAR);
-	//fourVictorChannels[3] = RIGHT_REAR;
+	SmartDashboard::PutString("Begin Changes","");
 	
-	pRobot = new RobotDrive(pLF, pRF, pLR, pRR);
+	pL = new Victor(LEFT);
+	pR = new Victor(RIGHT);
+	
+	pRobot = new RobotDrive(pL, pR);
+
+	currentMotorNumber = 2;
 }
 
 void JankyRobotTemplate::AutonomousInit()
@@ -76,6 +74,28 @@ void JankyRobotTemplate::OperatorControlInit()
 void JankyRobotTemplate::ProgramIsAlive()
 {
 	this->GetWatchdog().Feed();
+	
+	static int counter = 0;
+	counter++;
+	
+	if (counter > 500)
+	{
+		std::string sChange = SmartDashboard::GetString("Begin Changes");
+		printf("Every second count = %s \n",sChange.c_str());
+		std::transform(sChange.begin(), sChange.end(), sChange.begin(), ::tolower);
+		if (sChange == "change")
+		{
+			int desiredNumberMotors = SmartDashboard::GetNumber("Number of Motors");
+			printf("Change found\n");
+			if (currentMotorNumber != desiredNumberMotors)
+			{
+				printf("Motor numbers different\n");
+				this->SetNumberMotors(desiredNumberMotors);
+			}
+		}
+		counter = 0;
+	}
+	
 	Wait(0.002);
 }
 
@@ -84,10 +104,9 @@ void JankyRobotTemplate::JankyRobotError(const char *pMessage)
 	printf("JankyError:%s\n",pMessage);
 }
 
-void JankyRobotTemplate::SetNumberMotors()
+void JankyRobotTemplate::SetNumberMotors(int desiredNumberMotors)
 {
-	int numberMotors = SmartDashboard::GetNumber("Number of Motors");
-	if (numberMotors == 2)
+	if (desiredNumberMotors == 2)
 	{
 		delete pRobot;
 		delete pLF;
@@ -99,10 +118,23 @@ void JankyRobotTemplate::SetNumberMotors()
 		pR = new Victor(RIGHT);
 		
 		pRobot = new RobotDrive(pL, pR);
+		
+		currentMotorNumber = 2;
 	}
-	else if (numberMotors == 4)
+	else if (desiredNumberMotors == 4)
 	{
-		JankyRobotError("Motors: No change in number of motors");
+		delete pRobot;
+		delete pL;
+		delete pR;
+		
+		pLF = new Victor(LEFT_FRONT);
+		pRF = new Victor(RIGHT_FRONT);
+		pLR = new Victor(LEFT_REAR);
+		pRR = new Victor(RIGHT_REAR);
+		
+		pRobot = new RobotDrive(pLF, pRF, pLR, pRR);
+		
+		currentMotorNumber = 4;
 	}
 	else
 	{
@@ -341,5 +373,3 @@ void JankyRobotTemplate::ResetVictorChannels()
 	}
 }
 */
-
-
