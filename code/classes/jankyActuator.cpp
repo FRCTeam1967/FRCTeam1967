@@ -27,14 +27,23 @@ JankyActuator::~JankyActuator()
 	delete pPiston;
 }
 
-void JankyActuator::Go()
+//
+// @brief Cause the beginning of a shot if one isn't already in
+//        progress. It's an edge-trigger mechanism.
+// @return true - if a shot is started.
+//         false - if a shot is already in progress..
+//
+bool JankyActuator::Go()
 {
 	if(bActuating == false)
 	{
 		bActuating = true;
 		cycleTimer.Reset();
 		cycleTimer.Start();
+		return true;
 	}
+	else
+		return false;
 }
 
 void JankyActuator::Run()
