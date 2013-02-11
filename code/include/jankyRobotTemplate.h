@@ -7,13 +7,13 @@
 #ifndef _JANKYROBOTTEMPLATE_H
 #define _JANKYROBOTTEMPLATE_H
 
-#define LEFT_FRONT 6
+#define LEFT_FRONT 9 //6
 #define RIGHT_FRONT 5
 #define LEFT_REAR 4
 #define RIGHT_REAR 1
-#define LEFT 6
+#define LEFT 8 //supposed to be 6?
 #define RIGHT 5
-#define DEFAULT_NUMBER_MOTORS 4
+#define DEFAULT_NUMBER_MOTORS 2
 #define DEFAULT_CHANNEL_CONFLICT 0
 
 class JankyRobotTemplate : public SimpleRobot	{

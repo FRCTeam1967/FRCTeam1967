@@ -48,9 +48,16 @@ void JankyRobotTemplate::RobotInit()
 	pL = new Victor(LEFT);
 	pR = new Victor(RIGHT);
 	
+	LiveWindow *lw = LiveWindow::GetInstance();
+	lw->AddActuator("Victors", "Left", pL);
+	lw->AddActuator("Victors", "Right", pR);
+	lw->SetEnabled(true);
+	
 	pRobot = new RobotDrive(pL, pR);
 
 	currentMotorNumber = 2;
+	
+	
 }
 
 void JankyRobotTemplate::AutonomousInit()
