@@ -23,7 +23,7 @@
 class UltimateAscent2013 : public JankyRobotTemplate
 {
 	jankyXboxJoystick stick;
-	//JankyActuator shooterPiston;
+	JankyActuator shooterPiston;
 	Compressor compressor;
 	Solenoid loadingSolenoid;
 	Victor shooterMotor;
@@ -31,7 +31,7 @@ class UltimateAscent2013 : public JankyRobotTemplate
 public:
 	UltimateAscent2013(void):
 		stick(JOYSTICK_PORT),
-		//shooterPiston(PISTON_CHANNEL),	//relay channel that the solenoid is connected to
+		shooterPiston(PISTON_CHANNEL),	//relay channel that the solenoid is connected to
 		compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL),	// (UINT32 pressureSwitchChannel, UINT32 compressorRelayChannel)
 		loadingSolenoid(LOADING_RELAY_CHANNEL),	// relay number - used to actuate the shooter piston
 		shooterMotor(SHOOTING_CHANNEL)
@@ -44,7 +44,7 @@ public:
 	{
 		LiveWindow *lw = LiveWindow::GetInstance();
 		lw->AddActuator("Shooting", "Shooter Motor", &shooterMotor);
-		//lw->AddActuator("Shooting", "Shooter Piston", shooterPiston.GetSolenoid());
+		lw->AddActuator("Shooting", "Shooter Piston", shooterPiston.GetSolenoid());
 		lw->SetEnabled(true);
 		
 		compressor.Start();
@@ -83,13 +83,13 @@ public:
 			bool isButtonBPressed = stick.GetButtonB();
 			if(isButtonBPressed == true)
 			{
-				//shooterPiston.Start();
-				/*shooterPiston.Reset();
+				shooterPiston.Start();
+				shooterPiston.Reset();
 				shooterPiston.SetFullCycleTime(REAL_CYCLE_TIME);
 				shooterPiston.SetActuationTime(REAL_ACTUATION_TIME);
 				shooterPiston.Go();
 				shooterPiston.Run();
-				*/
+				
 			}	
 				
 			
