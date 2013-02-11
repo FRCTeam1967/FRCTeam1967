@@ -26,9 +26,15 @@ JankyActuator::JankyActuator(int pistonChannel)
 {
 	bActuating = false;
 	cycleTimer.Reset();
-	pPiston = new Solenoid(pistonChannel);
 	iFullCycleTime = 3.5;
 	iFullActuationTime = 1.2;
+	
+	pPiston = new Solenoid(pistonChannel);
+	
+	LiveWindow *lw = LiveWindow::GetInstance();
+	lw->SetEnabled(true);
+	lw->AddActuator("Piston", "Piston", pPiston);
+		
 }
 
 
@@ -60,7 +66,7 @@ void JankyActuator::Reset()
  * Default declared in the constructor. 
  * 
  * @param cycleTime The time in seconds it takes for the piston to extend and retract.
- * 					Probably the actuationTime plus whatever time it takes for the piston to retract.
+ * 				Probably the actuationTime plus whatever time it takes for the piston to retract.
  */
 void JankyActuator::SetFullCycleTime(int cycleTime)
 {
@@ -129,3 +135,17 @@ void JankyActuator::Run()
 		}	
 	}
 }
+
+void JankyActuator::OverrideEnable()
+{
+	pPiston->Set(true);
+}
+
+void JankyActuator::OverrideDisable()
+{
+	pPiston->Set(false);
+}
+
+
+
+

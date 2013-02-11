@@ -23,6 +23,11 @@ public:
 	void Reset(void);
 	void SetFullCycleTime(int cycleTime);
 	void SetActuationTime(int actuationTime);
+	void OverrideEnable(void);
+	void OverrideDisable(void);
+	Solenoid * GetSolenoid(void){
+		return pPiston;
+	}
 	
 	//Member variables
 	int iFullCycleTime;
