@@ -13,6 +13,7 @@
 #define REAL_CYCLE_TIME 10
 #define REAL_ACTUATION_TIME 12
 #define SHOOTING_CHANNEL 6
+#define DEFAULT_SHOOTERSPEED 1000
 
 /*
  * Team 1967's main robot code for 2013's game Ultimate Ascent. Includes some of our own basic classes:
@@ -72,16 +73,25 @@ public:
 			//Driving
 			TankDrive(stick.GetLeftYAxis(),stick.GetRightYAxis());
 			
-			//Loading
-			bool isButtonAPressed = stick.GetButtonA();
-			if(isButtonAPressed == true)
+			//Loading (to block frisbees)
+			bool isButtonLBPressed = stick.GetButtonLB();
+			if(isButtonLBPressed == true)
 			{
 				
 			}
 			
 			//Shooting
-			bool isButtonBPressed = stick.GetButtonB();
-			if(isButtonBPressed == true)
+			bool isButtonRBPressed = stick.GetButtonRB();
+			bool isButtonXPressed = stick.GetButtonX();
+			
+			if (isButtonXPressed == true)
+			{	
+				shooterMotor.Set(DEFAULT_SHOOTERSPEED);
+			}
+			else 
+				shooterMotor.Set(0);
+						
+			if(isButtonRBPressed == true)
 			{
 				shooterPiston.Start();
 				shooterPiston.Reset();
@@ -90,8 +100,7 @@ public:
 				shooterPiston.Go();
 				shooterPiston.Run();
 				
-			}	
-				
+			}
 			
 		}
 	}
