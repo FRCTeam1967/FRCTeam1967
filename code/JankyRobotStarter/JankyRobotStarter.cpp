@@ -36,6 +36,7 @@ public:
 			SmartDashboard::PutNumber("Right Axis",rightYaxis);	
 		}
 	}
+
 };
 
 START_ROBOT_CLASS(JankyRobotStarter);

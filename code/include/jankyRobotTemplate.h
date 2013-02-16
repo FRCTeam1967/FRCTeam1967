@@ -5,14 +5,16 @@
 /// JankyRobotTemplate for a simple robot for 2013
 
 #ifndef _JANKYROBOTTEMPLATE_H
+#include "WPILib.h"
+//#include "jankyRobotDrive.h"
 #define _JANKYROBOTTEMPLATE_H
 
-#define LEFT_FRONT 9 //6
+#define LEFT_FRONT 9 
 #define RIGHT_FRONT 5
 #define LEFT_REAR 4
 #define RIGHT_REAR 1
-#define LEFT 8 //supposed to be 6?
-#define RIGHT 5
+#define LEFT 1
+#define RIGHT 2
 #define DEFAULT_NUMBER_MOTORS 2
 #define DEFAULT_CHANNEL_CONFLICT 0
 
@@ -21,7 +23,6 @@ public:
 	JankyRobotTemplate(void);
 	virtual ~JankyRobotTemplate(void);
 	
-
 	//Member variables and pointers
 	RobotDrive * pRobot;
 	Victor * pLF;

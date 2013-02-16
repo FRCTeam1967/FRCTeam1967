@@ -18,7 +18,7 @@ public:
 	virtual ~JankyActuator(void);
 	
 	//Member functions
-	void Go();
+	bool Go();
 	virtual void Run();
 	void Reset(void);
 	void SetFullCycleTime(int cycleTime);

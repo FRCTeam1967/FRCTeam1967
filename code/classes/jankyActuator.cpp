@@ -91,7 +91,7 @@ void JankyActuator::SetActuationTime(int actuationTime)
 /*
  * Sets actuation to true so that the Run function begins.
  */
-void JankyActuator::Go()
+bool JankyActuator::Go()
 {
 	if(bActuating == false)
 	{

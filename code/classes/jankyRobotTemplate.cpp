@@ -7,6 +7,7 @@
 
 #include "WPILib.h"
 #include "jankyRobotTemplate.h"
+//#include "jankyRobotDrive.h"
 #include <string>
 
 /*
@@ -81,6 +82,7 @@ void JankyRobotTemplate::OperatorControlInit()
 void JankyRobotTemplate::ProgramIsAlive()
 {
 	this->GetWatchdog().Feed();
+	//pRobot->FeedSafetyHelper();
 	
 	static int counter = 0;
 	counter++;

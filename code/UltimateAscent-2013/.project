@@ -29,14 +29,14 @@
 			<locationURI>WS_ROOT_DIR/classes/jankyTask.cpp</locationURI>
 		</link>
 		<link>
-			<name>jankyActuator.h</name>
-			<type>1</type>
-			<locationURI>WS_ROOT_DIR/include/jankyActuator.h</locationURI>
-		</link>
-		<link>
 			<name>jankyXboxJoystick.cpp</name>
 			<type>1</type>
 			<locationURI>WS_ROOT_DIR/classes/jankyXboxJoystick.cpp</locationURI>
+		</link>
+		<link>
+			<name>jankyActuator.h</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/include/jankyActuator.h</locationURI>
 		</link>
 		<link>
 			<name>jankyXboxJoystick.h</name>
