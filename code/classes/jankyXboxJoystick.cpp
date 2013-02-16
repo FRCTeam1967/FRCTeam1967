@@ -130,7 +130,7 @@ float jankyXboxJoystick::GetLeftXAxis ()
 /**
  * Get the state of the right thumbstick axis. Returns a float value.
  */
-float jankyXboxJoystick::GetLeftYAxis ()
+float jankyXboxJoystick::GetLeftYAxis()
 {
 	float y = (GetRawAxis(LEFT_Y_AXIS_CHANNEL) * -1);
 	return y;

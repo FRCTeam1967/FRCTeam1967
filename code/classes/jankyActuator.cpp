@@ -16,7 +16,6 @@
  * and Reset. 
  */
 
-
 /*
  * Construct instance of an actuator that runs in its own task.
  * 
@@ -45,13 +44,6 @@ JankyActuator::~JankyActuator()
 {
 	delete pPiston;
 }
-
-//
-// @brief Cause the beginning of a shot if one isn't already in
-//        progress. It's an edge-trigger mechanism.
-// @return true - if a shot is started.
-//         false - if a shot is already in progress..
-//
 
 void JankyActuator::Reset()
 {
@@ -91,6 +83,14 @@ void JankyActuator::SetActuationTime(int actuationTime)
 /*
  * Sets actuation to true so that the Run function begins.
  */
+
+//
+// @brief Cause the beginning of a shot if one isn't already in
+//        progress. It's an edge-trigger mechanism.
+// @return true - if a shot is started.
+//         false - if a shot is already in progress..
+//
+
 bool JankyActuator::Go()
 {
 	if(bActuating == false)
