@@ -99,15 +99,20 @@ public:
 	void RobotInit(void)
 	{
 		printf("RobotInit\n");
-		LiveWindow *lw = LiveWindow::GetInstance();
-
-		//lw->AddActuator("Shooting", "Shooter Piston", shooterPiston.GetSolenoid());
-		//lw->AddActuator("Shooting", "Shooter Motor One", shooterMotorOne);
-		//lw->AddActuator("Shooting", "Shooter Motor Two", shooterMotorTwo);
-		//lw->AddActuator("Driving","Left Motor",pL);
-		//lw->AddActuator("Driving","Right Motor",pR);
 		
-		lw->SetEnabled(true);
+		if(IsTest())
+		{
+			printf("RobotInit:: Test mode found. Adding LiveWindow items.\n");
+			LiveWindow *lw = LiveWindow::GetInstance();
+
+			//lw->AddActuator("Shooting", "Shooter Piston", shooterPiston.GetSolenoid());
+			//lw->AddActuator("Shooting", "Shooter Motor One", shooterMotorOne);
+			//lw->AddActuator("Shooting", "Shooter Motor Two", shooterMotorTwo);
+			//lw->AddActuator("Driving","Left Motor",pL);
+			//lw->AddActuator("Driving","Right Motor",pR);
+
+			lw->SetEnabled(true);
+		}
 
 		Wait (2.0);
 
@@ -124,16 +129,20 @@ public:
 		ChooseAutonomousMode = new SendableChooser;
 
 		SmartDashboard::PutString("Status","Choose Autonomous Mode");
-		ChooseAutonomousMode->AddObject(h, ((void*)h));
-		ChooseAutonomousMode->AddObject(m, ((void*)m));
-		ChooseAutonomousMode->AddObject(dm, ((void*)dm));
 		
+		ChooseAutonomousMode->AddDefault(m, ((void*)m));
+		ChooseAutonomousMode->AddObject(dm, ((void*)dm));
+		ChooseAutonomousMode->AddObject(h, ((void*)h));
+		
+		SmartDashboard::PutData("Autonomous Modes", ChooseAutonomousMode);
+
 		compressor->Start();
 		JankyRobotTemplate::RobotInit();
 	}
 	
 	void Autonomous(void)
 	{
+		printf("In Autonomous\n");
 		shooterPiston->Start();
 		shooterPiston->SetFullCycleTime(REAL_CYCLE_TIME);
 		shooterPiston->SetActuationTime(REAL_ACTUATION_TIME);
@@ -151,6 +160,7 @@ public:
 		bool RunHigh = false;
 		int counter;
 
+		
 		//Choosing which autonomous mode from SmartDashboard
 		if(ChooseAutonomousMode->GetSelected() == ((void*)m))
 		{
@@ -169,6 +179,11 @@ public:
 		}
 		
 		
+		while(IsAutonomous())
+		{
+			ProgramIsAlive();
+			TankDrive(0.0,0.0);
+		}
 		//Different autonomous run modes
 		/*if(RunMedium)
 		{
