@@ -49,10 +49,14 @@ void JankyRobotTemplate::RobotInit()
 	pL = new Victor(LEFT);
 	pR = new Victor(RIGHT);
 	
-	LiveWindow *lw = LiveWindow::GetInstance();
-	lw->AddActuator("Victors", "Left", pL);
-	lw->AddActuator("Victors", "Right", pR);
-	lw->SetEnabled(true);
+	if(IsTest())
+	{
+		printf("JankyRobotTemplate::RobotInit - In Test mode. Adding LiveWindow items.\n");
+		LiveWindow *lw = LiveWindow::GetInstance();
+		lw->AddActuator("Victors", "Left", pL);
+		lw->AddActuator("Victors", "Right", pR);
+		lw->SetEnabled(true);
+	}
 	
 	pRobot = new RobotDrive(pL, pR);
 

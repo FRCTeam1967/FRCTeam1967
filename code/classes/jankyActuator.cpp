@@ -29,10 +29,6 @@ JankyActuator::JankyActuator(int pistonChannel)
 	dFullActuationTime = 1.2;
 	
 	pPiston = new Solenoid(pistonChannel);
-	
-	LiveWindow *lw = LiveWindow::GetInstance();
-	lw->SetEnabled(true);
-	lw->AddActuator("Piston", "Piston", pPiston);
 		
 }
 
