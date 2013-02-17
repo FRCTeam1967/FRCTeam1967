@@ -8,12 +8,17 @@
 #define PISTON_CHANNEL 1
 #define COMPRESSOR_RELAY_CHANNEL 2
 #define COMPRESSOR_PRESSURE_SWITCH 2
-#define LOADING_RELAY_CHANNEL 4
+//#define LOADING_RELAY_CHANNEL 4
 
 //shooter
+#define SHOOTING_SPEED 1.0
 #define REAL_CYCLE_TIME 1.5
 #define REAL_ACTUATION_TIME 0.5
-#define SHOOTING_SPEED 1.0
+#define LOW_SHOOTING_SPEED 0.5
+#define LOW_REAL_CYCLE_TIME 1.0
+#define LOW_ACTUATION_TIME 0.5
+#define LOW_BUTTON_TIMER 1.0
+
 #define SHOOTER_TIMER_THRESHOLD 3
 #define SHOOTER_MOTOR_ONE_CHANNEL 3 
 #define SHOOTER_MOTOR_TWO_CHANNEL 4
@@ -46,6 +51,7 @@ class UltimateAscent2013 : public JankyRobotTemplate
 	//Solenoid * shooterSolenoid;
 	Timer * onTimer;
 	Timer * offTimer;
+	Timer * lowTimer;
 	Timer * AutonomousTimer;
 	SendableChooser * ChooseAutonomousMode;
 	const char * h;
@@ -73,6 +79,7 @@ public:
 		//shooterSolenoid = NULL;
 		onTimer = NULL;
 		offTimer = NULL;
+		lowTimer = NULL;
 		AutonomousTimer = NULL;
 		ChooseAutonomousMode = NULL;
 
@@ -92,6 +99,7 @@ public:
 	//delete shooterSolenoid;
 	delete onTimer;
 	delete offTimer;
+	delete lowTimer;
 	delete AutonomousTimer;
 	delete ChooseAutonomousMode;
 }
@@ -123,8 +131,10 @@ public:
 		shooterMotorOne = new Victor(SHOOTER_MOTOR_ONE_CHANNEL);
 		shooterMotorTwo = new Victor(SHOOTER_MOTOR_TWO_CHANNEL);
 		//shooterSolenoid = new Solenoid(SHOOTER_SOLENOID_CHANNEL);
+
 		onTimer = new Timer;
 		offTimer = new Timer;
+		lowTimer = new Timer;
 		AutonomousTimer = new Timer;
 		ChooseAutonomousMode = new SendableChooser;
 
@@ -249,17 +259,19 @@ public:
 		OperatorControlInit();
 		//MUST be called - DO NOT TAKE OUT!
 		printf("OperatorControlInit called\n");
+
 		SmartDashboard::PutString("Status","In Operator Control");
 				
 		onTimer->Reset();
 		offTimer->Reset();
+		lowTimer->Reset();
 		
 		shooterPiston->Start();
 		shooterPiston->SetFullCycleTime(REAL_CYCLE_TIME);
 		shooterPiston->SetActuationTime(REAL_ACTUATION_TIME);
 		
-		//bool isSpinOn = false;
-		//bool isFireOn = false;
+		bool isSpinOn = false;
+		bool isFireOn = false;
 		
 		int iShotsRemaining = 4;
 		SmartDashboard::PutNumber("Shots Remaining", iShotsRemaining);
@@ -313,35 +325,34 @@ public:
 			/*************
 			*  Shooting	 *			
 			**************/
-			//This is the Simple Shooting Code
-			bool isSpinButtonPressed = gameComponent->GetButtonA();
-			bool isFireButtonPressed = gameComponent->GetButtonRB();
-			if(isSpinButtonPressed)
+			 bool spinButton = gameComponent->GetButtonA();
+			 bool fireButton = gameComponent->GetButtonRB();
+			 bool lowButton = gameComponent->GetButtonY();
+			 
+			 if (lowButton)
+			 {
+				 lowTimer->Start();
+				 shooterMotorOne->Set(LOW_SHOOTING_SPEED);
+				 shooterMotorTwo->Set(LOW_SHOOTING_SPEED);
+				 shooterPiston->SetFullCycleTime(LOW_REAL_CYCLE_TIME);
+				 shooterPiston->SetActuationTime(LOW_ACTUATION_TIME);
+				 
+				 if (lowTimer->Get() > LOW_BUTTON_TIMER)
+				 {
+					 shooterPiston->Go(); 
+				 }
+			 }
+			 else 
+			 {	 
+				lowTimer->Stop();
+				lowTimer->Reset();
+			 }
+			 
+			 
+			 
+			 if(spinButton) 
 			{
-				printf("Spin Button Pressed\n");
-				shooterMotorOne->Set(0.7);
-				//shooterMotorTwo->Set(0.7);
-			}
-			else
-			{
-				//printf("Spin Button Not Pressed\n");
-				shooterMotorOne->Set(0.0);
-				//shooterMotorTwo->Set(0.0);			
-				//loadingSolenoid->Set(true);
-			}
-			
-			if (isFireButtonPressed)
-			{
-				printf("Fire Button Pressed\n");
-				shooterPiston->Go();
-			}
-
-		/*	
-			 bool spinButton = driveJoystick->GetButtonA();
-			 bool fireButton = driveJoystick->GetButtonRB();
-			 if(spinButton)
-			{
-				if(!isSpinOn)
+				if(isSpinOn == false)
 				{
 					printf("In Spin Button Loop\n");
 					onTimer->Reset();
@@ -350,22 +361,26 @@ public:
 					
 					shooterMotorOne->Set(SHOOTING_SPEED);
 					shooterMotorTwo->Set(SHOOTING_SPEED);
-					isSpinOn = true;
+					isSpinOn = true; //NOT TRUE-WHY?-if spinButton pressed, and if isSpin on is false-only then will shooterMotor run-B/C once its set-its set! no else statement
 				}
-			} //What happens when it goes back through this loop and isSpinOn is false?
+			
+			}
+					
+			  //What happens when it goes back through this loop and isSpinOn is false?
 			  //Shooter motor won't be set to the shooting speed we want?
 			
 			if(fireButton)
 			{
-				if(!isFireOn)
+				if(!isFireOn) //isFireOn == false
 				{
 					printf("Fire On\n");
-					if(isSpinOn) //This is evaluated if the spinButton is pressed
+					
+					if(isSpinOn) //This is evaluated if the spinButton is pressed-BOTH BUTTONS PRESSED
 					{
 						printf("Fire and Spin On\n");
 						isFireOn = true;
-					}
-					if(!isSpinOn) //This is evaluated if the spinButton is not pressed
+					}			
+					if(!isSpinOn) //This is evaluated if the spinButton is not pressed-ONLY FIREBUTTON
 					{
 						printf("Fire On, Spin Off\n");
 						onTimer->Reset();
@@ -376,21 +391,21 @@ public:
 						isFireOn = true;
 					}
 				}
-				if(offTimer->Get() > SHOOTER_TIMER_THRESHOLD)
+				if (onTimer->Get() > SHOOTER_TIMER_THRESHOLD) //piston activation is dependent on time that the shooter motor is spinning
+				{
+					printf("Piston Go");
+					shooterPiston->Go();
+				}
+				if(offTimer->Get() > SHOOTER_TIMER_THRESHOLD) //if the offTimer is longer for certain time, reset-shooting system not being used
 				{
 					printf("Fire button - Off Timer greater than threshold & stopped\n");
 					offTimer->Stop();
 					offTimer->Reset();
-				}
+				}		
 				if(onTimer->Get() + offTimer->Get() > SHOOTER_TIMER_THRESHOLD) //offTimer and onTimer are used to activate shooting piston
 				{
 					printf("Piston Go");
-					//shooterPiston->Go();
-					if(shooterPiston->Go() == true)
-					{
-						iShotsRemaining--;
-					}
-					 
+					shooterPiston->Go();
 				}
 				if(!spinButton)
 				{
@@ -402,23 +417,28 @@ public:
 										
 			}
 			
-			else if(!spinButton && !fireButton)
+			else if(!spinButton && !fireButton) //when BOTH buttons are not pressed-edge transition
 			{
-				printf("NOT spin nor fire");
-				isSpinOn = false;
-				isFireOn = false;
+				if (isSpinOn == true || isFireOn == true) //one mode is changed faster than the other mode
+				{	
+					printf("NOT spin nor fire\n");
 				
-				offTimer->Start();
-				//For the timing of how long it has been since the buttons were pressed
+					isSpinOn = false;
+					isFireOn = false;
 				
-				onTimer->Stop();
-				onTimer->Reset();
+					offTimer->Reset();
+					offTimer->Start();
+					//For the timing of how long it has been since the buttons were pressed
 				
-				shooterMotorOne->Set(0.0);
-				shooterMotorTwo->Set(0.0);
+					onTimer->Stop();
+					onTimer->Reset();
+				
+					shooterMotorOne->Set(0.0);
+					shooterMotorTwo->Set(0.0);
+				}
 									
 			} 
-			*/
+			
 		}
 		
 		
