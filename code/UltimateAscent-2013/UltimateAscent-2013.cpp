@@ -6,7 +6,7 @@
 #define DRIVE_JOYSTICK_PORT 1
 #define GC_JOYSTICK_PORT 2
 #define PISTON_CHANNEL 1
-#define COMPRESSOR_RELAY_CHANNEL 5
+#define COMPRESSOR_RELAY_CHANNEL 2
 #define COMPRESSOR_PRESSURE_SWITCH 2
 #define LOADING_RELAY_CHANNEL 4
 
@@ -25,10 +25,9 @@
 #define LEFT_HANGING -1.0
 #define RIGHT_HANGING -1.0
 
-//Autonomous 
-#define AUTONOMOUS_A  //drive up and ramp up motor simultaneously.
-#define AUTONOMOUS_B  //Turn on shooter motor, wait, then shoot. 
 #define AUTONOMOUS_TIMER 2.5
+#define AUTONOMOUS_SHOOT_MEDIUM_SPEED 0.8
+#define AUTONOMOUS_SHOOT_HIGH_SPEED 1.0
 
 /*********************************************************************************************************
  * Team 1967's main robot code for 2013's game Ultimate Ascent. Includes some of our own basic classes:  *
@@ -47,13 +46,18 @@ class UltimateAscent2013 : public JankyRobotTemplate
 	//Solenoid * shooterSolenoid;
 	Timer * onTimer;
 	Timer * offTimer;
+	Timer * AutonomousTimer;
+	SendableChooser * ChooseAutonomousMode;
+	const char * h;
+	const char * m;
+	const char * dm;
 
 public:
 	UltimateAscent2013(void)
 	/*	
 		gameComponent(GC_JOYSTICK_PORT),
 		driveJoystick(DRIVE_JOYSTICK_PORT),
-		//shooterPiston(PISTON_CHANNEL),	//relay channel that the solenoid is connected to
+		shooterPiston(PISTON_CHANNEL),	//relay channel that the solenoid is connected to
 		compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL),	// (UINT32 pressureSwitchChannel, UINT32 compressorRelayChannel)
 		shooterMotorOne(SHOOTER_MOTOR_ONE_CHANNEL),
 		shooterMotorTwo(SHOOTER_MOTOR_TWO_CHANNEL),
@@ -69,7 +73,12 @@ public:
 		//shooterSolenoid = NULL;
 		onTimer = NULL;
 		offTimer = NULL;
+		AutonomousTimer = NULL;
+		ChooseAutonomousMode = NULL;
 
+		h = "High Goal";
+		m = "Medium Goal";
+		dm = "Drive & Medium Goal";
 	}
 
 	~UltimateAscent2013(void)
@@ -83,10 +92,13 @@ public:
 	//delete shooterSolenoid;
 	delete onTimer;
 	delete offTimer;
+	delete AutonomousTimer;
+	delete ChooseAutonomousMode;
 }
 	
 	void RobotInit(void)
 	{
+		printf("RobotInit\n");
 		LiveWindow *lw = LiveWindow::GetInstance();
 
 		//lw->AddActuator("Shooting", "Shooter Piston", shooterPiston.GetSolenoid());
@@ -96,7 +108,7 @@ public:
 		//lw->AddActuator("Driving","Right Motor",pR);
 		
 		lw->SetEnabled(true);
-		
+
 		Wait (2.0);
 
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
@@ -108,11 +120,17 @@ public:
 		//shooterSolenoid = new Solenoid(SHOOTER_SOLENOID_CHANNEL);
 		onTimer = new Timer;
 		offTimer = new Timer;
+		AutonomousTimer = new Timer;
+		ChooseAutonomousMode = new SendableChooser;
 
+		SmartDashboard::PutString("Status","Choose Autonomous Mode");
+		ChooseAutonomousMode->AddObject(h, ((void*)h));
+		ChooseAutonomousMode->AddObject(m, ((void*)m));
+		ChooseAutonomousMode->AddObject(dm, ((void*)dm));
+		
 		compressor->Start();
 		JankyRobotTemplate::RobotInit();
 	}
-	
 	
 	void Autonomous(void)
 	{
@@ -120,41 +138,107 @@ public:
 		shooterPiston->SetFullCycleTime(REAL_CYCLE_TIME);
 		shooterPiston->SetActuationTime(REAL_ACTUATION_TIME);
 		
-		Timer AutonomousTimer;
-		AutonomousTimer.Reset();
+		AutonomousTimer->Reset();
+		
 		AutonomousInit();
+		ProgramIsAlive();
 		//MUST be called - DO NOT TAKE OUT!
 		
-#ifdef AUTONOMOUS_A
+		SmartDashboard::PutString("Status","In Autonomous");
 		
-		AutonomousTimer.Start();
-		shooterMotorOne->Set(SHOOTING_SPEED);
-		shooterMotorTwo->Set(SHOOTING_SPEED);
-		
-		if (AutonomousTimer.Get()<AUTONOMOUS_TIMER)
-		{	
-			TankDrive(LEFT_AUTONOMOUS, RIGHT_AUTONOMOUS);
-		}
-		else 
-		{
-			TankDrive(0.0,0.0);
-			shooterPiston->Go();
-		}
+		bool RunMedium = false;
+		bool RunDriveMedium = false;
+		bool RunHigh = false;
+		int counter;
 
+		//Choosing which autonomous mode from SmartDashboard
+		if(ChooseAutonomousMode->GetSelected() == ((void*)m))
+		{
+			RunMedium = true;
+			printf("Autonomous-shooting at medium goal\n");
+		}
+		if(ChooseAutonomousMode->GetSelected() == ((void*)dm))
+		{
+			RunDriveMedium = true;
+			printf("Autonomous-driving & shooting at medium goal\n");
+		}
+		if(ChooseAutonomousMode->GetSelected() == ((void*)h))
+		{
+			RunHigh = true;
+			printf("Autonomous-shooting at high goal\n");
+		}
 		
-#endif
 		
-#ifdef AUTONOMOUS_B
-		
-		AutonomousTimer.Start();
-		shooterMotorOne->Set(SHOOTING_SPEED);
-		shooterMotorTwo->Set(SHOOTING_SPEED);	
-		
-		if (AutonomousTimer.Get()>AUTONOMOUS_TIMER)
-			shooterPiston->Go();
-		
-#endif	
-		
+		//Different autonomous run modes
+		/*if(RunMedium)
+		{
+			AutonomousTimer->Start();
+			shooterMotorOne->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
+			//shooterMotorTwo->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
+			
+			if (AutonomousTimer->Get()<AUTONOMOUS_TIMER)
+			{	
+				TankDrive(0.0, 0.0);
+			}
+			else if (AutonomousTimer->Get()> AUTONOMOUS_TIMER)
+			{
+				shooterPiston->Go();
+				if(shooterPiston->Go() == true)
+				{
+					counter++;
+				}
+				if(counter > 2)
+				{
+					shooterPiston->OverrideDisable();
+				}
+			}	
+		}
+		if(RunDriveMedium)
+		{
+			AutonomousTimer->Start();
+			shooterMotorOne->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
+			//shooterMotorTwo->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
+			
+			if (AutonomousTimer->Get()<AUTONOMOUS_TIMER)
+			{	
+				TankDrive(LEFT_AUTONOMOUS, RIGHT_AUTONOMOUS);
+			}
+			else if (AutonomousTimer->Get()> AUTONOMOUS_TIMER)
+			{
+				shooterPiston->Go();
+				if(shooterPiston->Go() == true)
+				{
+					counter++;
+				}
+				if(counter > 3)
+				{
+					shooterPiston->OverrideDisable();
+				}
+			}	
+		}
+		if(RunHigh)
+		{
+			AutonomousTimer->Start();
+			shooterMotorOne->Set(AUTONOMOUS_SHOOT_HIGH_SPEED);
+			//shooterMotorTwo->Set(AUTONOMOUS_SHOOT_HIGH_SPEED);
+			
+			if (AutonomousTimer->Get()<AUTONOMOUS_TIMER)
+			{	
+				TankDrive(0.0, 0.0);
+			}
+			else if (AutonomousTimer->Get()> AUTONOMOUS_TIMER)
+			{
+				shooterPiston->Go();
+				if(shooterPiston->Go() == true)
+				{
+					counter++;
+				}
+				if(counter > 2)
+				{
+					shooterPiston->OverrideDisable();
+				}
+			}	
+		}*/
 	}
 	 
 
@@ -162,11 +246,12 @@ public:
 	void OperatorControl(void)
 	{
 		printf("In Teleop\n");
-		
+
 		OperatorControlInit();
 		//MUST be called - DO NOT TAKE OUT!
 		printf("OperatorControlInit called\n");
-		
+		SmartDashboard::PutString("Status","In Operator Control");
+				
 		onTimer->Reset();
 		offTimer->Reset();
 		
