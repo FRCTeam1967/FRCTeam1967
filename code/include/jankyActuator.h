@@ -21,8 +21,8 @@ public:
 	bool Go();
 	virtual void Run();
 	void Reset(void);
-	void SetFullCycleTime(int cycleTime);
-	void SetActuationTime(int actuationTime);
+	void SetFullCycleTime(double cycleTime);
+	void SetActuationTime(double actuationTime);
 	void OverrideEnable(void);
 	void OverrideDisable(void);
 	Solenoid * GetSolenoid(void){
@@ -30,8 +30,8 @@ public:
 	}
 	
 	//Member variables
-	int iFullCycleTime;
-	int iFullActuationTime;
+	double dFullCycleTime;
+	double dFullActuationTime;
 	bool bActuating;
 	Timer cycleTimer;
 	Solenoid * pPiston;

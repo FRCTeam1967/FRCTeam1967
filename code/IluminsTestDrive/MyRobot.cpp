@@ -11,20 +11,28 @@
  ************************************************************************************************/ 
 class RobotDemo : public SimpleRobot
 {
-
 	Compressor compressor;
 	RobotDrive myRobot; // robot drive system
 	Joystick driveJoystick;
+	Joystick gameComponent;
 	Victor leftdrive;
 	Victor rightdrive;
+	Victor shooterMotorOne;
+	Victor shooterMotorTwo;
+	Solenoid shooterSolenoid;
 	
 public:
 	RobotDemo(void):
 		compressor(2,2),
 		myRobot(1, 2),	// these must be initialized in the same order
-		driveJoystick(1),		// as they are declared above.
+		driveJoystick(1), // as they are declared above.
+		gameComponent (2),
 		leftdrive (1),
-		rightdrive (2)
+		rightdrive (2),
+		shooterMotorOne (3),
+		shooterMotorTwo (4),
+		shooterSolenoid (1)
+		
 	{
 		myRobot.SetExpiration(0.1);
 	}
@@ -50,11 +58,46 @@ public:
 		while (IsOperatorControl())
 		{
 			//this code will probably work on the new game console and does should with the old joystick
-			myRobot.TankDrive(driveJoystick.GetY(), driveJoystick.GetTwist()); 
+			myRobot.TankDrive(driveJoystick.GetY(), driveJoystick.GetRawAxis(5)); 
 			Wait(0.005);				// wait for a motor update time
 			
+			//shooting
+			bool isSpinButtonPressed = gameComponent.GetRawButton(1);
+			bool isFireButtonPressed = gameComponent.GetRawButton(6);
+			
+						if(isSpinButtonPressed)
+						{
+							printf("Spin Button Pressed\n");
+							shooterMotorOne.Set(0.7);
+							shooterMotorTwo.Set(0.7);
+						}
+						else
+						{
+							printf("Spin Button Not Pressed\n");
+							shooterMotorOne.Set(0.0);
+							shooterMotorTwo.Set(0.0);			
+							
+						}
+						
+						
+						if (isFireButtonPressed)
+						{
+							printf("Fire Button Pressed\n");
+							shooterSolenoid.Set(true);
+						}
+						else
+							shooterSolenoid.Set(false);
 			
 			
+			
+			// Hanging
+			bool isHangingButtonPressed = driveJoystick.GetRawButton(4);
+			if (isHangingButtonPressed == true)
+			{	
+				myRobot.TankDrive(-1.0,-1.0);
+			}	
+			else
+				myRobot.TankDrive(driveJoystick.GetY(), driveJoystick.GetRawAxis(5));
 		}
 	}
 	

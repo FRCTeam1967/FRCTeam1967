@@ -86,7 +86,7 @@ void JankyRobotTemplate::ProgramIsAlive()
 	
 	static int counter = 0;
 	counter++;
-	
+/*	
 	if (counter > 500)
 	{
 		std::string sChange = SmartDashboard::GetString("Begin Changes");
@@ -104,6 +104,7 @@ void JankyRobotTemplate::ProgramIsAlive()
 		}
 		counter = 0;
 	}
+	*/
 	
 	Wait(0.002);
 }

@@ -25,8 +25,8 @@ JankyActuator::JankyActuator(int pistonChannel)
 {
 	bActuating = false;
 	cycleTimer.Reset();
-	iFullCycleTime = 3.5;
-	iFullActuationTime = 1.2;
+	dFullCycleTime = 3.5;
+	dFullActuationTime = 1.2;
 	
 	pPiston = new Solenoid(pistonChannel);
 	
@@ -60,9 +60,9 @@ void JankyActuator::Reset()
  * @param cycleTime The time in seconds it takes for the piston to extend and retract.
  * 				Probably the actuationTime plus whatever time it takes for the piston to retract.
  */
-void JankyActuator::SetFullCycleTime(int cycleTime)
+void JankyActuator::SetFullCycleTime(double cycleTime)
 {
-	iFullCycleTime = cycleTime; //integer in seconds
+	dFullCycleTime = cycleTime; //integer in seconds
 }
 
 
@@ -74,9 +74,9 @@ void JankyActuator::SetFullCycleTime(int cycleTime)
  * @param actuationTime The time in seconds it takes for the piston to go out.
  * 
  */
-void JankyActuator::SetActuationTime(int actuationTime)
+void JankyActuator::SetActuationTime(double actuationTime)
 {
-	iFullActuationTime = actuationTime;	//integer in seconds
+	dFullActuationTime = actuationTime;	//integer in seconds
 }
 
 
@@ -113,7 +113,7 @@ bool JankyActuator::Go()
  */
 void JankyActuator::Run()
 {	
-	if(cycleTimer.Get() > iFullCycleTime)
+	if(cycleTimer.Get() > dFullCycleTime)
 	{
 		bActuating = false;
 		cycleTimer.Stop();
@@ -123,7 +123,7 @@ void JankyActuator::Run()
 	{
 		if (bActuating == true)
 		{
-			if (cycleTimer.Get() < iFullActuationTime)
+			if (cycleTimer.Get() < dFullActuationTime)
 			{
 				pPiston->Set(true);
 			}
