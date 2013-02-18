@@ -11,8 +11,8 @@
 #define LOADING_RELAY_CHANNEL 4
 
 //shooter
-#define REAL_CYCLE_TIME 3.0
-#define REAL_ACTUATION_TIME 1.5
+#define REAL_CYCLE_TIME 1.5
+#define REAL_ACTUATION_TIME 0.5
 #define SHOOTING_SPEED 1.0
 #define SHOOTER_TIMER_THRESHOLD 3
 #define SHOOTER_MOTOR_ONE_CHANNEL 3 
@@ -25,9 +25,9 @@
 #define LEFT_HANGING -1.0
 #define RIGHT_HANGING -1.0
 
-#define AUTONOMOUS_TIMER 2.5
-#define AUTONOMOUS_SHOOT_MEDIUM_SPEED 0.8
-#define AUTONOMOUS_SHOOT_HIGH_SPEED 1.0
+#define AUTONOMOUS_SPIN_UP_TIME 4.0
+#define AUTONOMOUS_DRIVE_TIMER 5.0
+#define AUTONOMOUS_SHOOT_SPEED 1.0
 
 /*********************************************************************************************************
  * Team 1967's main robot code for 2013's game Ultimate Ascent. Includes some of our own basic classes:  *
@@ -158,7 +158,7 @@ public:
 		bool RunMedium = false;
 		bool RunDriveMedium = false;
 		bool RunHigh = false;
-		int counter;
+		int counter = 0;
 
 		
 		//Choosing which autonomous mode from SmartDashboard
@@ -179,83 +179,67 @@ public:
 		}
 		
 		
-		while(IsAutonomous())
-		{
-			ProgramIsAlive();
-			TankDrive(0.0,0.0);
-		}
 		//Different autonomous run modes
-		/*if(RunMedium)
+		if(RunMedium)
 		{
 			AutonomousTimer->Start();
-			shooterMotorOne->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
-			//shooterMotorTwo->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
-			
-			if (AutonomousTimer->Get()<AUTONOMOUS_TIMER)
-			{	
-				TankDrive(0.0, 0.0);
-			}
-			else if (AutonomousTimer->Get()> AUTONOMOUS_TIMER)
+			while(IsAutonomous())
 			{
-				shooterPiston->Go();
-				if(shooterPiston->Go() == true)
+				ProgramIsAlive();
+				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
+				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
+				
+				if (AutonomousTimer->Get() > AUTONOMOUS_SPIN_UP_TIME)
 				{
-					counter++;
+					if(counter <= 3 && shooterPiston->Go() == true)
+					{
+						counter++;
+					}
 				}
-				if(counter > 2)
-				{
-					shooterPiston->OverrideDisable();
-				}
-			}	
+			}
 		}
-		if(RunDriveMedium)
+		else if(RunDriveMedium)
 		{
 			AutonomousTimer->Start();
-			shooterMotorOne->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
-			//shooterMotorTwo->Set(AUTONOMOUS_SHOOT_MEDIUM_SPEED);
-			
-			if (AutonomousTimer->Get()<AUTONOMOUS_TIMER)
-			{	
-				TankDrive(LEFT_AUTONOMOUS, RIGHT_AUTONOMOUS);
-			}
-			else if (AutonomousTimer->Get()> AUTONOMOUS_TIMER)
+			while(IsAutonomous())
 			{
-				shooterPiston->Go();
-				if(shooterPiston->Go() == true)
-				{
-					counter++;
+				ProgramIsAlive();
+				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
+				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
+				
+				if (AutonomousTimer->Get()<AUTONOMOUS_DRIVE_TIMER)
+				{	
+					TankDrive(LEFT_AUTONOMOUS, RIGHT_AUTONOMOUS);
 				}
-				if(counter > 3)
+				else if (AutonomousTimer->Get()> AUTONOMOUS_DRIVE_TIMER)
 				{
-					shooterPiston->OverrideDisable();
-				}
-			}	
+					if(counter <= 3 && shooterPiston->Go() == true)
+					{
+						counter++;
+					}
+				}	
+			}
 		}
-		if(RunHigh)
+		else if(RunHigh)
 		{
 			AutonomousTimer->Start();
-			shooterMotorOne->Set(AUTONOMOUS_SHOOT_HIGH_SPEED);
-			//shooterMotorTwo->Set(AUTONOMOUS_SHOOT_HIGH_SPEED);
-			
-			if (AutonomousTimer->Get()<AUTONOMOUS_TIMER)
-			{	
-				TankDrive(0.0, 0.0);
-			}
-			else if (AutonomousTimer->Get()> AUTONOMOUS_TIMER)
+			while(IsAutonomous())
 			{
-				shooterPiston->Go();
-				if(shooterPiston->Go() == true)
+				ProgramIsAlive();
+				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
+				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
+				
+				if (AutonomousTimer->Get() > AUTONOMOUS_SPIN_UP_TIME)
 				{
-					counter++;
+					if(counter <= 3 && shooterPiston->Go() == true)
+					{
+						counter++;
+					}
 				}
-				if(counter > 2)
-				{
-					shooterPiston->OverrideDisable();
-				}
-			}	
-		}*/
+			}
+		}
 	}
-	 
+	
 
 
 	void OperatorControl(void)
