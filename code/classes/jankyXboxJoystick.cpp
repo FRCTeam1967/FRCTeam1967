@@ -132,7 +132,7 @@ float jankyXboxJoystick::GetLeftXAxis ()
  */
 float jankyXboxJoystick::GetLeftYAxis()
 {
-	float y = (GetRawAxis(LEFT_Y_AXIS_CHANNEL) * -1);
+	float y = (GetRawAxis(LEFT_Y_AXIS_CHANNEL));
 	return y;
 }
 
@@ -144,6 +144,6 @@ float jankyXboxJoystick::GetRightXAxis ()
 
 float jankyXboxJoystick::GetRightYAxis ()
 {
-	float y = (GetRawAxis(RIGHT_Y_AXIS_CHANNEL) * -1);
+	float y = (GetRawAxis(RIGHT_Y_AXIS_CHANNEL));
 	return y;
 }

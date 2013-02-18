@@ -132,8 +132,13 @@ public:
 		shooterMotorTwo = new Victor(SHOOTER_MOTOR_TWO_CHANNEL);
 		//shooterSolenoid = new Solenoid(SHOOTER_SOLENOID_CHANNEL);
 
-		onTimer = new Timer;
+		onTimer = new Timer;	//this is activated when shooter motor is spinning
 		offTimer = new Timer;
+		
+		/*when fire button is pressed and spin button is not && both buttons not pressed. 
+		offTimer is useful in the case that the person lifts the button
+		*/
+		
 		lowTimer = new Timer;
 		AutonomousTimer = new Timer;
 		ChooseAutonomousMode = new SendableChooser;
@@ -162,7 +167,7 @@ public:
 		AutonomousInit();
 		ProgramIsAlive();
 		//MUST be called - DO NOT TAKE OUT!
-		
+
 		SmartDashboard::PutString("Status","In Autonomous");
 		
 		bool RunMedium = false;
@@ -274,10 +279,7 @@ public:
 		bool isFireOn = false;
 		
 		int iShotsRemaining = 4;
-		SmartDashboard::PutNumber("Shots Remaining", iShotsRemaining);
 		
-		//bool spinButton = gameComponent->GetButtonRB();
-		//bool fireButton = gameComponent->GetButtonX();
 			
 		printf("Entering while loop\n");
 		
@@ -347,11 +349,10 @@ public:
 				lowTimer->Stop();
 				lowTimer->Reset();
 			 }
-			 
-			 
-			 
+
+			 SmartDashboard::PutNumber("Shots Remaining", iShotsRemaining);
 			 if(spinButton) 
-			{
+			 {
 				if(isSpinOn == false)
 				{
 					printf("In Spin Button Loop\n");
@@ -415,7 +416,7 @@ public:
 					}
 				}
 										
-			}
+			} //end of if (fire button)
 			
 			else if(!spinButton && !fireButton) //when BOTH buttons are not pressed-edge transition
 			{
