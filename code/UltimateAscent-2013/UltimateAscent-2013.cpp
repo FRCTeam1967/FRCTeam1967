@@ -14,7 +14,7 @@
 #define SHOOTING_SPEED 1.0
 #define REAL_CYCLE_TIME 1.5
 #define REAL_ACTUATION_TIME 0.5
-#define LOW_SHOOTING_SPEED 0.5
+#define LOW_SHOOTING_SPEED 0.7
 #define LOW_REAL_CYCLE_TIME 1.0
 #define LOW_ACTUATION_TIME 0.5
 #define LOW_BUTTON_TIMER 1.0
@@ -25,13 +25,13 @@
 #define SHOOTER_SOLENOID_CHANNEL 1
 
 //driving system
-#define LEFT_AUTONOMOUS 0.2
-#define RIGHT_AUTONOMOUS 0.2
+#define LEFT_AUTONOMOUS 0.3
+#define RIGHT_AUTONOMOUS 0.3
 #define LEFT_HANGING -1.0
 #define RIGHT_HANGING -1.0
 
-#define AUTONOMOUS_SPIN_UP_TIME 4.0
-#define AUTONOMOUS_DRIVE_TIMER 5.0
+#define AUTONOMOUS_SPIN_UP_TIME 3.0
+#define AUTONOMOUS_DRIVE_TIMER 2.0
 #define AUTONOMOUS_SHOOT_SPEED 1.0
 
 /*********************************************************************************************************
@@ -210,6 +210,12 @@ public:
 					{
 						counter++;
 					}
+					else
+					{
+						printf("Setting motors to zero in autonomous else\n");
+						shooterMotorOne->Set(0.0);
+						shooterMotorTwo->Set(0.0);
+					}
 				}
 			}
 		}
@@ -232,6 +238,12 @@ public:
 					{
 						counter++;
 					}
+					else
+					{
+						printf("Setting motors to zero in autonomous else\n");
+						shooterMotorOne->Set(0.0);
+						shooterMotorTwo->Set(0.0);
+					}
 				}	
 			}
 		}
@@ -246,9 +258,15 @@ public:
 				
 				if (AutonomousTimer->Get() > AUTONOMOUS_SPIN_UP_TIME)
 				{
-					if(counter <= 3 && shooterPiston->Go() == true)
+					if(counter <= 4 && shooterPiston->Go() == true)
 					{
 						counter++;
+					}
+					else
+					{
+						printf("Setting motors to zero in autonomous else\n");
+						shooterMotorOne->Set(0.0);
+						shooterMotorTwo->Set(0.0);
 					}
 				}
 			}
@@ -277,6 +295,7 @@ public:
 		
 		bool isSpinOn = false;
 		bool isFireOn = false;
+		bool isLowOn = false;
 		
 		int iShotsRemaining = 4;
 		
@@ -288,20 +307,7 @@ public:
 			//Safety precaution
 			ProgramIsAlive();
 			//No need to do waits at the end of teleop because ProgramIsAlive function does a wait. 
-		
-			/*
-				Button A: Spin up Shooting Motor
-				Button B: 
-				Button X: Run the motor
-				Button Y: Hanging 
-				Button LB: Loading
-				Button RB: Actuator
-				Button LT: 
-				Button RT: 
-				Button Back: 
-				Button Start: 
-			*/		
-			
+
 			/*************
 			*   Driving	 *			
 			**************/
@@ -330,24 +336,36 @@ public:
 			 bool spinButton = gameComponent->GetButtonA();
 			 bool fireButton = gameComponent->GetButtonRB();
 			 bool lowButton = gameComponent->GetButtonY();
+			 bool pistonButton = gameComponent->GetButtonLB();
+			 
+			 if (pistonButton)
+				 shooterPiston->Go();
 			 
 			 if (lowButton)
 			 {
-				 lowTimer->Start();
-				 shooterMotorOne->Set(LOW_SHOOTING_SPEED);
-				 shooterMotorTwo->Set(LOW_SHOOTING_SPEED);
 				 shooterPiston->SetFullCycleTime(LOW_REAL_CYCLE_TIME);
 				 shooterPiston->SetActuationTime(LOW_ACTUATION_TIME);
-				 
+				 if(!isLowOn)
+				 {
+					 printf("In Low Button Loop\n");
+					 isLowOn = true;
+					 lowTimer->Reset();
+					 lowTimer->Start();
+					 shooterMotorOne->Set(LOW_SHOOTING_SPEED);
+					 shooterMotorTwo->Set(LOW_SHOOTING_SPEED);
+				 }
 				 if (lowTimer->Get() > LOW_BUTTON_TIMER)
 				 {
 					 shooterPiston->Go(); 
 				 }
 			 }
-			 else 
+			 else if (isLowOn && !lowButton) 
 			 {	 
+				//printf("In low else statement\n");
 				lowTimer->Stop();
-				lowTimer->Reset();
+				isLowOn = false;
+				shooterMotorOne->Set(0.0);
+				shooterMotorTwo->Set(0.0);
 			 }
 
 			 SmartDashboard::PutNumber("Shots Remaining", iShotsRemaining);
