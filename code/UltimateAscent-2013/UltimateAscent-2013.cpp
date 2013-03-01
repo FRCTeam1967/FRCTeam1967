@@ -301,6 +301,7 @@ public:
 		
 			
 		printf("Entering while loop\n");
+		SmartDashboard::PutString("Status","Entering Teleop loop");
 		
 		while (IsOperatorControl())
 		{
@@ -311,6 +312,8 @@ public:
 			/*************
 			*   Driving	 *			
 			**************/
+			int testButton = driveJoystick->GetButtonRB();
+			SmartDashboard::PutNumber("Teleop Test Button", testButton);
 			TankDrive(driveJoystick->GetLeftYAxis(),driveJoystick->GetRightYAxis());
 			
 			
@@ -343,6 +346,7 @@ public:
 			 
 			 if (lowButton)
 			 {
+				 
 				 shooterPiston->SetFullCycleTime(LOW_REAL_CYCLE_TIME);
 				 shooterPiston->SetActuationTime(LOW_ACTUATION_TIME);
 				 if(!isLowOn)
@@ -459,7 +463,7 @@ public:
 			} 
 			
 		}
-		
+		SmartDashboard::PutString("Status","Left Teleop loop");
 		
 	}
 

@@ -58,7 +58,15 @@ bool jankyXboxJoystick::GetButtonX()
  */
 bool jankyXboxJoystick::GetButtonY()
 {
-	return Joystick::GetRawButton(BUTTON_Y_PORT);
+	if (Joystick::GetRawButton(BUTTON_Y_PORT))
+	{	
+		printf("Button Y Pressed\n");
+		return true;
+	}
+	else 
+		return false;
+	
+	//return Joystick::GetRawButton(BUTTON_Y_PORT);	
 }
 
 /**
