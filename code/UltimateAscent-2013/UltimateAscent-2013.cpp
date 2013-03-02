@@ -31,8 +31,9 @@
 #define RIGHT_HANGING -1.0
 
 #define AUTONOMOUS_SPIN_UP_TIME 3.0
-#define AUTONOMOUS_DRIVE_TIMER 2.0
+#define AUTONOMOUS_MEDIUM_DRIVE_TIMER 2.0
 #define AUTONOMOUS_SHOOT_SPEED 1.0
+#define AUTONOMOUS_LOFT_SPEED 0.55
 
 /*********************************************************************************************************
  * Team 1967's main robot code for 2013's game Ultimate Ascent. Includes some of our own basic classes:  *
@@ -54,9 +55,13 @@ class UltimateAscent2013 : public JankyRobotTemplate
 	Timer * lowTimer;
 	Timer * AutonomousTimer;
 	SendableChooser * ChooseAutonomousMode;
-	const char * h;
-	const char * m;
-	const char * dm;
+	const char * h;			//Normal positioning next to the pyramid - robot angled to shoot high
+	const char * m;			//Normal positioning next to the pyramid - robot straight to shoot medium
+	const char * loftH; 	//Positioned next to back pole of pyramid and angled to shoot high
+							//Will the pyramid pole's block the frisbees?
+	const char * loftM; 	//Positioned next to back pole of pyramid and straight to shoot medium
+	const char * driveM;	//Angled against back pole of pyramid and drive to shoot medium
+	const char * driveH;	//Angled against back pole of pyramid and drive to shoot high
 
 public:
 	UltimateAscent2013(void)
@@ -85,7 +90,10 @@ public:
 
 		h = "High Goal";
 		m = "Medium Goal";
-		dm = "Drive & Medium Goal";
+		driveM = "Drive & Medium Goal";
+		driveH = "Drive & High Goal";
+		loftM = "Loft Medium Goal";
+		loftH = "Loft High Goal";
 	}
 
 	~UltimateAscent2013(void)
@@ -146,8 +154,11 @@ public:
 		SmartDashboard::PutString("Status","Choose Autonomous Mode");
 		
 		ChooseAutonomousMode->AddDefault(m, ((void*)m));
-		ChooseAutonomousMode->AddObject(dm, ((void*)dm));
 		ChooseAutonomousMode->AddObject(h, ((void*)h));
+		ChooseAutonomousMode->AddObject(driveM, ((void*)driveM));
+		ChooseAutonomousMode->AddObject(driveH, ((void*)driveH));
+		ChooseAutonomousMode->AddObject(loftM, ((void*)loftM));
+		ChooseAutonomousMode->AddObject(loftH, ((void*)loftH));
 		
 		SmartDashboard::PutData("Autonomous Modes", ChooseAutonomousMode);
 
@@ -171,8 +182,12 @@ public:
 		SmartDashboard::PutString("Status","In Autonomous");
 		
 		bool RunMedium = false;
-		bool RunDriveMedium = false;
 		bool RunHigh = false;
+		bool RunDriveMedium = false;
+		bool RunDriveHigh = false;
+		bool RunLoftMedium = false;
+		bool RunLoftHigh = false;
+		
 		int counter = 0;
 
 		
@@ -182,15 +197,32 @@ public:
 			RunMedium = true;
 			printf("Autonomous-shooting at medium goal\n");
 		}
-		if(ChooseAutonomousMode->GetSelected() == ((void*)dm))
-		{
-			RunDriveMedium = true;
-			printf("Autonomous-driving & shooting at medium goal\n");
-		}
 		if(ChooseAutonomousMode->GetSelected() == ((void*)h))
 		{
 			RunHigh = true;
 			printf("Autonomous-shooting at high goal\n");
+		}
+		
+		if(ChooseAutonomousMode->GetSelected() == ((void*)driveM))
+		{
+			RunDriveMedium = true;
+			printf("Autonomous-driving & shooting at medium goal\n");
+		}
+		if(ChooseAutonomousMode->GetSelected() == ((void*)driveH))
+		{
+			RunDriveHigh = true;
+			printf("Autonomous-driving & shooting at high goal\n");
+		}
+		
+		if(ChooseAutonomousMode->GetSelected() == ((void*)loftH))
+		{
+			RunLoftHigh = true;
+			printf("Autonomous-lofting at high goal\n");
+		}
+		if(ChooseAutonomousMode->GetSelected() == ((void*)loftM))
+		{
+			RunLoftMedium = true;
+			printf("Autonomous-lofting at medium goal\n");
 		}
 		
 		
@@ -228,13 +260,13 @@ public:
 				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
 				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
 				
-				if (AutonomousTimer->Get()<AUTONOMOUS_DRIVE_TIMER)
+				if (AutonomousTimer->Get()<AUTONOMOUS_MEDIUM_DRIVE_TIMER)
 				{	
 					TankDrive(LEFT_AUTONOMOUS, RIGHT_AUTONOMOUS);
 				}
-				else if (AutonomousTimer->Get()> AUTONOMOUS_DRIVE_TIMER)
+				else if (AutonomousTimer->Get()> AUTONOMOUS_MEDIUM_DRIVE_TIMER)
 				{
-					if(counter <= 3 && shooterPiston->Go() == true)
+					if(counter <= 4 && shooterPiston->Go() == true)
 					{
 						counter++;
 					}
@@ -247,6 +279,31 @@ public:
 				}	
 			}
 		}
+		if(RunLoftMedium)
+		{
+			AutonomousTimer->Start();
+			while(IsAutonomous())
+			{
+				ProgramIsAlive();
+				shooterMotorOne->Set(AUTONOMOUS_LOFT_SPEED);
+				shooterMotorTwo->Set(AUTONOMOUS_LOFT_SPEED);
+				
+				if (AutonomousTimer->Get() > AUTONOMOUS_SPIN_UP_TIME)
+				{
+					if(counter <= 4 && shooterPiston->Go() == true)
+					{
+						counter++;
+					}
+					else
+					{
+						printf("Setting motors to zero in autonomous else\n");
+						shooterMotorOne->Set(0.0);
+						shooterMotorTwo->Set(0.0);
+					}
+				}
+			}
+		}
+		
 		else if(RunHigh)
 		{
 			AutonomousTimer->Start();
@@ -255,6 +312,66 @@ public:
 				ProgramIsAlive();
 				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
 				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
+				
+				if (AutonomousTimer->Get() > AUTONOMOUS_SPIN_UP_TIME)
+				{
+					if(counter <= 3 && shooterPiston->Go() == true)
+					{
+						counter++;
+					}
+					else
+					{
+						printf("Setting motors to zero in autonomous else\n");
+						shooterMotorOne->Set(0.0);
+						shooterMotorTwo->Set(0.0);
+					}
+				}
+			}
+		}
+		else if(RunDriveHigh)
+		{
+			AutonomousTimer->Start();
+			while(IsAutonomous())
+			{
+				ProgramIsAlive();
+				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
+				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
+				
+				if (AutonomousTimer->Get() < 1.0)
+				{	
+					TankDrive(0.5, 0.5);
+				}
+				else if (AutonomousTimer->Get() < 2.0)
+				{
+					TankDrive(0.5, 0.3);
+				}
+				else if (AutonomousTimer->Get() < 2.0)
+				{
+					TankDrive(0.6, 0.5);
+				}
+				else if (AutonomousTimer->Get() > 4.0)
+				{
+					if(counter <= 4 && shooterPiston->Go() == true)
+					{
+						counter++;
+					}
+					else
+					{
+						printf("Setting motors to zero in autonomous else\n");
+						shooterMotorOne->Set(0.0);
+						shooterMotorTwo->Set(0.0);
+					}
+				}	
+			}
+		}
+		if(RunLoftHigh)
+		{
+			AutonomousTimer->Start();
+			while(IsAutonomous())
+			{
+				ProgramIsAlive();
+				shooterMotorOne->Set(AUTONOMOUS_LOFT_SPEED);
+				shooterMotorTwo->Set(AUTONOMOUS_LOFT_SPEED);
 				
 				if (AutonomousTimer->Get() > AUTONOMOUS_SPIN_UP_TIME)
 				{
