@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <wrxml>
-    <properties platform="VxWorks" platform_name="vxworks-6.3" root="0" type="DownloadableKernelModuleProject"/>
+    <properties platform="VxWorks" platform_name="vxworks-6.3" root="1" type="DownloadableKernelModuleProject"/>
     <attributes>
         <mapAttribute>
             <listAttribute key="BLD::Info|GlobalMacros">
@@ -558,7 +558,7 @@
             <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC440sfdiab" value="echo &quot;building $@&quot;;%cppcompilerprefix% $(TOOL_PATH)dcc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o %OutFile% -c %InFile%"/>
             <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC440sfgnu" value="echo &quot;building $@&quot;;%cppcompilerprefix% $(TOOL_PATH)ccppc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o %OutFile% -c %InFile%"/>
             <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC603diab" value="echo &quot;building $@&quot;;%cppcompilerprefix% $(TOOL_PATH)dcc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o %OutFile% -c %InFile%"/>
-            <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC603gnu" value="%cppcompilerprefix% $(TOOL_PATH)ccppc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL -D'SVN_REV=&quot;holly&quot;' $(DEFINES) -o %OutFile% -c %InFile%"/>
+            <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC603gnu" value="%cppcompilerprefix% $(TOOL_PATH)ccppc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL -D'SVN_REV=&quot;$(shell svnversion -n ..)&quot;' $(DEFINES) -o %OutFile% -c %InFile%"/>
             <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC604diab" value="echo &quot;building $@&quot;;%cppcompilerprefix% $(TOOL_PATH)dcc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o %OutFile% -c %InFile%"/>
             <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC604gnu" value="echo &quot;building $@&quot;;%cppcompilerprefix% $(TOOL_PATH)ccppc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o %OutFile% -c %InFile%"/>
             <stringAttribute key="BLD::Info|Tool|C++-Compiler|cmd|PPC85XXdiab" value="echo &quot;building $@&quot;;%cppcompilerprefix% $(TOOL_PATH)dcc %DebugModeFlags% %ToolFlags% $(ADDED_C++FLAGS) %Includes% $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o %OutFile% -c %InFile%"/>
