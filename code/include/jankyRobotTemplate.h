@@ -9,12 +9,12 @@
 //#include "jankyRobotDrive.h"
 #define _JANKYROBOTTEMPLATE_H
 
-#define LEFT_FRONT 9 
-#define RIGHT_FRONT 5
-#define LEFT_REAR 4
-#define RIGHT_REAR 1
-#define LEFT 1
-#define RIGHT 2
+#define LEFT_FRONT 5
+#define RIGHT_FRONT 6
+#define LEFT_REAR 1
+#define RIGHT_REAR 2
+#define LEFT 15
+#define RIGHT 16
 #define DEFAULT_NUMBER_MOTORS 2
 #define DEFAULT_CHANNEL_CONFLICT 0
 

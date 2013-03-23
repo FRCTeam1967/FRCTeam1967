@@ -46,21 +46,33 @@ void JankyRobotTemplate::RobotInit()
 	
 	SmartDashboard::PutString("Begin Changes","");
 	
+	/*
 	pL = new Victor(LEFT);
 	pR = new Victor(RIGHT);
+	*/
+	
+	pLF = new Victor(LEFT_FRONT);
+	pRF = new Victor(RIGHT_FRONT);
+	pLR = new Victor(LEFT_REAR);
+	pRR = new Victor(RIGHT_REAR);
 	
 	if(IsTest())
 	{
 		printf("JankyRobotTemplate::RobotInit - In Test mode. Adding LiveWindow items.\n");
 		LiveWindow *lw = LiveWindow::GetInstance();
-		lw->AddActuator("Victors", "Left", pL);
-		lw->AddActuator("Victors", "Right", pR);
+		//lw->AddActuator("Victors", "Left", pL);
+		//lw->AddActuator("Victors", "Right", pR);
+		lw->AddActuator("Victors", "Left Front", pLF);
+		lw->AddActuator("Victors", "Right Front", pRF);
+		lw->AddActuator("Victors", "Left Rear", pLR);
+		lw->AddActuator("Victors", "Right Rear", pRR);
 		lw->SetEnabled(true);
 	}
 	
-	pRobot = new RobotDrive(pL, pR);
+	pRobot = new RobotDrive(pLF, pLR, pRF, pRR);
 
-	currentMotorNumber = 2;
+	//currentMotorNumber = 2;
+	currentMotorNumber = 4;
 	
 	
 }
@@ -120,7 +132,7 @@ void JankyRobotTemplate::JankyRobotError(const char *pMessage)
 
 void JankyRobotTemplate::SetNumberMotors(int desiredNumberMotors)
 {
-	if (desiredNumberMotors == 2)
+	if (desiredNumberMotors == 4)
 	{
 		delete pRobot;
 		delete pLF;
@@ -135,7 +147,7 @@ void JankyRobotTemplate::SetNumberMotors(int desiredNumberMotors)
 		
 		currentMotorNumber = 2;
 	}
-	else if (desiredNumberMotors == 4)
+	else if (desiredNumberMotors == 2)
 	{
 		delete pRobot;
 		delete pL;
@@ -146,7 +158,7 @@ void JankyRobotTemplate::SetNumberMotors(int desiredNumberMotors)
 		pLR = new Victor(LEFT_REAR);
 		pRR = new Victor(RIGHT_REAR);
 		
-		pRobot = new RobotDrive(pLF, pRF, pLR, pRR);
+		pRobot = new RobotDrive(pLF, pLR, pRF, pRR);
 		
 		currentMotorNumber = 4;
 	}
