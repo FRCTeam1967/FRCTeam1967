@@ -279,7 +279,7 @@ public:
 				}	
 			}
 		}
-		if(RunLoftMedium)
+		else if(RunLoftMedium)
 		{
 			AutonomousTimer->Start();
 			while(IsAutonomous())
@@ -337,17 +337,17 @@ public:
 				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
 				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
 				
-				if (AutonomousTimer->Get() < 1.0)
+				if (AutonomousTimer->Get() < 1.5)
 				{	
-					TankDrive(0.5, 0.5);
+					TankDrive(0.8, 0.8);
 				}
 				else if (AutonomousTimer->Get() < 2.0)
 				{
-					TankDrive(0.5, 0.3);
+					TankDrive(0.5, 0.8);
 				}
-				else if (AutonomousTimer->Get() < 2.0)
+				else if (AutonomousTimer->Get() < 3.5)
 				{
-					TankDrive(0.6, 0.5);
+					TankDrive(0.8, 0.8);
 				}
 				else if (AutonomousTimer->Get() > 4.0)
 				{
@@ -364,7 +364,7 @@ public:
 				}	
 			}
 		}
-		if(RunLoftHigh)
+		else if(RunLoftHigh)
 		{
 			AutonomousTimer->Start();
 			while(IsAutonomous())
@@ -387,6 +387,10 @@ public:
 					}
 				}
 			}
+		}
+		else
+		{
+			printf("No autonomous mode chosen\n");
 		}
 	}
 	
