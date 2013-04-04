@@ -5,7 +5,9 @@
 
 #define DRIVE_JOYSTICK_PORT 1
 #define GC_JOYSTICK_PORT 2
-#define PISTON_CHANNEL 1
+#define PISTON_ONE_CHANNEL 1
+#define PISTON_TWO_CHANNEL 3
+#define BLOCKER_PISTON_CHANNEL 6 
 #define COMPRESSOR_RELAY_CHANNEL 2
 #define COMPRESSOR_PRESSURE_SWITCH 2
 //#define LOADING_RELAY_CHANNEL 4
@@ -46,6 +48,7 @@ class UltimateAscent2013 : public JankyRobotTemplate
 	jankyXboxJoystick * gameComponent;
 	jankyXboxJoystick * driveJoystick;
 	JankyActuator * shooterPiston;
+	Solenoid * blockerPiston;
 	Compressor * compressor;
 	Victor * shooterMotorOne; //Talon class DNE
 	Victor * shooterMotorTwo;
@@ -78,6 +81,7 @@ public:
 		gameComponent = NULL;
 		driveJoystick = NULL;
 		shooterPiston = NULL;
+		blockerPiston = NULL;
 		compressor = NULL;
 		shooterMotorOne = NULL; //Talon class DNE
 		shooterMotorTwo = NULL;
@@ -101,6 +105,7 @@ public:
 	delete gameComponent;
 	delete driveJoystick;
 	delete shooterPiston;
+	delete blockerPiston;
 	delete compressor;
 	delete shooterMotorOne;
 	delete shooterMotorTwo;
@@ -134,7 +139,8 @@ public:
 
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		driveJoystick = new jankyXboxJoystick(DRIVE_JOYSTICK_PORT);
-		shooterPiston = new JankyActuator(PISTON_CHANNEL);
+		shooterPiston = new JankyActuator(PISTON_ONE_CHANNEL, PISTON_TWO_CHANNEL);
+		blockerPiston = new Solenoid(BLOCKER_PISTON_CHANNEL);
 		compressor = new Compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL);
 		shooterMotorOne = new Victor(SHOOTER_MOTOR_ONE_CHANNEL);
 		shooterMotorTwo = new Victor(SHOOTER_MOTOR_TWO_CHANNEL);
@@ -337,20 +343,17 @@ public:
 				shooterMotorOne->Set(AUTONOMOUS_SHOOT_SPEED);
 				shooterMotorTwo->Set(AUTONOMOUS_SHOOT_SPEED);
 				
-				if (AutonomousTimer->Get() < 1.5)
+				if (AutonomousTimer->Get() < 2.2)
 				{	
-					TankDrive(0.8, 0.8);
+					TankDrive(-0.6, -0.6);
 				}
-				else if (AutonomousTimer->Get() < 2.0)
+				else if (AutonomousTimer->Get() < 2.4)
 				{
-					TankDrive(0.5, 0.8);
-				}
-				else if (AutonomousTimer->Get() < 3.5)
-				{
-					TankDrive(0.8, 0.8);
+					TankDrive(0.0, -0.55);
 				}
 				else if (AutonomousTimer->Get() > 4.0)
 				{
+					TankDrive(0.0,0.0);
 					if(counter <= 4 && shooterPiston->Go() == true)
 					{
 						counter++;
@@ -418,6 +421,8 @@ public:
 		bool isFireOn = false;
 		bool isLowOn = false;
 		
+		bool isBlockOn = false;
+		
 		int iShotsRemaining = 4;
 		
 			
@@ -447,10 +452,34 @@ public:
 			bool isButtonYPressed = driveJoystick->GetButtonY();
 			if (isButtonYPressed == true)
 			{	
-				TankDrive(LEFT_HANGING, RIGHT_HANGING);
+				//TankDrive(LEFT_HANGING, RIGHT_HANGING);
+				TankDrive(0.8, 0.8);
 			}	
 			
 			
+			
+			/*************
+			 * Blocking	 *
+			*************/
+			bool blockButton = driveJoystick->GetButtonRB();
+			
+			if (blockButton)
+			{
+				if (!isBlockOn)
+				{
+					blockerPiston->Set(true);
+					isBlockOn = true;
+				}
+				else if (isBlockOn)
+				{
+					blockerPiston->Set(false);
+					isBlockOn = false;
+				}
+			}
+			else
+			{
+				printf("Block button not being pressed\n");
+			}
 			
 			
 			

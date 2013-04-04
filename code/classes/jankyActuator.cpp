@@ -21,14 +21,15 @@
  * 
  * @param pistonChannel The port/channel to which the actuator/solenoid is connected to. 
  */
-JankyActuator::JankyActuator(int pistonChannel)
+JankyActuator::JankyActuator(int pistonOneChannel, int pistonTwoChannel)
 {
 	bActuating = false;
 	cycleTimer.Reset();
 	dFullCycleTime = 3.5;
 	dFullActuationTime = 1.2;
 	
-	pPiston = new Solenoid(pistonChannel);
+	pPistonOne = new Solenoid(pistonOneChannel);
+	pPistonTwo = new Solenoid(pistonTwoChannel);
 		
 }
 
@@ -38,7 +39,8 @@ JankyActuator::JankyActuator(int pistonChannel)
  */
 JankyActuator::~JankyActuator()
 {
-	delete pPiston;
+	delete pPistonOne;
+	delete pPistonTwo;
 }
 
 void JankyActuator::Reset()
@@ -121,12 +123,14 @@ void JankyActuator::Run()
 		{
 			if (cycleTimer.Get() < dFullActuationTime)
 			{
-				pPiston->Set(true);
+				pPistonOne->Set(true);
+				pPistonTwo->Set(false);
 			}
 			
 			else
 			{
-				pPiston->Set(false);
+				pPistonOne->Set(false);
+				pPistonTwo->Set(true);
 			}	
 		}	
 	}
@@ -134,12 +138,14 @@ void JankyActuator::Run()
 
 void JankyActuator::OverrideEnable()
 {
-	pPiston->Set(true);
+	pPistonOne->Set(true);
+	pPistonTwo->Set(false);
 }
 
 void JankyActuator::OverrideDisable()
 {
-	pPiston->Set(false);
+	pPistonOne->Set(false);
+	pPistonTwo->Set(true);
 }
 
 

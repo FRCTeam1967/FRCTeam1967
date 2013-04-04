@@ -14,7 +14,7 @@
 
 class JankyActuator : public JankyTask	{
 public:
-	JankyActuator(int pistonChannel);
+	JankyActuator(int pistonOneChannel, int pistonTwoChannel);
 	virtual ~JankyActuator(void);
 	
 	//Member functions
@@ -26,7 +26,7 @@ public:
 	void OverrideEnable(void);
 	void OverrideDisable(void);
 	Solenoid * GetSolenoid(void){
-		return pPiston;
+		return pPistonOne;
 	}
 	
 	//Member variables
@@ -34,7 +34,8 @@ public:
 	double dFullActuationTime;
 	bool bActuating;
 	Timer cycleTimer;
-	Solenoid * pPiston;
+	Solenoid * pPistonOne;
+	Solenoid * pPistonTwo;
 	
 };
 
