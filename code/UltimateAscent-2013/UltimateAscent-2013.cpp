@@ -6,9 +6,10 @@
 #define DRIVE_JOYSTICK_PORT 1
 #define GC_JOYSTICK_PORT 2
 #define PISTON_ONE_CHANNEL 1
-#define PISTON_TWO_CHANNEL 3
-#define BLOCKER_PISTON_CHANNEL 6 
-#define COMPRESSOR_RELAY_CHANNEL 2
+#define PISTON_TWO_CHANNEL 2
+#define BLOCKER_PISTON_ONE_CHANNEL 3
+#define BLOCKER_PISTON_TWO_CHANNEL 4
+#define COMPRESSOR_RELAY_CHANNEL 3
 #define COMPRESSOR_PRESSURE_SWITCH 2
 //#define LOADING_RELAY_CHANNEL 4
 
@@ -48,7 +49,8 @@ class UltimateAscent2013 : public JankyRobotTemplate
 	jankyXboxJoystick * gameComponent;
 	jankyXboxJoystick * driveJoystick;
 	JankyActuator * shooterPiston;
-	Solenoid * blockerPiston;
+	Solenoid * blockerPistonOne;
+	Solenoid * blockerPistonTwo;
 	Compressor * compressor;
 	Victor * shooterMotorOne; //Talon class DNE
 	Victor * shooterMotorTwo;
@@ -81,7 +83,8 @@ public:
 		gameComponent = NULL;
 		driveJoystick = NULL;
 		shooterPiston = NULL;
-		blockerPiston = NULL;
+		blockerPistonOne = NULL;
+		blockerPistonTwo = NULL;
 		compressor = NULL;
 		shooterMotorOne = NULL; //Talon class DNE
 		shooterMotorTwo = NULL;
@@ -105,7 +108,8 @@ public:
 	delete gameComponent;
 	delete driveJoystick;
 	delete shooterPiston;
-	delete blockerPiston;
+	delete blockerPistonOne;
+	delete blockerPistonTwo;
 	delete compressor;
 	delete shooterMotorOne;
 	delete shooterMotorTwo;
@@ -140,7 +144,8 @@ public:
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		driveJoystick = new jankyXboxJoystick(DRIVE_JOYSTICK_PORT);
 		shooterPiston = new JankyActuator(PISTON_ONE_CHANNEL, PISTON_TWO_CHANNEL);
-		blockerPiston = new Solenoid(BLOCKER_PISTON_CHANNEL);
+		blockerPistonOne = new Solenoid(BLOCKER_PISTON_ONE_CHANNEL);
+		blockerPistonTwo = new Solenoid(BLOCKER_PISTON_TWO_CHANNEL);
 		compressor = new Compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL);
 		shooterMotorOne = new Victor(SHOOTER_MOTOR_ONE_CHANNEL);
 		shooterMotorTwo = new Victor(SHOOTER_MOTOR_TWO_CHANNEL);
@@ -421,7 +426,7 @@ public:
 		bool isFireOn = false;
 		bool isLowOn = false;
 		
-		bool isBlockOn = false;
+		//bool isBlockOn = false;
 		
 		int iShotsRemaining = 4;
 		
@@ -461,25 +466,41 @@ public:
 			/*************
 			 * Blocking	 *
 			*************/
-			bool blockButton = driveJoystick->GetButtonRB();
+			bool blockButtonUp = driveJoystick->GetButtonRB();
+			bool blockButtonDown = driveJoystick->GetButtonLB();
 			
+			if (blockButtonUp)
+			{
+				blockerPistonOne->Set(true);
+				blockerPistonTwo->Set(false);
+			}
+			if (blockButtonDown)
+			{
+				blockerPistonOne->Set(false);
+				blockerPistonTwo->Set(true);
+			}
+			
+			/*
 			if (blockButton)
 			{
 				if (!isBlockOn)
 				{
-					blockerPiston->Set(true);
+					blockerPistonOne->Set(true);
+					blockerPistonTwo->Set(false);
 					isBlockOn = true;
 				}
 				else if (isBlockOn)
 				{
-					blockerPiston->Set(false);
+					blockerPistonOne->Set(false);
+					blockerPistonTwo->Set(true);
 					isBlockOn = false;
 				}
 			}
-			else
+			else if(!blockButton && )
 			{
 				printf("Block button not being pressed\n");
 			}
+			*/
 			
 			
 			
