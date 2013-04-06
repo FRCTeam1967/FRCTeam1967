@@ -37,6 +37,8 @@
 #define AUTONOMOUS_MEDIUM_DRIVE_TIMER 2.0
 #define AUTONOMOUS_SHOOT_SPEED 1.0
 #define AUTONOMOUS_LOFT_SPEED 0.55
+#define AUTONOMOUS_REAL_CYCLE_TIME 1.7
+#define AUTONOMOUS_REAL_ACTUATION_TIME 0.5
 
 /*********************************************************************************************************
  * Team 1967's main robot code for 2013's game Ultimate Ascent. Includes some of our own basic classes:  *
@@ -181,8 +183,8 @@ public:
 	{
 		printf("In Autonomous\n");
 		shooterPiston->Start();
-		shooterPiston->SetFullCycleTime(REAL_CYCLE_TIME);
-		shooterPiston->SetActuationTime(REAL_ACTUATION_TIME);
+		shooterPiston->SetFullCycleTime(AUTONOMOUS_REAL_CYCLE_TIME);
+		shooterPiston->SetActuationTime(AUTONOMOUS_REAL_ACTUATION_TIME);
 		
 		AutonomousTimer->Reset();
 		
@@ -352,7 +354,7 @@ public:
 				{	
 					TankDrive(-0.6, -0.6);
 				}
-				else if (AutonomousTimer->Get() < 2.4)
+				else if (AutonomousTimer->Get() < 2.55)
 				{
 					TankDrive(0.0, -0.55);
 				}
