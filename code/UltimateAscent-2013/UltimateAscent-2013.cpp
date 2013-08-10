@@ -11,6 +11,8 @@
 #define BLOCKER_PISTON_TWO_CHANNEL 4
 #define COMPRESSOR_RELAY_CHANNEL 3
 #define COMPRESSOR_PRESSURE_SWITCH 2
+#define SPEED_ONE_ACTUATOR_CHANNEL 5
+#define SPEED_TWO_ACTUATOR_CHANNEL 6
 //#define LOADING_RELAY_CHANNEL 4
 
 //shooter
@@ -53,6 +55,8 @@ class UltimateAscent2013 : public JankyRobotTemplate
 	JankyActuator * shooterPiston;
 	Solenoid * blockerPistonOne;
 	Solenoid * blockerPistonTwo;
+	Solenoid * speedOneActuator;
+	Solenoid * speedTwoActuator;
 	Compressor * compressor;
 	Victor * shooterMotorOne; //Talon class DNE
 	Victor * shooterMotorTwo;
@@ -87,6 +91,8 @@ public:
 		shooterPiston = NULL;
 		blockerPistonOne = NULL;
 		blockerPistonTwo = NULL;
+		speedOneActuator = NULL;
+		speedTwoActuator = NULL;
 		compressor = NULL;
 		shooterMotorOne = NULL; //Talon class DNE
 		shooterMotorTwo = NULL;
@@ -148,6 +154,8 @@ public:
 		shooterPiston = new JankyActuator(PISTON_ONE_CHANNEL, PISTON_TWO_CHANNEL);
 		blockerPistonOne = new Solenoid(BLOCKER_PISTON_ONE_CHANNEL);
 		blockerPistonTwo = new Solenoid(BLOCKER_PISTON_TWO_CHANNEL);
+		speedOneActuator = new Solenoid(SPEED_ONE_ACTUATOR_CHANNEL);
+		speedTwoActuator = new Solenoid(SPEED_TWO_ACTUATOR_CHANNEL);
 		compressor = new Compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL);
 		shooterMotorOne = new Victor(SHOOTER_MOTOR_ONE_CHANNEL);
 		shooterMotorTwo = new Victor(SHOOTER_MOTOR_TWO_CHANNEL);
@@ -435,6 +443,7 @@ public:
 			
 		printf("Entering while loop\n");
 		SmartDashboard::PutString("Status","Entering Teleop loop");
+		SmartDashboard::PutString("Drive Status","Not driving yet");
 		
 		while (IsOperatorControl())
 		{
@@ -442,17 +451,33 @@ public:
 			ProgramIsAlive();
 			//No need to do waits at the end of teleop because ProgramIsAlive function does a wait. 
 
+			
 			/*************
 			*   Driving	 *			
 			**************/
-			int testButton = driveJoystick->GetButtonRB();
+			int testButton = driveJoystick->GetButtonA();
 			SmartDashboard::PutNumber("Teleop Test Button", testButton);
 			TankDrive(driveJoystick->GetLeftYAxis(),driveJoystick->GetRightYAxis());
 			
+			//Two speed transmission
+			bool firstSpeedButton = driveJoystick->GetButtonLB();
+			bool secondSpeedButton = driveJoystick->GetButtonRB();
 			
+			if (firstSpeedButton)
+			{
+				speedOneActuator->Set(true);
+				speedTwoActuator->Set(false);
+				SmartDashboard::PutString("Drive status","First Speed");
+			}
+			if (secondSpeedButton)
+			{
+				speedOneActuator->Set(false);
+				speedTwoActuator->Set(true);
+				SmartDashboard::PutString("Drive status","Second Speed");
+			}
+				
 			
-			
-			
+				
 			/*************
 			*   Hanging	 *			
 			**************/
@@ -468,8 +493,8 @@ public:
 			/*************
 			 * Blocking	 *
 			*************/
-			bool blockButtonUp = driveJoystick->GetButtonRB();
-			bool blockButtonDown = driveJoystick->GetButtonLB();
+			bool blockButtonUp = gameComponent->GetButtonX();
+			bool blockButtonDown = gameComponent->GetButtonY();
 			
 			if (blockButtonUp)
 			{
@@ -511,7 +536,7 @@ public:
 			**************/
 			 bool spinButton = gameComponent->GetButtonA();
 			 bool fireButton = gameComponent->GetButtonRB();
-			 bool lowButton = gameComponent->GetButtonY();
+			 bool lowButton = gameComponent->GetButtonB();
 			 bool pistonButton = gameComponent->GetButtonLB();
 			 
 			 if (pistonButton)
