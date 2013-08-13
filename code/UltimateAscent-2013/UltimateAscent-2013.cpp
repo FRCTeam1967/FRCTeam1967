@@ -112,12 +112,14 @@ public:
 	}
 
 	~UltimateAscent2013(void)
-{
+	{
 	delete gameComponent;
 	delete driveJoystick;
 	delete shooterPiston;
 	delete blockerPistonOne;
 	delete blockerPistonTwo;
+	delete speedOneActuator;
+	delete speedTwoActuator;
 	delete compressor;
 	delete shooterMotorOne;
 	delete shooterMotorTwo;
@@ -127,7 +129,7 @@ public:
 	delete lowTimer;
 	delete AutonomousTimer;
 	delete ChooseAutonomousMode;
-}
+	}
 	
 	void RobotInit(void)
 	{
@@ -498,13 +500,13 @@ public:
 			
 			if (blockButtonUp)
 			{
-				blockerPistonOne->Set(true);
-				blockerPistonTwo->Set(false);
+				blockerPistonOne->Set(false);
+				blockerPistonTwo->Set(true);
 			}
 			if (blockButtonDown)
 			{
-				blockerPistonOne->Set(false);
-				blockerPistonTwo->Set(true);
+				blockerPistonOne->Set(true);
+				blockerPistonTwo->Set(false);
 			}
 			
 			/*
