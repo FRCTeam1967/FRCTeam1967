@@ -1,4 +1,5 @@
 #include "WPILib.h"
+#include "jankyXboxJoystick.h"
 
 /**
  * This is a demo program showing the use of the RobotBase class.
@@ -9,27 +10,22 @@
 class RobotDemo : public SimpleRobot
 {
 	RobotDrive myRobot; // robot drive system
-	Joystick stick; // only joystick
-	Victor shooterMotor;
+	jankyXboxJoystick stick; // only joystick
+	Relay flashring;
+	DigitalInput limitButton;
 
 public:
 	RobotDemo(void):
-		myRobot(1, 2),	// these must be initialized in the same order
-		stick(1),		// as they are declared above.
-		shooterMotor(6)
+		myRobot(2, 4, 5, 1),	//   RobotDrive (frontLeft, rearLeft, frontRight, rearRight)
+		stick(1),
+		flashring(1),
+		limitButton(1)
+				
 	{
 		myRobot.SetExpiration(0.1);
 	}
 
 	
-	void RobotInit (void)
-	{
-		LiveWindow *lw = LiveWindow::GetInstance();
-		lw->AddActuator("Shooting", "Shooter Motor", &shooterMotor);	
-	}
-	/**
-	 * Drive left & right motors for 2 seconds then stop
-	 */
 	void Autonomous(void)
 	{
 		myRobot.SetSafetyEnabled(false);
@@ -38,24 +34,57 @@ public:
 		myRobot.Drive(0.0, 0.0); 	// stop robot
 	}
 
-	/**
-	 * Runs the motors with arcade steering. 
-	 */
+
 	void OperatorControl(void)
 	{
-		myRobot.SetSafetyEnabled(true);
+		myRobot.SetSafetyEnabled(false);
+		printf("Going into teleop loop");
+		
+		//Beginning Smart Dashboard
+		SmartDashboard::PutString("Test Button","Not pressed");
+		SmartDashboard::PutString("Limit Button Status","Light Off");
+		
 		while (IsOperatorControl())
 		{
-			printf("In Teleop Loop\n");
-			myRobot.ArcadeDrive(stick); // drive with arcade style (use right stick)
-			Wait(0.005);				// wait for a motor update time
-			shooterMotor.Set(0.3);
+			//Test button - print out to Smart Dashboard
+			if(stick.GetButtonA())
+			{
+				SmartDashboard::PutString("Test Button","Pressed");
+			}
+			
+			//Working with variables and Smart Dashboard
+			bool bTest = false;
+			SmartDashboard::PutBoolean("Test Boolean",bTest);
+			if(stick.GetButtonX())
+			{
+				bTest = true;
+				SmartDashboard::PutBoolean("Test Boolean",bTest);
+			}
+			
+			
+			//Driving the robot
+			myRobot.TankDrive(stick.GetLeftYAxis(),stick.GetRightYAxis()); 
+			
+			
+			//Limit switch to turn light on
+			bool isLimitButtonPressed = limitButton.Get();
+			if (isLimitButtonPressed == false)
+			{
+				SmartDashboard::PutString("Limit Button Status","Light On");
+				flashring.Set(Relay::kForward);
+			}
+			else if (isLimitButtonPressed == true)
+			{
+				flashring.Set(Relay::kOff);
+				SmartDashboard::PutString("Limit Button Status","Light Off");
+			}
+			
+			//Wait at end of loop
+			Wait(0.005);
 		}
 	}
 	
-	/**
-	 * Runs during test mode
-	 */
+
 	void Test() {
 
 	}

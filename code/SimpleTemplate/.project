@@ -17,4 +17,16 @@
 		<nature>org.eclipse.cdt.core.cnature</nature>
 		<nature>org.eclipse.cdt.core.ccnature</nature>
 	</natures>
+	<linkedResources>
+		<link>
+			<name>jankyXboxJoystick.cpp</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/classes/jankyXboxJoystick.cpp</locationURI>
+		</link>
+		<link>
+			<name>jankyXboxJoystick.h</name>
+			<type>1</type>
+			<locationURI>WS_ROOT_DIR/include/jankyXboxJoystick.h</locationURI>
+		</link>
+	</linkedResources>
 </projectDescription>
