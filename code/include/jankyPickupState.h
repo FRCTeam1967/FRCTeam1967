@@ -10,15 +10,17 @@
 #include "jankyStateMachine.h"
 #include "jankyKickerState.h"
 
-#define PICKUP_PISTON_ONE_CHANNEL 1
-#define PICKUP_PISTON_TWO_CHANNEL 2
+#define PICKUP_PISTON_ONE_CHANNEL 5
+#define PICKUP_PISTON_TWO_CHANNEL 6
 
-#define ROLLERS_MOTOR_CHANNEL 5
-#define FAST_ROLLERS_SPEED 0.8
-#define SLOW_ROLLERS_SPEED 0.3
+#define ROLLERS_MOTOR_CHANNEL 6
+#define FAST_ROLLERS_SPEED 1.0
+#define SLOW_ROLLERS_SPEED 0.7
 #define ROLLERS_WAIT 2.0
+#define ROLLING_TIME 1.0
+#define LOWERING_TIME 3.0
 
-#define RAISE_ARM_WAIT 1.0
+#define RAISE_ARM_WAIT 2.0
 
 class JankyKickerState; //Forward declaration due to reference below
 class JankyPickupState : public JankyStateMachine	{
@@ -42,6 +44,7 @@ public:
 	Talon * rollersMotor;
 	Timer * rollersTimer;
 	Timer * pickupTimer;
+	Timer * lowerTimer;
 	JankyKickerState * kickMachine;
 	
 	//Member functions
@@ -49,6 +52,7 @@ public:
 	void SetKickerMachine(JankyKickerState * kickState);
 	void LowerForKick(void);
 	void LowerToPickup(void);
+	void UnLowerExit(void);
 	bool IsPickupUp(void);
 	bool IsPickupDown(void);
 	

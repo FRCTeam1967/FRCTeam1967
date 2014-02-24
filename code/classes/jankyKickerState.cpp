@@ -34,9 +34,12 @@ JankyKickerState::JankyKickerState()
 	dogGearTimer = new Timer();
 	postWindUpTimer = new Timer();
 	pawlTimer = new Timer();
+	addWindTimer = new Timer();
+	disengageTimer = new Timer();
 	
 	kickEncoder->setSpeed(AUTOMATED_WINDUP_SPEED);
 	kickEncoder->Reset();
+	kickEncoder->SetMaxTime(20.0);
 	kickEncoder->Start();
 	
 	/*
@@ -51,11 +54,16 @@ JankyKickerState::JankyKickerState()
 	dogGearTimer->Reset();
 	postWindUpTimer->Reset();
 	pawlTimer->Reset();
+	addWindTimer->Reset();
+	disengageTimer->Reset();
 	
 	bHasKicked = false;
 	pickupMachine = NULL;
 	
 	pWindMotor = kickEncoder->returnMotor();
+	
+	//Starting JankyTask at end of constructor
+	Start();
 	
 	printf("End of kicker machine constructor\n");
 }
@@ -98,22 +106,47 @@ void JankyKickerState::PreWind()
 	}
 	if(GetCurrentState() == IdleReadyForKick)
 	{
+		addWindTimer->Reset();
+		addWindTimer->Start();
 		NewState(AddWindUp,"Adding extra wind up");
 	}
+}
+
+void JankyKickerState::PreWindExit()
+{
+	if(GetCurrentState() == ManualWindUp || GetCurrentState() == AddWindUp)
+	{
+		NewState(PostWindUpWait,"Button manually wound motor");
+	}	
 }
 
 void JankyKickerState::Kick()
 {
 	if(GetCurrentState() == IdleReadyForKick)
 	{
-		if(pickupMachine->IsPickupDown() == true)
+		if(pickupMachine && pickupMachine->IsPickupDown())
 		{
+			if(dogGearTimer)
+			{
+				dogGearTimer->Reset();
+				dogGearTimer->Start();
+			}
+			if(kickEncoder)
+				kickEncoder->Reset();
+			if(disengageTimer)
+			{
+				disengageTimer->Reset();
+				disengageTimer->Start();
+			}
 			NewState(MotorDisengage,"Pick-up down and ready to kick");
+			return;
 		}
-		if(pickupMachine->IsPickupUp() == true)
+		if(pickupMachine && pickupMachine->IsPickupUp() == true)
 		{
 			printf("Pickup up\n");
 		}
+		else if(pickupMachine == NULL)
+			printf("Pick up machine NULL\n");
 		else
 			printf("Neither up nor down\n");
 	}
@@ -130,102 +163,149 @@ void JankyKickerState::StateEngine(int curState)
 		case Idle:
 			//Idle handled by PreWind or WindUp
 			//printf("In Idle\n");
-			kickEncoder->Reset();
+			if(kickEncoder)
+				kickEncoder->Reset();
 			bHasKicked = false;
 			//Engaging dog gear
-			dogGearPistonOne->Set(true);
-			dogGearPistonTwo->Set(false);
+			if(dogGearPistonOne)
+				dogGearPistonOne->Set(false);
+			if(dogGearPistonTwo)
+				dogGearPistonTwo->Set(true);
+			//printf("Idle before break\n");
 			break;
 		case ManualWindUp:
-			printf("In ManualWindUp\n");
+			//printf("In ManualWindUp\n");
 			//Disengaging pawl
-			pawlPistonOne->Set(false);
-			pawlPistonTwo->Set(true);
+			if(pawlPistonOne)
+				pawlPistonOne->Set(true);
+			if(pawlPistonTwo)
+				pawlPistonTwo->Set(false);
 			//Manually winding motor up
-			pWindMotor->Set(MANUAL_WINDUP_SPEED);
+			if(pWindMotor)
+				pWindMotor->Set(MANUAL_WINDUP_SPEED);
 			SmartDashboard::PutNumber("Kick Motor Revolutions",kickEncoder->getRevolution());
-			NewState(PostWindUpWait,"Button manually wound motor");
+			if(postWindUpTimer)
+			{
+				postWindUpTimer->Reset();
+				postWindUpTimer->Start();
+			}
 			break;
 		case AutomatedWindUp:
-			printf("In AutomatedWindUp\n");
+			//printf("In AutomatedWindUp\n");
 			//Disengaging pawl
-			pawlPistonOne->Set(false);
-			pawlPistonTwo->Set(true);
+			if(pawlPistonOne)
+				pawlPistonOne->Set(true);
+			if(pawlPistonTwo)
+				pawlPistonTwo->Set(false);
 			//Automated wind up with encoder
-			kickEncoder->setRevolution(ENCODER_WINDUP_REVOLUTION);
-			kickEncoder->Go();
+			if(kickEncoder)
+			{
+				kickEncoder->setRevolution(ENCODER_WINDUP_REVOLUTION);
+				kickEncoder->Go();
+			}
 			SmartDashboard::PutNumber("Kick Motor Revolutions",kickEncoder->getRevolution());
 			if (kickEncoder->isDone() == true)
 			{
+				if(postWindUpTimer)
+				{
+					postWindUpTimer->Reset();
+					postWindUpTimer->Start();
+				}
 				NewState(PostWindUpWait,"Automated wind up done");
 			}
 			break;
 		case PostWindUpWait:
-			printf("In PostWindUpWait\n");
-			postWindUpTimer->Reset();
-			postWindUpTimer->Start();
+			//printf("In PostWindUpWait\n");
+			if(pWindMotor)
+				pWindMotor->Set(0.0);
 			if (postWindUpTimer->Get() >= POST_WINDUP_WAIT)
 			{
 				//Engaging pawl after arming
-				pawlPistonOne->Set(true);
-				pawlPistonTwo->Set(false);
+				if(pawlPistonOne)
+					pawlPistonOne->Set(false);
+				if(pawlPistonOne)
+					pawlPistonTwo->Set(true);
 				postWindUpTimer->Stop();
 				NewState(IdleReadyForKick,"Wait done after wind up");
 			}
 			break;
 		case IdleReadyForKick:
-			printf("In IdleReadyForKick\n");
+			//printf("In IdleReadyForKick\n");
 			//PreWind function goes to new state of adding windup
 			//Kick function goes to new state of disengaging motor with dog gear
 			break;
 		case AddWindUp:
-			printf("In AddWindUp\n");
+			//printf("In AddWindUp\n");
 			//Disengaging pawl
-			pawlPistonOne->Set(false);
-			pawlPistonTwo->Set(true);
+			if(pawlPistonOne)
+				pawlPistonOne->Set(true);
+			if(pawlPistonTwo)
+				pawlPistonTwo->Set(false);
 			//Adding to previous arming
-			pWindMotor->Set(MANUAL_WINDUP_SPEED);
+			if(addWindTimer->Get() <= ADD_WIND_TIME)
+				pWindMotor->Set(MANUAL_WINDUP_SPEED);
+			else
+				pWindMotor->Set(0.0);
+			
 			SmartDashboard::PutNumber("Kick Motor Revolutions",kickEncoder->getRevolution());
-			NewState(PostWindUpWait,"Button manually wound motor");
+			if(postWindUpTimer)
+			{
+				postWindUpTimer->Reset();
+				postWindUpTimer->Start();
+			}
 			break;
 		case MotorDisengage:
-			printf("MotorDisengage\n");
-			dogGearTimer->Reset();
-			dogGearTimer->Start();
+			//printf("MotorDisengage\n");
 			//Disengage dog gear
-			dogGearPistonOne->Set(false);
-			dogGearPistonTwo->Set(true);
+			if(dogGearPistonOne)
+				dogGearPistonOne->Set(true);
+			if(dogGearPistonTwo)
+				dogGearPistonTwo->Set(false);
 			if(dogGearTimer->Get() >= DOG_GEAR_DISENGAGE_WAIT)
 			{
 				//Motor spinning backwards to fully disengage after dog gear goes
-				kickEncoder->setRevolution(ENCODER_DISENGAGE_REVOLUTION);
-				kickEncoder->Go();
-				SmartDashboard::PutNumber("Kick Motor Revolutions",kickEncoder->getRevolution());
-				dogGearTimer->Stop();
-				if(kickEncoder->isDone())
+				if(disengageTimer)
 				{
-					NewState(PawlActuate,"Dog gear disengaged motor");
+					if(disengageTimer->Get() <= (DOG_GEAR_DISENGAGE_WAIT + MOTOR_DISENGAGE_TIME))
+					{
+						pWindMotor->Set(DISENGAGE_SPEED);
+					}
+					else
+					{
+						pWindMotor->Set(0.0);
+						pawlTimer->Reset();
+						pawlTimer->Start();
+						NewState(PawlActuate,"Dog gear disengaged motor");
+					}
 				}
+				dogGearTimer->Stop();
 			}
 			break;
 		case PawlActuate:
-			printf("In PawlActuate - kick\n");
+			//printf("In PawlActuate - kick\n");
 			//Disengaging pawl
-			pawlPistonOne->Set(false);
-			pawlPistonTwo->Set(true);
+			if(pawlPistonOne)
+				pawlPistonOne->Set(true);
+			if(pawlPistonTwo)
+				pawlPistonTwo->Set(false);
 			if(pawlTimer->Get() >= PAWL_ACTUATE_WAIT)
 			{
 				bHasKicked = true;
+				if(dogGearTimer)
+				{
+					dogGearTimer->Reset();
+					dogGearTimer->Start();
+				}
 				NewState(MotorEngage,"Done kicking - pawl actuated");
 			}
 			break;
 		case MotorEngage:
-			printf("In MotorEngage\n");
-			dogGearTimer->Reset();
-			dogGearTimer->Start();
+			//printf("In MotorEngage\n");
 			//Engage dog gear
-			dogGearPistonOne->Set(true);
-			dogGearPistonTwo->Set(false);
+			if(dogGearPistonOne)
+				dogGearPistonOne->Set(false);
+			if(dogGearPistonTwo)
+				dogGearPistonTwo->Set(true);
 			if(dogGearTimer->Get() >= DOG_GEAR_ENGAGE_WAIT)
 			{
 				dogGearTimer->Stop();

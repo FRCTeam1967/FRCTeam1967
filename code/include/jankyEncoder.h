@@ -9,6 +9,7 @@
 #include "WPILib.h"
 #define _JANKYENCODER_H
 #define RESET_INITMOTORSPEED 0.2
+#define DEFAULT_MAX_TIME 9999
 
 class JankyEncoder : public JankyTask	{
 public:
@@ -26,6 +27,7 @@ public:
 	bool Go();
 	void Run();
 	Talon * returnMotor(void);
+	void SetMaxTime(float maxTime);
 	
 	//Member variables
 	Talon * pMotor; 
@@ -33,8 +35,10 @@ public:
 	float currentRev;
 	float motorSpeed;
 	Encoder * pEncoder;
+	Timer * maxTimer;
 	bool bDone;
 	bool bEncoding;
+	float desiredMaxTime;
 
 };
 

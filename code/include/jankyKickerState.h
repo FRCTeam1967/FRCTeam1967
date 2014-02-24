@@ -14,20 +14,20 @@
 
 #define ENCODER_ONE_CHANNEL 1
 #define ENCODER_TWO_CHANNEL 2
-#define ENCODER_MOTOR_CHANNEL 6
-#define ENCODER_WINDUP_REVOLUTION 1.5
-#define ENCODER_DISENGAGE_REVOLUTION -0.05
-#define AUTOMATED_WINDUP_SPEED 0.5
+#define ENCODER_MOTOR_CHANNEL 5
+#define ENCODER_WINDUP_REVOLUTION 1.25
+#define DISENGAGE_SPEED -0.2
+#define MOTOR_DISENGAGE_TIME 1.0
+#define AUTOMATED_WINDUP_SPEED 0.6
 #define MANUAL_WINDUP_SPEED 0.3
-#define DISENGAGE_SPEED 0.2
 
 #define DOG_GEAR_PISTON_ONE_CHANNEL 3
 #define DOG_GEAR_PISTON_TWO_CHANNEL 4
 //#define DOG_GEAR_PISTON_CYCLE 3.0
 //#define DOG_GEAR_PISTON_ACTUATION 1.5
 
-#define PAWL_PISTON_ONE_CHANNEL 5
-#define PAWL_PISTON_TWO_CHANNEL 6
+#define PAWL_PISTON_ONE_CHANNEL 1
+#define PAWL_PISTON_TWO_CHANNEL 2
 //#define PAWL_PISTON_CYCLE 3.0
 //#define PAWL_PISTON_ACTUATION 1.5
 
@@ -35,6 +35,7 @@
 #define DOG_GEAR_DISENGAGE_WAIT 1.0
 #define DOG_GEAR_ENGAGE_WAIT 1.0
 #define PAWL_ACTUATE_WAIT 1.0
+#define ADD_WIND_TIME 0.5
 
 class JankyPickupState; //Forward declaration due to reference below
 class JankyKickerState : public JankyStateMachine	{
@@ -63,6 +64,8 @@ public:
 	Timer * dogGearTimer;
 	Timer * postWindUpTimer;
 	Timer * pawlTimer;
+	Timer * addWindTimer;
+	Timer * disengageTimer;
 	JankyPickupState * pickupMachine;
 	bool bHasKicked;
 	
@@ -70,6 +73,7 @@ public:
 	void StateEngine(int curState);
 	void SetPickupMachine(JankyPickupState * pickupState);
 	void PreWind(void);
+	void PreWindExit(void);
 	void Kick(void);
 	void WindUp(void);
 	bool HasKicked(void);

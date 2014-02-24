@@ -31,11 +31,16 @@ JankyPickupState::JankyPickupState()
 	
 	rollersTimer = new Timer();	
 	pickupTimer = new Timer();
+	lowerTimer = new Timer();
 	
+	lowerTimer->Reset();
 	rollersTimer->Reset();
 	pickupTimer->Reset();
 	
 	kickMachine = NULL;
+	
+	//Starting JankyTask at end of constructor
+	Start();
 	
 	printf("End of pickup machine constructor\n");
 }
@@ -61,7 +66,7 @@ void JankyPickupState::SetKickerMachine(JankyKickerState * kickState)
 
 bool JankyPickupState::IsPickupUp()
 {
-	if(GetCurrentState() == Up || Raise)
+	if(GetCurrentState() == Up || GetCurrentState() == Raise)
 	{
 		return true;
 	}
@@ -71,7 +76,7 @@ bool JankyPickupState::IsPickupUp()
 
 bool JankyPickupState::IsPickupDown()
 {
-	if(GetCurrentState() == Lower)
+	if(GetCurrentState() == ReadyToKick)
 	{
 		return true;
 	}
@@ -83,6 +88,8 @@ void JankyPickupState::LowerForKick()
 {
 	if(GetCurrentState() == PrimedForKick)
 	{
+		lowerTimer->Reset();
+		lowerTimer->Start();
 		NewState(Lower,"Primed for kick done");
 	}
 }
@@ -90,6 +97,20 @@ void JankyPickupState::LowerForKick()
 void JankyPickupState::LowerToPickup()
 {
 	NewState(LowerArmPickup,"Button to lower arm to pick ball up");
+}
+
+void JankyPickupState::UnLowerExit()
+{
+	if(GetCurrentState() == LowerArmPickup)
+	{
+		if(pickupTimer)
+		{
+			//Starting pickupTimer for new state
+			pickupTimer->Reset();
+			pickupTimer->Start();
+		}
+		NewState(Up,"After lowering and picking up");
+	}
 }
 
 void JankyPickupState::StateEngine(int curState)
@@ -100,29 +121,32 @@ void JankyPickupState::StateEngine(int curState)
 			//printf("In Pickup Idle\n");
 			break;
 		case LowerArmPickup:
-			printf("In LowerArmPickup\n");
-			pickupPistonOne->Set(false);
-			pickupPistonTwo->Set(true);
+			//printf("In LowerArmPickup\n");
+			//Engaging/lowering pickup
+			if(pickupPistonOne)
+				pickupPistonOne->Set(false);
+			if(pickupPistonTwo)
+				pickupPistonTwo->Set(true);
 			rollersMotor->Set(FAST_ROLLERS_SPEED);
-			NewState(Up,"After lowering and picking up");
 			break;
 		case Up:
-			printf("In Up\n");
-			pickupTimer->Reset();
-			pickupTimer->Start();
-			rollersMotor->Set(0.0);
-			pickupPistonOne->Set(true);
-			pickupPistonTwo->Set(false);
+			//printf("In Up\n");
+			rollersMotor->Set(FAST_ROLLERS_SPEED);
+			if(pickupPistonOne)
+				pickupPistonOne->Set(true);
+			if(pickupPistonTwo)
+				pickupPistonTwo->Set(false);
 			if (pickupTimer->Get() >= RAISE_ARM_WAIT)
 			{
 				pickupTimer->Stop();
-				NewState(SlowRollers,"Done raising arm up");
+				rollersTimer->Reset();
+				rollersTimer->Start();
+				rollersMotor->Set(0.0);
+				NewState(PrimedForKick,"Done raising arm up"); //Used to go to slow rollers but not using that any more
 			}
 			break;
 		case SlowRollers:
-			printf("In SlowRollers\n");
-			rollersTimer->Reset();
-			rollersTimer->Start();
+			//printf("In SlowRollers\n");
 			rollersMotor->Set(SLOW_ROLLERS_SPEED);
 			if(rollersTimer->Get() >= ROLLERS_WAIT)
 			{
@@ -132,27 +156,39 @@ void JankyPickupState::StateEngine(int curState)
 			break;
 		case PrimedForKick:
 			//PrimedForKick handled by LowerForKick()
-			printf("In PrimedForKick\n");
+			//printf("In PrimedForKick\n");
 			break;
 		case Lower:
-			printf("In Lower\n");
-			pickupPistonOne->Set(false);
-			pickupPistonTwo->Set(true);
-			NewState(ReadyToKick,"Lowered arm to kick");
+			//printf("In Lower\n");
+			rollersMotor->Set(SLOW_ROLLERS_SPEED);
+			if(lowerTimer->Get() >= ROLLING_TIME)
+			{
+				if(pickupPistonOne)
+					pickupPistonOne->Set(false);
+				if(pickupPistonTwo)
+					pickupPistonTwo->Set(true);
+			}
+			if(lowerTimer->Get() >= LOWERING_TIME)
+			{
+				rollersMotor->Set(0.0);
+				NewState(ReadyToKick,"Lowered arm to kick");
+			}
 			break;
 		case ReadyToKick:
-			printf("In ReadyToKick\n");
+			//printf("In ReadyToKick\n");
 			if(kickMachine->HasKicked() == true)
 			{
+				pickupTimer->Reset();
+				pickupTimer->Start();
 				NewState(Raise,"Kicking done");
 			}
 			break;
 		case Raise:
-			printf("In Raise after kick\n");
-			pickupTimer->Reset();
-			pickupTimer->Start();
-			pickupPistonOne->Set(true);
-			pickupPistonTwo->Set(false);
+			//printf("In Raise after kick\n");
+			if(pickupPistonOne)
+				pickupPistonOne->Set(true);
+			if(pickupPistonTwo)
+				pickupPistonTwo->Set(false);
 			if(pickupTimer->Get() >= RAISE_ARM_WAIT)
 			{
 				NewState(Idle,"Raised arm up");

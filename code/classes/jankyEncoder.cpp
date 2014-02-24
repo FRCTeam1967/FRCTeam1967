@@ -17,9 +17,11 @@ JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int mot
 {
 	pMotor = new Talon(motorOneChannel);
 	pEncoder = new Encoder(encoderOneChannel, encoderTwoChannel);
+	maxTimer = new Timer();
+	maxTimer->Reset();
 	this->Reset();
 	motorSpeed = RESET_INITMOTORSPEED;
-//	printf ("Constructor");
+	desiredMaxTime = DEFAULT_MAX_TIME;
 }
 
 /*
@@ -29,6 +31,7 @@ JankyEncoder::~JankyEncoder()
 {
 	delete pMotor;
 	delete pEncoder;
+	delete maxTimer;
 }
 
 Talon * JankyEncoder::returnMotor()
@@ -63,9 +66,15 @@ void JankyEncoder::setSpeed(float desiredSpeed)
 	SmartDashboard::PutNumber ("Set Speed", motorSpeed);
 }
 
+void JankyEncoder::SetMaxTime(float maxTime)
+{
+	desiredMaxTime = maxTime;
+}
+
 void JankyEncoder::Reset(void)
 {
 	stopMotor(); 
+	maxTimer->Reset();
 	Wait(RESET_WAIT);
 	if (pEncoder)
 	{
@@ -74,8 +83,7 @@ void JankyEncoder::Reset(void)
 	} 
 	bDone = false;
 	bEncoding = false;
-	printf ("RESETTTING\n");
-
+	//printf ("RESETTTING\n");
 }
 
 bool JankyEncoder::Go(void)
@@ -85,6 +93,7 @@ bool JankyEncoder::Go(void)
 	{
 		printf ("bEncoding = false\n");
 		startMotor();
+		maxTimer->Start();
 		bEncoding = true;
 		return true;
 	}
@@ -102,11 +111,12 @@ void JankyEncoder::Run(void)
 		SmartDashboard::PutNumber ("Encodercount", pEncoder->Get());
 		if (bEncoding == true)
 		{
-			if (pEncoder->Get() >= targetcount)
+			if (pEncoder->Get() >= targetcount || maxTimer->Get() >= desiredMaxTime)
 			{
 				bDone = true;
-				printf ("Task targetcount reached\n");
+				//printf ("Task targetcount reached\n");
 				stopMotor();
+				maxTimer->Stop();
 			}
 			else
 			{
