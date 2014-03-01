@@ -18,6 +18,7 @@ JankyPickupState::JankyPickupState()
 	SetMachineName("JankyPickupStateMachine");
 	SetName(Idle,"Idle");
 	SetName(LowerArmPickup,"Lower arm, spin motors");
+	SetName(Passing,"Spin rollers to pass");
 	SetName(Up,"Pick-up goes up");
 	SetName(SlowRollers,"Slow down rollers");
 	SetName(PrimedForKick,"Primed for kick");
@@ -32,10 +33,12 @@ JankyPickupState::JankyPickupState()
 	rollersTimer = new Timer();	
 	pickupTimer = new Timer();
 	lowerTimer = new Timer();
+	passTimer = new Timer();
 	
 	lowerTimer->Reset();
 	rollersTimer->Reset();
 	pickupTimer->Reset();
+	passTimer->Reset();
 	
 	kickMachine = NULL;
 	
@@ -55,6 +58,8 @@ JankyPickupState::~JankyPickupState()
 	delete rollersMotor;
 	delete rollersTimer;
 	delete pickupTimer;
+	delete lowerTimer;
+	delete passTimer;
 	delete kickMachine;
 }
 
@@ -86,7 +91,7 @@ bool JankyPickupState::IsPickupDown()
 
 void JankyPickupState::LowerForKick()
 {
-	if(GetCurrentState() == PrimedForKick)
+	if(GetCurrentState() == Idle || GetCurrentState() == PrimedForKick)
 	{
 		lowerTimer->Reset();
 		lowerTimer->Start();
@@ -110,6 +115,16 @@ void JankyPickupState::UnLowerExit()
 			pickupTimer->Start();
 		}
 		NewState(Up,"After lowering and picking up");
+	}
+}
+
+void JankyPickupState::Pass()
+{
+	if(GetCurrentState() == PrimedForKick)
+	{
+		passTimer->Reset();
+		passTimer->Start();
+		NewState(Passing,"Button pressed");
 	}
 }
 
@@ -157,6 +172,19 @@ void JankyPickupState::StateEngine(int curState)
 		case PrimedForKick:
 			//PrimedForKick handled by LowerForKick()
 			//printf("In PrimedForKick\n");
+			break;
+		//Add state with pass capability (set motor to negative, timer after)
+		//if button still pressed - will go back into state
+		case Passing:
+			if(rollersMotor)
+			{
+				rollersMotor->Set(PASS_ROLLERS_SPEED);
+				if(passTimer->Get() >= PASS_TIME)
+				{
+					rollersMotor->Set(0.0);
+					NewState(PrimedForKick,"Done passing");
+				}
+			}
 			break;
 		case Lower:
 			//printf("In Lower\n");

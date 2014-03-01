@@ -9,9 +9,15 @@
 #include "WPILib.h"
 #include "jankyStateMachine.h"
 #include "jankyRobotTemplate.h"
+#include "jankyPickupState.h"
+#include "jankyKickerState.h"
 
-#define DRIVE_TIME 2.0
+#define DRIVE_TIME 3.0
+#define LOWER_TIME 1.0
+#define WIND_TIME 5.0
 
+class JankyPickupState; //Forward declaration due to reference below
+class JankyKickerState; //Forward declaration due to reference below
 class JankyAutonomousState : public JankyStateMachine	{
 public:
 	JankyAutonomousState(RobotDrive * pt);
@@ -20,14 +26,31 @@ public:
 	//Member variables
 	enum StateValue {
 		Idle,
-		DriveForward
+		DriveForward,
+		InitialLower,
+		DriveForwardWindUp,
+		StopDriveWind,
+		DriveStopWind,
+		PrepKick,
+		Kick,
+		PostKick,
+		End
+		
 	};
 	Timer * driveTimer;
+	Timer * lowerTimer;
+	Timer * windTimer;
 	RobotDrive * ptRobot;
+	JankyPickupState * autoPickupMachine;
+	JankyKickerState * autoKickerMachine;
+	bool driveOnce;
 	
 	//Member functions
 	void StateEngine(int curState);
-	void GoForward();
+	void GoForward(void);
+	void StartAuto(void);
+	void SetAutoPickupMachine(JankyPickupState * pickupState);
+	void SetAutoKickerMachine(JankyKickerState * kickState);
 
 };
 

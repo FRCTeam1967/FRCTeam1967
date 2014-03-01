@@ -58,6 +58,9 @@ public:
 		kicker->SetPickupMachine(pickup);
 		pickup->SetKickerMachine(kicker);
 		
+		autonomous->SetAutoPickupMachine(pickup);
+		autonomous->SetAutoKickerMachine(kicker);
+		
 		compressor->Start();
 		
 		printf("End of RobotInit\n");
@@ -70,7 +73,10 @@ public:
 		//MUST be called - DO NOT TAKE OUT!
 		
 		//Supposed to drive forward for 2.0 seconds
-		autonomous->GoForward();
+		//autonomous->GoForward();
+		
+		//Supposed to drive forward, wind and kick
+		autonomous->StartAuto();
 	}
 	
 	void OperatorControl(void)
@@ -83,32 +89,32 @@ public:
 			//LOOP ALIVE - CANNOT TAKE OUT
 			ProgramIsAlive(); 
 			
-			
 			//MECANUM DRIVE
 			float LeftaxisYValue = joystick->GetY();
 			float LeftaxisXValue = joystick->GetX();
 			float RightaxisXValue = joystick->GetTwist();
 			pRobot->MecanumDrive_Cartesian(LeftaxisYValue, LeftaxisXValue, RightaxisXValue, 0.0);
 			
-			
-			
 			//PICKUP
-			//When button pressed arm will lower (extend piston) and motors will spin
-			//Should automatically raise arm up and slow rollers after button released
+			//When button pressed arm will lower and motors will spin (should automatically raise arm up/slow rollers after button up)
 			if(gameComponent->GetButtonA())
 			{
 				pickup->LowerToPickup();
 			}
-			else
+			if(gameComponent->GetButtonB())
 			{
 				pickup->UnLowerExit();
 			}
-			//When button pressed should lower arm (extend piston)
-			if(gameComponent->GetButtonB())
+			//When button pressed should just lower arm (extend piston) - get ready to kick
+			if(gameComponent->GetButtonY())
 			{
 				pickup->LowerForKick();
 			}
-			
+			//When button pressed, rollers will spin out and pass/shoot in low goal
+			if(gameComponent->GetButtonX())
+			{
+				pickup->Pass();
+			}
 			
 			//KICKER
 			//When button pressed should automatically spin motor and wind up
@@ -117,7 +123,13 @@ public:
 				printf("Button X and calling automated windup\n");
 				kicker->WindUp();
 			}
-			if(gameComponent->GetButtonX())
+			//When button pressed pawl should actuate to kick
+			if(gameComponent->GetButtonLB())
+			{
+				kicker->Kick();
+			}
+			/*
+			if(gameComponent->GetButtonY())
 			{
 				//printf("Calling kicker's PreWind\n");
 				kicker->PreWind();
@@ -126,17 +138,7 @@ public:
 			{
 				kicker->PreWindExit();
 			}
-			//When button pressed automatically go to IdleReadyForKick
-			if(gameComponent->GetButtonY())
-			{
-				printf("Telling kicker to go to IdleReadyForKick\n");
-				kicker->NewState(JankyKickerState::IdleReadyForKick,"Button pressed to go to ready for kick");
-			}
-			//When button pressed pawl should actuate to kick
-			if(gameComponent->GetButtonLB())
-			{
-				kicker->Kick();
-			}
+			*/
 		}
 		
 	}

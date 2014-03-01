@@ -302,10 +302,13 @@ void JankyKickerState::StateEngine(int curState)
 		case MotorEngage:
 			//printf("In MotorEngage\n");
 			//Engage dog gear
-			if(dogGearPistonOne)
-				dogGearPistonOne->Set(false);
-			if(dogGearPistonTwo)
-				dogGearPistonTwo->Set(true);
+			if(dogGearTimer->Get() >= 2.0)
+			{
+				if(dogGearPistonOne)
+					dogGearPistonOne->Set(false);
+				if(dogGearPistonTwo)
+					dogGearPistonTwo->Set(true);
+			}
 			if(dogGearTimer->Get() >= DOG_GEAR_ENGAGE_WAIT)
 			{
 				dogGearTimer->Stop();

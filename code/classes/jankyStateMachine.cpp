@@ -21,11 +21,6 @@ JankyStateMachine::JankyStateMachine()
 
 	strcpy(machineName, "DefaultMachine");
 	currentState = 0;		// Make a sane initial choice.
-	
-	Wait(2.0);
-	
-	printf("Calling Start() in StateMachine\n");
-	Start();
 }
 
 JankyStateMachine::~JankyStateMachine()
