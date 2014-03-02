@@ -12,8 +12,8 @@
 #include "jankyPickupState.h"
 #include "jankyKickerState.h"
 
-#define DRIVE_TIME 3.0
-#define LOWER_TIME 1.0
+#define DRIVE_TIME 1.9
+#define LOWER_TIME 0.8
 #define WIND_TIME 5.0
 
 class JankyPickupState; //Forward declaration due to reference below

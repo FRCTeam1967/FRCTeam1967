@@ -134,6 +134,10 @@ void JankyPickupState::StateEngine(int curState)
 		case Idle:
 			//Idle handled by LowerToPickup
 			//printf("In Pickup Idle\n");
+			if(pickupPistonOne)
+				pickupPistonOne->Set(true);
+			if(pickupPistonTwo)
+				pickupPistonTwo->Set(false);
 			break;
 		case LowerArmPickup:
 			//printf("In LowerArmPickup\n");

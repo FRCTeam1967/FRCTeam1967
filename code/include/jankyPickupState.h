@@ -18,11 +18,11 @@
 #define SLOW_ROLLERS_SPEED 0.7
 #define PASS_ROLLERS_SPEED -1.0
 #define ROLLERS_WAIT 2.0
-#define ROLLING_TIME 1.0
-#define LOWERING_TIME 2.5
+#define ROLLING_TIME 1.0	//Was 1.0, changed to 0.8, changed back
+#define LOWERING_TIME 1.0	//Was 2.5
 #define PASS_TIME 1.0
 
-#define RAISE_ARM_WAIT 2.0
+#define RAISE_ARM_WAIT 1.0	//Was 2.0
 
 class JankyKickerState; //Forward declaration due to reference below
 class JankyPickupState : public JankyStateMachine	{

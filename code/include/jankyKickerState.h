@@ -15,9 +15,9 @@
 #define ENCODER_ONE_CHANNEL 9
 #define ENCODER_TWO_CHANNEL 10
 #define ENCODER_MOTOR_CHANNEL 6
-#define ENCODER_WINDUP_REVOLUTION 1.4
+#define ENCODER_WINDUP_REVOLUTION 2.0
 #define DISENGAGE_SPEED -0.2
-#define MOTOR_DISENGAGE_TIME 1.0
+#define MOTOR_DISENGAGE_TIME 0.7		//Was 1.0
 #define AUTOMATED_WINDUP_SPEED 1.0
 #define MANUAL_WINDUP_SPEED 0.3
 
@@ -31,10 +31,10 @@
 //#define PAWL_PISTON_CYCLE 3.0
 //#define PAWL_PISTON_ACTUATION 1.5
 
-#define POST_WINDUP_WAIT 1.0
-#define DOG_GEAR_DISENGAGE_WAIT 1.0
-#define DOG_GEAR_ENGAGE_WAIT 3.0
-#define PAWL_ACTUATE_WAIT 1.0
+#define POST_WINDUP_WAIT 0.5			//Was 1.0
+#define DOG_GEAR_DISENGAGE_WAIT 0.5		//Was 1.0
+#define DOG_GEAR_ENGAGE_WAIT 1.5		//Was 3.0
+#define PAWL_ACTUATE_WAIT 1.0			//Was 1.0
 #define ADD_WIND_TIME 0.5
 
 class JankyPickupState; //Forward declaration due to reference below

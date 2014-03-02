@@ -122,7 +122,7 @@ void JankyAutonomousState::StateEngine(int curState)
 				driveTimer->Reset();
 				driveTimer->Start();
 				if(ptRobot)
-					ptRobot->MecanumDrive_Cartesian(-0.5,0.0,0.0,0.0);
+					ptRobot->MecanumDrive_Cartesian(-1.0,0.0,0.0,0.0);
 				windTimer->Reset();
 				windTimer->Start();
 				autoKickerMachine->WindUp();
@@ -132,7 +132,7 @@ void JankyAutonomousState::StateEngine(int curState)
 		case DriveForward:
 			printf("In state DriveForward\n");
 			if(ptRobot)
-				ptRobot->MecanumDrive_Cartesian(-0.5,0.0,0.0,0.0);
+				ptRobot->MecanumDrive_Cartesian(-1.0,0.0,0.0,0.0);
 			driveOnce = true;
 			if(driveTimer->Get() >= DRIVE_TIME)
 				NewState(End,"Done driving in auto");
@@ -169,7 +169,6 @@ void JankyAutonomousState::StateEngine(int curState)
 			}
 			break;
 		case DriveStopWind:
-			autoPickupMachine->UnLowerExit();
 			if(driveTimer->Get() >= DRIVE_TIME)
 			{
 				if(ptRobot)
@@ -177,6 +176,7 @@ void JankyAutonomousState::StateEngine(int curState)
 					ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
 					driveOnce = false;
 				}
+				autoPickupMachine->UnLowerExit();
 				if(autoPickupMachine->GetCurrentState() == JankyPickupState::PrimedForKick)
 					NewState(PrepKick,"Drive and wind done");
 			}

@@ -220,6 +220,7 @@ void JankyKickerState::StateEngine(int curState)
 				pWindMotor->Set(0.0);
 			if (postWindUpTimer->Get() >= POST_WINDUP_WAIT)
 			{
+				printf("In post wind up wait - pawl actuate\n");
 				//Engaging pawl after arming
 				if(pawlPistonOne)
 					pawlPistonOne->Set(false);
