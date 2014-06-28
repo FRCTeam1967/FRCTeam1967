@@ -43,6 +43,7 @@ public:
 		button_M(&stick,2),
 		button_L(&stick,3),
 		LEDRelay(FLASHRING_RELAY)
+
 	//	TestTurret(7)
 
 	{

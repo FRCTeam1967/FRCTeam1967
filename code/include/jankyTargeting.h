@@ -18,14 +18,17 @@
 #define WRITE_IMAGES
 #define INHEIGHT 18.0
 #define PIXHEIGHT 240.0
-#define PIXWIDTH 320.0
-#define MIN_SCORE 85.0
-#define MIN_PARAREA 400.0
 #define BOGEY_H 2
 #define BOGEY_M 1
 #define BOGEY_L 0
 #define CENTER_Y ((PIXHEIGHT/2.0) + 20)
 #define DEADBAND_Y 30
+#define PIXWIDTH 320.0
+#define CENTER_X (PIXWIDTH/2.0)
+#define MIN_SCORE 85.0
+#define MIN_PARAREA 50.0
+#define L_BOGEY 0
+#define R_BOGEY 1
 
 #define TURRET_P 0.009 //used to be 0.008
 #define TURRET_I 0.00002 //used to be 0.00001
@@ -43,8 +46,8 @@ typedef struct BogeyInfo_t {
 	int BogeyLeft;
 	int BogeyLMH;
 	//int BogeyRATIO;
+	int BogeyLR;
 
-		
 } BogeyInfo;
 
 
@@ -71,6 +74,12 @@ public:
 	void InteractivePIDSetup();
 	int VisToActDist(void);
 	int ActDisttoRPM(int actdist);
+	
+	//2014 targeting functions
+	bool ProcessNewImage(void);
+	int CheckHotGoal(void);
+	void GetRectScore(void);
+	void PrintReport(void);
 
 	int normalizedHOffset;
 	PIDController PIDTurret;
@@ -100,6 +109,7 @@ public:
 	int targetBogey;
 	int numImagesProcessed;
 	int preferredLMH;
+	
 	
 };
 

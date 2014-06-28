@@ -46,7 +46,8 @@ public:
 	float jankyXboxJoystick::GetLeftYAxis();
 	float jankyXboxJoystick::GetRightXAxis();
 	float jankyXboxJoystick::GetRightYAxis();
-	
+	float jankyXboxJoystick::GetLeftTwist();
+	float jankyXboxJoystick::GetRightTwist();
 };
 #endif
 

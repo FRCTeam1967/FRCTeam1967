@@ -155,3 +155,13 @@ float jankyXboxJoystick::GetRightYAxis ()
 	float y = (GetRawAxis(RIGHT_Y_AXIS_CHANNEL));
 	return y;
 }
+float jankyXboxJoystick::GetLeftTwist()
+{
+	float leftTwist = GetTwist();
+	return leftTwist;	
+}
+float jankyXboxJoystick::GetRightTwist()
+{
+	float rightTwist = GetTwist();
+	return rightTwist;	
+}

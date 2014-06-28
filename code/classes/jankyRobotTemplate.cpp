@@ -1,13 +1,11 @@
-/*
+ /*
  * jankyRobotTemplate.cpp
  *
  *  Created on: Jan 21, 2013
  *      Author: Team1967
  */
 
-#include "WPILib.h"
 #include "jankyRobotTemplate.h"
-//#include "jankyRobotDrive.h"
 #include <string>
 
 /*

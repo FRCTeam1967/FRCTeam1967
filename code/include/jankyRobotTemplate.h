@@ -4,15 +4,15 @@
 
 /// JankyRobotTemplate for a simple robot for 2013
 
-#ifndef _JANKYROBOTTEMPLATE_H
 #include "WPILib.h"
-//#include "jankyRobotDrive.h"
+
+#ifndef _JANKYROBOTTEMPLATE_H
 #define _JANKYROBOTTEMPLATE_H
 
-#define LEFT_FRONT 5
-#define RIGHT_FRONT 6
-#define LEFT_REAR 1
-#define RIGHT_REAR 2
+#define LEFT_FRONT 4 //5
+#define RIGHT_FRONT 3
+#define LEFT_REAR 2
+#define RIGHT_REAR 1
 #define LEFT 15
 #define RIGHT 16
 #define DEFAULT_NUMBER_MOTORS 2

@@ -44,6 +44,8 @@ JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	sprintf(initstr, "%f", Preferences::GetInstance()->GetDouble("D-turret", TURRET_D));
 	SmartDashboard::PutString("D-turret", initstr);
 
+	SmartDashboard::PutString("Hot Goal","not hot");
+	
 	Wait(1.0);
 }
 
@@ -61,6 +63,7 @@ double JankyTargeting::PIDGet(void)
 
 bool JankyTargeting::GetImage(void)
 {
+	static bool isColorWritten = false;
 	if (camera.IsFreshImage()==true)
 	{ 
 		success = camera.GetImage((ColorImage*)&hsl);
@@ -68,6 +71,8 @@ bool JankyTargeting::GetImage(void)
 		{
 			if (isImageValid()==true)
 			{
+				hsl.Write("ColorImage.jpg");
+				isColorWritten = true;
 				return true;
 			}
 		}
@@ -86,10 +91,22 @@ bool JankyTargeting::isImageValid()
 bool JankyTargeting::DoImageProcessing(void)
 {
 	bool isSuccessful = false;
+	static bool isBinaryWritten = false;
+
 	BinaryImage* firstBinaryImage = NULL;
 	BinaryImage* readyForConvexHull = NULL;
 	
-	firstBinaryImage = hsl.ThresholdHSL(120,186,60,255,0,255);
+	//Threshold values for Matt robot
+		//firstBinaryImage = hsl.ThresholdHSL(120,186,60,255,0,255);
+	firstBinaryImage = hsl.ThresholdHSL(100,150,60,255,0,255);
+
+	SmartDashboard::PutBoolean("Binary Image Written",isBinaryWritten);
+	
+	if(!isBinaryWritten && firstBinaryImage != NULL)
+	{
+		firstBinaryImage->Write("BinaryImage.bmp"); //or gif
+		isBinaryWritten = true;
+	}
 	
 	if (firstBinaryImage !=NULL)
 	{
@@ -101,7 +118,9 @@ bool JankyTargeting::DoImageProcessing(void)
 			samwise = readyForConvexHull->ConvexHull(false);
 			
 			if (samwise != NULL)
+			{
 				isSuccessful = true;
+			}
 		}
 	}
 	
@@ -118,7 +137,7 @@ bool JankyTargeting::GetParticles (void)
 {
 	particles = samwise->GetNumberParticles();
 	SmartDashboard::PutNumber("particles",particles);
-	//printf("Particles = %d\n", particles);
+	printf("Particles = %d\n", particles);
 	
 	if (particles >0)
 	{	
@@ -209,6 +228,114 @@ bool JankyTargeting::ProcessOneImage(void)
 	samwise = NULL;
 	
 	return success;
+}
+
+void JankyTargeting::GetRectScore(void)
+{
+	if (vPAR)
+	{
+		rect_score = (int)(((par->particleArea) / (par->boundingRect.width*par->boundingRect.height/2))*100.0);
+		//Do I have to divide this area by 2 because it is a triangle once convex hull has occurred?
+		BRcenterx = (int)(par->boundingRect.left + par->boundingRect.width*0.5);
+	}
+}
+
+void JankyTargeting::PrintReport(void)
+{
+	printf("New Bogey Report - # Valid bogies=%d\n", numValidBogies);
+		
+	for (int i=0;i<numValidBogies; i++)
+	{
+		printf("Bogey #=%d,PS=%d\n",i,bogies[i].BogeySCORE);
+		printf("BRCX=%d,PMCX=%d\n",bogies[i].BogeyBRCX,bogies[i].BogeyPMCX);
+	}
+}
+
+bool JankyTargeting::ProcessNewImage(void)
+{
+	bool success = false;
+	numValidBogies = 0;
+	
+	if(GetImage() == true)
+	{
+		numImagesProcessed++;
+		SmartDashboard::PutNumber("Number of Images Processed", numImagesProcessed);
+		if(DoImageProcessing() == true)
+		{
+			if(GetParticles() == true)
+			{
+				for(unsigned int i=0; i<vPAR->size() && i<3; i++)
+				{
+					par = &(*vPAR)[i];
+					if(par->particleArea < MIN_PARAREA)
+					{
+						printf("Particle area less than minimum\n");
+						break;
+					}
+					GetRectScore();
+					if(rect_score > MIN_SCORE)
+					{
+						bogies[numValidBogies].BogeyPMCX = par->center_mass_x;
+						bogies[numValidBogies].BogeyBRCX = BRcenterx;
+						bogies[numValidBogies].BogeySCORE = rect_score;
+						numValidBogies++;
+					}
+				}
+				//CheckHotGoal();
+				PrintReport();
+			}
+		}
+	}
+	else
+		success = false;
+	if(vPAR)
+		delete vPAR;
+	if(samwise)
+		delete samwise;
+	
+	vPAR = NULL;
+	samwise = NULL;
+	
+	return success;
+}
+
+int JankyTargeting::CheckHotGoal(void)
+{
+	for (int i=0 ; i<numValidBogies ; i++)
+	{
+		if(bogies[i].BogeyPMCX < CENTER_X)
+		{
+			bogies[i].BogeyLR = L_BOGEY;
+			return L_BOGEY;
+		}
+		else if(bogies[i].BogeyPMCX > CENTER_X)
+		{
+			bogies[i].BogeyLR = R_BOGEY;
+			return R_BOGEY;
+		}
+		else
+			printf("Neither left nor right goal\n");
+	}
+	
+	std::string goal = "";
+	std::string out = "";
+	
+	for (int i=0 ; i<numValidBogies ; i++)
+	{
+		if(bogies[i].BogeyLR == L_BOGEY)
+		{
+			goal = "left";
+			out = out + goal;
+		}
+		else if(bogies[i].BogeyLR == R_BOGEY)
+		{
+			goal = "right";
+			out = out + goal;
+		}
+		else
+			printf("No goal hot\n");
+	}
+	SmartDashboard::PutString("Hot Goal",out);
 }
 
 void JankyTargeting::SetLMHTarget(int ChosenTarget)
@@ -482,3 +609,4 @@ int JankyTargeting::GetCalculatedRPM(void)
 	
 	return calcRPM;
 }
+

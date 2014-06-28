@@ -21,28 +21,135 @@ TRACE_FLAG=$(TRACEON:1=)
 
 MAKEFILE := Makefile
 
-FLEXIBLE_BUILD := 1
-
 BUILD_SPEC = PPC603gnu
 DEBUG_MODE = 1
-ifeq ($(DEBUG_MODE),1)
-MODE_DIR := Debug
-else
-MODE_DIR := NonDebug
-endif
-OBJ_DIR := .
+SRC_DIR := .
+BUILD_ROOT_DIR := 
 PRJ_ROOT_DIR := C:/Documents\ and\ Settings/Team1967/My\ Documents/GitHub/FRCTeam1967/code/HollyProject
 WS_ROOT_DIR := C:/Documents\ and\ Settings/Team1967/My\ Documents/GitHub/FRCTeam1967/code
 
+ALL_BUILD_SPECS := PPC32diab PPC32gnu PPC603diab PPC603gnu
+ENABLED_BUILD_SPECS := PPC603gnu
 
+ifeq ($(BUILD_SPEC),PPC32diab)
+ifeq ($(DEBUG_MODE),1)
+OBJ_DIR := PPC32diab_DEBUG
+else
+OBJ_DIR := PPC32diab
+endif
+endif
+ifeq ($(BUILD_SPEC),PPC32gnu)
+ifeq ($(DEBUG_MODE),1)
+OBJ_DIR := PPC32gnu_DEBUG
+else
+OBJ_DIR := PPC32gnu
+endif
+endif
+ifeq ($(BUILD_SPEC),PPC603diab)
+ifeq ($(DEBUG_MODE),1)
+OBJ_DIR := PPC603diab_DEBUG
+else
+OBJ_DIR := PPC603diab
+endif
+endif
+ifeq ($(BUILD_SPEC),PPC603gnu)
+ifeq ($(DEBUG_MODE),1)
+OBJ_DIR := PPC603gnu_DEBUG
+else
+OBJ_DIR := PPC603gnu
+endif
+endif
 
-#Global Build Macros
+DEP_FILES := $(OBJ_DIR)/MyRobot.d
+-include $(DEP_FILES)
+
+ifeq ($(BUILD_SPEC),PPC32diab)
+SUBDIRS :=
+OBJECTS := $(OBJ_DIR)/MyRobot.o
+
+PROJECT_TARGETS :=
+
+SUB_OBJECTS :=
+SUB_TARGETS :=
+endif
+ifeq ($(BUILD_SPEC),PPC32gnu)
+SUBDIRS :=
+OBJECTS := $(OBJ_DIR)/MyRobot.o
+
+PROJECT_TARGETS :=
+
+SUB_OBJECTS :=
+SUB_TARGETS :=
+endif
+ifeq ($(BUILD_SPEC),PPC603diab)
+SUBDIRS :=
+OBJECTS := $(OBJ_DIR)/MyRobot.o
+
+PROJECT_TARGETS :=
+
+SUB_OBJECTS :=
+SUB_TARGETS :=
+endif
+ifeq ($(BUILD_SPEC),PPC603gnu)
+SUBDIRS :=
+OBJECTS := $(OBJ_DIR)/MyRobot.o
+
+PROJECT_TARGETS :=
+
+SUB_OBJECTS :=
+SUB_TARGETS :=
+endif
+
 PROJECT_TYPE = DKM
 DEFINES = 
 EXPAND_DBG = 0
 
+ifeq ($(BUILD_SPEC),PPC32diab)
+VX_CPU_FAMILY = ppc
+CPU = PPC32
+TOOL_FAMILY = diab
+TOOL = diab
+TOOL_PATH = 
+CC_ARCH_SPEC = -tPPCFH:vxworks63 -Xstmw-slow -DPPC32_fp60x
+LIBPATH = 
+LIBS = 
 
-#BuildSpec specific Build Macros
+IDE_INCLUDES = -I$(WIND_BASE)/target/h/WPILib -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
+
+IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a 
+endif
+
+ifeq ($(BUILD_SPEC),PPC32gnu)
+VX_CPU_FAMILY = ppc
+CPU = PPC32
+TOOL_FAMILY = gnu
+TOOL = gnu
+TOOL_PATH = 
+CC_ARCH_SPEC = -mhard-float -mstrict-align -mno-implicit-fp -DPPC32_fp60x
+LIBPATH = 
+LIBS = 
+
+IDE_INCLUDES = -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
+
+IDE_LIBRARIES = 
+endif
+
+ifeq ($(BUILD_SPEC),PPC603diab)
+VX_CPU_FAMILY = ppc
+CPU = PPC603
+TOOL_FAMILY = diab
+TOOL = diab
+TOOL_PATH = 
+CC_ARCH_SPEC = -tPPC603FH:vxworks63
+LIBPATH = 
+LIBS = 
+
+IDE_INCLUDES = -I$(WIND_BASE)/target/h -I$(WIND_BASE)/target/h/wrn/coreip 
+
+IDE_LIBRARIES = 
+endif
+
+ifeq ($(BUILD_SPEC),PPC603gnu)
 VX_CPU_FAMILY = ppc
 CPU = PPC603
 TOOL_FAMILY = gnu
@@ -55,132 +162,167 @@ LIBS =
 IDE_INCLUDES = -I$(WIND_BASE)/target/h -I$(WS_ROOT_DIR)/classes -I$(WS_ROOT_DIR)/include -I$(WIND_BASE)/target/h/WPILib -I$(WIND_BASE)/target/h/wrn/coreip 
 
 IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a 
+endif
 
 
-
-#BuildTool flags
+ifeq ($(BUILD_SPEC),PPC32diab)
 ifeq ($(DEBUG_MODE),1)
 DEBUGFLAGS_C-Compiler = -g
-DEBUGFLAGS_C++-Compiler = -g
-DEBUGFLAGS_Linker = -g
-DEBUGFLAGS_Partial-Image-Linker = 
-DEBUGFLAGS_Librarian = 
-DEBUGFLAGS_Assembler = -g
+else
+DEBUGFLAGS_C-Compiler = -XO -Xsize-opt
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC32gnu)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_C-Compiler = -g
 else
 DEBUGFLAGS_C-Compiler = -O2 -fstrength-reduce -fno-builtin
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C-Compiler) $(CC_ARCH_SPEC) -ansi  -Wall  -MD -MP $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC603diab)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_C-Compiler = -g
+else
+DEBUGFLAGS_C-Compiler = -XO -Xsize-opt
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC603gnu)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_C-Compiler = -g
+else
+DEBUGFLAGS_C-Compiler = -O2 -fstrength-reduce -fno-builtin
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.c
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C-Compiler) $(CC_ARCH_SPEC) -ansi  -Wall  -MD -MP -mlongcall $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC32diab)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_C++-Compiler = -g
+else
+DEBUGFLAGS_C++-Compiler = -XO -Xsize-opt
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.C
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cxx
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC32gnu)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_C++-Compiler = -g
+else
 DEBUGFLAGS_C++-Compiler = -O2 -fstrength-reduce -fno-builtin
-DEBUGFLAGS_Linker = -O2 -fstrength-reduce -fno-builtin
-DEBUGFLAGS_Partial-Image-Linker = 
-DEBUGFLAGS_Librarian = 
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.C
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cxx
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC603diab)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_C++-Compiler = -g
+else
+DEBUGFLAGS_C++-Compiler = -XO -Xsize-opt
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.C
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cxx
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xforce-declarations  -Xmake-dependency=0xd $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC603gnu)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_C++-Compiler = -g
+else
+DEBUGFLAGS_C++-Compiler = -O2 -fstrength-reduce -fno-builtin
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cpp
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.C
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cxx
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.cc
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC32diab)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_Assembler = -g
+else
+DEBUGFLAGS_Assembler = -XO -Xsize-opt
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.s
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_Assembler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xpreprocess-assembly -Xcpp-no-space  -Xmake-dependency=0xd $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
+ifeq ($(BUILD_SPEC),PPC32gnu)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_Assembler = -g
+else
 DEBUGFLAGS_Assembler = -O2 -fstrength-reduce -fno-builtin
 endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.s
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_Assembler) $(CC_ARCH_SPEC) -ansi   -xassembler-with-cpp -MD -MP $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
-
-#Project Targets
-PROJECT_TARGETS = SimpleTemplate/$(MODE_DIR)/SimpleTemplate.out \
-	 SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage.o
-
-
-#Rules
-
-# SimpleTemplate
-ifeq ($(DEBUG_MODE),1)
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_C-Compiler = -g
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_C++-Compiler = -g
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Linker = -g
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Partial-Image-Linker = 
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Librarian = 
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Assembler = -g
-else
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_C-Compiler = -O2 -fstrength-reduce -fno-builtin
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_C++-Compiler = -O2 -fstrength-reduce -fno-builtin
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Linker = -O2 -fstrength-reduce -fno-builtin
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Partial-Image-Linker = 
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Librarian = 
-SimpleTemplate/$(MODE_DIR)/% : DEBUGFLAGS_Assembler = -O2 -fstrength-reduce -fno-builtin
 endif
-SimpleTemplate/$(MODE_DIR)/% : IDE_INCLUDES = -I$(WIND_BASE)/target/h -I$(WS_ROOT_DIR)/classes -I$(WS_ROOT_DIR)/include -I$(WIND_BASE)/target/h/WPILib -I$(WIND_BASE)/target/h/wrn/coreip 
-SimpleTemplate/$(MODE_DIR)/% : IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a 
-SimpleTemplate/$(MODE_DIR)/% : PROJECT_TYPE = DKM
-SimpleTemplate/$(MODE_DIR)/% : DEFINES = 
-SimpleTemplate/$(MODE_DIR)/% : EXPAND_DBG = 0
-SimpleTemplate/$(MODE_DIR)/% : VX_CPU_FAMILY = ppc
-SimpleTemplate/$(MODE_DIR)/% : CPU = PPC603
-SimpleTemplate/$(MODE_DIR)/% : TOOL_FAMILY = gnu
-SimpleTemplate/$(MODE_DIR)/% : TOOL = gnu
-SimpleTemplate/$(MODE_DIR)/% : TOOL_PATH = 
-SimpleTemplate/$(MODE_DIR)/% : CC_ARCH_SPEC = -mcpu=603 -mstrict-align -mno-implicit-fp -mlongcall
-SimpleTemplate/$(MODE_DIR)/% : LIBPATH = 
-SimpleTemplate/$(MODE_DIR)/% : LIBS = 
-SimpleTemplate/$(MODE_DIR)/% : OBJ_DIR := SimpleTemplate/$(MODE_DIR)
-
-OBJECTS_SimpleTemplate = SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage.o
-
-SimpleTemplate/$(MODE_DIR)/SimpleTemplate.out : $(OBJECTS_SimpleTemplate)
-	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@";rm -f "$@";nmppc $(OBJECTS_SimpleTemplate) $(IDE_LIBRARIES) | tclsh $(WIND_BASE)/host/resource/hutils/tcl/munch.tcl -c ppc > $(OBJ_DIR)/ctdt.c; $(TOOL_PATH)ccppc $(DEBUGFLAGS_Linker) $(CC_ARCH_SPEC) -fdollars-in-identifiers -Wall $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES)  -o $(OBJ_DIR)/ctdt.o -c $(OBJ_DIR)/ctdt.c; $(TOOL_PATH)ccppc -r -nostdlib -Wl,-X -T $(WIND_BASE)/target/h/tool/gnu/ldscripts/link.OUT -o "$@" $(OBJ_DIR)/ctdt.o $(OBJECTS_SimpleTemplate) $(IDE_LIBRARIES) $(LIBPATH) $(LIBS)  $(ADDED_LIBPATH) $(ADDED_LIBS) && if [ "$(EXPAND_DBG)" = "1" ]; then plink "$@";fi
-
-SimpleTemplate/$(MODE_DIR)/SimpleTemplate_compile_file : $(FILE) ;
-
-_clean :: SimpleTemplate/$(MODE_DIR)/SimpleTemplate_clean
-
-SimpleTemplate/$(MODE_DIR)/SimpleTemplate_clean : 
-	$(TRACE_FLAG)if [ -d "SimpleTemplate" ]; then cd "SimpleTemplate"; rm -rf $(MODE_DIR); fi
-
-
-# SimpleTemplate_partialImage
+ifeq ($(BUILD_SPEC),PPC603diab)
 ifeq ($(DEBUG_MODE),1)
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_C-Compiler = -g
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_C++-Compiler = -g
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Linker = -g
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Partial-Image-Linker = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Librarian = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Assembler = -g
+DEBUGFLAGS_Assembler = -g
 else
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_C-Compiler = -O2 -fstrength-reduce -fno-builtin
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_C++-Compiler = -O2 -fstrength-reduce -fno-builtin
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Linker = -O2 -fstrength-reduce -fno-builtin
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Partial-Image-Linker = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Librarian = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEBUGFLAGS_Assembler = -O2 -fstrength-reduce -fno-builtin
+DEBUGFLAGS_Assembler = -XO -Xsize-opt
 endif
-SimpleTemplate_partialImage/$(MODE_DIR)/% : IDE_INCLUDES = -I$(WIND_BASE)/target/h -I$(WS_ROOT_DIR)/classes -I$(WS_ROOT_DIR)/include -I$(WIND_BASE)/target/h/WPILib -I$(WIND_BASE)/target/h/wrn/coreip 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : IDE_LIBRARIES = $(WIND_BASE)/target/lib/WPILib.a 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : PROJECT_TYPE = DKM
-SimpleTemplate_partialImage/$(MODE_DIR)/% : DEFINES = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : EXPAND_DBG = 0
-SimpleTemplate_partialImage/$(MODE_DIR)/% : VX_CPU_FAMILY = ppc
-SimpleTemplate_partialImage/$(MODE_DIR)/% : CPU = PPC603
-SimpleTemplate_partialImage/$(MODE_DIR)/% : TOOL_FAMILY = gnu
-SimpleTemplate_partialImage/$(MODE_DIR)/% : TOOL = gnu
-SimpleTemplate_partialImage/$(MODE_DIR)/% : TOOL_PATH = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : CC_ARCH_SPEC = -mcpu=603 -mstrict-align -mno-implicit-fp -mlongcall
-SimpleTemplate_partialImage/$(MODE_DIR)/% : LIBPATH = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : LIBS = 
-SimpleTemplate_partialImage/$(MODE_DIR)/% : OBJ_DIR := SimpleTemplate_partialImage/$(MODE_DIR)
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.s
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)dcc $(DEBUGFLAGS_Assembler) $(CC_ARCH_SPEC) -W:c:,-Xclib-optim-off -Xansi -Xlocal-data-area-static-only -Xpreprocess-assembly -Xcpp-no-space  -Xmake-dependency=0xd $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
 
-SimpleTemplate_partialImage/$(MODE_DIR)/Objects/HollyProject/MyRobot.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/GitHub/FRCTeam1967/code/HollyProject/MyRobot.cpp
-	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+endif
+ifeq ($(BUILD_SPEC),PPC603gnu)
+ifeq ($(DEBUG_MODE),1)
+DEBUGFLAGS_Assembler = -g
+else
+DEBUGFLAGS_Assembler = -O2 -fstrength-reduce -fno-builtin
+endif
+$(OBJ_DIR)/%.o : $(SRC_DIR)/%.s
+	$(TRACE_FLAG)echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_Assembler) $(CC_ARCH_SPEC) -ansi   -xassembler-with-cpp -MD -MP $(ADDED_CFLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
+
+endif
 
 
-SimpleTemplate_partialImage/$(MODE_DIR)/Objects/HollyProject/jankyXboxJoystick.o : C:/Documents\ and\ Settings/Team1967/My\ Documents/GitHub/FRCTeam1967/code/classes/jankyXboxJoystick.cpp
-	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc $(DEBUGFLAGS_C++-Compiler) $(CC_ARCH_SPEC) -ansi -Wall  -MD -MP -mlongcall $(ADDED_C++FLAGS) $(IDE_INCLUDES) $(ADDED_INCLUDES) -DCPU=$(CPU) -DTOOL_FAMILY=$(TOOL_FAMILY) -DTOOL=$(TOOL) -D_WRS_KERNEL   $(DEFINES) -o "$@" -c "$<"
-
-
-OBJECTS_SimpleTemplate_partialImage = SimpleTemplate_partialImage/$(MODE_DIR)/Objects/HollyProject/MyRobot.o \
-	 SimpleTemplate_partialImage/$(MODE_DIR)/Objects/HollyProject/jankyXboxJoystick.o
-
-SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage.o : $(OBJECTS_SimpleTemplate_partialImage)
-	$(TRACE_FLAG)if [ ! -d "`dirname "$@"`" ]; then mkdir -p "`dirname "$@"`"; fi;echo "building $@"; $(TOOL_PATH)ccppc -r -nostdlib -Wl,-X  -o "$@" $(OBJECTS_SimpleTemplate_partialImage) $(LIBPATH) $(LIBS) $(ADDED_LIBPATH) $(ADDED_LIBS)  && if [ "$(EXPAND_DBG)" = "1" ]; then plink "$@";fi
-
-SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage_compile_file : $(FILE) ;
-
-_clean :: SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage_clean
-
-SimpleTemplate_partialImage/$(MODE_DIR)/SimpleTemplate_partialImage_clean : 
-	$(TRACE_FLAG)if [ -d "SimpleTemplate_partialImage" ]; then cd "SimpleTemplate_partialImage"; rm -rf $(MODE_DIR); fi
-
-DEP_FILES := SimpleTemplate_partialImage/$(MODE_DIR)/Objects/HollyProject/MyRobot.d SimpleTemplate_partialImage/$(MODE_DIR)/Objects/HollyProject/jankyXboxJoystick.d
--include $(DEP_FILES)
 
 
 

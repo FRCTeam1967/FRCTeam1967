@@ -253,7 +253,7 @@
         </buildtarget>
         <buildtarget buildtool="Partial Image Linker" name="SimpleTemplate_partialImage" passed="true" targetname="SimpleTemplate_partialImage">
             <contents>
-                <folder name="/HollyProject" recursive="true"/>
+                <folder name="/SimpleTemplate" recursive="true"/>
             </contents>
         </buildtarget>
     </buildtargets>
