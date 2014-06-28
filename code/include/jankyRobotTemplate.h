@@ -9,6 +9,8 @@
 #ifndef _JANKYROBOTTEMPLATE_H
 #define _JANKYROBOTTEMPLATE_H
 
+
+//These four values below HAVE to be checked
 #define LEFT_FRONT 4 //5
 #define RIGHT_FRONT 3
 #define LEFT_REAR 2
