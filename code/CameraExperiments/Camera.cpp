@@ -80,7 +80,10 @@ public:
 		
 		while (IsOperatorControl())
 		{
-		//	myRobot.ArcadeDrive(stick);       
+			//GetImage() 
+			//hsl.Save
+			
+			//	myRobot.ArcadeDrive(stick);       
 			shoot.GetCurrentRPM();
 						
 			if (button.Get()==true)
