@@ -22,7 +22,7 @@ public:
 	
 	virtual void PIDWrite(float writeval) { Set(writeval); };
 	virtual void Set(float DesiredMotorValue);
-	void JankyTurret::SetDeadband(float DB);
+	void SetDeadband(float DB);
 	
 };
 

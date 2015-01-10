@@ -2,7 +2,7 @@
 #include "jankyTask.h"
 #include <string>
 
-JankyTask::JankyTask(const char* taskName, UINT32 priority) {
+JankyTask::JankyTask(const char* taskName, uint32_t priority) {
   std::string name = taskName;
   char tmp[30];
 
@@ -18,7 +18,7 @@ JankyTask::JankyTask(const char* taskName, UINT32 priority) {
   isDead_ = false;
 
   task_ = new Task(name.c_str(), (FUNCPTR)JankyTask::JankyPrivateStarterTask, priority);
-  task_->Start((UINT32)this);
+  task_->Start((uint32_t)this);
 }
 
 JankyTask::~JankyTask(){

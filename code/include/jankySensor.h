@@ -13,14 +13,14 @@
 
 class JankySensor : public DigitalInput {
 public:
-	JankySensor(UINT32 channel);
-	JankySensor(UINT8 moduleNumber, UINT32 channel);
+	JankySensor(uint32_t channel);
+	JankySensor(uint8_t moduleNumber, uint32_t channel);
 	virtual ~JankySensor(void);
 	
 	//member functions
 	void AutoDebounce();
-	UINT32 Get();
-	UINT32 GetRaw();
+	uint32_t Get();
+	uint32_t GetRaw();
 	
 	//member variables
 	int cSensor;

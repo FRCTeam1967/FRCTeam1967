@@ -86,7 +86,7 @@ public:
 		//cheetah(7),	 //Victor 7; for the turret
 		lynx(6),     //Victor 8; for elevator
 		//panther(10), //Victor 10; for pusing ball into turret
-		compressor(5, 4), // (UINT32 pressureSwitchChannel, UINT32 compressorRelayChannel)
+		compressor(5, 4), // (uint32_t pressureSwitchChannel, uint32_t compressorRelayChannel)
 		gyro(1),          // port #; gyro is analog
 		solenoid(5), // relay # = 5; for the bridge tipper
 		shepard(6),  // relay # = 6; for the ball kicker that pushes the ball into the turret

@@ -2,12 +2,12 @@
 #include "jankySensor.h"
 
 
-JankySensor::JankySensor(UINT32 channel) : DigitalInput (channel) //pass in our sensorchannel value to DigitalInput
+JankySensor::JankySensor(uint32_t channel) : DigitalInput (channel) //pass in our sensorchannel value to DigitalInput
 {
 	rReporting =0;
 }
 
-JankySensor::JankySensor(UINT8 moduleNumber, UINT32 channel) : DigitalInput (moduleNumber, channel) //pass in our sensorchannel value to DigitalInput
+JankySensor::JankySensor(uint8_t moduleNumber, uint32_t channel) : DigitalInput (moduleNumber, channel) //pass in our sensorchannel value to DigitalInput
 {
 	rReporting =0;
 }
@@ -35,14 +35,14 @@ void JankySensor::AutoDebounce()
 	
 }
 
-UINT32 JankySensor::Get()
+uint32_t JankySensor::Get()
 {
 	AutoDebounce();
 	return rReporting;
 	
 }	
 
-UINT32 JankySensor::GetRaw()
+uint32_t JankySensor::GetRaw()
 {
 	return cSensor;
 }

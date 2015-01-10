@@ -3,6 +3,8 @@
 ///
 
 /// JankyRobotTemplate for a simple robot for 2013
+///
+/// 2015 - WPILib changed SimpleRobot to SampleRobot to discourage the use of this base class.
 
 #include "WPILib.h"
 
@@ -20,7 +22,7 @@
 #define DEFAULT_NUMBER_MOTORS 2
 #define DEFAULT_CHANNEL_CONFLICT 0
 
-class JankyRobotTemplate : public SimpleRobot	{
+class JankyRobotTemplate : public SampleRobot	{
 public:
 	JankyRobotTemplate(void);
 	virtual ~JankyRobotTemplate(void);
@@ -42,13 +44,13 @@ public:
 	void SetNumberMotors(int desiredNumberMotors);
 	void TankDrive(GenericHID *leftStick, GenericHID *rightStick, bool squaredInputs = true);
 	void TankDrive(GenericHID &leftStick, GenericHID &rightStick, bool squaredInputs = true);
-	void TankDrive(GenericHID *leftStick, UINT32 leftAxis, GenericHID *rightStick, UINT32 rightAxis, bool squaredInputs = true);
-	void TankDrive(GenericHID &leftStick, UINT32 leftAxis, GenericHID &rightStick, UINT32 rightAxis, bool squaredInputs = true);
+	void TankDrive(GenericHID *leftStick, uint32_t leftAxis, GenericHID *rightStick, uint32_t rightAxis, bool squaredInputs = true);
+	void TankDrive(GenericHID &leftStick, uint32_t leftAxis, GenericHID &rightStick, uint32_t rightAxis, bool squaredInputs = true);
 	void TankDrive(float leftValue, float rightValue, bool squaredInputs = true);
 	void ArcadeDrive(GenericHID *stick, bool squaredInputs = true);
 	void ArcadeDrive(GenericHID &stick, bool squaredInputs = true);
-	void ArcadeDrive(GenericHID *moveStick, UINT32 moveChannel, GenericHID *rotateStick, UINT32 rotateChannel, bool squaredInputs = true);
-	void ArcadeDrive(GenericHID &moveStick, UINT32 moveChannel, GenericHID &rotateStick, UINT32 rotateChannel, bool squaredInputs = true);
+	void ArcadeDrive(GenericHID *moveStick, uint32_t moveChannel, GenericHID *rotateStick, uint32_t rotateChannel, bool squaredInputs = true);
+	void ArcadeDrive(GenericHID &moveStick, uint32_t moveChannel, GenericHID &rotateStick, uint32_t rotateChannel, bool squaredInputs = true);
 	void ArcadeDrive(float moveValue, float rotateValue, bool squaredInputs = true);
 
 

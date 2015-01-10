@@ -80,7 +80,7 @@ public:
 		gameComponent(GC_JOYSTICK_PORT),
 		driveJoystick(DRIVE_JOYSTICK_PORT),
 		shooterPiston(PISTON_CHANNEL),	//relay channel that the solenoid is connected to
-		compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL),	// (UINT32 pressureSwitchChannel, UINT32 compressorRelayChannel)
+		compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL),	// (uint32_t pressureSwitchChannel, uint32_t compressorRelayChannel)
 		shooterMotorOne(SHOOTER_MOTOR_ONE_CHANNEL),
 		shooterMotorTwo(SHOOTER_MOTOR_TWO_CHANNEL),
 		shooterSolenoid(SHOOTER_SOLENOID_CHANNEL)

@@ -12,7 +12,6 @@ JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 	PID(0.02,0.03,0.01,&ShooterEncoder,&ShooterMotor)
 {
 	RPMerrorOld = 0;
-	ShooterEncoder.Start();
 	ShooterMotor.Set(0.0);
 	TargetRPMx4 = 0;
 	CurrentRPMx4 = 0;
@@ -37,7 +36,6 @@ JankyShooter::JankyShooter(int JagPort, int EncoderAPort, int EncoderBPort):
 
 JankyShooter::~JankyShooter(void)
 {
-	ShooterEncoder.Stop();
 }
 
 int JankyShooter::GetCurrentRPM(void)
@@ -226,7 +224,6 @@ JankyShooter2::JankyShooter2(int JagPort, int EncoderAPort, int EncoderBPort):
 	//PID(0.02,0.03,0.01,this,this)
 	PID(0.02,0.03,0.01,this,this)
 {
-	ShooterEncoder.Start();
 	Victor::Set(0.0);
 	TargetRPMx4 = 0;
 	CurrentRPMx4 = 0;
@@ -255,7 +252,6 @@ JankyShooter2::JankyShooter2(int JagPort, int EncoderAPort, int EncoderBPort):
 
 JankyShooter2::~JankyShooter2(void)
 {
-	ShooterEncoder.Stop();
 	PID.Disable();
 }
 

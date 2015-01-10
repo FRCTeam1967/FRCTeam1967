@@ -32,22 +32,22 @@ public:
 	jankyXboxJoystick(int portNumber);
 	virtual ~jankyXboxJoystick(void);
 	
-	bool jankyXboxJoystick::GetButtonA();
-	bool jankyXboxJoystick::GetButtonB();
-	bool jankyXboxJoystick::GetButtonX();
-	bool jankyXboxJoystick::GetButtonY();
-	bool jankyXboxJoystick::GetButtonLB();
-	bool jankyXboxJoystick::GetButtonRB();
-	bool jankyXboxJoystick::GetButtonBack();
-	bool jankyXboxJoystick::GetButtonStart();
-	float jankyXboxJoystick::GetLeftThrottle();
-	float jankyXboxJoystick::GetRightThrottle();
-	float jankyXboxJoystick::GetLeftXAxis();
-	float jankyXboxJoystick::GetLeftYAxis();
-	float jankyXboxJoystick::GetRightXAxis();
-	float jankyXboxJoystick::GetRightYAxis();
-	float jankyXboxJoystick::GetLeftTwist();
-	float jankyXboxJoystick::GetRightTwist();
+	bool GetButtonA();
+	bool GetButtonB();
+	bool GetButtonX();
+	bool GetButtonY();
+	bool GetButtonLB();
+	bool GetButtonRB();
+	bool GetButtonBack();
+	bool GetButtonStart();
+	float GetLeftThrottle();
+	float GetRightThrottle();
+	float GetLeftXAxis();
+	float GetLeftYAxis();
+	float GetRightXAxis();
+	float GetRightYAxis();
+	float GetLeftTwist();
+	float GetRightTwist();
 };
 #endif
 
