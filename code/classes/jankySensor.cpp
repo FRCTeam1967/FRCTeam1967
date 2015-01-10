@@ -1,15 +1,12 @@
 
 #include "jankySensor.h"
 
-
 JankySensor::JankySensor(uint32_t channel) : DigitalInput (channel) //pass in our sensorchannel value to DigitalInput
 {
 	rReporting =0;
-}
-
-JankySensor::JankySensor(uint8_t moduleNumber, uint32_t channel) : DigitalInput (moduleNumber, channel) //pass in our sensorchannel value to DigitalInput
-{
-	rReporting =0;
+	cContiguous = 0;
+	cSensor = 0;
+	rReporting = false;
 }
 
 JankySensor::~JankySensor()

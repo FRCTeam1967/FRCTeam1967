@@ -78,24 +78,25 @@ void JankyRobotTemplate::RobotInit()
 void JankyRobotTemplate::AutonomousInit()
 {
 	printf("JankyRobotAutonomous: Setting up Watchdog\n");
-	Watchdog &dog = this->GetWatchdog();
-	dog.SetEnabled(false);
-	dog.SetExpiration(0.1);
+// TODO: Figure out if watchdog removal has issues - and what does SetSafetyEnabled=false do?
+//	Watchdog &dog = this->GetWatchdog();
+//	dog.SetEnabled(false);
+//	dog.SetExpiration(0.1);
 	pRobot->SetSafetyEnabled(false);
 }
 
 void JankyRobotTemplate::OperatorControlInit()
 {
 	printf("JankyRobotTeleop: Setting up Watchdog\n");
-	Watchdog &dog = this->GetWatchdog();
-	dog.SetEnabled(false);
-	dog.SetExpiration(0.1);
+//	Watchdog &dog = this->GetWatchdog();
+//	dog.SetEnabled(false);
+//	dog.SetExpiration(0.1);
 	pRobot->SetSafetyEnabled(false);
 }
 
 void JankyRobotTemplate::ProgramIsAlive()
 {
-	this->GetWatchdog().Feed();
+//	this->GetWatchdog().Feed();
 	//pRobot->FeedSafetyHelper();
 	
 	static int counter = 0;

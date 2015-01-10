@@ -5,6 +5,7 @@
 /// JankySensor for a simple robot for 2013 - Ultimate Ascent
 
 #include "WPILib.h"
+#include "DigitalInput.h"
 
 #ifndef _JANKYSENSOR_H
 #define _JANKYSENSOR_H
@@ -14,7 +15,6 @@
 class JankySensor : public DigitalInput {
 public:
 	JankySensor(uint32_t channel);
-	JankySensor(uint8_t moduleNumber, uint32_t channel);
 	virtual ~JankySensor(void);
 	
 	//member functions

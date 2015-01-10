@@ -79,7 +79,6 @@ void JankyEncoder::Reset(void)
 	if (pEncoder)
 	{
 		pEncoder->Reset(); //Mentor Bob says there's more to do
-		pEncoder->Start();
 	} 
 	bDone = false;
 	bEncoding = false;

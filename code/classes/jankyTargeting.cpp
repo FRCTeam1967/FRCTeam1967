@@ -6,7 +6,6 @@
 
 #include "jankyTargeting.h" 
 
-
 /// Constructor - do initialization here initialization-we are using these, not creating new variables
 JankyTargeting::JankyTargeting(JankyTurret* pTurret) :
 	PIDTurret(TURRET_P, TURRET_I, TURRET_D, this, pTurret),

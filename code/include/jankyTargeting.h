@@ -14,6 +14,8 @@
 #include "jankyTurret.h"
 #include "jankyShooter.h"
 
+#include <vector>
+
 #define USE_CENTER_OF_MASS
 #define WRITE_IMAGES
 #define INHEIGHT 18.0
@@ -86,7 +88,7 @@ public:
 	
 	
 	// Member variables
-	AxisCamera& camera;
+	AxisCamera camera;
 	SmartDashboard *smarty;
 	BinaryImage *samwise;
 	HSLImage hsl;
@@ -101,7 +103,7 @@ public:
 	int BRcenterx;
 	int BRcentery;
 	int visualdistance;
-	vector<ParticleAnalysisReport>* vPAR;
+	std::vector<ParticleAnalysisReport>* vPAR;
 	ParticleAnalysisReport* par;
 	int numValidBogies;
 	int aspectratio;
