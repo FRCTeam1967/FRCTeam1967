@@ -30,7 +30,7 @@ JankyStateMachine::~JankyStateMachine()
 
 }
 
-void JankyStateMachine::SetMachineName(char * machine) 
+void JankyStateMachine::SetMachineName(const char * machine)
 {
 	if (strlen(machine) < MAX_NAME_LENGTH -1)
 	{
@@ -50,7 +50,7 @@ void JankyStateMachine::Run(){
 	StateEngine(currentState);
 }
 
-void JankyStateMachine::NewState(int newState, char*reason){
+void JankyStateMachine::NewState(int newState, const char*reason){
 	if ( newState < MAX_NAMES)
 	{
 		printf("STATECHANGE:%s:OLD:%s:NEW:%s:REASON:%s\n", machineName, names[currentState], names[newState], reason);
@@ -63,7 +63,7 @@ void JankyStateMachine::NewState(int newState, char*reason){
 	
 }
 
-void JankyStateMachine::SetName(int state, char*stateName) {
+void JankyStateMachine::SetName(int state, const char*stateName) {
 	if (state < MAX_NAMES && strlen(stateName) < MAX_NAME_LENGTH -1)
 	{
 		strcpy(names[state], stateName);
