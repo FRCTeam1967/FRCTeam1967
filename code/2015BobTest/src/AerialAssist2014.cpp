@@ -10,8 +10,10 @@
 
 #define DRIVE_JOYSTICK_PORT 1
 #define GC_JOYSTICK_PORT 2
-#define COMPRESSOR_PRESSURE_SWITCH 14
-#define COMPRESSOR_RELAY_CHANNEL 1
+//#define COMPRESSOR_PRESSURE_SWITCH 14
+//#define COMPRESSOR_RELAY_CHANNEL 1
+// TODO: What is the PCMID for 2015?
+#define COMPRESSOR_CANBUS_ID -1
 
 class AerialAssist2014 : public JankyRobotTemplate
 {
@@ -53,7 +55,7 @@ public:
 		kicker = new JankyKickerState();
 		pickup = new JankyPickupState();
 		autonomous = new JankyAutonomousState(pRobot);
-		compressor = new Compressor(COMPRESSOR_PRESSURE_SWITCH,COMPRESSOR_RELAY_CHANNEL);
+		compressor = new Compressor(COMPRESSOR_CANBUS_ID);
 		
 		kicker->SetPickupMachine(pickup);
 		pickup->SetKickerMachine(kicker);
