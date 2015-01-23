@@ -1,0 +1,35 @@
+2015 - roboRIO + Eclipse - Creating a project
+
+Open Eclipse
+If prompted for workspace location, use the location of the git repo but the 'code/' directory below it. This will mean finding the FRCTeam1967/code/ folder.
+
+New project
+- File->New->Project... WPI Robot project (not example project)
+- When prompted, give your project a name.
+- Select Sample Robot (at some point we'll begin using Iterative robot)
+- Prepare the new project by right-clicking on it and selecting Index->Rebuild
+
+If you plan to replace the Robot.cpp sample file, you may find it under 'src' in the project and delete it entirely.
+
+Setup INCLUDE files
+- Use File Explorer or Finder (mac) and find the repository's 'include' folder. 
+- Drag and drop the 'include' folder onto the Eclipse project just created.
+- When prompted, select 'Link to files and folders' (PROJECT_LOC or WORKSPACE_LOC is fine)
+- Now the include directory is part of the project - but not being used for include files yet.
+- Right-click on the project and select 'Properties'
+- Goto C/C++ General --> Paths/Symbols --> GNU C++
+- Select at the top (All Configurations) ... not just DEBUG
+- Then click 'Add...' and type /${ProjName}/include
+- Be sure to select 'Is a Workspace Path'
+- Click OK
+- If prompted for a re-build of the index - select 'Yes'
+- If not prompted for a re-build of the index, right-click on the project and select Index->Rebuild
+
+Add necessary janky class files (.cpp implementation files)
+- Use File Explorer or Finder to find an implementation file you wish to add to the project. Most likely these are located in FRCTeam1967/classes/*
+- Drag and drop one or more .cpp files into the Eclipse project - into the 'src' folder
+- Select 'Link to Files' and leave it as relative to PROJECT_LOC
+- Click OK
+
+Do one final index rebuild - right click on the project and select Index->Rebuild
+Now build... Right click on the project and select 'Build project'
