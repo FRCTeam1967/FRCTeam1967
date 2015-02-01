@@ -7,6 +7,7 @@
 #ifndef _JANKYSTATEMACHINE_H
 #define _JANKYSTATEMACHINE_H
 #include "jankyTask.h"
+#include <string>
 #include "WPILib.h"
 #define MAX_NAMES 32
 #define MAX_NAME_LENGTH 32
@@ -21,8 +22,9 @@ public:
 	virtual void StateEngine(int curState) = 0;
 	int GetCurrentState();
 	void NewState(int newState, const char*reason);
-	void SetName(int state, const char*name);
+	void SetName(int state, const char* name);
 	void SetMachineName(const char* machine);
+	char* GetName(int state);
 
 	//Member Variables
 private:	

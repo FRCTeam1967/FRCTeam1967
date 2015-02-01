@@ -7,6 +7,9 @@
 #include "WPILib.h"
 #include "jankyTask.h"
 #include "jankyStateMachine.h"
+#include <string>
+
+const char*name;
 
 JankyStateMachine::JankyStateMachine()
 {
@@ -46,6 +49,10 @@ int JankyStateMachine::GetCurrentState()
 	return currentState;
 }
 
+ char* JankyStateMachine::GetName(int state){
+	 return names[state];
+ }
+
 void JankyStateMachine::Run(){
 	StateEngine(currentState);
 }
@@ -63,7 +70,7 @@ void JankyStateMachine::NewState(int newState, const char*reason){
 	
 }
 
-void JankyStateMachine::SetName(int state, const char*stateName) {
+void JankyStateMachine::SetName(int state, const char* stateName) {
 	if (state < MAX_NAMES && strlen(stateName) < MAX_NAME_LENGTH -1)
 	{
 		strcpy(names[state], stateName);
