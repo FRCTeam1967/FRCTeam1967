@@ -27,6 +27,11 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>include</name>
+			<type>2</type>
+			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
+		</link>
+		<link>
 			<name>src/jankyRobotTemplate.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyRobotTemplate.cpp</locationURI>

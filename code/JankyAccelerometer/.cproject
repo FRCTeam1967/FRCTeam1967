@@ -27,9 +27,9 @@
 								<option id="gnu.cpp.compiler.option.optimization.level.1204256582" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.969129918" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" useByScannerDiscovery="false" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.include.paths.394786621" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
-									<listOptionValue builtIn="false" value="&quot;${WPILIB}/cpp/current/include&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/src}&quot;"/>
 									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${WPILIB}/cpp/current/include&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.dialect.std.1060340803" name="Language standard" superClass="gnu.cpp.compiler.option.dialect.std" useByScannerDiscovery="true" value="gnu.cpp.compiler.dialect.c++1y" valueType="enumerated"/>
 								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1033680971" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
@@ -84,6 +84,7 @@
 									<listOptionValue builtIn="false" value="/usr/include"/>
 									<listOptionValue builtIn="false" value="/usr/include/gazebo-3.2"/>
 									<listOptionValue builtIn="false" value="/usr/include/sdformat-2.2"/>
+									<listOptionValue builtIn="false" value="&quot;${workspace_loc:/${ProjName}/include}&quot;"/>
 								</option>
 								<option id="gnu.cpp.compiler.option.optimization.level.1648211502" name="Optimization Level" superClass="gnu.cpp.compiler.option.optimization.level" value="gnu.cpp.compiler.optimization.level.none" valueType="enumerated"/>
 								<option id="gnu.cpp.compiler.option.debugging.level.937474733" name="Debug Level" superClass="gnu.cpp.compiler.option.debugging.level" value="gnu.cpp.compiler.debugging.level.max" valueType="enumerated"/>
@@ -129,15 +130,6 @@
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
 		<project id="JankyAccelerator.cdt.managedbuild.target.gnu.cross.exe.13534228" name="Executable" projectType="cdt.managedbuild.target.gnu.cross.exe"/>
 	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.1104744751;cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.;cdt.managedbuild.tool.gnu.cross.c.compiler.1261239456;cdt.managedbuild.tool.gnu.c.compiler.input.1793678673">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.1104744751;cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1505235107;cdt.managedbuild.tool.gnu.cpp.compiler.input.1033680971">
-			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
-		</scannerConfigBuildInfo>
-	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Simulate">
@@ -146,5 +138,20 @@
 		<configuration configurationName="Debug">
 			<resource resourceType="PROJECT" workspacePath="/JankyAccelerator"/>
 		</configuration>
+	</storageModule>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.1104744751;cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1505235107;cdt.managedbuild.tool.gnu.cpp.compiler.input.1033680971">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.1104744751;cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.;cdt.managedbuild.tool.gnu.cross.c.compiler.1261239456;cdt.managedbuild.tool.gnu.c.compiler.input.1793678673">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.2017904325;cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.2017904325.;cdt.managedbuild.tool.gnu.c.compiler.base.2039239712;cdt.managedbuild.tool.gnu.c.compiler.input.1197133064">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.2017904325;cdt.managedbuild.config.gnu.cross.exe.debug.1104744751.2017904325.;cdt.managedbuild.tool.gnu.cpp.compiler.base.2105416021;cdt.managedbuild.tool.gnu.cpp.compiler.input.1758810658">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
 	</storageModule>
 </cproject>
