@@ -1,4 +1,3 @@
-/*
  /*
  * NatSolenoidtest.cpp
  *
