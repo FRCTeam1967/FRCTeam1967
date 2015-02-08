@@ -11,7 +11,7 @@
  * This is a program to test the JankyXboxJoystick class.                                     *                                         *
  **********************************************************************************************/ 
 
-class RobotDemo : public SimpleRobot
+class RobotDemo : public SampleRobot
 {
 	RobotDrive myRobot; // robot drive system
 	Joystick stick; // only joystick
