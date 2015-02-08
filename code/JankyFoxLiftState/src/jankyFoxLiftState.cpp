@@ -17,29 +17,26 @@ JankyFoxliftState::JankyFoxliftState()
 
 	SetMachineName("JankyPickupStateMachine");
 	SetName(Init,"Init");
-	SetName(UpSingle,"Raise tote if !tote+ ");
-	SetName(UpFinish,"Raise tote if tote+");
+	//SetName(UpSingle,"Raise tote if !tote+ ");
+	//SetName(UpFinish,"Raise tote if tote+");
 	SetName(Braking,"Put brake and stop motor");
-	SetName(Down6,"Lower for step");
-	SetName(Down2,"Lower for platform");
-	SetName(DownStack,"Lower if tote in lift");
-	//SetName(BottomStack,"Ready to kick");
+	//SetName(Down6,"Lower for step");
+	//SetName(Down2,"Lower for platform");
+	//SetName(DownStack,"Lower if tote in lift");
+	SetName(BottomStop,"Ready to kick");
+	SetName(Up,"Going Up");
+	SetName(Down, "Going Down");
 
 
-
-	/*rollersMotor = new Talon(ROLLERS_MOTOR_CHANNEL);
-
-	rollersTimer = new Timer();
-	pickupTimer = new Timer();
-	lowerTimer = new Timer();
-	passTimer = new Timer();
-
-	lowerTimer->Reset();
-	rollersTimer->Reset();
-	pickupTimer->Reset();
-	passTimer->Reset();*/
-
-	//kickMachine = NULL;
+	lSwitchTop = new DigitalInput(LIMIT_SWITCH_TOP);
+	lSwitchDown = new DigitalInput(LIMIT_SWITCH_BOTTOM);
+	//lSwitch6 = new DigitalInput(LIMIT_SWITCH_6);
+	//lSwitch2 = new DigitalInput(LIMIT_SWITCH_2);
+	motorLift = new Talon(TALON_LIFT);
+	motorRoller1 = new Talon(TALON_ROLLER1);
+	motorRoller2 = new Talon(TALON_ROLLER2);
+	brake = new Solenoid(BRAKE);
+	toteIn = new AnalogInput(SONAR_SENSOR);
 
 	//Starting JankyTask at end of constructor
 	Start();
@@ -52,108 +49,73 @@ JankyFoxliftState::JankyFoxliftState()
  */
 JankyFoxliftState::~JankyFoxliftState()
 {
-	/*delete pickupPistonOne;
-	delete pickupPistonTwo;
-	delete rollersMotor;
-	delete rollersTimer;
-	delete pickupTimer;
-	delete lowerTimer;
-	delete passTimer;
-	delete kickMachine;*/
+	delete lSwitchTop;
+	delete lSwitchDown;
+	//delete lSwitch6;
+	//delete lSwitch2;
+	delete motorLift;
+	delete motorRoller1;
+	delete motorRoller2;
+	delete brake;
+	delete toteIn;
 }
 
 
-/*
-bool JankyPickupState::IsPickupUp()
-{
-	if(GetCurrentState() == Up || GetCurrentState() == Raise)
-	{
-		return true;
+void JankyFoxliftState::GoUp(){
+	if (lSwitchTop == false){
+		NewState(Up,"Starting to go up!");
 	}
-	else
-		return false;
 }
-
-bool JankyPickupState::IsPickupDown()
-{
-	if(GetCurrentState() == ReadyToKick)
-	{
-		return true;
-	}
-	else
-		return false;
-}
-
-void JankyPickupState::LowerForKick()
-{
-	if(GetCurrentState() == Idle || GetCurrentState() == PrimedForKick)
-	{
-		lowerTimer->Reset();
-		lowerTimer->Start();
-		NewState(Lower,"Primed for kick done");
+void JankyFoxliftState::GoDown(){
+	if (lSwitchDown == false){
+		NewState(Down, "Going Down!");
 	}
 }
 
-void JankyPickupState::LowerToPickup()
-{
-	NewState(LowerArmPickup,"Button to lower arm to pick ball up");
-}
-
-void JankyPicState::UnLowerExit()
-{
-	if(GetCurrentState() == LowerArmPickup)
-	{
-		if(pickupTimer)
-		{
-			//Starting pickupTimer for new state
-			pickupTimer->Reset();
-			pickupTimer->Start();
-		}
-		NewState(Up,"After lowering and picking up");
-	}
-}
-
-void JankyFoxliftState::Pass()
-{
-	if(GetCurrentState() == PrimedForKick)
-	{
-		passTimer->Reset();
-		passTimer->Start();
-		NewState(Passing,"Button pressed");
-	}
- */
 
 void JankyFoxliftState::StateEngine(int curState)
 {
 	switch(curState){
 		case Init:
-			printf(GetName(0));
-			printf("\n");
-		break;
-		case UpSingle:
-			printf(GetName(1));
-			printf("\n");
-		break;
-		case UpFinish:
-			printf(GetName(2));
-			printf("\n");
+			printf("In Init\n");
+			motorRoller1->Set(0);
+			motorRoller2->Set(0);
+			brake->Set(false);
+			motorLift->Set(0);
 		break;
 		case Braking:
-			printf(GetName(3));
-			printf("\n");
+			printf("In Braking\n");
+			motorLift->Set(0);
+			brake->Set(true);
 		break;
-		case Down6:
-			printf(GetName(4));
-			printf("\n");
+		case BottomStop:
+			printf("In BottomStop\n");
+			motorLift->Set(0);
+			brake->Set(false);
+			if (toteIn->GetVoltage() < .7){
+				NewState(Up, "Tote in and now going up");
+			}
+			else{
+				NewState(Init, "No tote so going to Init state");
+			}
 		break;
-		case Down2:
-			printf(GetName(5));
-			printf("\n");
+		case Up:
+			printf("In Up\n");
+			motorLift->Set(.5);
+			brake->Set(false);
+			if(lSwitchTop->Get() == true){
+				NewState(Braking, "All the way up, so braking");
+			}
 		break;
-		case DownStack:
-			printf(GetName(6));
-			printf("\n");
+		case Down:
+			printf("In Down");
+			motorLift->Set(-.5);
+			brake->Set(false);
+			if(lSwitchDown->Get() == true){
+				NewState(BottomStop, "All the way down, so stopping for now");
+			}
 		break;
+
 	}
 }
 

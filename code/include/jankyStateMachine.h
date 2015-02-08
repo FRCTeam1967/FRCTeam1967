@@ -24,7 +24,6 @@ public:
 	void NewState(int newState, const char*reason);
 	void SetName(int state, const char* name);
 	void SetMachineName(const char* machine);
-	char* GetName(int state);
 
 	//Member Variables
 private:	

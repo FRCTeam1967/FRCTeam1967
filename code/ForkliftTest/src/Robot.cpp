@@ -1,10 +1,12 @@
 #include "WPILib.h"
 #include "ForkliftTest.h"
 #include "jankyXboxJoystick.h"
+#include "NatSolenoidTestJig.h"
 
 #define FORKLIFT_PORT 1
 #define ROLLER_LEFT 5
 #define ROLLER_RIGHT 6
+#define SOLENOID_PORT 0
 
 class Robot: public IterativeRobot
 {
@@ -26,23 +28,8 @@ private:
 	void RobotInit()
 	{
 		stick = new jankyXboxJoystick(FORKLIFT_PORT);
-		forky = new JankyForklift(ROLLER_LEFT, ROLLER_RIGHT);
+		forky = new JankyForklift(ROLLER_LEFT, ROLLER_RIGHT, SOLENOID_PORT);
 	}
- /*
-	void AutonomousInit()
-	{
-
-	}
-
-	void AutonomousPeriodic()
-	{
-
-	}
-
-	void TeleopInit()
-	{
-
-	}*/
 
 	void TeleopPeriodic()
 	{

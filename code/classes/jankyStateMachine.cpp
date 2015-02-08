@@ -49,10 +49,6 @@ int JankyStateMachine::GetCurrentState()
 	return currentState;
 }
 
- char* JankyStateMachine::GetName(int state){
-	 return names[state];
- }
-
 void JankyStateMachine::Run(){
 	StateEngine(currentState);
 }

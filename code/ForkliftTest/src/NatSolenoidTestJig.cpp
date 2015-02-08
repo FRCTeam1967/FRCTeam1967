@@ -1,4 +1,5 @@
- /*
+/*
+ *
  * NatSolenoidtest.cpp
  *
  *  Created on: Jan 31, 2015

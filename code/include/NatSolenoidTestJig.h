@@ -19,3 +19,4 @@ public:
     //Member variables
     Solenoid * pPistonOne;
 };
+#endif
