@@ -60,14 +60,16 @@ JankyFoxliftState::~JankyFoxliftState()
 	delete toteIn;
 }
 
-
 void JankyFoxliftState::GoUp(){
-	if (lSwitchTop == false){
+	if (GetCurrentState() == Init && lSwitchTop->Get() == false){
 		NewState(Up,"Starting to go up!");
 	}
 }
 void JankyFoxliftState::GoDown(){
-	if (lSwitchDown == false){
+	if(GetCurrentState() == Braking && lSwitchDown->Get() == false){
+		NewState(Down, "Going Down!");
+	}
+	else if (GetCurrentState() == Init && lSwitchDown->Get() == false){
 		NewState(Down, "Going Down!");
 	}
 }
@@ -77,45 +79,48 @@ void JankyFoxliftState::StateEngine(int curState)
 {
 	switch(curState){
 		case Init:
-			printf("In Init\n");
+			//printf("In Init\n");
 			motorRoller1->Set(0);
 			motorRoller2->Set(0);
 			brake->Set(false);
 			motorLift->Set(0);
-		break;
+			break;
+
 		case Braking:
-			printf("In Braking\n");
+			//printf("In Braking\n");
 			motorLift->Set(0);
 			brake->Set(true);
-		break;
+			break;
+
 		case BottomStop:
-			printf("In BottomStop\n");
+			//printf("In BottomStop\n");
 			motorLift->Set(0);
 			brake->Set(false);
-			if (toteIn->GetVoltage() < .7){
+			if (toteIn->GetVoltage() < TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
 				NewState(Up, "Tote in and now going up");
 			}
 			else{
 				NewState(Init, "No tote so going to Init state");
 			}
-		break;
+			break;
+
 		case Up:
-			printf("In Up\n");
-			motorLift->Set(.5);
+			//printf("In Up\n");
+			motorLift->Set(LIFT_UP_SPEED);
 			brake->Set(false);
 			if(lSwitchTop->Get() == true){
 				NewState(Braking, "All the way up, so braking");
 			}
-		break;
+			break;
+
 		case Down:
-			printf("In Down");
-			motorLift->Set(-.5);
+			//printf("In Down\n");
+			motorLift->Set(LIFT_DOWN_SPEED);
 			brake->Set(false);
 			if(lSwitchDown->Get() == true){
 				NewState(BottomStop, "All the way down, so stopping for now");
 			}
-		break;
-
+			break;
 	}
 }
 

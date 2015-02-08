@@ -18,7 +18,9 @@
 #define TALON_LIFT 7
 #define BRAKE 0
 #define SONAR_SENSOR 2
-
+#define LIFT_UP_SPEED .5
+#define LIFT_DOWN_SPEED -.5
+#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN .7
 
 class JankyFoxliftState : public JankyStateMachine	{
 public:
