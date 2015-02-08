@@ -95,6 +95,7 @@ public:
 		bool button12Bool;
 		float LeftaxisYValue;
 		float LeftaxisXValue;
+		float LeftaxisZValue;
 	
 		float RightaxisXValue;
 		float RightaxisYValue;
@@ -103,6 +104,8 @@ public:
 
 		myRobot.SetSafetyEnabled(true);
 		
+		SmartDashboard::PutNumber("Number of Axis values:", stick.GetAxisCount());
+
 		while (IsOperatorControl())
 		{
 
@@ -136,6 +139,8 @@ public:
 			SmartDashboard::PutNumber("Joystick1 X Axis",LeftaxisXValue);
 			LeftaxisYValue = 0 - stick.GetY();
 			SmartDashboard::PutNumber("Joystick1 Y Axis",LeftaxisYValue);
+			LeftaxisZValue = stick.GetZ();
+			SmartDashboard::PutNumber("Joystick1 Z Axis",LeftaxisZValue);
 			
 			
 			RightaxisXValue = stick.GetTwist();
