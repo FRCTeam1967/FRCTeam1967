@@ -1,5 +1,4 @@
 #include "WPILib.h"
-#include "jankyEncoder.h"
 
 class Robot: public IterativeRobot
 {
@@ -18,8 +17,6 @@ private:
 	Joystick* pDriverStick;
 	Joystick* pGameController;
 
-	JankyEncoder *pJenc;
-
 	void RobotInit()
 	{
 		lw = LiveWindow::GetInstance();
@@ -33,8 +30,6 @@ private:
 		pRobotDrive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);	// invert the left side motors
 		pRobotDrive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);	// you may need to change or remove this to match your robot
 
-		pJenc = new JankyEncoder(1,2,3);
-		pJenc->Reset();
 }
 
 	void AutonomousInit()
