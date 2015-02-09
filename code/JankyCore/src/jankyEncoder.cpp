@@ -15,6 +15,7 @@
 */
 JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int motorOneChannel)
 {
+	bDone = false;
 	pMotor = new Talon(motorOneChannel);
 	pEncoder = new Encoder(encoderOneChannel, encoderTwoChannel);
 	maxTimer = new Timer();
