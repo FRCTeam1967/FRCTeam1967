@@ -196,7 +196,7 @@ void JankyFoxliftState::StateEngine(int curState)
 			break;
 		case MoveRollersOut:
 			preRollerTimer->Start();
-			if(preRollerTimer >= PREROLLER_TIME){
+			if(preRollerTimer ->Get() >= PREROLLER_TIME){
 				rollerPistons->Set(true);
 				rollerOutTimer->Start();
 			}
