@@ -8,7 +8,7 @@ JankyTask::JankyTask(const char* taskName, uint32_t priority) {
 
   if (!taskName)
   {
-    sprintf(tmp, "%ld", GetFPGATime());
+    sprintf(tmp, "%u", GetFPGATime());
     name = "jankyTask-";
     name += tmp;
   }
