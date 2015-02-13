@@ -26,6 +26,12 @@ JankyFoxliftState::JankyFoxliftState()
 	SetName(BottomStop,"Ready to kick");
 	SetName(Up,"Going Up");
 	SetName(Down, "Going Down");
+	SetName(MoveRollersIn, "Closing arms");
+	SetName(MoveRollersOut, "Opening arms");
+	SetName(SingulationDown, "The 4-hook down is pressed");
+	SetName(SingulationUp, "The 4-hook up is pressed");
+	SetName(Reorientation, "Reorienting is pressed");
+
 
 
 	lSwitchTop = new DigitalInput(LIMIT_SWITCH_TOP);
@@ -37,7 +43,13 @@ JankyFoxliftState::JankyFoxliftState()
 	motorRoller2 = new Talon(TALON_ROLLER2);
 	brake = new Solenoid(BRAKE);
 	toteIn = new AnalogInput(SONAR_SENSOR);
-
+	rollerPistons = new Solenoid(ROLLER_PISTON);
+	reorientation = new Solenoid(REORIENTATION);
+	singulationOne = new Solenoid(SINGULATION_ONE);
+	singulationTwo = 	new Solenoid(SINGULATION_TWO);
+	preRollerTimer = new Timer();
+	rollerInTimer = new Timer();
+	rollerOutTimer = new Timer();
 	//Starting JankyTask at end of constructor
 	Start();
 
@@ -58,6 +70,13 @@ JankyFoxliftState::~JankyFoxliftState()
 	delete motorRoller2;
 	delete brake;
 	delete toteIn;
+	delete rollerPistons;
+	delete reorientation;
+	delete singulationOne;
+	delete singulationTwo;
+	delete preRollerTimer;
+	delete rollerInTimer;
+	delete rollerOutTimer;
 }
 
 void JankyFoxliftState::GoUp(){
@@ -73,8 +92,57 @@ void JankyFoxliftState::GoDown(){
 		NewState(Down, "Going Down!");
 	}
 }
+void JankyFoxliftState::SingulateOne(){
+	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
+		NewState(SingulationUp, "Singulation w/ 4-hook up");
+	}
+	if (GetCurrentState() == MoveRollersOut && preRollerTimer->Get() <= PREROLLER_TIME){
+		rollerInTimer -> Reset();
+		NewState(MoveRollersIn, "Singulation w/ 4-hook up");
+	}
+	if (GetCurrentState() == Braking && toteIn > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
+		NewState(MoveRollersIn,"Bringing RollersIn");
+	}
+}
+void JankyFoxliftState::SingulateTwo(){
+	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
+		NewState(SingulationDown, "Singulation w/ 4-hook down");
+	}
+	if (GetCurrentState() == MoveRollersOut && preRollerTimer->Get() <= PREROLLER_TIME){
+		rollerInTimer -> Reset();
+		NewState(MoveRollersIn, "Singulation w/ 4-hook down");
+	}
+}
 
-
+void JankyFoxliftState::DoneSingulating(){
+	if(GetCurrentState() == SingulationDown || GetCurrentState() == SingulationUp){
+		preRollerTimer->Reset();
+		rollerOutTimer->Reset();
+		if(singulationTwo ->Get() == true){
+			singulationTwo ->Set(false);
+		}
+		singulationOne ->Set(false);
+		NewState(MoveRollersOut, " Done Singulating-moving rollers out");
+	}
+	if( GetCurrentState() == MoveRollersIn() && rollerInTimer->Get() <= ROLLER_TIME){
+		preRollerTimer->Reset();
+		rollerOutTimer->Reset();
+		NewState(MoveRollersOut, " Done Singulating-moving rollers out");
+	}
+}
+void JankyFoxliftState::DoneReorienting(){
+	if (GetCurrentState()== Reorientation || GetCurrentState()==MoveRollersIn){
+		preRollerTimer->Reset();
+		rollerOutTimer->Reset();
+		reorientation->Set(false);
+		NewState(MoveRollersOut, " Done Reorienting-moving rollers out");
+	}
+	if( GetCurrentState() == MoveRollersIn() && rollerInTimer->Get() <= ROLLER_TIME){
+			preRollerTimer->Reset();
+			rollerOutTimer->Reset();
+			NewState(MoveRollersOut, " Done Singulating-moving rollers out");
+		}
+}
 void JankyFoxliftState::StateEngine(int curState)
 {
 	switch(curState){
@@ -88,6 +156,7 @@ void JankyFoxliftState::StateEngine(int curState)
 
 		case Braking:
 			//printf("In Braking\n");
+			rollerInTimer->Reset();
 			motorLift->Set(0);
 			brake->Set(true);
 			break;
@@ -120,6 +189,33 @@ void JankyFoxliftState::StateEngine(int curState)
 			if(lSwitchDown->Get() == true){
 				NewState(BottomStop, "All the way down, so stopping for now");
 			}
+			break;
+		case MoveRollersIn:
+			rollerPistons->Set(false);
+			rollerInTimer->Start();
+			break;
+		case MoveRollersOut:
+			preRollerTimer->Start();
+			if(preRollerTimer >= PREROLLER_TIME){
+				rollerPistons->Set(true);
+				rollerOutTimer->Start();
+			}
+			if(rollerOutTimer-> Get() >= ROLLER_TIME){
+				NewState(Braking, "Rollers are out now, can go down");
+			}
+			break;
+		case SingulationDown:
+			singulationOne -> Set(true);
+			singulationTwo -> Set(true);
+			break;
+		case SingulationUp:
+			singulationOne ->Set(true);
+			if(singulationTwo ->Get() == true){
+				singulationTwo ->Set(false);
+			}
+			break;
+		case Reorientation:
+			reorientation->Set(true);
 			break;
 	}
 }

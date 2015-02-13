@@ -21,6 +21,12 @@
 #define LIFT_UP_SPEED .5
 #define LIFT_DOWN_SPEED -.5
 #define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN .7
+#define ROLLER_PISTON 1
+#define PREROLLER_TIME 3
+#define ROLLER_TIME 2
+#define REORIENTATION 2
+#define SINGULATION_ONE 1
+#define SINGULATION_TWO 2
 
 class JankyFoxliftState : public JankyStateMachine	{
 public:
@@ -38,12 +44,22 @@ public:
 		//DownStack,
 		BottomStop,
 		Up,
-		Down
+		Down,
+		MoveRollersIn,
+		MoveRollersOut,
+		SingulationDown,
+		SingulationUp,
+		Reorientation
 	};
 
 	//Member functions
 	void GoUp();
 	void GoDown();
+	void Reorient();
+	void SingulateOne();
+	void SingulateTwo();
+	void DoneSingulating();
+	void DoneReorienting();
 	void StateEngine(int curState);
 
 
@@ -57,6 +73,13 @@ public:
 	Talon*motorRoller1;
 	Talon*motorRoller2;
 	Solenoid*brake;
+	Solenoid*rollerPistons;
+	Solenoid*reorientation;
+	Solenoid*singulationOne;
+	Solenoid*singulationTwo;
+	Timer*preRollerTimer;
+	Timer*rollerInTimer;
+	Timer*rollerOutTimer;
 };
 
 #endif
