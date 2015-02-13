@@ -100,7 +100,7 @@ void JankyFoxliftState::SingulateOne(){
 		rollerInTimer -> Reset();
 		NewState(MoveRollersIn, "Singulation w/ 4-hook up");
 	}
-	if (GetCurrentState() == Braking && toteIn > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
+	if (GetCurrentState() == Braking && toteIn ->GetVoltage()> TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
 		NewState(MoveRollersIn,"Bringing RollersIn");
 	}
 }
