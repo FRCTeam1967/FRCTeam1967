@@ -124,7 +124,7 @@ void JankyFoxliftState::DoneSingulating(){
 		singulationOne ->Set(false);
 		NewState(MoveRollersOut, " Done Singulating-moving rollers out");
 	}
-	if( GetCurrentState() == MoveRollersIn() && rollerInTimer->Get() <= ROLLER_TIME){
+	if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 		preRollerTimer->Reset();
 		rollerOutTimer->Reset();
 		NewState(MoveRollersOut, " Done Singulating-moving rollers out");
@@ -137,7 +137,7 @@ void JankyFoxliftState::DoneReorienting(){
 		reorientation->Set(false);
 		NewState(MoveRollersOut, " Done Reorienting-moving rollers out");
 	}
-	if( GetCurrentState() == MoveRollersIn() && rollerInTimer->Get() <= ROLLER_TIME){
+	if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 			preRollerTimer->Reset();
 			rollerOutTimer->Reset();
 			NewState(MoveRollersOut, " Done Singulating-moving rollers out");
@@ -200,17 +200,23 @@ void JankyFoxliftState::StateEngine(int curState)
 				rollerPistons->Set(true);
 				rollerOutTimer->Start();
 			}
-			if(rollerOutTimer-> Get() >= ROLLER_TIME){
+			if(rollerOutTimer->Get() >= ROLLER_TIME){
 				NewState(Braking, "Rollers are out now, can go down");
 			}
 			break;
 		case SingulationDown:
+			if (singulationOne){
 			singulationOne -> Set(true);
+			}
+			if(singulationTwo){
 			singulationTwo -> Set(true);
+			}
 			break;
 		case SingulationUp:
+			if(singulationOne){
 			singulationOne ->Set(true);
-			if(singulationTwo ->Get() == true){
+			}
+			if(singulationTwo){
 				singulationTwo ->Set(false);
 			}
 			break;
