@@ -101,7 +101,7 @@ void JankyFoxliftState::SingulateOne(){
 		NewState(MoveRollersIn, "Singulation w/ 4-hook up");
 	}
 	if (GetCurrentState() == Braking && toteIn ->GetVoltage()> TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
-		NewState(MoveRollersIn,"Bringing RollersIn");
+		NewState(MoveRollersIn,"Bringing Rollers In");
 	}
 }
 void JankyFoxliftState::SingulateTwo(){
@@ -112,18 +112,33 @@ void JankyFoxliftState::SingulateTwo(){
 		rollerInTimer -> Reset();
 		NewState(MoveRollersIn, "Singulation w/ 4-hook down");
 	}
+	if (GetCurrentState() == Braking && toteIn ->GetVoltage()> TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
+			NewState(MoveRollersIn,"Bringing Rollers In");
+		}
 }
-
+void JankyFoxliftState::Reorient(){
+	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
+			NewState(Reorientation, " Arms in, starting to reorient");
+		}
+		if (GetCurrentState() == MoveRollersOut && preRollerTimer->Get() <= PREROLLER_TIME){
+			rollerInTimer -> Reset();
+			NewState(MoveRollersIn, "starting to reorient");
+		}
+		if (GetCurrentState() == Braking && toteIn ->GetVoltage()> TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
+					NewState(MoveRollersIn,"Bringing Rollers In");
+				}
+}
 void JankyFoxliftState::DoneSingulating(){
 	if(GetCurrentState() == SingulationDown || GetCurrentState() == SingulationUp){
 		preRollerTimer->Reset();
 		rollerOutTimer->Reset();
-		if(singulationTwo ->Get() == true){
+		if(singulationTwo){
 			singulationTwo ->Set(false);
 		}
 		singulationOne ->Set(false);
 		NewState(MoveRollersOut, " Done Singulating-moving rollers out");
 	}
+	//if the arms are going in, and the driver is not pressing the button for singulation anymore, then go back to arms out
 	if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 		preRollerTimer->Reset();
 		rollerOutTimer->Reset();
@@ -137,6 +152,7 @@ void JankyFoxliftState::DoneReorienting(){
 		reorientation->Set(false);
 		NewState(MoveRollersOut, " Done Reorienting-moving rollers out");
 	}
+	//if the arms are going in, and the driver is not pressing the button for reorientation anymore, then go back to arms out
 	if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 			preRollerTimer->Reset();
 			rollerOutTimer->Reset();
