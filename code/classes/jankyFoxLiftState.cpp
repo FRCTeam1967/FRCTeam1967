@@ -130,6 +130,10 @@ void JankyFoxliftState::DoneSingulating(){
 		NewState(MoveRollersOut, " Done Singulating-moving rollers out");
 	}
 }
+void JankyFoxliftState::Reorient()
+{
+
+}
 void JankyFoxliftState::DoneReorienting(){
 	if (GetCurrentState()== Reorientation || GetCurrentState()==MoveRollersIn){
 		preRollerTimer->Reset();

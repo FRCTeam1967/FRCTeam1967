@@ -31,10 +31,5 @@
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
 		</link>
-		<link>
-			<name>src/classes</name>
-			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/classes</locationURI>
-		</link>
 	</linkedResources>
 </projectDescription>
