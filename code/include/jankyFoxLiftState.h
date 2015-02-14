@@ -2,7 +2,7 @@
 /// Team 1967 FIRST FRC - The Janksters - Notre Dame High School San Jose CA
 ///
 
-/// JankyPickup State Machine - 2014 picker upper class
+/// Janky Foxlift State Machine - 2015
 
 #ifndef _JANKYFOXLIFTSTATE_H
 #define _JANKYFOXLIFTSTATE_H
