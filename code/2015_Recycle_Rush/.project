@@ -32,5 +32,30 @@
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
 		</link>
+		<link>
+			<name>src/jankyDrivestick.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyDrivestick.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/jankyFoxLiftState.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyFoxLiftState.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/jankyStateMachine.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyStateMachine.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/jankyTask.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyTask.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/jankyXboxJoystick.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyXboxJoystick.cpp</locationURI>
+		</link>
 	</linkedResources>
 </projectDescription>

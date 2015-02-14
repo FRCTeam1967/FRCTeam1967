@@ -1,4 +1,9 @@
 #include "WPILib.h"
+#include "jankyDrivestick.h"
+#include "jankyAutonomousState.h"
+#include "jankyFoxLiftState.h"
+#include "jankyXboxJoystick.h"
+#include "jankyTask.h"
 
 class Robot: public IterativeRobot
 {
@@ -14,8 +19,9 @@ private:
     const static int gameControllerJoystickChannel	= 1;
 
 	RobotDrive* pRobotDrive;	// robot drive system
-	Joystick* pDriverStick;
-	Joystick* pGameController;
+	jankyDrivestick* pDriverStick;
+	jankyXboxJoystick* pGameController;
+	jankyFoxLiftState* pFoxLift;
 
 	void RobotInit()
 	{
@@ -23,8 +29,9 @@ private:
 		pRobotDrive = new RobotDrive(frontLeftChannel, rearLeftChannel,
 					   frontRightChannel, rearRightChannel);
 
-		pDriverStick = new Joystick(driverJoystickChannel);
-		pGameController = new Joystick(gameControllerJoystickChannel);
+		pDriverStick = new jankyDrivestick(driverJoystickChannel);
+		pGameController = new jankyXboxJoystick(gameControllerJoystickChannel);
+		pFoxLift = new jankyFoxLiftState();
 
 		pRobotDrive->SetExpiration(0.1);
 		pRobotDrive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);	// invert the left side motors
@@ -51,9 +58,56 @@ private:
 
 	void TeleopPeriodic()
 	{
-    	// Use the joystick X axis for lateral movement, Y axis for forward movement, and Z axis for rotation.
-    	// This sample does not use field-oriented drive, so the gyro input is set to zero.
-		pRobotDrive->MecanumDrive_Cartesian(pDriverStick->GetX(), pDriverStick->GetY(), pDriverStick->GetTwist());
+		while (IsOperatorControl())
+		{
+			//MECANUM DRIVE
+			float LeftYAxis = pDriverStick->GetY();
+			pRobotDrive->MecanumDrive_Cartesian(LeftYAxis, pDriverStick->GetX(), pDriverStick->GetTwist(), 0.0);
+
+			//FOXLIFT
+			//When button is pushed, lower the boxlift
+			if (pGameController->GetButtonA())
+			{
+				pFoxLift->GoDown();
+			}
+			//When button is pushed, raise the boxlift
+			if (pGameController->GetButtonY())
+			{
+				pFoxLift->GoUp();
+			}
+
+			//REORIENTATION
+			//When button is pushed, make ReorientPiston go down
+			if (pGameController->GetButtonLB)
+			{
+				pFoxLift->Reorient();
+			}
+			else
+			{
+				pFoxLift->DoneReorienting();
+			}
+
+			//SINGULATION
+			//When any of the buttons get pushed, make piston push out
+			if (pGameController->Get3()
+					|| pGameController->Get5()
+					|| pGameController->Get2()
+					|| pGameController->Get6()
+					|| pGameController->Get4())
+			{
+				pFoxLift->SingulateOne();
+			}
+			else
+			{
+				pFoxLift->DoneSingulating();
+			}
+			//When button is pushed, make piston go down
+			if (pGameController->GetTrigger())
+			{
+				pFoxLift->SingulateTwo();
+			}
+
+		}
 
 	}
 
