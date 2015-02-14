@@ -3,7 +3,6 @@
 	<name>2015_Recycle_Rush</name>
 	<comment></comment>
 	<projects>
-		<project>JankyCore</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>
@@ -31,11 +30,6 @@
 			<name>include</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
-		</link>
-		<link>
-			<name>src/jankyDrivestick.cpp</name>
-			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyDrivestick.cpp</locationURI>
 		</link>
 		<link>
 			<name>src/jankyFoxLiftState.cpp</name>
