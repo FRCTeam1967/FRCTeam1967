@@ -60,6 +60,9 @@ public:
 	void RetractSingulation();
 	void LowerSingulation();
 	void RaiseSingulation();
+	void ExtendArms();
+	void RetractArms();
+	bool ToteIn();
 	void GoUp();
 	void GoDown();
 	void Reorient();
