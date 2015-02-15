@@ -49,10 +49,17 @@ public:
 		MoveRollersOut,
 		SingulationDown,
 		SingulationUp,
-		Reorientation
+		Reorientation,
+		WaitForUndo
 	};
 
 	//Member functions
+	void ExtendReorientation();
+	void RetractReorientation();
+	void ExtendSingulation();
+	void RetractSingulation();
+	void LowerSingulation();
+	void RaiseSingulation();
 	void GoUp();
 	void GoDown();
 	void Reorient();
