@@ -34,7 +34,7 @@
 		<link>
 			<name>src</name>
 			<type>2</type>
-			<location>/home/evan/workspace-cpp/FRCTeam1967/code/classes</location>
+			<locationURI>PARENT-1-PARENT_LOC/classes</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
