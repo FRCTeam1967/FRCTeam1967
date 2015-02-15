@@ -1,7 +1,8 @@
 #include "WPILib.h"
 //#include "jankyDrivestick.h"
 #include "jankyAutonomousState.h"
-#include "jankyFoxLiftState.h"
+//#include "jankyFoxliftState.h"
+#include "JankyFoxLiftStateDemo.h"
 #include "jankyXboxJoystick.h"
 #include "jankyTask.h"
 //#include "JankyCore.h"
@@ -22,7 +23,7 @@ private:
 	RobotDrive* pRobotDrive;	// robot drive system
 	Joystick* pDriverStick;
 	jankyXboxJoystick* pGameController;
-	JankyFoxliftState* pFoxLift;
+	JankyFoxLiftStateDemo* pFoxLift;
 
 	void RobotInit()
 	{
@@ -32,7 +33,7 @@ private:
 
 		pDriverStick = new Joystick(driverJoystickChannel);
 		pGameController = new jankyXboxJoystick(gameControllerJoystickChannel);
-		pFoxLift = new JankyFoxliftState();
+		pFoxLift = new JankyFoxLiftStateDemo();
 
 		pRobotDrive->SetExpiration(0.1);
 		pRobotDrive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);	// invert the left side motors
@@ -63,6 +64,21 @@ private:
 		{
 			//MECANUM DRIVE
 			float LeftYAxis = pDriverStick->GetY();
+			if(abs(LeftYAxis) < 0.1)
+			{
+				LeftYAxis = 0.0;
+			}
+			float LeftXAxis = pDriverStick->GetX();
+			if (abs(LeftXAxis) < 0.1)
+			{
+				LeftXAxis = 0.0;
+			}
+			float LeftTwist = pDriverStick->GetTwist();
+			if(abs(LeftTwist) < 0.1)
+			{
+				LeftTwist = 0.0;
+			}
+
 			pRobotDrive->MecanumDrive_Cartesian(LeftYAxis, pDriverStick->GetX(), pDriverStick->GetTwist(), 0.0);
 
 			//FOXLIFT
@@ -76,21 +92,28 @@ private:
 			{
 				pFoxLift->GoUp();
 			}
+			if (pGameController->GetY() <0.25) {
+				pFoxLift->SpinIn();
+			}
+			if(pGameController->GetY()>0.25) {
+				pFoxLift->SpinOut();
+			}
+
 
 			//REORIENTATION
 			//When button is pushed, make ReorientPiston go down
-			if (pGameController->GetButtonLB())
+			/*if (pGameController->GetButtonLB())
 			{
 				pFoxLift->Reorient();
 			}
 			else
 			{
 				pFoxLift->DoneReorienting();
-			}
+			}*/
 
 			//SINGULATION
 			//When any of the buttons get pushed, make piston push out
-			if (pGameController->GetRawButton(3)
+			/*if (pGameController->GetRawButton(3)
 					|| pGameController->GetRawButton(5)
 					|| pGameController->GetRawButton(2)
 					|| pGameController->GetRawButton(6)
@@ -106,7 +129,7 @@ private:
 			if (pGameController->GetTrigger())
 			{
 				pFoxLift->SingulateTwo();
-			}
+			}*/
 
 		}
 
