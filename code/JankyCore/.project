@@ -34,7 +34,7 @@
 		<link>
 			<name>src</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PARENT_LOC/classes</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/classes</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
