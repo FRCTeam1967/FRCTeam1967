@@ -31,5 +31,10 @@
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
 		</link>
+		<link>
+			<name>src</name>
+			<type>2</type>
+			<location>/home/evan/workspace-cpp/FRCTeam1967/code/classes</location>
+		</link>
 	</linkedResources>
 </projectDescription>
