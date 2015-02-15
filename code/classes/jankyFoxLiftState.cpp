@@ -213,6 +213,10 @@ void JankyFoxliftState::StateEngine(int curState)
 			motorRoller2->Set(0);
 			brake->Set(false);
 			motorLift->Set(0);
+			this->RetractReorientation();
+			this->RetractSingulation();
+			this->RaiseSingulation();
+			this->ExtendArms();
 			break;
 
 		case Braking:
