@@ -31,7 +31,7 @@ JankyFoxliftState::JankyFoxliftState()
 	SetName(SingulationDown, "The 4-hook down is pressed");
 	SetName(SingulationUp, "The 4-hook up is pressed");
 	SetName(Reorientation, "Reorienting is pressed");
-	SetName(WaitForUndo, "Waiting for driver to see if she wants to change her mind");
+	SetName(WaitForUndo, "Waiting for sing/reor retraction");
 
 
 
@@ -138,34 +138,34 @@ void JankyFoxliftState::GoDown(){
 }
 void JankyFoxliftState::SingulateOne(){
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
-		NewState(SingulationUp, "Moved Rollers In- going to Singulation w/ 4-hook up");
+		NewState(SingulationUp, "Moved arms in- going to sing w/ 4-hook up");
 	}
 	else if (GetCurrentState() == MoveRollersOut){
 		rollerInTimer -> Reset();
-		NewState(MoveRollersIn, "Moving rollers in for singulation up");
+		NewState(MoveRollersIn, "Moving rollers in for sing up");
 	}
 	else if (GetCurrentState() == WaitForUndo){
-		NewState(SingulationUp, "Was in waiting period- going to singulation up");
+		NewState(SingulationUp, "Was in waiting period- going to sing up");
 	}
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		rollerInTimer->Reset();
-		NewState(MoveRollersIn,"Up and no tote- bringing rollers in for singulation up");
+		NewState(MoveRollersIn,"Up and no tote- bringing rollers in for sing up");
 	}
 }
 void JankyFoxliftState::SingulateTwo(){
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
-		NewState(SingulationDown, "Rollers in- singulation going down");
+		NewState(SingulationDown, "Rollers in- sing going down");
 	}
 	else if (GetCurrentState() == MoveRollersOut){
 		rollerInTimer -> Reset();
-		NewState(MoveRollersIn, "Pressed singulation down- rollers going in for singulation down");
+		NewState(MoveRollersIn, "Pressed sing down- rollers going in");
 	}
 	else if (GetCurrentState() == WaitForUndo){
-		NewState(SingulationDown, "In waiting period but now going to singulation down");
+		NewState(SingulationDown, "Done waiting-going to sing down");
 	}
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		 rollerInTimer->Reset();
-		 NewState(MoveRollersIn,"Up and no tote- bringing rollers in for singulation down");
+		 NewState(MoveRollersIn,"Up w/ no tote- bringing rollers in for sing down");
 	}
 }
 void JankyFoxliftState::Reorient(){
@@ -187,24 +187,24 @@ void JankyFoxliftState::Reorient(){
 void JankyFoxliftState::DoneSingulating(){
 	if(GetCurrentState() == SingulationDown || GetCurrentState() == SingulationUp){
 		preRollerTimer->Reset();
-		NewState(WaitForUndo, " Done Singulating-going to waiting period");
+		NewState(WaitForUndo, " Done sing-going to waiting period");
 	}
 	//if the arms are going in, and the driver is not pressing the button for singulation anymore, then go back to arms out
 	else if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 		rollerOutTimer->Reset();
-		NewState(MoveRollersOut, "Done singulating -moving rollers out");
+		NewState(MoveRollersOut, "Done sing -moving rollers out");
 	}
 }
 void JankyFoxliftState::DoneReorienting(){
 	if (GetCurrentState()== Reorientation ){
 		this->RetractReorientation();
 		preRollerTimer->Reset();
-		NewState(WaitForUndo, " Done Reorienting-going to waiting period");
+		NewState(WaitForUndo, " Done reor-going to waiting period");
 	}
 	//if the arms are going in, and the driver is not pressing the button for reorientation anymore, then go back to arms out
 	else if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 		rollerOutTimer->Reset();
-		NewState(MoveRollersOut, " Done reorienting-moving rollers out");
+		NewState(MoveRollersOut, " Done reor-moving rollers out");
 	}
 }
 void JankyFoxliftState::StateEngine(int curState)
@@ -262,7 +262,7 @@ void JankyFoxliftState::StateEngine(int curState)
 			break;
 		case WaitForUndo:
 			if(preRollerTimer ->Get() >= PREROLLER_TIME){
-				NewState(MoveRollersOut, "Waiting period is over-Moving rollers out for real now");
+				NewState(MoveRollersOut, "Waiting period is over-Moving rollers out");
 			}
 			break;
 		case MoveRollersOut:
