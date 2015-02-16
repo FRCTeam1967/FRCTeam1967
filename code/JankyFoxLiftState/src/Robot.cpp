@@ -30,25 +30,20 @@ private:
 		driver = new Joystick(DRIVE_JOYSTICK_PORT);
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		foxlift = new JankyFoxliftState();
+
+		//foxlift->SetFoxlift();
 	}
- /*
-	void AutonomousInit()
-	{
-
-	}
-
-	void AutonomousPeriodic()
-	{
-
-	}
-
-	void TeleopInit()
-	{
-
-	}*/
 
 	void TeleopPeriodic()
 	{
+		SmartDashboard::PutNumber("Box Lift Speed", foxlift->motorLift->Get());
+		SmartDashboard::PutNumber("Intake Roller 1 Speed", foxlift->motorRoller1->Get());
+		SmartDashboard::PutNumber("Intake Roller 2 Speed", foxlift->motorRoller2->Get());
+		SmartDashboard::PutBoolean("Reorientation", foxlift->reorientation->Get());
+		SmartDashboard::PutBoolean("Singulation IN/OUT", foxlift->singulationOne->Get());
+		SmartDashboard::PutBoolean("Singulation UP/DOWN", foxlift->singulationTwo->Get());
+		SmartDashboard::PutBoolean("Intake pistons", foxlift->rollerPistons->Get());
+
 		//Boxlift
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();

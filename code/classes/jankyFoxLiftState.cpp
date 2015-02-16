@@ -114,6 +114,9 @@ void JankyFoxliftState::ExtendArms(){
 void JankyFoxliftState::RetractArms(){
 	rollerPistons -> Set(false);
 }
+/*void JankyFoxliftState::SetFoxlift(){
+	NewState(Init,"Starting the robot and going into init");
+}*/
 void JankyFoxliftState::GoUp(){
 	if (GetCurrentState() == Init && lSwitchTop->Get() == false){
 		NewState(Up,"In init-Button up pressed-starting to go up!");
@@ -209,14 +212,10 @@ void JankyFoxliftState::StateEngine(int curState)
 	switch(curState){
 		case Init:
 			//printf("In Init\n");
-			motorRoller1->Set(0);
-			motorRoller2->Set(0);
+			/*motorRoller1->Set(0); Commented because bottomStop goes to init and we might want to
+			motorRoller2->Set(0); use rollers during init.*/
 			brake->Set(false);
 			motorLift->Set(0);
-			this->RetractReorientation();
-			this->RetractSingulation();
-			this->RaiseSingulation();
-			this->ExtendArms();
 			break;
 
 		case Braking:
@@ -240,6 +239,8 @@ void JankyFoxliftState::StateEngine(int curState)
 		case Up:
 			//printf("In Up\n");
 			motorLift->Set(LIFT_UP_SPEED);
+			motorRoller1->Set(0);
+			motorRoller2->Set(0);
 			brake->Set(false);
 			if(lSwitchTop->Get() == true){
 				NewState(Braking, "All the way up, so braking");
@@ -249,6 +250,8 @@ void JankyFoxliftState::StateEngine(int curState)
 		case Down:
 			//printf("In Down\n");
 			motorLift->Set(LIFT_DOWN_SPEED);
+			motorRoller1->Set(0);
+			motorRoller2->Set(0);
 			brake->Set(false);
 			if(lSwitchDown->Get() == true){
 				NewState(BottomStop, "All the way down, so stopping for now");

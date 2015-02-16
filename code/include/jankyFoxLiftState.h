@@ -63,6 +63,7 @@ public:
 	void ExtendArms();
 	void RetractArms();
 	bool ToteIn();
+	//void SetFoxlift();
 	void GoUp();
 	void GoDown();
 	void Reorient();
