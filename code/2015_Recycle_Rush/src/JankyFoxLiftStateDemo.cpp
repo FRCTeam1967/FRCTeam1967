@@ -7,13 +7,14 @@
 
 #include "JankyFoxLiftStateDemo.h"
 
-JankyFoxLiftStateDemo::JankyFoxLiftStateDemo() {
-	// TODO Auto-generated constructor stub
-Terminate();
+JankyFoxLiftStateDemo::JankyFoxLiftStateDemo() : JankyFoxliftState() {
+
+	printf("I'm in the Demo Constructor");
+	//Terminate();
+	printf("got past the terminate");
 }
 
 JankyFoxLiftStateDemo::~JankyFoxLiftStateDemo() {
-	// TODO Auto-generated destructor stub
 
 }
 void JankyFoxLiftStateDemo::GoUp(){

@@ -10,7 +10,7 @@
 class Robot: public IterativeRobot
 {
 private:
-	LiveWindow *lw;
+	//LiveWindow *lw;
     // Channels for the wheels
     const static int frontLeftChannel	= 1;
     const static int rearLeftChannel	= 2;
@@ -27,24 +27,29 @@ private:
 
 	void RobotInit()
 	{
-		lw = LiveWindow::GetInstance();
+		printf("RobotInit()");
+		//lw = LiveWindow::GetInstance();
 		pRobotDrive = new RobotDrive(frontLeftChannel, rearLeftChannel,
 					   frontRightChannel, rearRightChannel);
-
+		printf("pRobotDrive");
 		pDriverStick = new Joystick(driverJoystickChannel);
+		printf("pDriverStick");
 		pGameController = new jankyXboxJoystick(gameControllerJoystickChannel);
+		printf("pGameController");
 		pFoxLift = new JankyFoxLiftStateDemo();
-
+		printf("pFoxLift");
 		pRobotDrive->SetExpiration(0.1);
+		printf("pRobotDrive");
 		pRobotDrive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);	// invert the left side motors
 		pRobotDrive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);	// you may need to change or remove this to match your robot
-
+printf("end of RobotInit()");
 }
 
 	void AutonomousInit()
 	{
+		printf("AutonomousInit()");
 		pRobotDrive->SetSafetyEnabled(false);
-
+		printf("end of AutonomousInit()");
 	}
 
 	void AutonomousPeriodic()
@@ -60,27 +65,27 @@ private:
 
 	void TeleopPeriodic()
 	{
-		while (IsOperatorControl())
-		{
+
 			//MECANUM DRIVE
-			float LeftYAxis = pDriverStick->GetY();
-			if(abs(LeftYAxis) < 0.1)
+			/*float LeftYAxis = pDriverStick->GetY();
+			if(abs(LeftYAxis) < 0.01)
 			{
 				LeftYAxis = 0.0;
 			}
 			float LeftXAxis = pDriverStick->GetX();
-			if (abs(LeftXAxis) < 0.1)
+			if (abs(LeftXAxis) < 0.01)
 			{
 				LeftXAxis = 0.0;
 			}
 			float LeftTwist = pDriverStick->GetTwist();
-			if(abs(LeftTwist) < 0.1)
+			if(abs(LeftTwist) < 0.01)
 			{
 				LeftTwist = 0.0;
-			}
+			}*/
 
-			pRobotDrive->MecanumDrive_Cartesian(LeftYAxis, pDriverStick->GetX(), pDriverStick->GetTwist(), 0.0);
-
+			pRobotDrive->MecanumDrive_Cartesian(pDriverStick->GetX(), pDriverStick->GetY(), pDriverStick->GetTwist(), 0.0);
+			SmartDashboard::PutNumber("X-Value", pDriverStick->GetX());
+			SmartDashboard::PutNumber("Y-Value", pDriverStick->GetY());
 			//FOXLIFT
 			//When button is pushed, lower the boxlift
 			if (pGameController->GetButtonA())
@@ -133,12 +138,11 @@ private:
 
 		}
 
-	}
 
-	void TestPeriodic()
+	/*void TestPeriodic()
 	{
-		lw->Run();
-	}
+		//lw->Run();
+	}*/
 };
 
 START_ROBOT_CLASS(Robot);
