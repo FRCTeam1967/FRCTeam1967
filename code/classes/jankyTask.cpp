@@ -3,21 +3,18 @@
 #include <string>
 
 JankyTask::JankyTask(const char* taskName, uint32_t priority) {
-  std::string name = taskName;
-  char tmp[30];
+  char oldstyle_name[128];
 
   if (!taskName)
   {
-    sprintf(tmp, "%u", GetFPGATime());
-    name = "jankyTask-";
-    name += tmp;
+    sprintf(oldstyle_name, "jankyTask-%u", GetFPGATime());
   }
 
   enabled_ = false;
   running_ = true;
   isDead_ = false;
 
-  task_ = new Task(name.c_str(), (FUNCPTR)JankyTask::JankyPrivateStarterTask, priority);
+  task_ = new Task(oldstyle_name, (FUNCPTR)JankyTask::JankyPrivateStarterTask, priority);
   task_->Start((uint32_t)this);
 }
 
