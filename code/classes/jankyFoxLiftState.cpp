@@ -13,9 +13,9 @@
 */
 JankyFoxliftState::JankyFoxliftState()
 {
-	printf("Beginning PickupMachine constructor\n");
+	printf("Beginning FoxliftMachine constructor\n");
 
-	SetMachineName("JankyPickupStateMachine");
+	SetMachineName("JankyFoxliftStateMachine");
 	SetName(Init,"Init");
 	//SetName(UpSingle,"Raise tote if !tote+ ");
 	//SetName(UpFinish,"Raise tote if tote+");
