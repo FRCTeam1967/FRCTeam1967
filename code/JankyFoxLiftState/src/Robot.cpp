@@ -38,6 +38,8 @@ private:
 
 	void TeleopPeriodic()
 	{
+		SmartDashboard::PutBoolean("limit Switch Top closed", foxlift->IsLSwitchTopClosed());
+		SmartDashboard::PutBoolean("limit Switch Down closed", foxlift->IsLSwitchDownClosed());
 		SmartDashboard::PutNumber("Box Lift Speed", foxlift->motorLift->Get());
 		SmartDashboard::PutNumber("Intake Roller 1 Speed", foxlift->motorRoller1->Get());
 		SmartDashboard::PutNumber("Intake Roller 2 Speed", foxlift->motorRoller2->Get());

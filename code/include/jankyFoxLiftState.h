@@ -55,6 +55,8 @@ public:
 	};
 
 	//Member functions
+	bool IsLSwitchTopClosed();
+	bool IsLSwitchDownClosed();
 	void ExtendReorientation();
 	void RetractReorientation();
 	void ExtendSingulation();
