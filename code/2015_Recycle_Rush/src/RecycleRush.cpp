@@ -24,6 +24,7 @@ private:
 	Joystick* pDriverStick;
 	jankyXboxJoystick* pGameController;
 	JankyFoxLiftStateDemo* pFoxLift;
+	AxisCamera * camera;
 
 	void RobotInit()
 	{
@@ -42,7 +43,8 @@ private:
 		printf("pRobotDrive");
 		pRobotDrive->SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);	// invert the left side motors
 		pRobotDrive->SetInvertedMotor(RobotDrive::kRearLeftMotor, true);	// you may need to change or remove this to match your robot
-printf("end of RobotInit()");
+		CameraInit();
+		printf("end of RobotInit()");
 }
 
 	void AutonomousInit()
@@ -50,6 +52,20 @@ printf("end of RobotInit()");
 		printf("AutonomousInit()");
 		pRobotDrive->SetSafetyEnabled(false);
 		printf("end of AutonomousInit()");
+	}
+
+	void CameraInit()
+	{
+		camera = new AxisCamera("10.19.67.11");
+		pGameController = new jankyXboxJoystick (0);
+		camera->WriteResolution (AxisCamera::kResolution_320x240);
+		camera->WriteCompression(30);
+		camera->WriteRotation(AxisCamera::kRotation_0);
+		camera->WriteMaxFPS(15);
+		camera->WriteColorLevel(25);
+		camera->WriteBrightness(50);
+		camera->WriteWhiteBalance(AxisCamera::kWhiteBalance_Automatic);
+		camera->WriteExposureControl(AxisCamera::kExposureControl_Automatic);
 	}
 
 	void AutonomousPeriodic()
