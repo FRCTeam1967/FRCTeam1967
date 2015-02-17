@@ -57,7 +57,6 @@ private:
 	void CameraInit()
 	{
 		camera = new AxisCamera("10.19.67.11");
-		pGameController = new jankyXboxJoystick (0);
 		camera->WriteResolution (AxisCamera::kResolution_320x240);
 		camera->WriteCompression(30);
 		camera->WriteRotation(AxisCamera::kRotation_0);
