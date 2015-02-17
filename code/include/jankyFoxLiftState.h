@@ -18,9 +18,10 @@
 #define TALON_LIFT 7
 #define BRAKE 0
 #define SONAR_SENSOR 2
+#define LIMIT_SWITCH_TOTE 2
 #define LIFT_UP_SPEED .75
 #define LIFT_DOWN_SPEED -.75
-#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN .7
+//#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN .7
 #define ROLLER_PISTON 1
 #define PREROLLER_TIME 3.0
 #define ROLLER_TIME 2.0
@@ -63,7 +64,7 @@ public:
 	void ExtendArms();
 	void RetractArms();
 	bool ToteIn();
-	//void SetFoxlift();
+	void SetFoxlift();
 	void GoUp();
 	void GoDown();
 	void Reorient();
@@ -77,7 +78,8 @@ public:
 	//Member Variables
 	DigitalInput*lSwitchTop;
 	DigitalInput*lSwitchDown;
-	AnalogInput*toteIn;//sonar sensor
+	DigitalInput*toteIn;
+	//AnalogInput*toteIn;//sonar sensor
 	//DigitalInput*lSwitch6;
 	//DigitalInput*lSwitch2;
 	Talon*motorLift;

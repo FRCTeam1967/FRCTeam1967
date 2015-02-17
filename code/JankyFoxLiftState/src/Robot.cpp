@@ -2,8 +2,8 @@
 #include "jankyXboxJoystick.h"
 #include "jankyFoxLiftState.h"
 
-#define DRIVE_JOYSTICK_PORT 1
-#define GC_JOYSTICK_PORT 2
+#define DRIVE_JOYSTICK_PORT 0
+#define GC_JOYSTICK_PORT 1
 
 class Robot: public IterativeRobot
 {
@@ -13,6 +13,7 @@ class Robot: public IterativeRobot
 
 public:
 	Robot(){
+		printf("in robot constructor \n");
 		gameComponent = NULL;
 		driver = NULL;
 		foxlift = NULL;
@@ -27,11 +28,12 @@ private:
 
 	void RobotInit()
 	{
+		printf("in robot init \n");
 		driver = new Joystick(DRIVE_JOYSTICK_PORT);
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		foxlift = new JankyFoxliftState();
 
-		//foxlift->SetFoxlift();
+		foxlift->SetFoxlift();
 	}
 
 	void TeleopPeriodic()
@@ -48,24 +50,24 @@ private:
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
 		}
-		if(gameComponent->GetButtonA() == true){
+		else if(gameComponent->GetButtonA() == true){
 			foxlift->GoDown();
 		}
 		//Reorientation
-		if (gameComponent->GetButtonLB() == true){
+		else if (gameComponent->GetButtonLB() == true){
 			foxlift->Reorient();
 		}
-		if (gameComponent->GetButtonLB() == false){
+		else if (gameComponent->GetButtonLB() == false){
 			foxlift->DoneReorienting();
 		}
 		//Singulation
-		if (driver->GetRawButton(2) == true && driver->GetTrigger() == true){
+		else if (driver->GetRawButton(2) == true && driver->GetTrigger() == true){
 			foxlift->SingulateTwo();
 		}
-		if (driver->GetRawButton(2) == true && driver->GetTrigger() == false){
+		else if (driver->GetRawButton(2) == true && driver->GetTrigger() == false){
 			foxlift->SingulateOne();
 		}
-		if (driver->GetRawButton(2) == false){
+		else if (driver->GetRawButton(2) == false){
 			foxlift->DoneSingulating();
 		}
 	}
