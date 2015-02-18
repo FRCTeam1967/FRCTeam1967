@@ -133,21 +133,21 @@ void JankyFoxliftState::SetFoxlift(){
 }
 void JankyFoxliftState::GoUp(){
 	printf("in go up\n");
-	if (GetCurrentState() == Init && IsLSwitchTopClosed() == false){
+	if (GetCurrentState() == Init && !IsLSwitchTopClosed()){
 		NewState(Up,"In init-Button up pressed-starting to go up!");
 	}
-	else if(GetCurrentState() == Down && IsLSwitchTopClosed() == false){
+	else if(GetCurrentState() == Down && !IsLSwitchTopClosed()){
 		NewState(Up,"In down-Button up pressed-starting to go up!");
 	}
 }
 void JankyFoxliftState::GoDown(){
-	if(GetCurrentState() == Braking && IsLSwitchDownClosed() == false){
+	if(GetCurrentState() == Braking && !IsLSwitchDownClosed()){
 		NewState(Down, "Tote is Up and button down pressed-Going Down!");
 	}
-	else if (GetCurrentState() == IsLSwitchDownClosed() == false){
+	else if (GetCurrentState() == !IsLSwitchDownClosed()){
 		NewState(Down, "In Init and button down pressed-Going Down!");
 	}
-	else if(GetCurrentState() == Up && IsLSwitchTopClosed() == false){
+	else if(GetCurrentState() == Up && !IsLSwitchDownClosed()){
 		NewState(Down,"In up-Button down pressed-starting to go down!");
 	}
 }
@@ -258,7 +258,7 @@ void JankyFoxliftState::StateEngine(int curState)
 			motorRoller1->Set(0);
 			motorRoller2->Set(0);
 			brake->Set(false);
-			if(IsLSwitchTopClosed() == true){
+			if(IsLSwitchTopClosed()){
 				NewState(Braking, "All the way up, so braking");
 			}
 			break;
@@ -269,7 +269,7 @@ void JankyFoxliftState::StateEngine(int curState)
 			motorRoller1->Set(0);
 			motorRoller2->Set(0);
 			brake->Set(false);
-			if(IsLSwitchDownClosed() == true){
+			if(IsLSwitchDownClosed()){
 				NewState(BottomStop, "All the way down, so stopping for now");
 			}
 			break;
