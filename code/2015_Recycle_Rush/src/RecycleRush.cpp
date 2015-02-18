@@ -65,6 +65,7 @@ private:
 		camera->WriteBrightness(50);
 		camera->WriteWhiteBalance(AxisCamera::kWhiteBalance_Automatic);
 		camera->WriteExposureControl(AxisCamera::kExposureControl_Automatic);
+		camera->WriteRotation(AxisCamera::kRotation_180);
 	}
 
 	void AutonomousPeriodic()
