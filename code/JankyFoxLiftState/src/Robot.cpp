@@ -52,24 +52,24 @@ private:
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
 		}
-		else if(gameComponent->GetButtonA() == true){
+		 if(gameComponent->GetButtonA() == true){
 			foxlift->GoDown();
 		}
 		//Reorientation
-		else if (gameComponent->GetButtonLB() == true){
+		if (gameComponent->GetButtonLB() == true){
 			foxlift->Reorient();
 		}
-		else if (gameComponent->GetButtonLB() == false){
+		if (gameComponent->GetButtonLB() == false){
 			foxlift->DoneReorienting();
 		}
 		//Singulation
-		else if (driver->GetRawButton(2) == true && driver->GetTrigger() == true){
+		if (driver->GetRawButton(2) == true && driver->GetTrigger() == true){
 			foxlift->SingulateTwo();
 		}
 		else if (driver->GetRawButton(2) == true && driver->GetTrigger() == false){
 			foxlift->SingulateOne();
 		}
-		else if (driver->GetRawButton(2) == false){
+		if (driver->GetRawButton(2) == false){
 			foxlift->DoneSingulating();
 		}
 	}
