@@ -144,7 +144,7 @@ void JankyFoxliftState::GoDown(){
 	if(GetCurrentState() == Braking && !IsLSwitchDownClosed()){
 		NewState(Down, "Tote is Up and button down pressed-Going Down!");
 	}
-	else if (GetCurrentState() == !IsLSwitchDownClosed()){
+	else if (GetCurrentState() == Init && !IsLSwitchDownClosed()){
 		NewState(Down, "In Init and button down pressed-Going Down!");
 	}
 	else if(GetCurrentState() == Up && !IsLSwitchDownClosed()){
