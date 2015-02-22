@@ -14,7 +14,7 @@ jankyDrivestick::~jankyDrivestick()
 
 float jankyDrivestick::GetX()
 {
-	return pow(Joystick::GetX(), 3);
+	return pow(Joystick::GetX()*(-1), 3);
 }
 
 float jankyDrivestick::GetY()
@@ -22,38 +22,41 @@ float jankyDrivestick::GetY()
 	return pow(Joystick::GetY(), 3);
 }
 
-float jankyDrivestick::GetTwist()
+float jankyDrivestick::GetJoystickTwist()
 {
-	return pow(Joystick::GetTwist(), 3);
+	return pow(Joystick::GetThrottle(), 3);
 }
 
-/*bool jankyDrivestick::Get3()
+bool jankyDrivestick::IsAnyTopButtonPressed()
 {
-	return Joystick::GetRawButton();
+	if (Joystick::GetRawButton(5) == true ||
+	   Joystick::GetRawButton(3) == true ||
+	   Joystick::GetRawButton(2) == true ||
+	   Joystick::GetRawButton(6) == true ||
+	   Joystick::GetRawButton(4) == true)
+    {
+		return true;
+    }
+	else
+	{
+		return false;
+	}
 }
 
-bool jankyDrivestick::Get5()
+/*float LeftYAxis = pDriverStick->GetY();
+if(abs(LeftYAxis) < 0.01)
 {
-	return Joystick::GetRawButton(BUTTON_5_PORT);
+	LeftYAxis = 0.0;
 }
-
-bool jankyDrivestick::Get2()
+float LeftXAxis = pDriverStick->GetX();
+if (abs(LeftXAxis) < 0.01)
 {
-	return Joystick::GetRawButton(BUTTON_2_PORT);
+	LeftXAxis = 0.0;
 }
-
-bool jankyDrivestick::Get6()
+float LeftTwist = pDriverStick->GetTwist();
+if(abs(LeftTwist) < 0.01)
 {
-	return Joystick::GetRawButton(BUTTON_6_PORT);
-}
-
-/*bool jankyDrivestick::Get3()
-{
-	return Joystick::GetRawButton(BUTTON_4_PORT);
+	LeftTwist = 0.0;
 }*/
 
-float jankyDrivestick::GetTrigger()
-{
-	return Joystick::GetRawButton(BUTTON_TRIG_PORT);
-}
 
