@@ -14,11 +14,16 @@
 
 class Robot: public IterativeRobot
 {
+	LiveWindow *lw;
 	RobotDrive* robot;	// robot drive system
 	jankyDrivestick* joystick;
 	jankyXboxJoystick* gameComponent;
 	JankyFoxliftState* foxlift;
 	AxisCamera * camera;
+	Talon * pLF;
+	Talon * pRF;
+	Talon * pLR;
+	Talon * pRR;
 
 public:
 	Robot(){
@@ -28,6 +33,10 @@ public:
 		joystick = NULL;
 		foxlift = NULL;
 		camera = NULL;
+		pLF = NULL;
+		pRF = NULL;
+		pLR = NULL;
+		pRR = NULL;
 	}
 	~Robot(){
 		delete robot;
@@ -35,15 +44,28 @@ public:
 		delete joystick;
 		delete foxlift;
 		delete camera;
+		delete pLF;
+		delete pRF;
+		delete pLR;
+		delete pRR;
 	}
 
 private:
 
 	void RobotInit()
 	{
+		//lw = LiveWindow::GetInstance();
 		printf("RobotInit()");
-		robot = new RobotDrive(FRONT_LEFT_CHANNEL, REAR_LEFT_CHANNEL,
-					   FRONT_RIGHT_CHANNEL, REAR_RIGHT_CHANNEL);
+		pLF = new Talon(FRONT_LEFT_CHANNEL);
+		pRF = new Talon(FRONT_RIGHT_CHANNEL);
+		pLR = new Talon(REAR_LEFT_CHANNEL);
+		pRR = new Talon(REAR_RIGHT_CHANNEL);
+		robot = new RobotDrive(pLF, pLR, pRF, pRR);
+		char group [] = "DriveTrain";
+		lw->AddActuator(group, "Front Left", pLF);
+		lw->AddActuator(group, "Front Right", pRF);
+		lw->AddActuator(group, "Rear Left", pLR);
+		lw->AddActuator(group, "Rear Right", pRR);
 		printf("robot");
 		printf("in robot init \n");
 	    joystick = new jankyDrivestick(DRIVE_JOYSTICK_PORT);
@@ -61,6 +83,11 @@ private:
 		printf("end of AutonomousInit()");
 	}
 
+	void AutonomousPeriodic()
+	{
+
+	}
+
 	void CameraInit()
 	{
 		camera = new AxisCamera("10.19.67.11");
@@ -75,9 +102,9 @@ private:
 		camera->WriteRotation(AxisCamera::kRotation_180);
 	}
 
-	void AutonomousPeriodic()
+	void TeleopInit()
 	{
-
+		robot->SetSafetyEnabled(false);
 	}
 
 	void TeleopPeriodic()
@@ -107,42 +134,47 @@ private:
 		SmartDashboard::PutNumber("Rotation Value", rotation);
 
 		//BOXLIFT
+		// When button is pressed, raise the boclift
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
 		}
-		 if(gameComponent->GetButtonA() == true){
+		// When button is pressed, lower the boclift
+		if(gameComponent->GetButtonA() == true){
 			foxlift->GoDown();
 		}
 		//REORIENTATION
+		//When button is pressed and held, extend reorientation
 		if (gameComponent->GetButtonLB() == true){
 			foxlift->Reorient();
 		}
+		//When button is released, retract reorientation
 		if (gameComponent->GetButtonLB() == false){
 			foxlift->DoneReorienting();
 		}
 		//SINGULATION
+		//When any joystick top button is pressed and the trigger is pressed, extend piston one and low piston 2
 		if (joystick->IsAnyTopButtonPressed() == true && joystick->GetTrigger() == true){
 			foxlift->SingulateTwo();
 		}
+		//When any joystick top button is pressed, extend piston 1;
 		else if (joystick->IsAnyTopButtonPressed() == true && joystick->GetTrigger() == false){
 			foxlift->SingulateOne();
 		}
+		//When none of the top buttons is pressed, you are done singulating
 		if (joystick->IsAnyTopButtonPressed() == false){
 			foxlift->DoneSingulating();
 		}
 	}
 
-
-void TeleopInit()
+	void TestInit()
 	{
-		robot->SetSafetyEnabled(false);
-
+		foxlift->Terminate();
 	}
 
-		/*void TestPeriodic()
+	void TestPeriodic()
 	{
-		//lw->Run();
-	}*/
+		lw->Run();
+	}
 };
 
 START_ROBOT_CLASS(Robot);

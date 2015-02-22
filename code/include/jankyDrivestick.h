@@ -2,6 +2,8 @@
 #define _JANKYDRIVESTICK_H
 #include "WPILib.h"
 
+#define DEADBAND_SIZE 0.01 //need to adjust this size for competition
+
 class jankyDrivestick : public Joystick {
 public:
 	jankyDrivestick(int portNumber);
