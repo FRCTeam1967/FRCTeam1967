@@ -15,18 +15,19 @@
 class Robot: public IterativeRobot
 {
 	LiveWindow *lw;
-	RobotDrive* robot;	// robot drive system
-	jankyDrivestick* joystick;
-	jankyXboxJoystick* gameComponent;
-	JankyFoxliftState* foxlift;
-	AxisCamera * camera;
-	Talon * pLF;
-	Talon * pRF;
-	Talon * pLR;
-	Talon * pRR;
+	RobotDrive *robot;	// robot drive system
+	jankyDrivestick *joystick;
+	jankyXboxJoystick *gameComponent;
+	JankyFoxliftState *foxlift;
+	AxisCamera *camera;
+	Talon *pLF;
+	Talon *pRF;
+	Talon *pLR;
+	Talon *pRR;
 
 public:
-	Robot(){
+	Robot()
+	{
 		printf("in robot constructor \n");
 		robot = NULL;
 		gameComponent = NULL;
@@ -38,7 +39,8 @@ public:
 		pLR = NULL;
 		pRR = NULL;
 	}
-	~Robot(){
+	~Robot()
+	{
 		delete robot;
 		delete gameComponent;
 		delete joystick;
@@ -54,7 +56,6 @@ private:
 
 	void RobotInit()
 	{
-		//lw = LiveWindow::GetInstance();
 		printf("RobotInit()");
 		pLF = new Talon(FRONT_LEFT_CHANNEL);
 		pRF = new Talon(FRONT_RIGHT_CHANNEL);
@@ -62,11 +63,11 @@ private:
 		pRR = new Talon(REAR_RIGHT_CHANNEL);
 		robot = new RobotDrive(pLF, pLR, pRF, pRR);
 		char group [] = "DriveTrain";
+		lw = LiveWindow::GetInstance();
 		lw->AddActuator(group, "Front Left", pLF);
 		lw->AddActuator(group, "Front Right", pRF);
 		lw->AddActuator(group, "Rear Left", pLR);
 		lw->AddActuator(group, "Rear Right", pRR);
-		printf("robot");
 		printf("in robot init \n");
 	    joystick = new jankyDrivestick(DRIVE_JOYSTICK_PORT);
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
@@ -74,7 +75,7 @@ private:
         foxlift->SetFoxlift();
 		CameraInit();
 		printf("end of RobotInit()");
-}
+	}
 
 	void AutonomousInit()
 	{
