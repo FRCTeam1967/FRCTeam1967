@@ -14,46 +14,46 @@ jankyDrivestick::~jankyDrivestick()
 
 float jankyDrivestick::GetX()
 {
-	return pow(Joystick::GetX(), 3);
+	float LeftXAxis = Joystick::GetX();
+	if (abs(LeftXAxis) < DEADBAND_SIZE)
+	{
+		LeftXAxis = 0.0;
+	}
+	return pow(LeftXAxis*(-1), 3);
 }
 
 float jankyDrivestick::GetY()
 {
+	float LeftYAxis = Joystick::GetY();
+	if(abs(LeftYAxis) < DEADBAND_SIZE)
+	{
+		LeftYAxis = 0.0;
+	}
 	return pow(Joystick::GetY(), 3);
 }
 
-float jankyDrivestick::GetTwist()
+float jankyDrivestick::GetJoystickTwist()
 {
-	return pow(Joystick::GetTwist(), 3);
+	float LeftTwist = Joystick::GetThrottle();
+	if(abs(LeftTwist) < DEADBAND_SIZE)
+	{
+		LeftTwist = 0.0;
+	}
+	return pow(Joystick::GetThrottle(), 3);
 }
 
-bool jankyDrivestick::Get3()
+bool jankyDrivestick::IsAnyTopButtonPressed()
 {
-	return Joystick::GetRawButton(BUTTON_3_PORT);
+	if (Joystick::GetRawButton(5) == true ||
+	   Joystick::GetRawButton(3) == true ||
+	   Joystick::GetRawButton(2) == true ||
+	   Joystick::GetRawButton(6) == true ||
+	   Joystick::GetRawButton(4) == true)
+    {
+		return true;
+    }
+	else
+	{
+		return false;
+	}
 }
-
-bool jankyDrivestick::Get5()
-{
-	return Joystick::GetRawButton(BUTTON_5_PORT);
-}
-
-bool jankyDrivestick::Get2()
-{
-	return Joystick::GetRawButton(BUTTON_2_PORT);
-}
-
-bool jankyDrivestick::Get6()
-{
-	return Joystick::GetRawButton(BUTTON_6_PORT);
-}
-
-/*bool jankyDrivestick::Get3()
-{
-	return Joystick::GetRawButton(BUTTON_4_PORT);
-}*/
-
-float jankyDrivestick::GetTrigger()
-{
-	return Joystick::GetRawButton(BUTTON_TRIG_PORT);
-}
-

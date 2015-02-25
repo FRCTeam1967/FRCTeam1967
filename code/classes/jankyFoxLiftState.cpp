@@ -13,9 +13,9 @@
 */
 JankyFoxliftState::JankyFoxliftState()
 {
-	printf("Beginning PickupMachine constructor\n");
+	printf("Beginning FoxliftMachine constructor\n");
 
-	SetMachineName("JankyPickupStateMachine");
+	SetMachineName("JankyFoxliftStateMachine");
 	SetName(Init,"Init");
 	//SetName(UpSingle,"Raise tote if !tote+ ");
 	//SetName(UpFinish,"Raise tote if tote+");
@@ -23,7 +23,7 @@ JankyFoxliftState::JankyFoxliftState()
 	//SetName(Down6,"Lower for step");
 	//SetName(Down2,"Lower for platform");
 	//SetName(DownStack,"Lower if tote in lift");
-	SetName(BottomStop,"Ready to kick");
+	SetName(BottomStop,"All the way down");
 	SetName(Up,"Going Up");
 	SetName(Down, "Going Down");
 	SetName(MoveRollersIn, "Closing arms");
@@ -31,7 +31,7 @@ JankyFoxliftState::JankyFoxliftState()
 	SetName(SingulationDown, "The 4-hook down is pressed");
 	SetName(SingulationUp, "The 4-hook up is pressed");
 	SetName(Reorientation, "Reorienting is pressed");
-	SetName(WaitForUndo, "Waiting for driver to see if she wants to change her mind");
+	SetName(WaitForUndo, "Waiting 4 sing/reor 2 retract");
 
 
 
@@ -43,7 +43,8 @@ JankyFoxliftState::JankyFoxliftState()
 	motorRoller1 = new Talon(TALON_ROLLER1);
 	motorRoller2 = new Talon(TALON_ROLLER2);
 	brake = new Solenoid(BRAKE);
-	toteIn = new AnalogInput(SONAR_SENSOR);
+	//toteIn = new AnalogInput(SONAR_SENSOR);
+	toteIn = new DigitalInput(LIMIT_SWITCH_TOTE);
 	rollerPistons = new Solenoid(ROLLER_PISTON);
 	reorientation = new Solenoid(REORIENTATION);
 	singulationOne = new Solenoid(SINGULATION_ONE);
@@ -51,7 +52,6 @@ JankyFoxliftState::JankyFoxliftState()
 	preRollerTimer = new Timer();
 	rollerInTimer = new Timer();
 	rollerOutTimer = new Timer();
-
 	preRollerTimer->Start();
 	rollerInTimer->Start();
 	rollerOutTimer->Start();
@@ -83,7 +83,18 @@ JankyFoxliftState::~JankyFoxliftState()
 	delete rollerInTimer;
 	delete rollerOutTimer;
 }
-
+bool JankyFoxliftState::IsLSwitchTopClosed(){
+	if(lSwitchTop->Get() == false){
+		return true;
+	}
+	return false;
+}
+bool JankyFoxliftState::IsLSwitchDownClosed(){
+	if(lSwitchDown->Get() == false){
+		return true;
+	}
+	return false;
+}
 void JankyFoxliftState::ExtendReorientation() {
 	reorientation->Set(true);
 }
@@ -103,10 +114,13 @@ void JankyFoxliftState::RaiseSingulation(){
 	singulationTwo->Set(false);
 }
 bool JankyFoxliftState::ToteIn(){
-	if (toteIn ->GetVoltage() > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
-		return false;
+	//if (toteIn ->GetVoltage() > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
+		//return false;
+	//}
+	if(toteIn->Get()== false){
+		return true;
 	}
-	return true;
+	return false;
 }
 void JankyFoxliftState::ExtendArms(){
 	rollerPistons -> Set(true);
@@ -114,58 +128,63 @@ void JankyFoxliftState::ExtendArms(){
 void JankyFoxliftState::RetractArms(){
 	rollerPistons -> Set(false);
 }
+void JankyFoxliftState::SetFoxlift(){
+	NewState(Init,"Starting the robot and going into init");
+}
 void JankyFoxliftState::GoUp(){
-	if (GetCurrentState() == Init && lSwitchTop->Get() == false){
+	printf("in go up\n");
+	if (GetCurrentState() == Init && !IsLSwitchTopClosed()){
 		NewState(Up,"In init-Button up pressed-starting to go up!");
 	}
-	else if(GetCurrentState() == Down && lSwitchTop->Get() == false){
+	else if(GetCurrentState() == Down && !IsLSwitchTopClosed()){
 		NewState(Up,"In down-Button up pressed-starting to go up!");
 	}
 }
 void JankyFoxliftState::GoDown(){
-	if(GetCurrentState() == Braking && lSwitchDown->Get() == false){
+	if(GetCurrentState() == Braking && !IsLSwitchDownClosed()){
 		NewState(Down, "Tote is Up and button down pressed-Going Down!");
 	}
-	else if (GetCurrentState() == Init && lSwitchDown->Get() == false){
+	else if (GetCurrentState() == Init && !IsLSwitchDownClosed()){
 		NewState(Down, "In Init and button down pressed-Going Down!");
 	}
-	else if(GetCurrentState() == Up && lSwitchDown->Get() == false){
+	else if(GetCurrentState() == Up && !IsLSwitchDownClosed()){
 		NewState(Down,"In up-Button down pressed-starting to go down!");
 	}
 }
 void JankyFoxliftState::SingulateOne(){
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
-		NewState(SingulationUp, "Moved Rollers In- going to Singulation w/ 4-hook up");
+		NewState(SingulationUp, "Moved arms in- going to sing w/ 4-hook up");
 	}
 	else if (GetCurrentState() == MoveRollersOut){
 		rollerInTimer -> Reset();
-		NewState(MoveRollersIn, "Moving rollers in for singulation up");
+		NewState(MoveRollersIn, "Moving rollers in for sing up");
 	}
 	else if (GetCurrentState() == WaitForUndo){
-		NewState(SingulationUp, "Was in waiting period- going to singulation up");
+		NewState(SingulationUp, "Was in waiting period- going to sing up");
 	}
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		rollerInTimer->Reset();
-		NewState(MoveRollersIn,"Up and no tote- bringing rollers in for singulation up");
+		NewState(MoveRollersIn,"Up and no tote- bringing rollers in for sing up");
 	}
 }
 void JankyFoxliftState::SingulateTwo(){
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
-		NewState(SingulationDown, "Rollers in- singulation going down");
+		NewState(SingulationDown, "Rollers in- sing going down");
 	}
 	else if (GetCurrentState() == MoveRollersOut){
 		rollerInTimer -> Reset();
-		NewState(MoveRollersIn, "Pressed singulation down- rollers going in for singulation down");
+		NewState(MoveRollersIn, "Pressed sing down- rollers going in");
 	}
 	else if (GetCurrentState() == WaitForUndo){
-		NewState(SingulationDown, "In waiting period but now going to singulation down");
+		NewState(SingulationDown, "Done waiting-going to sing down");
 	}
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		 rollerInTimer->Reset();
-		 NewState(MoveRollersIn,"Up and no tote- bringing rollers in for singulation down");
+		 NewState(MoveRollersIn,"Up w/ no tote- bringing rollers in for sing down");
 	}
 }
 void JankyFoxliftState::Reorient(){
+	printf("in reorient\n");
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
 		NewState(Reorientation, " Arms in, starting to reorient");
 	}
@@ -184,24 +203,24 @@ void JankyFoxliftState::Reorient(){
 void JankyFoxliftState::DoneSingulating(){
 	if(GetCurrentState() == SingulationDown || GetCurrentState() == SingulationUp){
 		preRollerTimer->Reset();
-		NewState(WaitForUndo, " Done Singulating-going to waiting period");
+		NewState(WaitForUndo, " Done sing-going to waiting period");
 	}
 	//if the arms are going in, and the driver is not pressing the button for singulation anymore, then go back to arms out
 	else if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 		rollerOutTimer->Reset();
-		NewState(MoveRollersOut, "Done singulating -moving rollers out");
+		NewState(MoveRollersOut, "Done sing -moving rollers out");
 	}
 }
 void JankyFoxliftState::DoneReorienting(){
 	if (GetCurrentState()== Reorientation ){
-		this->RetractReorientation();
+		printf("done reorienting\n");
 		preRollerTimer->Reset();
-		NewState(WaitForUndo, " Done Reorienting-going to waiting period");
+		NewState(WaitForUndo, " Done reor-going to waiting period");
 	}
 	//if the arms are going in, and the driver is not pressing the button for reorientation anymore, then go back to arms out
 	else if( GetCurrentState() == MoveRollersIn && rollerInTimer->Get() <= ROLLER_TIME){
 		rollerOutTimer->Reset();
-		NewState(MoveRollersOut, " Done reorienting-moving rollers out");
+		NewState(MoveRollersOut, " Done reor-moving rollers out");
 	}
 }
 void JankyFoxliftState::StateEngine(int curState)
@@ -209,14 +228,10 @@ void JankyFoxliftState::StateEngine(int curState)
 	switch(curState){
 		case Init:
 			//printf("In Init\n");
-			motorRoller1->Set(0);
-			motorRoller2->Set(0);
+			/*motorRoller1->Set(0); Commented because bottomStop goes to init and we might want to
+			motorRoller2->Set(0); use rollers during init.*/
 			brake->Set(false);
 			motorLift->Set(0);
-			this->RetractReorientation();
-			this->RetractSingulation();
-			this->RaiseSingulation();
-			this->ExtendArms();
 			break;
 
 		case Braking:
@@ -240,8 +255,10 @@ void JankyFoxliftState::StateEngine(int curState)
 		case Up:
 			//printf("In Up\n");
 			motorLift->Set(LIFT_UP_SPEED);
+			motorRoller1->Set(0);
+			motorRoller2->Set(0);
 			brake->Set(false);
-			if(lSwitchTop->Get() == true){
+			if(IsLSwitchTopClosed()){
 				NewState(Braking, "All the way up, so braking");
 			}
 			break;
@@ -249,8 +266,10 @@ void JankyFoxliftState::StateEngine(int curState)
 		case Down:
 			//printf("In Down\n");
 			motorLift->Set(LIFT_DOWN_SPEED);
+			motorRoller1->Set(0);
+			motorRoller2->Set(0);
 			brake->Set(false);
-			if(lSwitchDown->Get() == true){
+			if(IsLSwitchDownClosed()){
 				NewState(BottomStop, "All the way down, so stopping for now");
 			}
 			break;
@@ -258,8 +277,11 @@ void JankyFoxliftState::StateEngine(int curState)
 			this->RetractArms();
 			break;
 		case WaitForUndo:
+			this->RetractReorientation();
+			this->RetractSingulation();
+			this->RaiseSingulation();
 			if(preRollerTimer ->Get() >= PREROLLER_TIME){
-				NewState(MoveRollersOut, "Waiting period is over-Moving rollers out for real now");
+				NewState(MoveRollersOut, "Waiting period is over-Moving rollers out");
 			}
 			break;
 		case MoveRollersOut:
@@ -277,6 +299,7 @@ void JankyFoxliftState::StateEngine(int curState)
 			this->RaiseSingulation();
 			break;
 		case Reorientation:
+			printf("in reorientation state\n");
 			this->ExtendReorientation();
 			break;
 	}

@@ -21,13 +21,13 @@ public:
 	//Member variables
 
 	//Member functions
-	void GoUp();
+		void GoUp();
 		void GoDown();
-		void Reorient();
+		//void Reorient();
 		void SpinIn();
 		void SpinOut();
-		void DoneSingulating();
-		void DoneReorienting();
+		//void DoneSingulating();
+		//void DoneReorienting();
 };
 
 

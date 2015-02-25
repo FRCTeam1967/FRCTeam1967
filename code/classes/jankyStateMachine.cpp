@@ -25,7 +25,6 @@ JankyStateMachine::JankyStateMachine()
 	strcpy(machineName, "DefaultMachine");
 	currentState = 0;		// Make a sane initial choice.
 	
-	Start(); //NEED TO TEST THIS!
 }
 
 JankyStateMachine::~JankyStateMachine()
