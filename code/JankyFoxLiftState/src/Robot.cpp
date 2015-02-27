@@ -15,6 +15,7 @@ class Robot: public IterativeRobot
 	jankyXboxJoystick* gameComponent;
 	Joystick*driver;
 	JankyFoxliftState*foxlift;
+	LiveWindow *lw;
 
 public:
 	Robot(): meghaRobot(fLeft, rLeft, fRight, rRight)
@@ -23,11 +24,13 @@ public:
 		gameComponent = NULL;
 		driver = NULL;
 		foxlift = NULL;
+		lw = NULL;
 	}
 	~Robot(){
 		delete gameComponent;
 		delete driver;
 		delete foxlift;
+		// RMW: Does not get deleted because it was not 'new' allocated -- delete lw;
 	}
 private:
 
@@ -35,11 +38,21 @@ private:
 	void RobotInit()
 	{
 		printf("in robot init \n");
+		lw = LiveWindow::GetInstance();
+
 		driver = new Joystick(DRIVE_JOYSTICK_PORT);
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		foxlift = new JankyFoxliftState();
 
 		foxlift->SetFoxlift();
+
+
+		/*Compressor *compressor = new Compressor(0);
+		SmartDashboard::PutBoolean("Compressor Status is Okay?", !compressor->StatusIsFatal());
+		//SmartDashboard::PutBoolean("Compressor is Closed Loop Control", compressor->GetClosedLoopControl());
+		SmartDashboard::PutBoolean("Compressor Shorted Fault?", compressor->GetCompressorShortedFault());
+		SmartDashboard::PutBoolean("Compressor Shorted Sticky Fault?", compressor->GetCompressorShortedStickyFault());
+		delete compressor;*/
 	}
 
 	void TeleopPeriodic()
@@ -56,6 +69,8 @@ private:
 		SmartDashboard::PutBoolean("Singulation UP/DOWN", foxlift->singulationTwo->Get());
 		SmartDashboard::PutBoolean("Intake pistons", foxlift->rollerPistons->Get());
 		SmartDashboard::PutNumber("Get Throttle", driver->GetThrottle());
+
+		SmartDashboard::PutNumber("Tote In", foxlift->ToteIn());
 		//MECANUM DRIVE
 		float yValue = driver->GetY();
 		float xValue = driver->GetX()*(-1);
@@ -68,6 +83,10 @@ private:
 		//Boxlift
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
+		}
+		if (gameComponent->GetButtonB() == true){
+			printf("ButtonB is pressed\n");
+				foxlift->SetFoxlift();
 		}
 		 if(gameComponent->GetButtonA() == true){
 			foxlift->GoDown();
@@ -91,10 +110,14 @@ private:
 		}
 	}
 
-	/*void TestPeriodic()
+	void TestInit()
+	{
+		foxlift->Terminate();
+	}
+	void TestPeriodic()
 	{
 		lw->Run();
-	}*/
+	}
 };
 
 START_ROBOT_CLASS(Robot);
