@@ -135,14 +135,15 @@ private:
 		SmartDashboard::PutNumber("Rotation Value", rotation);
 
 		//BOXLIFT
-		// When button is pressed, raise the boclift
+		// When button is pressed, raise the boxlift
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
 		}
-		// When button is pressed, lower the boclift
+		// When button is pressed, lower the boxlift
 		if(gameComponent->GetButtonA() == true){
 			foxlift->GoDown();
 		}
+
 		//REORIENTATION
 		//When button is pressed and held, extend reorientation
 		if (gameComponent->GetButtonLB() == true){
@@ -152,6 +153,7 @@ private:
 		if (gameComponent->GetButtonLB() == false){
 			foxlift->DoneReorienting();
 		}
+
 		//SINGULATION
 		//When any joystick top button is pressed and the trigger is pressed, extend piston one and low piston 2
 		if (joystick->IsAnyTopButtonPressed() == true && joystick->GetTrigger() == true){
@@ -165,6 +167,9 @@ private:
 		if (joystick->IsAnyTopButtonPressed() == false){
 			foxlift->DoneSingulating();
 		}
+
+		//OVERRIDE
+
 	}
 
 	void TestInit()
