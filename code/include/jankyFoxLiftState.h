@@ -51,10 +51,13 @@ public:
 		SingulationDown,
 		SingulationUp,
 		Reorientation,
-		WaitForUndo
+		WaitForUndo,
+		ManualOverride
 	};
 
 	//Member functions
+	void ManualOverrideOn();
+	void ManualOverrideOff();
 	bool IsLSwitchTopClosed();
 	bool IsLSwitchDownClosed();
 	void ExtendReorientation();

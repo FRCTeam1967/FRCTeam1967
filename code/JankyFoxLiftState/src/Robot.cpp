@@ -69,6 +69,9 @@ private:
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
 		}
+		if(gameComponent->GetButtonB() == true && gameComponent->GetButtonY() == true){
+			foxlift->motorLift->Set(1);
+		}
 		 if(gameComponent->GetButtonA() == true){
 			foxlift->GoDown();
 		}
@@ -89,6 +92,7 @@ private:
 		if (driver->GetRawButton(2) == false){
 			foxlift->DoneSingulating();
 		}
+
 	}
 
 	/*void TestPeriodic()
