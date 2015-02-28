@@ -85,10 +85,14 @@ JankyFoxliftState::~JankyFoxliftState()
 	delete rollerOutTimer;
 }
 void JankyFoxliftState::ManualOverrideOn(){
+	if(GetCurrentState() != ManualOverride){
 	NewState(ManualOverride, "Pressed the button and it is now overriding");
+	}
 }
 void JankyFoxliftState::ManualOverrideOff(){
+	if(GetCurrentState() == ManualOverride){
 	NewState(Init, "Stopped overriding-went into init");
+	}
 }
 bool JankyFoxliftState::IsLSwitchTopClosed(){
 	if(lSwitchTop->Get() == false){
@@ -146,7 +150,7 @@ void JankyFoxliftState::GoUp(){
 	else if(GetCurrentState() == Down && !IsLSwitchTopClosed()){
 		NewState(Up,"In down-Button up pressed-going up!");
 	}
-	else if(GetCurrentState() == ManualOverride && !IsLSwitchTopClosed()){
+	else if(GetCurrentState() == ManualOverride){
 			motorLift->Set(LIFT_UP_SPEED);
 		}
 }
@@ -160,7 +164,7 @@ void JankyFoxliftState::GoDown(){
 	else if(GetCurrentState() == Up && !IsLSwitchDownClosed()){
 		NewState(Down,"In up-Button down pressed-going down!");
 	}
-	else if(GetCurrentState() == ManualOverride && !IsLSwitchDownClosed()){
+	else if(GetCurrentState() == ManualOverride){
 		motorLift->Set(LIFT_DOWN_SPEED);
 	}
 }
@@ -179,7 +183,7 @@ void JankyFoxliftState::SingulateOne(){
 		rollerInTimer->Reset();
 		NewState(MoveRollersIn,"Up and no tote- bringing rollers in for sing up");
 	}
-	else if(GetCurrentState() == ManualOverride && ToteIn() == false){
+	else if(GetCurrentState() == ManualOverride){
 		this->ExtendSingulation();
 		this->RaiseSingulation();
 	}
@@ -199,7 +203,7 @@ void JankyFoxliftState::SingulateTwo(){
 		 rollerInTimer->Reset();
 		 NewState(MoveRollersIn,"Up w/ no tote- bringing rollers in for sing down");
 	}
-	else if(GetCurrentState() == ManualOverride && ToteIn() == false){
+	else if(GetCurrentState() == ManualOverride){
 			this->ExtendSingulation();
 			this->LowerSingulation();
 		}
@@ -220,7 +224,7 @@ void JankyFoxliftState::Reorient(){
 		rollerInTimer->Reset();
 		NewState(MoveRollersIn," Up and no tote in- bringing arms in");
 	}
-	else if(GetCurrentState() == ManualOverride && ToteIn() == false){
+	else if(GetCurrentState() == ManualOverride){
 		this->ExtendReorientation();
 	}
 }
@@ -332,6 +336,11 @@ void JankyFoxliftState::StateEngine(int curState)
 		case Reorientation:
 			printf("in reorientation state\n");
 			this->ExtendReorientation();
+			break;
+		case ManualOverride:
+			break;
+		default:
+			printf("ERROR: ILLEGAL STATE - Value=%d\n",curState);
 			break;
 	}
 }
