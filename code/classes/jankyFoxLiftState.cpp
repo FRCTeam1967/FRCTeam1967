@@ -47,9 +47,9 @@ JankyFoxliftState::JankyFoxliftState()
 	//toteIn = new AnalogInput(SONAR_SENSOR);
 	toteIn = new DigitalInput(LIMIT_SWITCH_TOTE);
 	rollerPistons = new Solenoid(ROLLER_PISTON);
-	reorientation = new Solenoid(REORIENTATION);
-	singulationOne = new Solenoid(SINGULATION_ONE);
-	singulationTwo = 	new Solenoid(SINGULATION_TWO);
+	reorientation = new Solenoid(REORIENTATION);//double solenoid on mentor bot
+	singulationOne = new Solenoid(SINGULATION_ONE);//double solenoid on mentor bot
+	singulationTwo = 	new Solenoid(SINGULATION_TWO);//double solenoid on mentor bot
 	preRollerTimer = new Timer();
 	rollerInTimer = new Timer();
 	rollerOutTimer = new Timer();

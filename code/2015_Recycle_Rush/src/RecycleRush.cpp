@@ -3,7 +3,7 @@
 #include "jankyfoxliftState.h"
 #include "jankyXboxJoystick.h"
 #include "jankyTask.h"
-#include "jankyDriveStick.h"
+#include "jankyDrivestick.h"
 
 #define DRIVE_JOYSTICK_PORT 0
 #define GC_JOYSTICK_PORT 1
@@ -136,35 +136,42 @@ private:
 
 		//BOXLIFT
 		// When button is pressed, raise the boxlift
-		if (gameComponent->GetButtonY() == true){
+		if (gameComponent->GetButtonY() && gameComponent->GetButtonA() == false)
+		{
 			foxlift->GoUp();
 		}
 		// When button is pressed, lower the boxlift
-		if(gameComponent->GetButtonA() == true){
+		if(gameComponent->GetButtonA() && gameComponent->GetButtonY() == false)
+		{
 			foxlift->GoDown();
 		}
 
 		//REORIENTATION
 		//When button is pressed and held, extend reorientation
-		if (gameComponent->GetButtonLB() == true){
+		if (gameComponent->GetButtonLB())
+		{
 			foxlift->Reorient();
 		}
 		//When button is released, retract reorientation
-		if (gameComponent->GetButtonLB() == false){
+		if (gameComponent->GetButtonLB() == false)
+		{
 			foxlift->DoneReorienting();
 		}
 
 		//SINGULATION
 		//When any joystick top button is pressed and the trigger is pressed, extend piston one and low piston 2
-		if (joystick->IsAnyTopButtonPressed() == true && joystick->GetTrigger() == true){
+		if (joystick->IsAnyTopButtonPressed() && joystick->GetTrigger())
+		{
 			foxlift->SingulateTwo();
 		}
 		//When any joystick top button is pressed, extend piston 1;
-		else if (joystick->IsAnyTopButtonPressed() == true && joystick->GetTrigger() == false){
+		else if (joystick->IsAnyTopButtonPressed() && joystick->GetTrigger() == false)
+		{
 			foxlift->SingulateOne();
 		}
 		//When none of the top buttons is pressed, you are done singulating
-		if (joystick->IsAnyTopButtonPressed() == false){
+		if (joystick->IsAnyTopButtonPressed() == false)
+		{
 			foxlift->DoneSingulating();
 		}
 

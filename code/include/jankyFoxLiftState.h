@@ -17,11 +17,11 @@
 #define TALON_ROLLER2 6
 #define TALON_LIFT 7
 #define BRAKE 0
-#define SONAR_SENSOR 2
+//#define SONAR_SENSOR 0
 #define LIMIT_SWITCH_TOTE 2
-#define LIFT_UP_SPEED .75
-#define LIFT_DOWN_SPEED -.75
-//#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN .7
+#define LIFT_UP_SPEED 1.0
+#define LIFT_DOWN_SPEED -1.0
+#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN .7
 #define ROLLER_PISTON 1
 #define PREROLLER_TIME 3.0
 #define ROLLER_TIME 2.0
@@ -32,6 +32,7 @@
 class JankyFoxliftState : public JankyStateMachine	{
 public:
 	JankyFoxliftState();
+
 	virtual ~JankyFoxliftState(void);
 
 	//Member variables
