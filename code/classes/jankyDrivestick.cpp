@@ -29,7 +29,7 @@ float jankyDrivestick::GetY()
 	{
 		LeftYAxis = 0.0;
 	}
-	return pow(Joystick::GetY(), 3);
+	return pow(LeftYAxis, 3);
 }
 
 float jankyDrivestick::GetJoystickTwist()
@@ -39,7 +39,7 @@ float jankyDrivestick::GetJoystickTwist()
 	{
 		LeftTwist = 0.0;
 	}
-	return pow(Joystick::GetThrottle(), 3);
+	return pow(LeftTwist, 3);
 }
 
 bool jankyDrivestick::IsAnyTopButtonPressed()
