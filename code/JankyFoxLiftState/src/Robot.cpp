@@ -69,6 +69,10 @@ private:
 		SmartDashboard::PutBoolean("Singulation UP/DOWN", foxlift->singulationTwo->Get());
 		SmartDashboard::PutBoolean("Intake pistons", foxlift->rollerPistons->Get());
 		SmartDashboard::PutNumber("Get Throttle", driver->GetThrottle());
+		SmartDashboard::PutNumber("Get Timer for rollerIn", foxlift->rollerInTimer->Get());
+		SmartDashboard::PutNumber("Get Timer for waitForUndo", foxlift->preRollerTimer->Get());
+		SmartDashboard::PutNumber("Get Timer for rollerOut", foxlift->rollerOutTimer->Get());
+
 
 		SmartDashboard::PutNumber("Tote In", foxlift->ToteIn());
 		//MECANUM DRIVE
@@ -95,9 +99,6 @@ private:
 		if (gameComponent->GetButtonLB() == true){
 			foxlift->Reorient();
 		}
-		if (gameComponent->GetButtonLB() == false){
-			foxlift->DoneReorienting();
-		}
 		//Singulation
 		if (driver->GetRawButton(2) == true && driver->GetTrigger() == true){
 			foxlift->SingulateTwo();
@@ -105,8 +106,9 @@ private:
 		else if (driver->GetRawButton(2) == true && driver->GetTrigger() == false){
 			foxlift->SingulateOne();
 		}
-		if (driver->GetRawButton(2) == false){
-			foxlift->DoneSingulating();
+		//Done Singulating/Reorienting
+		if (driver->GetRawButton(2) == false && gameComponent->GetButtonLB() == false){
+			foxlift->DoneSingReor();
 		}
 
 	}
