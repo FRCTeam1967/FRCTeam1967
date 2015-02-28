@@ -13,8 +13,8 @@
 #define LIMIT_SWITCH_BOTTOM 1
 //#define LIMIT_SWITCH_6 4
 //#define LIMIT_SWITCH_2 3
-#define TALON_ROLLER1 5
-#define TALON_ROLLER2 6
+#define TALON_ROLLER1 5//left
+#define TALON_ROLLER2 6//right
 #define TALON_LIFT 7
 #define BRAKE 0
 //#define SONAR_SENSOR 0
@@ -73,8 +73,7 @@ public:
 	void Reorient();
 	void SingulateOne();
 	void SingulateTwo();
-	void DoneSingulating();
-	void DoneReorienting();
+	void DoneSingReor();
 	void StateEngine(int curState);
 
 

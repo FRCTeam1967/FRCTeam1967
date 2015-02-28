@@ -15,7 +15,7 @@ JankyFoxliftState::JankyFoxliftState()
 {
 	printf("Beginning FoxliftMachine constructor\n");
 
-	SetMachineName("JankyFoxliftStateMachine");
+	SetMachineName("JankyFoxlift");
 	SetName(Init,"Init");
 	//SetName(UpSingle,"Raise tote if !tote+ ");
 	//SetName(UpFinish,"Raise tote if tote+");
@@ -96,22 +96,22 @@ bool JankyFoxliftState::IsLSwitchDownClosed(){
 	return false;
 }
 void JankyFoxliftState::ExtendReorientation() {
-	reorientation->Set(true);
-}
-void JankyFoxliftState::RetractReorientation() {
 	reorientation->Set(false);
 }
-void JankyFoxliftState::RetractSingulation() {
-	singulationOne->Set(false);
+void JankyFoxliftState::RetractReorientation() {
+	reorientation->Set(true);
 }
-void JankyFoxliftState::ExtendSingulation(){
+void JankyFoxliftState::RetractSingulation() {
 	singulationOne->Set(true);
 }
+void JankyFoxliftState::ExtendSingulation(){
+	singulationOne->Set(false);
+}
 void JankyFoxliftState::LowerSingulation(){
-	singulationTwo->Set(true);
+	singulationTwo->Set(false);
 }
 void JankyFoxliftState::RaiseSingulation(){
-	singulationTwo->Set(false);
+	singulationTwo->Set(true);
 }
 bool JankyFoxliftState::ToteIn(){
 	//if (toteIn ->GetVoltage() > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
@@ -132,7 +132,6 @@ void JankyFoxliftState::SetFoxlift(){
 	NewState(Init,"Starting the robot and going into init");
 }
 void JankyFoxliftState::GoUp(){
-	printf("in go up\n");
 	if (GetCurrentState() == Init && !IsLSwitchTopClosed()){
 		NewState(Up,"In init-Button up pressed-starting to go up!");
 	}
@@ -153,7 +152,7 @@ void JankyFoxliftState::GoDown(){
 }
 void JankyFoxliftState::SingulateOne(){
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
-		NewState(SingulationUp, "Moved arms in- going to sing w/ 4-hook up");
+		NewState(SingulationUp, "Arms in- going to sing w/ 4-hook up");
 	}
 	else if (GetCurrentState() == MoveRollersOut){
 		rollerInTimer -> Reset();
@@ -165,6 +164,9 @@ void JankyFoxliftState::SingulateOne(){
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		rollerInTimer->Reset();
 		NewState(MoveRollersIn,"Up and no tote- bringing rollers in for sing up");
+	}
+	else if(GetCurrentState() == SingulationDown){
+		NewState(SingulationUp, "let go of trigger-going to sing up");
 	}
 }
 void JankyFoxliftState::SingulateTwo(){
@@ -182,9 +184,11 @@ void JankyFoxliftState::SingulateTwo(){
 		 rollerInTimer->Reset();
 		 NewState(MoveRollersIn,"Up w/ no tote- bringing rollers in for sing down");
 	}
+	else if(GetCurrentState() == SingulationUp){
+			NewState(SingulationDown, "pressed trigger-going to sing down");
+		}
 }
 void JankyFoxliftState::Reorient(){
-	printf("in reorient\n");
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
 		NewState(Reorientation, " Arms in, starting to reorient");
 	}
@@ -200,8 +204,9 @@ void JankyFoxliftState::Reorient(){
 		NewState(MoveRollersIn," Up and no tote in- bringing arms in");
 	}
 }
-void JankyFoxliftState::DoneSingulating(){
-	if(GetCurrentState() == SingulationDown || GetCurrentState() == SingulationUp){
+void JankyFoxliftState::DoneSingReor(){
+	if(GetCurrentState() == SingulationDown || GetCurrentState() == SingulationUp
+			|| GetCurrentState()== Reorientation){
 		preRollerTimer->Reset();
 		NewState(WaitForUndo, " Done sing-going to waiting period");
 	}
@@ -211,7 +216,7 @@ void JankyFoxliftState::DoneSingulating(){
 		NewState(MoveRollersOut, "Done sing -moving rollers out");
 	}
 }
-void JankyFoxliftState::DoneReorienting(){
+/*void JankyFoxliftState::DoneReorienting(){
 	if (GetCurrentState()== Reorientation ){
 		printf("done reorienting\n");
 		preRollerTimer->Reset();
@@ -222,7 +227,7 @@ void JankyFoxliftState::DoneReorienting(){
 		rollerOutTimer->Reset();
 		NewState(MoveRollersOut, " Done reor-moving rollers out");
 	}
-}
+}*/
 void JankyFoxliftState::StateEngine(int curState)
 {
 	switch(curState){
@@ -299,7 +304,6 @@ void JankyFoxliftState::StateEngine(int curState)
 			this->RaiseSingulation();
 			break;
 		case Reorientation:
-			printf("in reorientation state\n");
 			this->ExtendReorientation();
 			break;
 	}
