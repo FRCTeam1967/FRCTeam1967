@@ -4,6 +4,7 @@
 
 #define DRIVE_JOYSTICK_PORT 0
 #define GC_JOYSTICK_PORT 1
+#define DEADBAND_SIZE .3
 
 class Robot: public IterativeRobot
 {
@@ -44,7 +45,7 @@ private:
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		foxlift = new JankyFoxliftState();
 
-		foxlift->SetFoxlift();
+		foxlift->SetFoxlift();// put in autonomous and teleop init
 
 
 		/*Compressor *compressor = new Compressor(0);
@@ -72,7 +73,7 @@ private:
 		SmartDashboard::PutNumber("Get Timer for rollerIn", foxlift->rollerInTimer->Get());
 		SmartDashboard::PutNumber("Get Timer for waitForUndo", foxlift->preRollerTimer->Get());
 		SmartDashboard::PutNumber("Get Timer for rollerOut", foxlift->rollerOutTimer->Get());
-
+		SmartDashboard::PutNumber("Ultrasonic", foxlift->toteIn->GetRangeInches());
 
 		SmartDashboard::PutNumber("Tote In", foxlift->ToteIn());
 		//MECANUM DRIVE
@@ -80,17 +81,32 @@ private:
 		float xValue = driver->GetX()*(-1);
 		//this is apparently changing the twist
 		float rotation = driver->GetThrottle();
-		// GetZ() apparently is changed by the lever at the bottom.
-		//driver->GetZ() = 0;
-		//driver->SetAxisChannel(Joystick::kTwistAxis, 2);
+
 		meghaRobot.MecanumDrive_Cartesian(xValue, yValue, rotation, 0.0);
+		//Override
+		if(gameComponent->GetButtonRB() == true){
+			foxlift->ManualOverrideOn();
+		}
+		if(gameComponent->GetButtonRB() == false){
+			foxlift->ManualOverrideOff();
+		}
+		//ForkLift
+		if(abs(gameComponent->GetLeftYAxis()) <= DEADBAND_SIZE){
+			foxlift->StopRollers();
+		}
+		if(gameComponent->GetLeftYAxis() > DEADBAND_SIZE){
+			foxlift->PushOutTote();
+		}
+		if(gameComponent->GetLeftYAxis() < (-1)*(DEADBAND_SIZE)){
+			foxlift->SuckInTote();
+		}
 		//Boxlift
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
 		}
         if (gameComponent->GetButtonB() == true){
 			printf("ButtonB is pressed\n");
-				foxlift->SetFoxlift();
+				foxlift->StopLift();
 		}
 		 if(gameComponent->GetButtonA() == true){
 			foxlift->GoDown();

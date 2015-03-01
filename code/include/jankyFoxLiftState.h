@@ -18,16 +18,20 @@
 #define TALON_LIFT 7
 #define BRAKE 0
 //#define SONAR_SENSOR 0
-#define LIMIT_SWITCH_TOTE 2
+//#define LIMIT_SWITCH_TOTE 2
+#define ULTRASONIC_PING 3
+#define ULTRASONIC_ECHO 9
 #define LIFT_UP_SPEED 1.0
 #define LIFT_DOWN_SPEED -1.0
-#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN .7
+#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN 10
 #define ROLLER_PISTON 1
 #define PREROLLER_TIME 3.0
 #define ROLLER_TIME 2.0
 #define REORIENTATION 2
 #define SINGULATION_ONE 3
 #define SINGULATION_TWO 4
+#define ROLLER_SPEED_FORWARD .75
+#define ROLLER_SPEED_BACKWARD -.75
 
 class JankyFoxliftState : public JankyStateMachine	{
 public:
@@ -38,6 +42,7 @@ public:
 	//Member variables
 	enum StateValue {
 		Init,
+		Safety,
 		//UpSingle,
 		//UpFinish,
 		Braking,
@@ -59,6 +64,10 @@ public:
 	//Member functions
 	void ManualOverrideOn();
 	void ManualOverrideOff();
+	void SuckInTote();
+	void PushOutTote();
+	void StopLift();
+	void StopRollers();
 	bool IsLSwitchTopClosed();
 	bool IsLSwitchDownClosed();
 	void ExtendReorientation();
@@ -83,10 +92,11 @@ public:
 	//Member Variables
 	DigitalInput*lSwitchTop;
 	DigitalInput*lSwitchDown;
-	DigitalInput*toteIn;
+	//DigitalInput*toteIn;
 	//AnalogInput*toteIn;//sonar sensor
 	//DigitalInput*lSwitch6;
 	//DigitalInput*lSwitch2;
+	Ultrasonic*toteIn;
 	Talon*motorLift;
 	Talon*motorRoller1;
 	Talon*motorRoller2;

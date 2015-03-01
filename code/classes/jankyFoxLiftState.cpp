@@ -17,6 +17,7 @@ JankyFoxliftState::JankyFoxliftState()
 
 	SetMachineName("JankyFoxlift");
 	SetName(Init,"Init");
+	SetName(Safety, "Starting State");
 	//SetName(UpSingle,"Raise tote if !tote+ ");
 	//SetName(UpFinish,"Raise tote if tote+");
 	SetName(Braking,"Put brake and stop motor");
@@ -45,7 +46,8 @@ JankyFoxliftState::JankyFoxliftState()
 	motorRoller2 = new Talon(TALON_ROLLER2);
 	brake = new Solenoid(BRAKE);
 	//toteIn = new AnalogInput(SONAR_SENSOR);
-	toteIn = new DigitalInput(LIMIT_SWITCH_TOTE);
+	//toteIn = new DigitalInput(LIMIT_SWITCH_TOTE);
+	toteIn = new Ultrasonic(ULTRASONIC_PING, ULTRASONIC_ECHO);
 	rollerPistons = new Solenoid(ROLLER_PISTON);
 	reorientation = new Solenoid(REORIENTATION);//double solenoid on mentor bot
 	singulationOne = new Solenoid(SINGULATION_ONE);//double solenoid on mentor bot
@@ -83,6 +85,18 @@ JankyFoxliftState::~JankyFoxliftState()
 	delete preRollerTimer;
 	delete rollerInTimer;
 	delete rollerOutTimer;
+}
+void JankyFoxliftState::SuckInTote(){
+	motorRoller1->Set(ROLLER_SPEED_BACKWARD);
+	motorRoller2->Set(ROLLER_SPEED_BACKWARD);
+}
+void JankyFoxliftState::PushOutTote(){
+	motorRoller1->Set(ROLLER_SPEED_FORWARD);
+	motorRoller2->Set(ROLLER_SPEED_FORWARD);
+}
+void JankyFoxliftState::StopRollers(){
+	motorRoller1->Set(0);
+	motorRoller2->Set(0);
 }
 void JankyFoxliftState::ManualOverrideOn(){
 	if(GetCurrentState() != ManualOverride){
@@ -128,7 +142,10 @@ bool JankyFoxliftState::ToteIn(){
 	//if (toteIn ->GetVoltage() > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
 		//return false;
 	//}
-	if(toteIn->Get()== false){
+	//if(toteIn->Get()== false){
+		//return true;
+	//}
+	if(toteIn->GetRangeInches() < TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
 		return true;
 	}
 	return false;
@@ -140,14 +157,19 @@ void JankyFoxliftState::RetractArms(){
 	rollerPistons -> Set(false);
 }
 void JankyFoxliftState::SetFoxlift(){
-	NewState(Init,"Starting the robot and going into init");
+	NewState(Safety,"Starting and going into safety");
+}
+void JankyFoxliftState::StopLift(){
+	if(GetCurrentState() == Up ||GetCurrentState() == Down){
+		NewState(Init, "Stopped Boxlift");
+	}
 }
 void JankyFoxliftState::GoUp(){
 	if (GetCurrentState() == Init && !IsLSwitchTopClosed()){
-		NewState(Up,"In init-Button up pressed-starting to go up!");
+		NewState(Up,"Button up pressed");
 	}
 	else if(GetCurrentState() == Down && !IsLSwitchTopClosed()){
-		NewState(Up,"In down-Button up pressed-going up!");
+		NewState(Up,"Button up pressed!");
 	}
 	else if(GetCurrentState() == ManualOverride){
 			motorLift->Set(LIFT_UP_SPEED);
@@ -155,13 +177,13 @@ void JankyFoxliftState::GoUp(){
 }
 void JankyFoxliftState::GoDown(){
 	if(GetCurrentState() == Braking && !IsLSwitchDownClosed()){
-		NewState(Down, "Tote is Up and button down pressed-Going Down!");
+		NewState(Down, "button down pressed");
 	}
 	else if (GetCurrentState() == Init && !IsLSwitchDownClosed()){
-		NewState(Down, "In Init and button down pressed-Going Down!");
+		NewState(Down, "button down pressed");
 	}
 	else if(GetCurrentState() == Up && !IsLSwitchDownClosed()){
-		NewState(Down,"In up-Button down pressed-going down!");
+		NewState(Down,"Button down pressed");
 	}
 	else if(GetCurrentState() == ManualOverride){
 		motorLift->Set(LIFT_DOWN_SPEED);
@@ -169,25 +191,25 @@ void JankyFoxliftState::GoDown(){
 }
 void JankyFoxliftState::SingulateOne(){
 	if (GetCurrentState() == MoveRollersIn && rollerInTimer->Get() >= ROLLER_TIME){
-		NewState(SingulationUp, "Arms in- going to sing w/ 4-hook up");
+		NewState(SingulationUp, "going to sing w/ 4-hook up");
 	}
 	else if (GetCurrentState() == MoveRollersOut){
 		rollerInTimer -> Reset();
 		NewState(MoveRollersIn, "Moving rollers in for sing up");
 	}
 	else if (GetCurrentState() == WaitForUndo){
-		NewState(SingulationUp, "Was in waiting period- going to sing up");
+		NewState(SingulationUp, "going to sing up");
 	}
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		rollerInTimer->Reset();
-		NewState(MoveRollersIn,"Up and no tote- bringing rollers in for sing up");
+		NewState(MoveRollersIn,"bringing rollers in for sing up");
 	}
 	else if(GetCurrentState() == ManualOverride){
 		this->ExtendSingulation();
 		this->RaiseSingulation();
     }
 	else if(GetCurrentState() == SingulationDown){
-		NewState(SingulationUp, "let go of trigger-going to sing up");
+		NewState(SingulationUp, "let go of trigger");
 	}
 }
 void JankyFoxliftState::SingulateTwo(){
@@ -196,21 +218,21 @@ void JankyFoxliftState::SingulateTwo(){
 	}
 	else if (GetCurrentState() == MoveRollersOut){
 		rollerInTimer -> Reset();
-		NewState(MoveRollersIn, "Pressed sing down- rollers going in");
+		NewState(MoveRollersIn, "Pressed sing down");
 	}
 	else if (GetCurrentState() == WaitForUndo){
-		NewState(SingulationDown, "Done waiting-going to sing down");
+		NewState(SingulationDown, "Done waiting");
 	}
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		 rollerInTimer->Reset();
-		 NewState(MoveRollersIn,"Up w/ no tote- bringing rollers in for sing down");
+		 NewState(MoveRollersIn,"bringing rollers infor sing down");
 	}
 	else if(GetCurrentState() == ManualOverride){
 			this->ExtendSingulation();
 			this->LowerSingulation();
     }
 	else if(GetCurrentState() == SingulationUp){
-			NewState(SingulationDown, "pressed trigger-going to sing down");
+			NewState(SingulationDown, "pressed trigger");
 		}
 }
 void JankyFoxliftState::Reorient(){
@@ -222,11 +244,11 @@ void JankyFoxliftState::Reorient(){
 		NewState(MoveRollersIn, "Putting rollers in to reorient");
 	}
 	else if (GetCurrentState() == WaitForUndo){
-		NewState(Reorientation, "Was in waiting period-starting to reorient");
+		NewState(Reorientation, "starting to reorient");
 	}
 	else if (GetCurrentState() == Braking && ToteIn() == false){
 		rollerInTimer->Reset();
-		NewState(MoveRollersIn," Up and no tote in- bringing arms in");
+		NewState(MoveRollersIn,"for reorienting");
 	}
 	else if(GetCurrentState() == ManualOverride){
 		this->ExtendReorientation();
@@ -260,7 +282,17 @@ void JankyFoxliftState::StateEngine(int curState)
 			brake->Set(false);
 			motorLift->Set(0);
 			break;
-
+		case Safety:
+			if(rollerPistons->Get() == true && IsLSwitchTopClosed()){
+				NewState(Braking, "lift is up");
+			}
+			else if(rollerPistons->Get() == true && !IsLSwitchTopClosed()){
+				NewState(Init, "lift is not up");
+			}
+			else if(rollerPistons->Get() == false){
+				NewState(WaitForUndo, " arms are closed");
+			}
+			break;
 		case Braking:
 			//printf("In Braking\n");
 			motorLift->Set(0);
@@ -297,7 +329,7 @@ void JankyFoxliftState::StateEngine(int curState)
 			motorRoller2->Set(0);
 			brake->Set(false);
 			if(IsLSwitchDownClosed()){
-				NewState(BottomStop, "All the way down, so stopping for now");
+				NewState(BottomStop, "All the way down");
 			}
 			break;
 		case MoveRollersIn:
@@ -308,13 +340,16 @@ void JankyFoxliftState::StateEngine(int curState)
 			this->RetractSingulation();
 			this->RaiseSingulation();
 			if(preRollerTimer ->Get() >= PREROLLER_TIME){
-				NewState(MoveRollersOut, "Waiting period is over-Moving rollers out");
+				NewState(MoveRollersOut, "Waiting period is over");
 			}
 			break;
 		case MoveRollersOut:
 				this->ExtendArms();
-			if(rollerOutTimer->Get() >= ROLLER_TIME){
-				NewState(Braking, "Rollers are out now-breaking");
+			if(rollerOutTimer->Get() >= ROLLER_TIME && IsLSwitchTopClosed()){
+				NewState(Braking, "because lift is up");
+			}
+			else if(rollerOutTimer->Get() >= ROLLER_TIME && !IsLSwitchTopClosed()){
+				NewState(Init, "because lift is not up");
 			}
 			break;
 		case SingulationDown:
