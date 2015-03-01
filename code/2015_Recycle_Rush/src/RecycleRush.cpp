@@ -1,6 +1,6 @@
 #include "WPILib.h"
 #include "jankyAutonomousState.h"
-#include "jankyfoxliftState.h"
+#include "jankyFoxLiftState.h"
 #include "jankyXboxJoystick.h"
 #include "jankyTask.h"
 #include "jankyDrivestick.h"
@@ -24,6 +24,8 @@ class Robot: public IterativeRobot
 	Talon *pRF;
 	Talon *pLR;
 	Talon *pRR;
+	SendableChooser *chooser;
+	JankyAutonomousState *jankyAuto;
 
 public:
 	Robot()
@@ -38,6 +40,7 @@ public:
 		pRF = NULL;
 		pLR = NULL;
 		pRR = NULL;
+		jankyAuto = NULL;
 	}
 	~Robot()
 	{
@@ -50,9 +53,12 @@ public:
 		delete pRF;
 		delete pLR;
 		delete pRR;
+		delete jankyAuto;
 	}
 
 private:
+	int autoZone;
+	int autoZoneAndBin;
 
 	void RobotInit()
 	{
@@ -71,6 +77,14 @@ private:
 		printf("in robot init \n");
 	    joystick = new jankyDrivestick(DRIVE_JOYSTICK_PORT);
 		gameComponent = new jankyXboxJoystick(GC_JOYSTICK_PORT);
+
+		chooser = new SendableChooser();
+		// need to addDefault otherwise it won't work
+		chooser->AddDefault("Autonomous Mode 1", &autoZone);
+		chooser->AddObject("Autonomous Mode 2", &autoZoneAndBin);
+		//put the different options on SmartDashboard
+		SmartDashboard::PutData("Autonomous modes", chooser);
+
 		foxlift = new JankyFoxliftState();
         foxlift->SetFoxlift();
 		CameraInit();
@@ -81,6 +95,22 @@ private:
 	{
 		printf("AutonomousInit()");
 		robot->SetSafetyEnabled(false);
+
+		if (&autoZone == chooser->GetSelected())
+		{
+			printf("autoZone running\n");
+		}
+		else if (&autoZoneAndBin == chooser->GetSelected())
+		{
+			printf("autoZoneAndBin running\n");
+			jankyAuto = new JankyAutonomousState(robot, foxlift);
+			jankyAuto->StartAuto();
+			jankyAuto->Go();
+		}
+		else
+		{
+			printf("something's wrong\n");
+		}
 		printf("end of AutonomousInit()");
 	}
 
@@ -136,12 +166,12 @@ private:
 
 		//BOXLIFT
 		// When button is pressed, raise the boxlift
-		if (gameComponent->GetButtonY() && gameComponent->GetButtonA() == false)
+		if (gameComponent->GetButtonY() && !gameComponent->GetButtonA())
 		{
 			foxlift->GoUp();
 		}
 		// When button is pressed, lower the boxlift
-		if(gameComponent->GetButtonA() && gameComponent->GetButtonY() == false)
+		if(gameComponent->GetButtonA() && !gameComponent->GetButtonY())
 		{
 			foxlift->GoDown();
 		}
@@ -152,11 +182,6 @@ private:
 		{
 			foxlift->Reorient();
 		}
-		//When button is released, retract reorientation
-		if (gameComponent->GetButtonLB() == false)
-		{
-			foxlift->DoneReorienting();
-		}
 
 		//SINGULATION
 		//When any joystick top button is pressed and the trigger is pressed, extend piston one and low piston 2
@@ -165,14 +190,15 @@ private:
 			foxlift->SingulateTwo();
 		}
 		//When any joystick top button is pressed, extend piston 1;
-		else if (joystick->IsAnyTopButtonPressed() && joystick->GetTrigger() == false)
+		else if (joystick->IsAnyTopButtonPressed() && !joystick->GetTrigger())
 		{
 			foxlift->SingulateOne();
 		}
-		//When none of the top buttons is pressed, you are done singulating
-		if (joystick->IsAnyTopButtonPressed() == false)
+
+		//Done Singulating and Reorienting
+		if (!joystick->IsAnyTopButtonPressed() && !gameComponent->GetButtonLB())
 		{
-			foxlift->DoneSingulating();
+			foxlift->DoneSingReor();
 		}
 
 		//OVERRIDE

@@ -9,48 +9,37 @@
 #include "WPILib.h"
 #include "jankyStateMachine.h"
 #include "jankyRobotTemplate.h"
-#include "jankyPickupState.h"
-#include "jankyKickerState.h"
+#include "jankyFoxLiftState.h"
 
-#define DRIVE_TIME 1.9
-#define LOWER_TIME 0.8
-#define WIND_TIME 5.0
+#define DRIVE_SIDEWAYS_TIME 1.5
+#define DRIVE_FORWARD_TIME 1
 
-class JankyPickupState; //Forward declaration due to reference below
-class JankyKickerState; //Forward declaration due to reference below
+class JankyFoxliftState;
+
 class JankyAutonomousState : public JankyStateMachine	{
 public:
-	JankyAutonomousState(RobotDrive * pt);
+	JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * foxlift);
 	virtual ~JankyAutonomousState(void);
 	
 	//Member variables
 	enum StateValue {
 		Idle,
 		DriveForward,
-		InitialLower,
-		DriveForwardWindUp,
-		StopDriveWind,
-		DriveStopWind,
-		PrepKick,
-		Kick,
-		PostKick,
+		DriveSideways,
 		End
 		
 	};
-	Timer * driveTimer;
-	Timer * lowerTimer;
-	Timer * windTimer;
+	Timer * driveForwardTimer;
+	Timer * driveSidewaysTimer;
 	RobotDrive * ptRobot;
-	JankyPickupState * autoPickupMachine;
-	JankyKickerState * autoKickerMachine;
 	bool driveOnce;
 	
 	//Member functions
 	void StateEngine(int curState);
+	void Go(void);
 	void GoForward(void);
+	void GoSideways(void);
 	void StartAuto(void);
-	void SetAutoPickupMachine(JankyPickupState * pickupState);
-	void SetAutoKickerMachine(JankyKickerState * kickState);
 
 };
 
