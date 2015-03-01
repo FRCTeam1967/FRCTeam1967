@@ -57,15 +57,16 @@ void JankyAutonomousState::StartAuto()
 }
 void JankyAutonomousState::Go()
 {
+	printf("Go() called\n");
 	GoSideways();
 }
 
 void JankyAutonomousState::GoForward()
 {
 	printf("GoForward() called\n");
-	if(GetCurrentState() == Idle)
+	if (GetCurrentState() == Idle)
 	{
-		if(driveForwardTimer)
+		if (driveForwardTimer)
 		{
 			driveForwardTimer->Reset();
 			driveForwardTimer->Start();
@@ -79,7 +80,7 @@ void JankyAutonomousState::GoForward()
 void JankyAutonomousState::GoSideways()
 {
 	printf("GoSideways() called\n");
-	if(GetCurrentState() == Idle)
+	if (GetCurrentState() == Idle)
 	{
 		if(driveSidewaysTimer)
 		{

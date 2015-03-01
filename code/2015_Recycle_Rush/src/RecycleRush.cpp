@@ -93,19 +93,19 @@ private:
 
 	void AutonomousInit()
 	{
-		printf("AutonomousInit()");
+		printf("AutonomousInit() called\n");
 		robot->SetSafetyEnabled(false);
 
-		if (&autoZone == chooser->GetSelected())
+		/*if (&autoZone == chooser->GetSelected())
 		{
 			printf("autoZone running\n");
 		}
-		else if (&autoZoneAndBin == chooser->GetSelected())
+		*/
+		if (&autoZoneAndBin == chooser->GetSelected())
 		{
 			printf("autoZoneAndBin running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
 			jankyAuto->StartAuto();
-			jankyAuto->Go();
 		}
 		else
 		{
@@ -116,7 +116,8 @@ private:
 
 	void AutonomousPeriodic()
 	{
-
+		printf("AutonomousPeriodic() called");
+		jankyAuto->Go();
 	}
 
 	void CameraInit()
