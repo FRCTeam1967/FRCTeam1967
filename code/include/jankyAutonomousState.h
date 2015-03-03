@@ -11,8 +11,8 @@
 #include "jankyRobotTemplate.h"
 #include "jankyFoxLiftState.h"
 
-#define DRIVE_SIDEWAYS_TIME 1.5
-#define DRIVE_FORWARD_TIME 1
+#define DRIVE_SIDEWAYS_TIME 0.5
+#define DRIVE_FORWARD_TIME 0.5
 
 class JankyFoxliftState;
 
@@ -24,23 +24,27 @@ public:
 	//Member variables
 	enum StateValue {
 		Idle,
-		DriveForward,
 		DriveSideways,
+		DriveForward,
+		LiftTote,
 		End
 		
 	};
 	Timer * driveForwardTimer;
 	Timer * driveSidewaysTimer;
 	RobotDrive * ptRobot;
+	JankyFoxliftState * ptFoxLift;
 	bool driveOnce;
 	
 	//Member functions
 	void StateEngine(int curState);
 	void Go(void);
-	void GoForward(void);
 	void GoSideways(void);
+	void GoForward(void);
+	void GoLiftTote(void);
 	void StartAuto(void);
 
 };
 
 #endif
+

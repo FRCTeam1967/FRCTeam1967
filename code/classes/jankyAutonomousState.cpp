@@ -1,4 +1,5 @@
 /*
+ /*
  * jankyAutonomousState.cpp
  *
  *  Created on: Feb 15, 2014
@@ -7,6 +8,7 @@
 
 #include "WPILib.h"
 #include "jankyAutonomousState.h"
+#include "jankyFoxLiftState.h"
 
 /*
  * Constructor
@@ -15,15 +17,17 @@
 JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * foxLift)
 {
 	//printf("JankyAutonomousState() constructor\n");
-	
+	ptRobot = pt;
+	ptFoxLift = foxLift;
 	driveOnce = false;
 	
 	SetMachineName("JankyAutonomousStateMachine");
 	printf("Set machine name\n");
 	
 	SetName(Idle,"Idle");
-	SetName(DriveForward,"Just drive forward");
 	SetName(DriveSideways, "Just drive sideways");
+	SetName(DriveForward,"Drive forward");
+	SetName(LiftTote, "Lift tote");
 	SetName(End, "End - STOPPPPPP");
 	printf("Set state names\n");
 	
@@ -42,16 +46,16 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
  */
 JankyAutonomousState::~JankyAutonomousState()
 {
-	delete driveForwardTimer;
 	delete driveSidewaysTimer;
+	delete driveForwardTimer;
 }
 
 void JankyAutonomousState::StartAuto()
 {
 	if(GetCurrentState() == Idle)
 	{
-		driveForwardTimer->Reset();
 		driveSidewaysTimer->Reset();
+		driveForwardTimer->Reset();
 		NewState(Idle,"Starting autonomous");
 	}
 }
@@ -59,22 +63,6 @@ void JankyAutonomousState::Go()
 {
 	printf("Go() called\n");
 	GoSideways();
-}
-
-void JankyAutonomousState::GoForward()
-{
-	printf("GoForward() called\n");
-	if (GetCurrentState() == Idle)
-	{
-		if (driveForwardTimer)
-		{
-			driveForwardTimer->Reset();
-			driveForwardTimer->Start();
-		}
-		NewState(DriveForward,"Start driving forward");
-	}
-	else
-		printf("Can't go forward\n");
 }
 
 void JankyAutonomousState::GoSideways()
@@ -93,6 +81,32 @@ void JankyAutonomousState::GoSideways()
 		printf("Can't go sideways\n");
 }
 
+void JankyAutonomousState::GoForward()
+{
+	printf("GoForward() called\n");
+	if (GetCurrentState() == DriveSideways)
+	{
+		if (driveForwardTimer)
+		{
+			driveForwardTimer->Reset();
+			driveForwardTimer->Start();
+		}
+		NewState(DriveForward,"Start driving forward");
+	}
+	else
+		printf("Can't go forward\n");
+}
+
+void JankyAutonomousState::GoLiftTote()
+{
+	printf("LiftTote() called\n");
+	if (GetCurrentState() == DriveForward)
+	{
+		NewState(StateValue::LiftTote,"Start lifting tote");
+	}
+	else
+		printf("Can't go sideways\n");
+}
 void JankyAutonomousState::StateEngine(int curState)
 {
 	switch(curState)
@@ -100,38 +114,47 @@ void JankyAutonomousState::StateEngine(int curState)
 		case Idle:
 			//Idle handled by GoForward() or StartAuto()
 			//printf("In Idle\n");
+			if(driveSidewaysTimer)
+			{
+				driveSidewaysTimer->Stop();
+				driveSidewaysTimer->Reset();
+			}
 			if(driveForwardTimer)
 			{
 				driveForwardTimer->Stop();
 				driveForwardTimer->Reset();
 			}
 			break;
-		case DriveForward:
-			printf("In state DriveForward\n");
-			if(ptRobot)
-				ptRobot->MecanumDrive_Cartesian(-1.0,0.0,0.0,0.0);
-			driveOnce = true;
-			if(driveForwardTimer->Get() >= DRIVE_FORWARD_TIME)
-				NewState(End,"Done driving in auto");
-			break;
 		case DriveSideways:
+			printf("In state DriveSideways\n");
 			if(driveSidewaysTimer->Get() >= DRIVE_SIDEWAYS_TIME)
 			{
-				NewState(DriveForward,"Done driving in auto");
+				GoForward();
 			}
 			else
 			{
-				ptRobot->MecanumDrive_Cartesian(1.0,0.0,0.0,0.0);
+				ptRobot->MecanumDrive_Cartesian(-1.0,0.0,0.0,0.0);
 			}
 			break;
-		case End:
-			if(driveOnce == true)
+		case DriveForward:
+			printf("In state DriveForward\n");
+			if(driveForwardTimer->Get() >= DRIVE_FORWARD_TIME)
 			{
-				if(ptRobot)
-				{
-					ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
-				}
-				driveOnce = false;
+				NewState(End,"Done driving forward");
+			}
+			else
+			{
+				ptRobot->MecanumDrive_Cartesian(0.0,-1.0,0.0,0.0);
+			}
+			break;
+		case LiftTote:
+			ptFoxLift->GoDown();
+			ptFoxLift->GoUp();
+			break;
+		case End:
+			if(ptRobot)
+			{
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
 			}
 			break;
 		default:
@@ -139,6 +162,3 @@ void JankyAutonomousState::StateEngine(int curState)
 			break;
 	}
 }
-
-
-
