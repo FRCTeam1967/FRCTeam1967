@@ -17,6 +17,7 @@ class Robot: public IterativeRobot
 	Joystick*driver;
 	JankyFoxliftState*foxlift;
 	LiveWindow *lw;
+	AxisCamera *camera;
 
 public:
 	Robot(): meghaRobot(fLeft, rLeft, fRight, rRight)
@@ -26,12 +27,14 @@ public:
 		driver = NULL;
 		foxlift = NULL;
 		lw = NULL;
+		camera = NULL;
 	}
 	~Robot(){
 		delete gameComponent;
 		delete driver;
 		delete foxlift;
 		// RMW: Does not get deleted because it was not 'new' allocated -- delete lw;
+		delete camera;
 	}
 private:
 
@@ -39,6 +42,8 @@ private:
 	void RobotInit()
 	{
 		printf("in robot init \n");
+		meghaRobot.SetSafetyEnabled(false);
+
 		lw = LiveWindow::GetInstance();
 
 		driver = new Joystick(DRIVE_JOYSTICK_PORT);
@@ -74,7 +79,8 @@ private:
 		SmartDashboard::PutNumber("Get Timer for waitForUndo", foxlift->preRollerTimer->Get());
 		SmartDashboard::PutNumber("Get Timer for rollerOut", foxlift->rollerOutTimer->Get());
 		SmartDashboard::PutNumber("Ultrasonic", foxlift->toteIn->GetRangeInches());
-
+		SmartDashboard::PutNumber("Left Y axis", gameComponent->GetLeftYAxis());
+		SmartDashboard::PutNumber("Right Y axis", gameComponent->GetRightYAxis());
 		SmartDashboard::PutNumber("Tote In", foxlift->ToteIn());
 		//MECANUM DRIVE
 		float yValue = driver->GetY();
@@ -91,15 +97,17 @@ private:
 			foxlift->ManualOverrideOff();
 		}
 		//ForkLift
-		if(abs(gameComponent->GetLeftYAxis()) <= DEADBAND_SIZE){
-			foxlift->StopRollers();
-		}
-		if(gameComponent->GetLeftYAxis() > DEADBAND_SIZE){
+
+		if(gameComponent->GetRightYAxis() > DEADBAND_SIZE){
+			printf("PushOutTote\n");
 			foxlift->PushOutTote();
 		}
-		if(gameComponent->GetLeftYAxis() < (-1)*(DEADBAND_SIZE)){
+		else if(gameComponent->GetRightYAxis() < (-1)*(DEADBAND_SIZE)){
 			foxlift->SuckInTote();
 		}
+		else if(abs(gameComponent->GetRightYAxis()) <= DEADBAND_SIZE){
+					foxlift->StopRollers();
+			}
 		//Boxlift
 		if (gameComponent->GetButtonY() == true){
 			foxlift->GoUp();
@@ -114,6 +122,13 @@ private:
 		//Reorientation
 		if (gameComponent->GetButtonLB() == true){
 			foxlift->Reorient();
+		}
+		//arms
+		if (gameComponent->GetButtonBack()){
+			foxlift->RetractArms();
+		}
+		if(gameComponent->GetButtonStart()){
+			foxlift->ExtendArms();
 		}
 		//Singulation
 		if (driver->GetRawButton(2) == true && driver->GetTrigger() == true){
@@ -136,6 +151,20 @@ private:
 	void TestPeriodic()
 	{
 		lw->Run();
+	}
+
+	void CameraInit()
+	{
+		camera = new AxisCamera("10.19.67.11");
+		camera->WriteResolution (AxisCamera::kResolution_320x240);
+		camera->WriteCompression(30);
+		camera->WriteRotation(AxisCamera::kRotation_0);
+		camera->WriteMaxFPS(15);
+		camera->WriteColorLevel(25);
+		camera->WriteBrightness(50);
+		camera->WriteWhiteBalance(AxisCamera::kWhiteBalance_Automatic);
+		camera->WriteExposureControl(AxisCamera::kExposureControl_Automatic);
+		camera->WriteRotation(AxisCamera::kRotation_180);
 	}
 };
 

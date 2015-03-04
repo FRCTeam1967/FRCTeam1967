@@ -86,6 +86,7 @@ JankyFoxliftState::~JankyFoxliftState()
 	delete rollerInTimer;
 	delete rollerOutTimer;
 }
+//ROLLERS
 void JankyFoxliftState::SuckInTote(){
 	motorRoller1->Set(ROLLER_SPEED_BACKWARD);
 	motorRoller2->Set(ROLLER_SPEED_BACKWARD);
@@ -98,6 +99,20 @@ void JankyFoxliftState::StopRollers(){
 	motorRoller1->Set(0);
 	motorRoller2->Set(0);
 }
+//Arms
+void JankyFoxliftState::ExtendArms(){
+	rollerPistons -> Set(true);
+}
+void JankyFoxliftState::RetractArms(){
+	rollerPistons -> Set(false);
+}
+bool JankyFoxliftState::AreArmsClosed(){
+	if(rollerPistons -> Get() == true){
+		return true;
+	}
+	return false;
+}
+//Manual Override
 void JankyFoxliftState::ManualOverrideOn(){
 	if(GetCurrentState() != ManualOverride){
 	NewState(ManualOverride, "Pressed the button and it is now overriding");
@@ -108,6 +123,7 @@ void JankyFoxliftState::ManualOverrideOff(){
 	NewState(Init, "Stopped overriding-went into init");
 	}
 }
+//Limit Switches
 bool JankyFoxliftState::IsLSwitchTopClosed(){
 	if(lSwitchTop->Get() == false){
 		return true;
@@ -120,12 +136,14 @@ bool JankyFoxliftState::IsLSwitchDownClosed(){
 	}
 	return false;
 }
+//Reorientation
 void JankyFoxliftState::ExtendReorientation() {
 	reorientation->Set(false);
 }
 void JankyFoxliftState::RetractReorientation() {
 	reorientation->Set(true);
 }
+//Singulation
 void JankyFoxliftState::RetractSingulation() {
 	singulationOne->Set(true);
 }
@@ -138,6 +156,7 @@ void JankyFoxliftState::LowerSingulation(){
 void JankyFoxliftState::RaiseSingulation(){
 	singulationTwo->Set(true);
 }
+//Tote In
 bool JankyFoxliftState::ToteIn(){
 	//if (toteIn ->GetVoltage() > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
 		//return false;
@@ -150,15 +169,11 @@ bool JankyFoxliftState::ToteIn(){
 	}
 	return false;
 }
-void JankyFoxliftState::ExtendArms(){
-	rollerPistons -> Set(true);
-}
-void JankyFoxliftState::RetractArms(){
-	rollerPistons -> Set(false);
-}
+//Setting the robot
 void JankyFoxliftState::SetFoxlift(){
 	NewState(Safety,"Starting and going into safety");
 }
+//Stop For Lift
 void JankyFoxliftState::StopLift(){
 	if(GetCurrentState() == Up ||GetCurrentState() == Down){
 		NewState(Init, "Stopped Boxlift");
@@ -283,13 +298,13 @@ void JankyFoxliftState::StateEngine(int curState)
 			motorLift->Set(0);
 			break;
 		case Safety:
-			if(rollerPistons->Get() == true && IsLSwitchTopClosed()){
+			if(!AreArmsClosed() && IsLSwitchTopClosed()){
 				NewState(Braking, "lift is up");
 			}
-			else if(rollerPistons->Get() == true && !IsLSwitchTopClosed()){
+			else if(!AreArmsClosed() && !IsLSwitchTopClosed()){
 				NewState(Init, "lift is not up");
 			}
-			else if(rollerPistons->Get() == false){
+			else if(AreArmsClosed()){
 				NewState(WaitForUndo, " arms are closed");
 			}
 			break;
