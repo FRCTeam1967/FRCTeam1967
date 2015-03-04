@@ -165,6 +165,26 @@ private:
 		SmartDashboard::PutNumber("Y-Value", yValue);
 		SmartDashboard::PutNumber("Rotation Value", rotation);
 
+		//Override
+		if(gameComponent->GetButtonRB() == true){
+			foxlift->ManualOverrideOn();
+		}
+		if(gameComponent->GetButtonRB() == false){
+			foxlift->ManualOverrideOff();
+		}
+
+		//ForkLift
+		if(gameComponent->GetRightYAxis() > DEADBAND_SIZE){
+			printf("PushOutTote\n");
+			foxlift->PushOutTote();
+		}
+		else if(gameComponent->GetRightYAxis() < (-1)*(DEADBAND_SIZE)){
+			foxlift->SuckInTote();
+		}
+		else if(abs(gameComponent->GetRightYAxis()) <= DEADBAND_SIZE){
+				foxlift->StopRollers();
+		}
+
 		//BOXLIFT
 		// When button is pressed, raise the boxlift
 		if (gameComponent->GetButtonY() && !gameComponent->GetButtonA())
@@ -176,12 +196,26 @@ private:
 		{
 			foxlift->GoDown();
 		}
+		//emergency stop
+		if (gameComponent->GetButtonB() == true)
+		{
+			printf("ButtonB is pressed\n");
+			foxlift->StopLift();
+		}
 
 		//REORIENTATION
 		//When button is pressed and held, extend reorientation
 		if (gameComponent->GetButtonLB())
 		{
 			foxlift->Reorient();
+		}
+
+		//ARMS
+		if (gameComponent->GetButtonBack()){
+			foxlift->RetractArms();
+		}
+		if(gameComponent->GetButtonStart()){
+			foxlift->ExtendArms();
 		}
 
 		//SINGULATION
@@ -201,9 +235,6 @@ private:
 		{
 			foxlift->DoneSingReor();
 		}
-
-		//OVERRIDE
-
 	}
 
 	void TestInit()

@@ -87,6 +87,7 @@ public:
 	void SingulateTwo();
 	void DoneSingReor();
 	void StateEngine(int curState);
+	bool AreArmsClosed();
 
 
 	//Member Variables
