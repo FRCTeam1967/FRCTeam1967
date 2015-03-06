@@ -47,11 +47,11 @@ JankyFoxliftState::JankyFoxliftState()
 	brake = new Solenoid(BRAKE);
 	//toteIn = new AnalogInput(SONAR_SENSOR);
 	//toteIn = new DigitalInput(LIMIT_SWITCH_TOTE);
-	toteIn = new Ultrasonic(ULTRASONIC_PING, ULTRASONIC_ECHO);
+	//toteIn = new Ultrasonic(ULTRASONIC_PING, ULTRASONIC_ECHO); (not using sonar sensor)
 	rollerPistons = new Solenoid(ROLLER_PISTON);
-	reorientation = new Solenoid(REORIENTATION);//double solenoid on mentor bot
-	singulationOne = new Solenoid(SINGULATION_ONE);//double solenoid on mentor bot
-	singulationTwo = 	new Solenoid(SINGULATION_TWO);//double solenoid on mentor bot
+	reorientation = new Solenoid(REORIENTATION);
+	singulationOne = new Solenoid(SINGULATION_ONE);
+	singulationTwo = 	new Solenoid(SINGULATION_TWO);
 	preRollerTimer = new Timer();
 	rollerInTimer = new Timer();
 	rollerOutTimer = new Timer();
@@ -77,7 +77,7 @@ JankyFoxliftState::~JankyFoxliftState()
 	delete motorRoller1;
 	delete motorRoller2;
 	delete brake;
-	delete toteIn;
+	//delete toteIn; (not using sonar sensor)
 	delete rollerPistons;
 	delete reorientation;
 	delete singulationOne;
@@ -156,8 +156,8 @@ void JankyFoxliftState::LowerSingulation(){
 void JankyFoxliftState::RaiseSingulation(){
 	singulationTwo->Set(true);
 }
-//Tote In
-bool JankyFoxliftState::ToteIn(){
+//Tote In (not using sonar sensor)
+/*bool JankyFoxliftState::ToteIn(){
 	//if (toteIn ->GetVoltage() > TOTE_SENSOR_PRESENT_IF_SMALLERTHAN){
 		//return false;
 	//}
@@ -168,7 +168,7 @@ bool JankyFoxliftState::ToteIn(){
 		return true;
 	}
 	return false;
-}
+}*/
 //Setting the robot
 void JankyFoxliftState::SetFoxlift(){
 	NewState(Safety,"Starting and going into safety");
@@ -238,7 +238,7 @@ void JankyFoxliftState::SingulateTwo(){
 	else if (GetCurrentState() == WaitForUndo){
 		NewState(SingulationDown, "Done waiting");
 	}
-	else if (GetCurrentState() == Braking && ToteIn() == false){
+	else if (GetCurrentState() == Braking){
 		 rollerInTimer->Reset();
 		 NewState(MoveRollersIn,"bringing rollers infor sing down");
 	}
@@ -261,7 +261,7 @@ void JankyFoxliftState::Reorient(){
 	else if (GetCurrentState() == WaitForUndo){
 		NewState(Reorientation, "starting to reorient");
 	}
-	else if (GetCurrentState() == Braking && ToteIn() == false){
+	else if (GetCurrentState() == Braking){
 		rollerInTimer->Reset();
 		NewState(MoveRollersIn,"for reorienting");
 	}
@@ -318,12 +318,12 @@ void JankyFoxliftState::StateEngine(int curState)
 			//printf("In BottomStop\n");
 			motorLift->Set(0);
 			brake->Set(false);
-			if (ToteIn() == true){
+			/*if (ToteIn() == true){
 				NewState(Up, "Tote in and now going up");
 			}
-			else{
-				NewState(Init, "No tote so going to Init state");
-			}
+			else{(not using sonar sensor)*/
+			NewState(Init, "No tote so going to Init state");
+			// }
 			break;
 
 		case Up:

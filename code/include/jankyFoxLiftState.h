@@ -23,7 +23,8 @@
 #define ULTRASONIC_ECHO 9
 #define LIFT_UP_SPEED 1.0
 #define LIFT_DOWN_SPEED -1.0
-#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN 10
+//#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN 10 * commented because we decided not to use
+//the sonar sensor
 #define ROLLER_PISTON 1
 #define PREROLLER_TIME 3.0
 #define ROLLER_TIME 2.0
@@ -97,7 +98,7 @@ public:
 	//AnalogInput*toteIn;//sonar sensor
 	//DigitalInput*lSwitch6;
 	//DigitalInput*lSwitch2;
-	Ultrasonic*toteIn;
+	//Ultrasonic*toteIn; (not using sonar sensor)
 	Talon*motorLift;
 	Talon*motorRoller1;
 	Talon*motorRoller2;

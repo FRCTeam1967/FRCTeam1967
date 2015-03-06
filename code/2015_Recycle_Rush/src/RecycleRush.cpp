@@ -121,7 +121,7 @@ private:
 	}
 
 	void CameraInit()
-	{
+	{/*
 		camera = new AxisCamera("10.19.67.11");
 		camera->WriteResolution (AxisCamera::kResolution_320x240);
 		camera->WriteCompression(30);
@@ -132,7 +132,7 @@ private:
 		camera->WriteWhiteBalance(AxisCamera::kWhiteBalance_Automatic);
 		camera->WriteExposureControl(AxisCamera::kExposureControl_Automatic);
 		camera->WriteRotation(AxisCamera::kRotation_180);
-	}
+	*/}
 
 	void TeleopInit()
 	{
