@@ -11,6 +11,9 @@
 #define REAR_LEFT_CHANNEL 4
 #define FRONT_RIGHT_CHANNEL 1
 #define REAR_RIGHT_CHANNEL 3
+#define GC_DEADBAND_SIZE 0.5
+#define AUTOZONE_TIMER 1.2
+#define AUTOZONE_BUMP_TIMER 1.3
 
 class Robot: public IterativeRobot
 {
@@ -26,6 +29,8 @@ class Robot: public IterativeRobot
 	Talon *pRR;
 	SendableChooser *chooser;
 	JankyAutonomousState *jankyAuto;
+	Timer* autoZoneTimer;
+	Timer* autoZoneBumpTimer;
 
 public:
 	Robot()
@@ -41,6 +46,8 @@ public:
 		pLR = NULL;
 		pRR = NULL;
 		jankyAuto = NULL;
+		autoZoneTimer = NULL;
+		autoZoneBumpTimer = NULL;
 	}
 	~Robot()
 	{
@@ -54,11 +61,15 @@ public:
 		delete pLR;
 		delete pRR;
 		delete jankyAuto;
+		delete autoZoneTimer;
+		delete autoZoneBumpTimer;
 	}
 
 private:
-	int autoZone;
+	int defaultAuto;
 	int autoZoneAndBin;
+	int autoZone;
+	int autoZoneBump;
 
 	void RobotInit()
 	{
@@ -80,14 +91,16 @@ private:
 
 		chooser = new SendableChooser();
 		// need to addDefault otherwise it won't work
-		chooser->AddDefault("Autonomous Mode 1", &autoZone);
+		chooser->AddDefault("Autonomous Mode 1", &defaultAuto);
 		chooser->AddObject("Autonomous Mode 2", &autoZoneAndBin);
+		chooser->AddObject("Autonomous Mode 3", &autoZone);
+		chooser->AddObject("Autonomous Mode 4", &autoZoneBump);
 		//put the different options on SmartDashboard
 		SmartDashboard::PutData("Autonomous modes", chooser);
 
 		foxlift = new JankyFoxliftState();
         foxlift->SetFoxlift();
-		CameraInit();
+		//CameraInit();
 		printf("end of RobotInit()");
 	}
 
@@ -96,16 +109,30 @@ private:
 		printf("AutonomousInit() called\n");
 		robot->SetSafetyEnabled(false);
 
-		/*if (&autoZone == chooser->GetSelected())
+		if (&defaultAuto == chooser->GetSelected())
 		{
-			printf("autoZone running\n");
+			printf("defaultAuto running\n");
 		}
-		*/
-		if (&autoZoneAndBin == chooser->GetSelected())
+
+		else if (&autoZoneAndBin == chooser->GetSelected())
 		{
 			printf("autoZoneAndBin running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
 			jankyAuto->StartAuto();
+		}
+		else if (&autoZone == chooser->GetSelected())
+		{
+			printf("autoZone running\n");
+			autoZoneTimer = new Timer();
+			autoZoneTimer->Start();
+
+		}
+		else if (&autoZoneBump == chooser->GetSelected())
+		{
+			printf("autoZone running\n");
+			autoZoneBumpTimer = new Timer();
+			autoZoneBumpTimer->Start();
+
 		}
 		else
 		{
@@ -117,11 +144,36 @@ private:
 	void AutonomousPeriodic()
 	{
 		printf("AutonomousPeriodic() called");
-		jankyAuto->Go();
+		if (&autoZoneAndBin == chooser->GetSelected())
+		{
+			jankyAuto->Go();
+		}
+		else if (&autoZone == chooser->GetSelected())
+		{
+			if(autoZoneTimer->Get() >= AUTOZONE_TIMER )
+			{
+				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+			}
+			else
+			{
+				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
+			}
+		}
+		else if (&autoZoneBump == chooser->GetSelected())
+		{
+			if(autoZoneBumpTimer->Get() >= AUTOZONE_BUMP_TIMER )
+			{
+				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+			}
+			else
+			{
+				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
+			}
+		}
 	}
 
 	void CameraInit()
-	{/*
+	{
 		camera = new AxisCamera("10.19.67.11");
 		camera->WriteResolution (AxisCamera::kResolution_320x240);
 		camera->WriteCompression(30);
@@ -132,11 +184,12 @@ private:
 		camera->WriteWhiteBalance(AxisCamera::kWhiteBalance_Automatic);
 		camera->WriteExposureControl(AxisCamera::kExposureControl_Automatic);
 		camera->WriteRotation(AxisCamera::kRotation_180);
-	*/}
+	}
 
 	void TeleopInit()
 	{
 		robot->SetSafetyEnabled(false);
+		//CameraInit();
 	}
 
 	void TeleopPeriodic()
@@ -174,27 +227,39 @@ private:
 		}
 
 		//ForkLift
-		if(gameComponent->GetRightYAxis() > DEADBAND_SIZE){
-			printf("PushOutTote\n");
+		//if(gameComponent->GetLeftYAxis() > GC_DEADBAND_SIZE){
+		if(gameComponent->GetY()*-1 > GC_DEADBAND_SIZE){
 			foxlift->PushOutTote();
 		}
-		else if(gameComponent->GetRightYAxis() < (-1)*(DEADBAND_SIZE)){
+		//else if(gameComponent->GetLeftYAxis() < (-1)*(GC_DEADBAND_SIZE)){
+		else if((gameComponent->GetY()*-1) < (-1)*(GC_DEADBAND_SIZE)){
 			foxlift->SuckInTote();
 		}
-		else if(abs(gameComponent->GetRightYAxis()) <= DEADBAND_SIZE){
+		//else if(abs(gameComponent->GetLeftYAxis()) <= GC_DEADBAND_SIZE){
+		else if(abs(gameComponent->GetY()*-1) <= GC_DEADBAND_SIZE){
 				foxlift->StopRollers();
 		}
-
+		//Arm pistons
+		if((gameComponent->GetRightYAxis()*-1) < (-1)*(GC_DEADBAND_SIZE)){
+			foxlift->RetractArmsManual();
+		}
+		else if(abs(gameComponent->GetRightYAxis()*-1) <= GC_DEADBAND_SIZE){
+				foxlift->ExtendArmsManual();
+		}
 		//BOXLIFT
 		// When button is pressed, raise the boxlift
-		if (gameComponent->GetButtonY() && !gameComponent->GetButtonA())
+		if (gameComponent->GetButtonY() && !gameComponent->GetButtonA()&& !gameComponent->GetButtonX())
 		{
 			foxlift->GoUp();
 		}
 		// When button is pressed, lower the boxlift
-		if(gameComponent->GetButtonA() && !gameComponent->GetButtonY())
+		if(gameComponent->GetButtonA() && !gameComponent->GetButtonY()&& !gameComponent->GetButtonX())
 		{
 			foxlift->GoDown();
+		}
+		if(gameComponent->GetButtonX() && !gameComponent->GetButtonY()&& !gameComponent->GetButtonA())
+		{
+			foxlift->GoMid();
 		}
 		//emergency stop
 		if (gameComponent->GetButtonB() == true)
@@ -208,14 +273,6 @@ private:
 		if (gameComponent->GetButtonLB())
 		{
 			foxlift->Reorient();
-		}
-
-		//ARMS
-		if (gameComponent->GetButtonBack()){
-			foxlift->RetractArms();
-		}
-		if(gameComponent->GetButtonStart()){
-			foxlift->ExtendArms();
 		}
 
 		//SINGULATION

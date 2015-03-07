@@ -11,6 +11,7 @@
 
 #define LIMIT_SWITCH_TOP 0
 #define LIMIT_SWITCH_BOTTOM 1
+#define LIMIT_SWITCH_MIDDLE 2
 //#define LIMIT_SWITCH_6 4
 //#define LIMIT_SWITCH_2 3
 #define TALON_ROLLER1 5//left
@@ -19,20 +20,20 @@
 #define BRAKE 0
 //#define SONAR_SENSOR 0
 //#define LIMIT_SWITCH_TOTE 2
-#define ULTRASONIC_PING 3
-#define ULTRASONIC_ECHO 9
+//#define ULTRASONIC_PING 3
+//#define ULTRASONIC_ECHO 9
 #define LIFT_UP_SPEED 1.0
 #define LIFT_DOWN_SPEED -1.0
 //#define TOTE_SENSOR_PRESENT_IF_SMALLERTHAN 10 * commented because we decided not to use
 //the sonar sensor
 #define ROLLER_PISTON 1
-#define PREROLLER_TIME 3.0
-#define ROLLER_TIME 2.0
+#define PREROLLER_TIME 1.5
+#define ROLLER_TIME 1.5
 #define REORIENTATION 2
 #define SINGULATION_ONE 3
 #define SINGULATION_TWO 4
-#define ROLLER_SPEED_FORWARD 1.0
-#define ROLLER_SPEED_BACKWARD -1.0
+#define ROLLER_SPEED_FORWARD 0.5
+#define ROLLER_SPEED_BACKWARD -0.5
 
 class JankyFoxliftState : public JankyStateMachine	{
 public:
@@ -51,6 +52,8 @@ public:
 		//Down2,
 		//DownStack,
 		BottomStop,
+		MiddleUp,
+		MiddleDown,
 		Up,
 		Down,
 		MoveRollersIn,
@@ -71,6 +74,7 @@ public:
 	void StopRollers();
 	bool IsLSwitchTopClosed();
 	bool IsLSwitchDownClosed();
+	bool IsLSwitchMidClosed();
 	void ExtendReorientation();
 	void RetractReorientation();
 	void ExtendSingulation();
@@ -79,10 +83,13 @@ public:
 	void RaiseSingulation();
 	void ExtendArms();
 	void RetractArms();
+	void ExtendArmsManual();
+	void RetractArmsManual();
 	bool ToteIn();
 	void SetFoxlift();
 	void GoUp();
 	void GoDown();
+	void GoMid();
 	void Reorient();
 	void SingulateOne();
 	void SingulateTwo();
@@ -94,6 +101,7 @@ public:
 	//Member Variables
 	DigitalInput*lSwitchTop;
 	DigitalInput*lSwitchDown;
+	DigitalInput*lSwitchMid;
 	//DigitalInput*toteIn;
 	//AnalogInput*toteIn;//sonar sensor
 	//DigitalInput*lSwitch6;

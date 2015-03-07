@@ -14,32 +14,52 @@ jankyDrivestick::~jankyDrivestick()
 
 float jankyDrivestick::GetX()
 {
-	float LeftXAxis = Joystick::GetX();
-	if (abs(LeftXAxis) < DEADBAND_SIZE)
+	float LeftXAxis = Joystick::GetX()*(-1.0);
+	//return LeftXAxis;
+	/*if (abs(LeftXAxis) < DEADBAND_SIZE)
+	{
+		LeftXAxis = 0.0;
+	}*/
+	if (LeftXAxis < DEADBAND_SIZE && LeftXAxis > DEADBAND_SIZE*(-1.0))
 	{
 		LeftXAxis = 0.0;
 	}
-	return pow(LeftXAxis*(-1), 3);
+	return LeftXAxis;
+	//return pow(LeftXAxis*(-1), 3);
 }
 
 float jankyDrivestick::GetY()
 {
 	float LeftYAxis = Joystick::GetY();
+	if (LeftYAxis < DEADBAND_SIZE && LeftYAxis > DEADBAND_SIZE*(-1.0))
+		{
+			LeftYAxis = 0.0;
+		}
+		return LeftYAxis;
+	/*return LeftYAxis;
 	if(abs(LeftYAxis) < DEADBAND_SIZE)
 	{
 		LeftYAxis = 0.0;
 	}
-	return pow(LeftYAxis, 3);
+*/
+	//return pow(LeftYAxis, 3);
 }
 
 float jankyDrivestick::GetJoystickTwist()
 {
 	float LeftTwist = Joystick::GetThrottle();
+	if (LeftTwist < DEADBAND_SIZE && LeftTwist > DEADBAND_SIZE*(-1.0))
+		{
+			LeftTwist = 0.0;
+		}
+		return LeftTwist;
+	/*return LeftTwist;
 	if(abs(LeftTwist) < DEADBAND_SIZE)
 	{
 		LeftTwist = 0.0;
 	}
-	return pow(LeftTwist, 3);
+*/
+	//return pow(LeftTwist, 3);
 }
 
 bool jankyDrivestick::IsAnyTopButtonPressed()

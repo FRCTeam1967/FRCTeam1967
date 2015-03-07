@@ -25,6 +25,8 @@ JankyFoxliftState::JankyFoxliftState()
 	//SetName(Down2,"Lower for platform");
 	//SetName(DownStack,"Lower if tote in lift");
 	SetName(BottomStop,"All the way down");
+	SetName(MiddleUp,"Going up to middle");
+	SetName(MiddleDown, "Going down to middle");
 	SetName(Up,"Going Up");
 	SetName(Down, "Going Down");
 	SetName(MoveRollersIn, "Closing arms");
@@ -39,6 +41,7 @@ JankyFoxliftState::JankyFoxliftState()
 
 	lSwitchTop = new DigitalInput(LIMIT_SWITCH_TOP);
 	lSwitchDown = new DigitalInput(LIMIT_SWITCH_BOTTOM);
+	lSwitchMid = new DigitalInput(LIMIT_SWITCH_MIDDLE);
 	//lSwitch6 = new DigitalInput(LIMIT_SWITCH_6);
 	//lSwitch2 = new DigitalInput(LIMIT_SWITCH_2);
 	motorLift = new Talon(TALON_LIFT);
@@ -71,6 +74,7 @@ JankyFoxliftState::~JankyFoxliftState()
 {
 	delete lSwitchTop;
 	delete lSwitchDown;
+	delete lSwitchMid;
 	//delete lSwitch6;
 	//delete lSwitch2;
 	delete motorLift;
@@ -100,11 +104,25 @@ void JankyFoxliftState::StopRollers(){
 	motorRoller2->Set(0);
 }
 //Arms
-void JankyFoxliftState::ExtendArms(){
+void JankyFoxliftState::ExtendArmsManual(){
+	if(GetCurrentState() != Reorientation
+		&& GetCurrentState() != SingulationUp
+		&& GetCurrentState() != SingulationDown
+		&& GetCurrentState() != MoveRollersIn
+		&& GetCurrentState() != WaitForUndo
+		&& GetCurrentState() != MoveRollersOut)
+	{
+	rollerPistons -> Set(false);
+	}
+}
+void JankyFoxliftState::RetractArmsManual(){
 	rollerPistons -> Set(true);
 }
-void JankyFoxliftState::RetractArms(){
+void JankyFoxliftState::ExtendArms(){
 	rollerPistons -> Set(false);
+}
+void JankyFoxliftState::RetractArms(){
+	rollerPistons -> Set(true);
 }
 bool JankyFoxliftState::AreArmsClosed(){
 	if(rollerPistons -> Get() == true){
@@ -136,25 +154,31 @@ bool JankyFoxliftState::IsLSwitchDownClosed(){
 	}
 	return false;
 }
+bool JankyFoxliftState::IsLSwitchMidClosed(){
+	if(lSwitchMid->Get() == false){
+		return true;
+	}
+	return false;
+}
 //Reorientation
 void JankyFoxliftState::ExtendReorientation() {
-	reorientation->Set(false);
+	reorientation->Set(true);
 }
 void JankyFoxliftState::RetractReorientation() {
-	reorientation->Set(true);
+	reorientation->Set(false);
 }
 //Singulation
 void JankyFoxliftState::RetractSingulation() {
-	singulationOne->Set(true);
-}
-void JankyFoxliftState::ExtendSingulation(){
 	singulationOne->Set(false);
 }
+void JankyFoxliftState::ExtendSingulation(){
+	singulationOne->Set(true);
+}
 void JankyFoxliftState::LowerSingulation(){
-	singulationTwo->Set(false);
+	singulationTwo->Set(true);
 }
 void JankyFoxliftState::RaiseSingulation(){
-	singulationTwo->Set(true);
+	singulationTwo->Set(false);
 }
 //Tote In (not using sonar sensor)
 /*bool JankyFoxliftState::ToteIn(){
@@ -190,6 +214,17 @@ void JankyFoxliftState::GoUp(){
 			motorLift->Set(LIFT_UP_SPEED);
 		}
 }
+void JankyFoxliftState::GoMid(){
+	if (GetCurrentState() == Init && !IsLSwitchMidClosed() && !IsLSwitchTopClosed() && IsLSwitchDownClosed()){
+		NewState(MiddleUp,"Pressed the button and already up");
+	}
+	else if (GetCurrentState() == Init && !IsLSwitchMidClosed() && !IsLSwitchDownClosed() ){
+			NewState(MiddleDown,"Pressed the button and already down");
+	}
+	if(GetCurrentState() == Braking && !IsLSwitchDownClosed() && !IsLSwitchMidClosed()){
+			NewState(MiddleDown, "button down pressed and Up");
+	}
+}
 void JankyFoxliftState::GoDown(){
 	if(GetCurrentState() == Braking && !IsLSwitchDownClosed()){
 		NewState(Down, "button down pressed");
@@ -215,7 +250,7 @@ void JankyFoxliftState::SingulateOne(){
 	else if (GetCurrentState() == WaitForUndo){
 		NewState(SingulationUp, "going to sing up");
 	}
-	else if (GetCurrentState() == Braking && ToteIn() == false){
+	else if (GetCurrentState() == Braking){
 		rollerInTimer->Reset();
 		NewState(MoveRollersIn,"bringing rollers in for sing up");
 	}
@@ -313,7 +348,6 @@ void JankyFoxliftState::StateEngine(int curState)
 			motorLift->Set(0);
 			brake->Set(true);
 			break;
-
 		case BottomStop:
 			//printf("In BottomStop\n");
 			motorLift->Set(0);
@@ -325,7 +359,24 @@ void JankyFoxliftState::StateEngine(int curState)
 			NewState(Init, "No tote so going to Init state");
 			// }
 			break;
-
+		case MiddleUp:
+			motorLift->Set(LIFT_UP_SPEED);
+			motorRoller1->Set(0);
+			motorRoller2->Set(0);
+			brake->Set(false);
+			if(IsLSwitchMidClosed()){
+				NewState(Init, "In middle, so stopped");
+			}
+			break;
+		case MiddleDown:
+			motorLift->Set(LIFT_DOWN_SPEED);
+			motorRoller1->Set(0);
+			motorRoller2->Set(0);
+			brake->Set(false);
+			if(IsLSwitchMidClosed()){
+				NewState(Init, "In middle, so stopped");
+			}
+			break;
 		case Up:
 			//printf("In Up\n");
 			motorLift->Set(LIFT_UP_SPEED);
