@@ -13,6 +13,8 @@
 
 #define DRIVE_SIDEWAYS_TIME 0.4
 #define DRIVE_FORWARD_TIME 0.5
+#define TURN_TIME 0.5
+#define DRIVE_TO_AUTO_TIME 1.2
 
 class JankyFoxliftState;
 
@@ -27,11 +29,15 @@ public:
 		DriveSideways,
 		DriveForward,
 		LiftTote,
+		TurnToAuto,
+		DriveToAuto,
 		End
 		
 	};
 	Timer * driveForwardTimer;
 	Timer * driveSidewaysTimer;
+	Timer * turnTimer;
+	Timer * driveToAutoTimer;
 	RobotDrive * ptRobot;
 	JankyFoxliftState * ptFoxLift;
 	bool driveOnce;
@@ -43,6 +49,8 @@ public:
 	void GoForward(void);
 	void GoLiftTote(void);
 	void StartAuto(void);
+	void GoTurnToAuto(void);
+    void GoForwardToAuto(void);
 
 };
 
