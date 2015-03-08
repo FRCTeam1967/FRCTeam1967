@@ -138,7 +138,7 @@ void JankyFoxliftState::ManualOverrideOn(){
 }
 void JankyFoxliftState::ManualOverrideOff(){
 	if(GetCurrentState() == ManualOverride){
-	NewState(Init, "Stopped overriding-went into init");
+	NewState(Safety, "Stopped overriding-went into a safety safety");
 	}
 }
 //Limit Switches

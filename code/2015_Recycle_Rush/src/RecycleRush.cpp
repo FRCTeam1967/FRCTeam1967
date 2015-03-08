@@ -91,10 +91,10 @@ private:
 
 		chooser = new SendableChooser();
 		// need to addDefault otherwise it won't work
-		chooser->AddDefault("Autonomous Mode 1", &defaultAuto);
-		chooser->AddObject("Autonomous Mode 2", &autoZoneAndBin);
-		chooser->AddObject("Autonomous Mode 3", &autoZone);
-		chooser->AddObject("Autonomous Mode 4", &autoZoneBump);
+		chooser->AddDefault("Autonomous Nothing (Default)", &defaultAuto);
+		chooser->AddObject("Autonomous 1 Tote/Bin", &autoZoneAndBin);
+		chooser->AddObject("Autonomous Forward w/ no bump", &autoZone);
+		chooser->AddObject("Autonomous Forward w/ bump", &autoZoneBump);
 		//put the different options on SmartDashboard
 		SmartDashboard::PutData("Autonomous modes", chooser);
 

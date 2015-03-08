@@ -147,7 +147,7 @@ void JankyAutonomousState::StateEngine(int curState)
 			}
 			else
 			{
-				ptRobot->MecanumDrive_Cartesian(1.0,0.0,0.0,0.0);
+				ptRobot->MecanumDrive_Cartesian(1.0,0.05,0.0,0.0);//fine tune the .05 when have chance
 			}
 			break;
 		case DriveForward:
