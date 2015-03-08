@@ -59,15 +59,6 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete driveToAutoTimer;
 }
 
-void JankyAutonomousState::StartAuto()
-{
-	if(GetCurrentState() == Idle)
-	{
-		driveSidewaysTimer->Reset();
-		driveForwardTimer->Reset();
-		NewState(Idle,"Starting autonomous");
-	}
-}
 void JankyAutonomousState::Go()
 {
 	printf("Go() called\n");
@@ -81,10 +72,9 @@ void JankyAutonomousState::GoSideways()
 	{
 		if(driveSidewaysTimer)
 		{
-			driveSidewaysTimer->Reset();
 			driveSidewaysTimer->Start();
+			NewState(DriveSideways,"Start driving sideways");
 		}
-		NewState(DriveSideways,"Start driving sideways");
 	}
 	else
 		printf("Can't go sideways\n");
@@ -97,10 +87,9 @@ void JankyAutonomousState::GoForward()
 	{
 		if (driveForwardTimer)
 		{
-			driveForwardTimer->Reset();
 			driveForwardTimer->Start();
+			NewState(DriveForward,"Start driving forward");
 		}
-		NewState(DriveForward,"Start driving forward");
 	}
 	else
 		printf("Can't go forward\n");
@@ -116,49 +105,45 @@ void JankyAutonomousState::GoLiftTote()
 	else
 		printf("Can't lift totes\n");
 }
+
 void JankyAutonomousState::GoTurnToAuto()
 {
 	printf("TurnToAuto() called\n");
 	if (GetCurrentState() == LiftTote)
 	{
+		turnTimer->Start();
 		NewState(StateValue::TurnToAuto,"Start turning to face auto zone");
 	}
 	else
 		printf("Can't turn to auto zone\n");
 }
+
 void JankyAutonomousState::GoForwardToAuto()
 {
 	printf("DriveForwardToAuto() called\n");
 	if (GetCurrentState() == TurnToAuto)
 	{
+		driveToAutoTimer->Start();
 		NewState(StateValue::DriveToAuto,"Start driving to auto zone");
 	}
 	else
 		printf("Can't drive to auto zone\n");
 }
+
 void JankyAutonomousState::StateEngine(int curState)
 {
 	switch(curState)
 	{
 		case Idle:
 			//Idle handled by GoForward() or StartAuto()
-			//printf("In Idle\n");
-			if(driveSidewaysTimer)
-			{
-				driveSidewaysTimer->Stop();
-				driveSidewaysTimer->Reset();
-			}
-			if(driveForwardTimer)
-			{
-				driveForwardTimer->Stop();
-				driveForwardTimer->Reset();
-			}
+			printf("In Idle\n");
 			break;
 		case DriveSideways:
 			printf("In state DriveSideways\n");
 			if(driveSidewaysTimer->Get() >= DRIVE_SIDEWAYS_TIME)
 			{
 				GoForward();
+				//NewState(DriveForward, "Done driving sideways");
 			}
 			else
 			{
@@ -169,26 +154,29 @@ void JankyAutonomousState::StateEngine(int curState)
 			printf("In state DriveForward\n");
 			if(driveForwardTimer->Get() >= DRIVE_FORWARD_TIME)
 			{
-				NewState(LiftTote,"Done driving forward");
+				GoLiftTote();
+				//NewState(LiftTote,"Done driving forward");
 			}
 			else
 			{
-				ptRobot->MecanumDrive_Cartesian(0.0,-1.0,0.0,0.0);
+				ptRobot->MecanumDrive_Cartesian(0.0,-0.5,0.0,0.0);
 			}
 			break;
 		case LiftTote:
 			ptFoxLift->GoMid();
-			NewState(TurnToAuto,"Done lifting tote");
+			GoTurnToAuto();
+			//NewState(TurnToAuto,"Done lifting tote");
 			break;
 		case TurnToAuto:
 			printf("In state TurnToAuto\n");
 			if(turnTimer->Get() >= TURN_TIME)
 			{
-				NewState(End,"Done driving forward");
+				GoForwardToAuto();
+				//NewState(DriveToAuto,"Done driving forward");
 			}
 			else
 			{
-				ptRobot->MecanumDrive_Cartesian(0.0,0.0,1.0,0.0);
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,-1.0,0.0);
 			}
 			break;
 		case DriveToAuto:

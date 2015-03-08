@@ -11,9 +11,9 @@
 #include "jankyRobotTemplate.h"
 #include "jankyFoxLiftState.h"
 
-#define DRIVE_SIDEWAYS_TIME 0.4
-#define DRIVE_FORWARD_TIME 0.5
-#define TURN_TIME 0.5
+#define DRIVE_SIDEWAYS_TIME 1.0
+#define DRIVE_FORWARD_TIME 0.2
+#define TURN_TIME 0.75
 #define DRIVE_TO_AUTO_TIME 1.2
 
 class JankyFoxliftState;

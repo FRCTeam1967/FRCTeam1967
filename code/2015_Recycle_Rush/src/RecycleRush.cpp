@@ -113,12 +113,10 @@ private:
 		{
 			printf("defaultAuto running\n");
 		}
-
 		else if (&autoZoneAndBin == chooser->GetSelected())
 		{
 			printf("autoZoneAndBin running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
-			jankyAuto->StartAuto();
 		}
 		else if (&autoZone == chooser->GetSelected())
 		{
