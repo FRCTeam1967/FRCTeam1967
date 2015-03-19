@@ -218,7 +218,7 @@ void JankyFoxliftState::GoMid(){
 	if (GetCurrentState() == Init && !IsLSwitchMidClosed() && !IsLSwitchTopClosed() && IsLSwitchDownClosed()){
 		NewState(MiddleUp,"Pressed the button and already up");
 	}
-	else if (GetCurrentState() == Init && !IsLSwitchMidClosed() && !IsLSwitchDownClosed() ){
+	else if (GetCurrentState() == Init && !IsLSwitchMidClosed() && !IsLSwitchDownClosed() && IsLSwitchTopClosed() ){
 			NewState(MiddleDown,"Pressed the button and already down");
 	}
 	if(GetCurrentState() == Braking && !IsLSwitchDownClosed() && !IsLSwitchMidClosed()){

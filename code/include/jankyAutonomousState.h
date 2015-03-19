@@ -28,6 +28,7 @@ public:
 		Idle,
 		DriveSideways,
 		DriveForward,
+		DownTote,
 		LiftTote,
 		TurnToAuto,
 		DriveToAuto,
@@ -41,6 +42,7 @@ public:
 	RobotDrive * ptRobot;
 	JankyFoxliftState * ptFoxLift;
 	bool driveOnce;
+	bool goDownOnce;
 	
 	//Member functions
 	void StateEngine(int curState);

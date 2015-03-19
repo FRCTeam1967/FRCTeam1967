@@ -117,6 +117,7 @@ private:
 		{
 			printf("autoZoneAndBin running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
+			jankyAuto->StartAuto();
 		}
 		else if (&autoZone == chooser->GetSelected())
 		{
@@ -187,6 +188,7 @@ private:
 	void TeleopInit()
 	{
 		robot->SetSafetyEnabled(false);
+		foxlift->SetFoxlift();
 		//CameraInit();
 	}
 
