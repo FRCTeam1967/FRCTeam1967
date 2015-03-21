@@ -173,7 +173,9 @@ private:
 
 	void CameraInit()
 	{
-		camera = new AxisCamera("10.19.67.11");
+		printf("before opening camera\n");
+		camera = new AxisCamera("camera1967"); //image on SmartDash must have the IP address: camera1967.local
+		printf("after opening camera\n");
 		camera->WriteResolution (AxisCamera::kResolution_320x240);
 		camera->WriteCompression(30);
 		camera->WriteRotation(AxisCamera::kRotation_0);
