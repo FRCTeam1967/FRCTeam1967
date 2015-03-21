@@ -211,8 +211,17 @@ void JankyFoxliftState::GoUp(){
 		NewState(Up,"Button up pressed!");
 	}
 	else if(GetCurrentState() == ManualOverride){
-			motorLift->Set(LIFT_UP_SPEED);
-		}
+		motorLift->Set(LIFT_UP_SPEED);
+	}
+	else if(GetCurrentState() == MiddleDown && !IsLSwitchTopClosed()){
+		NewState(Up,"Button up pressed");
+	}
+	else if(GetCurrentState() == MiddleDown && IsLSwitchTopClosed()){
+		NewState(Braking,"Stopping cuz up");
+	}
+	else if(GetCurrentState() == MiddleUp && !IsLSwitchTopClosed()){
+		NewState(Up,"Button up pressed");
+	}
 }
 void JankyFoxliftState::GoMid(){
 	if (GetCurrentState() == Init && !IsLSwitchMidClosed() && !IsLSwitchTopClosed() && IsLSwitchDownClosed()){
@@ -221,8 +230,19 @@ void JankyFoxliftState::GoMid(){
 	else if (GetCurrentState() == Init && !IsLSwitchMidClosed() && !IsLSwitchDownClosed() && IsLSwitchTopClosed() ){
 			NewState(MiddleDown,"Pressed the button and already down");
 	}
-	if(GetCurrentState() == Braking && !IsLSwitchDownClosed() && !IsLSwitchMidClosed()){
+	else if(GetCurrentState() == Braking && !IsLSwitchDownClosed() && !IsLSwitchMidClosed()){
 			NewState(MiddleDown, "button down pressed and Up");
+	}
+	else if (!IsLSwitchDownClosed() && !IsLSwitchMidClosed() && !IsLSwitchTopClosed()){
+		if(GetCurrentState() == Init || GetCurrentState() == Up || GetCurrentState() == Down){
+			NewState(MiddleUp, "In an unknown area");
+		}
+	}
+	else if(GetCurrentState() == Down && IsLSwitchMidClosed()){
+		NewState(Init, "At middle");
+	}
+	else if(GetCurrentState() == Up && IsLSwitchMidClosed()){
+		NewState(Init, "At middle");
 	}
 }
 void JankyFoxliftState::GoDown(){
@@ -237,6 +257,15 @@ void JankyFoxliftState::GoDown(){
 	}
 	else if(GetCurrentState() == ManualOverride){
 		motorLift->Set(LIFT_DOWN_SPEED);
+	}
+	else if(GetCurrentState() == MiddleUp && !IsLSwitchDownClosed()){
+		NewState(Down,"Button down pressed");
+	}
+	else if(GetCurrentState() == MiddleUp && IsLSwitchDownClosed()){
+		NewState(Init,"Stopping cuz down");
+	}
+	else if(GetCurrentState() == MiddleDown && !IsLSwitchDownClosed()){
+			NewState(Down,"Button down pressed");
 	}
 }
 void JankyFoxliftState::SingulateOne(){
@@ -366,6 +395,9 @@ void JankyFoxliftState::StateEngine(int curState)
 			brake->Set(false);
 			if(IsLSwitchMidClosed()){
 				NewState(Init, "In middle, so stopped");
+			}
+			else if(IsLSwitchTopClosed()){
+				NewState(MiddleDown, "In a known state-going 2 mid");
 			}
 			break;
 		case MiddleDown:
