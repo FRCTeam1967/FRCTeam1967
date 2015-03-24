@@ -159,8 +159,8 @@ void JankyAutonomousState::StateEngine(int curState)
 			printf("In state DriveForward\n");
 			if(driveForwardTimer->Get() >= DRIVE_FORWARD_TIME)
 			{
-				NewState(End, "Ending Autonomous");
-				//NewState(LiftTote,"Done driving forward");
+				//NewState(End, "Ending Autonomous");
+				NewState(DownTote,"Done driving forward");
 			}
 			else
 			{
