@@ -109,7 +109,7 @@ private:
 		printf("AutonomousInit() called\n");
 		robot->SetSafetyEnabled(false);
 
-		if (&defaultAuto == chooser->GetSelected())
+		if (&defaultAuto == chooser->GetSelected()) //THE BOXLIFT HAS TO START ABOVE THE TOTE HEIGHT
 		{
 			printf("defaultAuto running\n");
 		}
@@ -117,7 +117,6 @@ private:
 		{
 			printf("autoZoneAndBin running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
-			jankyAuto->StartAuto();
 		}
 		else if (&autoZone == chooser->GetSelected())
 		{
@@ -145,7 +144,7 @@ private:
 		printf("AutonomousPeriodic() called");
 		if (&autoZoneAndBin == chooser->GetSelected())
 		{
-			jankyAuto->Go();
+			jankyAuto->GoLiftTote();
 		}
 		else if (&autoZone == chooser->GetSelected())
 		{
