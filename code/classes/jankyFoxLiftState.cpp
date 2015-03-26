@@ -408,6 +408,9 @@ void JankyFoxliftState::StateEngine(int curState)
 			if(IsLSwitchMidClosed()){
 				NewState(Init, "In middle, so stopped");
 			}
+			else if(IsLSwitchDownClosed()){
+				NewState(Init, "In bottom, so stopped");
+			}
 			break;
 		case Up:
 			//printf("In Up\n");

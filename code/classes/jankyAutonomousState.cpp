@@ -38,10 +38,10 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	driveSidewaysTimer = new Timer();
 	turnTimer = new Timer();
 	driveToAutoTimer = new Timer();
-	driveForwardTimer->Reset();
-	driveSidewaysTimer->Reset();
-	turnTimer->Reset();
-	driveToAutoTimer->Reset();
+	driveForwardTimer->Start();
+	driveSidewaysTimer->Start();
+	turnTimer->Start();
+	driveToAutoTimer->Start();
 
 	printf("Newed/reset drive timer\n");
 	NewState(Idle, "starting and going in idle");
@@ -76,7 +76,7 @@ void JankyAutonomousState::GoTurnToAuto()
 	printf("TurnToAuto() called\n");
 	if (GetCurrentState() == LiftTote)
 	{
-		turnTimer->Start();
+		turnTimer->Reset();
 		NewState(StateValue::TurnToAuto,"Start turning to face auto zone");
 	}
 	else
@@ -88,7 +88,7 @@ void JankyAutonomousState::GoForwardToAuto()
 	printf("DriveForwardToAuto() called\n");
 	if (GetCurrentState() == TurnToAuto)
 	{
-		driveToAutoTimer->Start();
+		driveToAutoTimer->Reset();
 		NewState(StateValue::DriveToAuto,"Start driving to auto zone");
 	}
 	else
@@ -135,13 +135,16 @@ void JankyAutonomousState::StateEngine(int curState)
 			break;
 		case LiftTote:
 			printf("In state LiftTote\n");
+			if (ptFoxLift->GetCurrentState()== JankyFoxliftState::StateValue::Init && ptFoxLift-> IsLSwitchDownClosed() == false){
 			ptFoxLift->GoDown();
-			if(ptFoxLift->GetCurrentState()== JankyFoxliftState::StateValue::BottomStop)
+			}
+			else if(ptFoxLift->GetCurrentState()== JankyFoxliftState::StateValue::Init && ptFoxLift->IsLSwitchDownClosed())
 			{
 				ptFoxLift->GoMid();
 			}
-			if(ptFoxLift->IsLSwitchMidClosed())
+			else if(ptFoxLift->IsLSwitchMidClosed())
 			{
+				ptFoxLift->StopLift();
 				GoTurnToAuto();
 			}
 			break;
