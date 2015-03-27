@@ -44,7 +44,6 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	driveToAutoTimer->Start();
 
 	printf("Newed/reset drive timer\n");
-	NewState(Idle, "starting and going in idle");
 	//Starting JankyTask at end of constructor
 	Start();
 }
@@ -58,6 +57,18 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete driveForwardTimer;
 	delete turnTimer;
 	delete driveToAutoTimer;
+}
+
+void JankyAutonomousState::GoForBox()
+{
+	NewState(Idle, "starting and going in idle");
+	GoLiftTote();
+}
+
+void JankyAutonomousState::GoForHug()
+{
+	NewState(HugIdle, "starting and going in idle");
+	BringInRollers();
 }
 
 void JankyAutonomousState::GoLiftTote()
@@ -93,6 +104,17 @@ void JankyAutonomousState::GoForwardToAuto()
 	}
 	else
 		printf("Can't drive to auto zone\n");
+}
+
+void JankyAutonomousState::BringInRollers()
+{
+	printf("DriveForwardToAuto() called\n");
+	if (GetCurrentState() == HugIdle)
+	{
+		NewState(StateValue::RollersIn,"Bring the forklift rollers in");
+	}
+	else
+		printf("Can't bring in forklift\n");
 }
 
 /*
@@ -132,6 +154,23 @@ void JankyAutonomousState::StateEngine(int curState)
 	{
 		case Idle:
 			printf("In Idle\n");
+			break;
+		case HugIdle:
+			printf("In HugIdle\n");
+			ptFoxLift->GoMid();
+			if(ptFoxLift->IsLSwitchMidClosed())
+			{
+				ptFoxLift->StopLift();
+				BringInRollers();
+			}
+			break;
+		case RollersIn:
+			printf("In state RollersIn\n");
+			ptFoxLift->RetractArms();
+			if(ptFoxLift->AreArmsClosed() == true)
+			{
+				GoTurnToAuto();
+			}
 			break;
 		case LiftTote:
 			printf("In state LiftTote\n");

@@ -70,6 +70,7 @@ private:
 	int autoZoneAndBin;
 	int autoZone;
 	int autoZoneBump;
+	int autoZoneAndBinWithHug;
 
 	void RobotInit()
 	{
@@ -92,9 +93,10 @@ private:
 		chooser = new SendableChooser();
 		// need to addDefault otherwise it won't work
 		chooser->AddDefault("Autonomous Nothing (Default)", &defaultAuto);
-		chooser->AddObject("Autonomous 1 Tote/Bin", &autoZoneAndBin);
+		chooser->AddObject("Autonomous Tote using Boxlift", &autoZoneAndBin);
 		chooser->AddObject("Autonomous Forward w/ no bump", &autoZone);
 		chooser->AddObject("Autonomous Forward w/ bump", &autoZoneBump);
+		chooser->AddObject("Autonomous Tote with Hugging", &autoZoneAndBinWithHug);
 		//put the different options on SmartDashboard
 		SmartDashboard::PutData("Autonomous modes", chooser);
 
@@ -106,6 +108,7 @@ private:
 
 	void AutonomousInit()
 	{
+		foxlift->SetFoxlift();
 		printf("AutonomousInit() called\n");
 		robot->SetSafetyEnabled(false);
 
@@ -123,14 +126,17 @@ private:
 			printf("autoZone running\n");
 			autoZoneTimer = new Timer();
 			autoZoneTimer->Start();
-
 		}
 		else if (&autoZoneBump == chooser->GetSelected())
 		{
 			printf("autoZone running\n");
 			autoZoneBumpTimer = new Timer();
 			autoZoneBumpTimer->Start();
-
+		}
+		else if (&autoZoneAndBinWithHug == chooser->GetSelected())
+		{
+			printf("autoZoneAndBinWithHug running\n");
+			jankyAuto = new JankyAutonomousState(robot, foxlift);
 		}
 		else
 		{
@@ -144,7 +150,11 @@ private:
 		printf("AutonomousPeriodic() called");
 		if (&autoZoneAndBin == chooser->GetSelected())
 		{
-			jankyAuto->GoLiftTote();
+			jankyAuto->GoForBox();
+		}
+		else if (&autoZoneAndBinWithHug == chooser->GetSelected())
+		{
+			jankyAuto->GoForHug();
 		}
 		else if (&autoZone == chooser->GetSelected())
 		{

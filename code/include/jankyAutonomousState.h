@@ -26,6 +26,8 @@ public:
 	//Member variables
 	enum StateValue {
 		Idle,
+		HugIdle,
+		RollersIn,
 		DriveSideways,
 		DriveForward,
 		DownTote,
@@ -46,13 +48,15 @@ public:
 	
 	//Member functions
 	void StateEngine(int curState);
-	void Go(void);
+	void GoForBox(void);
+	void GoForHug(void);
 	void GoSideways(void);
 	void GoForward(void);
 	void GoLiftTote(void);
 	void StartAuto(void);
 	void GoTurnToAuto(void);
     void GoForwardToAuto(void);
+    void BringInRollers(void);
 
 };
 
