@@ -65,7 +65,7 @@ void JankyAutonomousState::GoLiftTote()
 	printf("LiftTote() called\n");
 	if (GetCurrentState() == Idle)
 	{
-		NewState(StateValue::LiftTote,"Start lifting tote");
+		NewState(StateValue::DownTote,"Starting ");
 	}
 	else
 		printf("Can't lift totes\n");
@@ -133,19 +133,24 @@ void JankyAutonomousState::StateEngine(int curState)
 		case Idle:
 			printf("In Idle\n");
 			break;
-		case LiftTote:
-			printf("In state LiftTote\n");
+		case DownTote:
 			if (ptFoxLift->GetCurrentState()== JankyFoxliftState::StateValue::Init && ptFoxLift-> IsLSwitchDownClosed() == false){
-			ptFoxLift->GoDown();
+				ptFoxLift->GoDown();
 			}
 			else if(ptFoxLift->GetCurrentState()== JankyFoxliftState::StateValue::Init && ptFoxLift->IsLSwitchDownClosed())
 			{
 				ptFoxLift->GoMid();
+				NewState(LiftTote, " Down and now picking tote");
 			}
-			else if(ptFoxLift->IsLSwitchMidClosed())
+			break;
+		case LiftTote:
+			if(ptFoxLift->IsLSwitchMidClosed())// must create a counter
 			{
 				ptFoxLift->StopLift();
 				GoTurnToAuto();
+			}
+			else{
+				printf("Limit Switch Middle Not Pressed\n");
 			}
 			break;
 		case TurnToAuto:
