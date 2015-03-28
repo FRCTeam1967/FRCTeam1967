@@ -74,22 +74,25 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete turnTimer;
 	delete driveToAutoTimer;
 	delete driveBackwardTimer;
+	delete binServo;
+	delete binPiston;
+	delete bingulateTimer;
 }
 //FUNCTIONS
 
 //Piston
 void JankyAutonomousState::RetractBinPiston(){
-	binPiston->Set(false);
+	binPiston->Set(true);
 }
 void JankyAutonomousState::ExtendBinPiston(){
-	binPiston->Set(true);
+	binPiston->Set(false);
 }
 //Servo
 void JankyAutonomousState::BinServoSetStart(){
-	binServo->SetAngle(0);
+	binServo->SetAngle(360);
 }
 void JankyAutonomousState::BinServoSetEnd(){
-	binServo->SetAngle(360);
+	binServo->SetAngle(0);
 }
 //Initial functions
 void JankyAutonomousState::GoForBox()
@@ -246,7 +249,7 @@ void JankyAutonomousState::StateEngine(int curState)
 				NewState(BingulateUp,"In autozone");
 			}
 			else{
-			ptRobot->MecanumDrive_Cartesian(0.0,0.0,1.0,0.0);
+			ptRobot->MecanumDrive_Cartesian(0.0,-0.35,0.0,0.0);
 			}
 			break;
 		case BingulateUp:
@@ -277,15 +280,11 @@ void JankyAutonomousState::StateEngine(int curState)
 			}
 			break;
 		case BingulateEnd:
-			if(bingulateTimer->Get() >= BINGULATE_TIME){
-				Terminate();
-			}
 			break;
 		case End:
 			if(ptRobot)
 			{
 				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
-				Terminate();
 			}
 			break;
 		default:

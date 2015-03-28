@@ -14,6 +14,7 @@
 #define GC_DEADBAND_SIZE 0.5
 #define AUTOZONE_TIMER 1.2
 #define AUTOZONE_BUMP_TIMER 1.3
+#define AUTONOMOUS_TIME 10
 
 class Robot: public IterativeRobot
 {
@@ -27,6 +28,7 @@ class Robot: public IterativeRobot
 	Talon *pRF;
 	Talon *pLR;
 	Talon *pRR;
+	Timer*autonomousTimer;
 	SendableChooser *chooser;
 	JankyAutonomousState *jankyAuto;
 	Timer* autoZoneTimer;
@@ -48,10 +50,13 @@ public:
 		jankyAuto = NULL;
 		autoZoneTimer = NULL;
 		autoZoneBumpTimer = NULL;
+		autonomousTimer = new Timer();
+		autonomousTimer->Start();
 	}
 	~Robot()
 	{
 		delete robot;
+		delete autonomousTimer;
 		delete gameComponent;
 		delete joystick;
 		delete foxlift;
@@ -71,6 +76,7 @@ private:
 	int autoZone;
 	int autoZoneBump;
 	int autoZoneAndBinWithHug;
+	int autoZoneAndBingulate;
 
 	void RobotInit()
 	{
@@ -97,6 +103,7 @@ private:
 		chooser->AddObject("Autonomous Forward w/ no bump", &autoZone);
 		chooser->AddObject("Autonomous Forward w/ bump", &autoZoneBump);
 		chooser->AddObject("Autonomous Tote with Hugging", &autoZoneAndBinWithHug);
+		chooser->AddObject("Autonomous Bingulate", &autoZoneAndBingulate);
 		//put the different options on SmartDashboard
 		SmartDashboard::PutData("Autonomous modes", chooser);
 
@@ -108,6 +115,7 @@ private:
 
 	void AutonomousInit()
 	{
+		autonomousTimer->Reset();
 		foxlift->SetFoxlift();
 		printf("AutonomousInit() called\n");
 		robot->SetSafetyEnabled(false);
@@ -138,6 +146,12 @@ private:
 			printf("autoZoneAndBinWithHug running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
 		}
+		else if (&autoZoneAndBingulate == chooser->GetSelected())
+		{
+		printf("autoZoneAndBingulate\n");
+		jankyAuto = new JankyAutonomousState(robot, foxlift);
+		jankyAuto->StartBinAuto();
+		}
 		else
 		{
 			printf("something's wrong\n");
@@ -147,7 +161,6 @@ private:
 
 	void AutonomousPeriodic()
 	{
-		printf("AutonomousPeriodic() called");
 		if (&autoZoneAndBin == chooser->GetSelected())
 		{
 			jankyAuto->GoForBox();
@@ -177,7 +190,14 @@ private:
 			{
 				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
 			}
+
 		}
+		/*if(autonomousTimer->Get()>= AUTONOMOUS_TIME && jankyAuto){
+			printf("going to delete autonomous \n");
+			delete jankyAuto;
+			jankyAuto = NULL;
+			printf("deleted autonomous \n");
+		}*/
 	}
 
 	void CameraInit()
