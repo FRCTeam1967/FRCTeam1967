@@ -261,22 +261,23 @@ private:
 
 		//ForkLift
 		//if(gameComponent->GetLeftYAxis() > GC_DEADBAND_SIZE){
-		if(gameComponent->GetY()*-1 > GC_DEADBAND_SIZE){
-			foxlift->PushOutTote();
+		if(gameComponent->GetY() < (-1)*(GC_DEADBAND_SIZE)){
+			//foxlift->PushOutTote();
+			foxlift->StopRollers();
 		}
 		//else if(gameComponent->GetLeftYAxis() < (-1)*(GC_DEADBAND_SIZE)){
-		else if((gameComponent->GetY()*-1) < (-1)*(GC_DEADBAND_SIZE)){
+		else if(gameComponent->GetY() > GC_DEADBAND_SIZE){
 			foxlift->SuckInTote();
 		}
 		//else if(abs(gameComponent->GetLeftYAxis()) <= GC_DEADBAND_SIZE){
-		else if(abs(gameComponent->GetY()*-1) <= GC_DEADBAND_SIZE){
+		/*else if(abs(gameComponent->GetY()*-1) <= GC_DEADBAND_SIZE){
 				foxlift->StopRollers();
-		}
+		}*/
 		//Arm pistons
-		if((gameComponent->GetRightYAxis()) < (-1)*(GC_DEADBAND_SIZE)){
+		if(gameComponent->GetRightYAxis() < (-1)*(GC_DEADBAND_SIZE)){
 			foxlift->ExtendArmsManual();
 		}
-		else if((gameComponent->GetRightYAxis()) > GC_DEADBAND_SIZE){
+		else if(gameComponent->GetRightYAxis() > GC_DEADBAND_SIZE){
 				foxlift->RetractArmsManual();
 		}
 		//BOXLIFT
