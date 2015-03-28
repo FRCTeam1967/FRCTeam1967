@@ -25,6 +25,10 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	printf("Set machine name\n");
 	
 	SetName(Idle,"Idle");
+	SetName(HugIdle, "In Hug Idle");
+	SetName(BinIdle, "In Bin Idle");
+	SetName(BingulateDown, "Going to get bin");
+	SetName(BingulateUp, "Putting Bingulate up");
 	SetName(DriveSideways, "Just drive sideways");
 	SetName(DriveForward,"Drive forward");
 	SetName(DownTote, "Down tote");
@@ -36,13 +40,16 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	
 	driveForwardTimer = new Timer();
 	driveSidewaysTimer = new Timer();
+	driveBackwardTimer = new Timer();
 	turnTimer = new Timer();
 	driveToAutoTimer = new Timer();
+	forkliftTimer = new Timer();
 	driveForwardTimer->Start();
 	driveSidewaysTimer->Start();
 	turnTimer->Start();
 	driveToAutoTimer->Start();
-
+	forkliftTimer->Start();
+	driveBackwardTimer->Start();
 	printf("Newed/reset drive timer\n");
 	//Starting JankyTask at end of constructor
 	Start();
@@ -57,6 +64,7 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete driveForwardTimer;
 	delete turnTimer;
 	delete driveToAutoTimer;
+	delete driveBackwardTimer;
 }
 
 void JankyAutonomousState::GoForBox()
@@ -70,7 +78,9 @@ void JankyAutonomousState::GoForHug()
 	NewState(HugIdle, "starting and going in idle");
 	BringInRollers();
 }
-
+void JankyAutonomousState::GoToBinIdle(){
+	NewState(BinIdle, "starting to go to bin idle");
+}
 void JankyAutonomousState::GoLiftTote()
 {
 	printf("LiftTote() called\n");
@@ -85,10 +95,10 @@ void JankyAutonomousState::GoLiftTote()
 void JankyAutonomousState::GoTurnToAuto()
 {
 	printf("TurnToAuto() called\n");
-	if (GetCurrentState() == LiftTote)
+	if (GetCurrentState() == LiftTote || GetCurrentState() == RollersIn)
 	{
 		turnTimer->Reset();
-		NewState(StateValue::TurnToAuto,"Start turning to face auto zone");
+		NewState(StateValue::TurnToAuto,"Start turning to face autozone");
 	}
 	else
 		printf("Can't turn to auto zone\n");
@@ -111,6 +121,7 @@ void JankyAutonomousState::BringInRollers()
 	printf("DriveForwardToAuto() called\n");
 	if (GetCurrentState() == HugIdle)
 	{
+		forkliftTimer->Reset();
 		NewState(StateValue::RollersIn,"Bring the forklift rollers in");
 	}
 	else
@@ -164,10 +175,12 @@ void JankyAutonomousState::StateEngine(int curState)
 				BringInRollers();
 			}
 			break;
+		case BinIdle:
+			break;
 		case RollersIn:
 			printf("In state RollersIn\n");
 			ptFoxLift->RetractArms();
-			if(ptFoxLift->AreArmsClosed() == true)
+			if (forkliftTimer->Get() >= FORKLIFT_TIME)
 			{
 				GoTurnToAuto();
 			}

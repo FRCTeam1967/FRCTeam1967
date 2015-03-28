@@ -15,6 +15,10 @@
 #define DRIVE_FORWARD_TIME 0.2
 #define TURN_TIME 0.75
 #define DRIVE_TO_AUTO_TIME 1.2
+#define FORKLIFT_TIME 1.0
+#define BINGULATE_PISTON 5
+#define BINGULATE_SERVO 9
+#define DRIVE_BACKWARD_TIME 0.2
 
 class JankyFoxliftState;
 
@@ -27,6 +31,10 @@ public:
 	enum StateValue {
 		Idle,
 		HugIdle,
+		BinIdle,
+		BingulateDown,
+		BingulateUp,
+		DriveBackward,
 		RollersIn,
 		DriveSideways,
 		DriveForward,
@@ -41,6 +49,10 @@ public:
 	Timer * driveSidewaysTimer;
 	Timer * turnTimer;
 	Timer * driveToAutoTimer;
+	Timer * driveBackwardTimer;
+	Timer * forkliftTimer;
+	Solenoid*binPiston;
+	Servo*binServo;
 	RobotDrive * ptRobot;
 	JankyFoxliftState * ptFoxLift;
 	bool driveOnce;
@@ -50,6 +62,7 @@ public:
 	void StateEngine(int curState);
 	void GoForBox(void);
 	void GoForHug(void);
+	void GoToBinIdle();
 	void GoSideways(void);
 	void GoForward(void);
 	void GoLiftTote(void);
