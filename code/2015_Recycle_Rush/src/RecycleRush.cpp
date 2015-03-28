@@ -274,10 +274,10 @@ private:
 		}
 		//Arm pistons
 		if((gameComponent->GetRightYAxis()) < (-1)*(GC_DEADBAND_SIZE)){
-			foxlift->RetractArmsManual();
+			foxlift->ExtendArmsManual();
 		}
 		else if((gameComponent->GetRightYAxis()) > GC_DEADBAND_SIZE){
-				foxlift->ExtendArmsManual();
+				foxlift->RetractArmsManual();
 		}
 		//BOXLIFT
 		// When button is pressed, raise the boxlift
