@@ -12,6 +12,7 @@
 #define FRONT_RIGHT_CHANNEL 1
 #define REAR_RIGHT_CHANNEL 3
 #define GC_DEADBAND_SIZE 0.5
+#define GCSTOP_DEADBAND_SIZE 0.75
 #define AUTOZONE_TIMER 1.2
 #define AUTOZONE_BUMP_TIMER 1.3
 #define AUTONOMOUS_TIME 10
@@ -262,12 +263,16 @@ private:
 		//ForkLift
 		//if(gameComponent->GetLeftYAxis() > GC_DEADBAND_SIZE){
 		if(gameComponent->GetY() < (-1)*(GC_DEADBAND_SIZE)){
-			//foxlift->PushOutTote();
-			foxlift->StopRollers();
+			foxlift->PushOutTote();
+			//foxlift->StopRollers();
 		}
 		//else if(gameComponent->GetLeftYAxis() < (-1)*(GC_DEADBAND_SIZE)){
 		else if(gameComponent->GetY() > GC_DEADBAND_SIZE){
 			foxlift->SuckInTote();
+		}
+		else if(abs(gameComponent->GetX()) > GCSTOP_DEADBAND_SIZE)
+		{
+			foxlift->StopRollers();
 		}
 		//else if(abs(gameComponent->GetLeftYAxis()) <= GC_DEADBAND_SIZE){
 		/*else if(abs(gameComponent->GetY()*-1) <= GC_DEADBAND_SIZE){
