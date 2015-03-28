@@ -390,8 +390,8 @@ void JankyFoxliftState::StateEngine(int curState)
 			break;
 		case MiddleUp:
 			motorLift->Set(LIFT_UP_SPEED);
-			motorRoller1->Set(0);
-			motorRoller2->Set(0);
+			/*motorRoller1->Set(0);
+			motorRoller2->Set(0);*/
 			brake->Set(false);
 			if(IsLSwitchMidClosed()){
 				NewState(Init, "In middle, so stopped");
@@ -402,8 +402,8 @@ void JankyFoxliftState::StateEngine(int curState)
 			break;
 		case MiddleDown:
 			motorLift->Set(LIFT_DOWN_SPEED);
-			motorRoller1->Set(0);
-			motorRoller2->Set(0);
+			/*motorRoller1->Set(0);
+			motorRoller2->Set(0);*/
 			brake->Set(false);
 			if(IsLSwitchMidClosed()){
 				NewState(Init, "In middle, so stopped");
@@ -415,8 +415,8 @@ void JankyFoxliftState::StateEngine(int curState)
 		case Up:
 			//printf("In Up\n");
 			motorLift->Set(LIFT_UP_SPEED);
-			motorRoller1->Set(0);
-			motorRoller2->Set(0);
+			/*motorRoller1->Set(0);
+			motorRoller2->Set(0);*/
 			brake->Set(false);
 			if(IsLSwitchTopClosed()){
 				NewState(Braking, "All the way up, so braking");
@@ -426,8 +426,8 @@ void JankyFoxliftState::StateEngine(int curState)
 		case Down:
 			//printf("In Down\n");
 			motorLift->Set(LIFT_DOWN_SPEED);
-			motorRoller1->Set(0);
-			motorRoller2->Set(0);
+			/*motorRoller1->Set(0);
+			motorRoller2->Set(0);*/
 			brake->Set(false);
 			if(IsLSwitchDownClosed()){
 				NewState(BottomStop, "All the way down");
