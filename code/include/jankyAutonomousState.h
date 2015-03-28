@@ -19,6 +19,7 @@
 #define BINGULATE_PISTON 5
 #define BINGULATE_SERVO 9
 #define DRIVE_BACKWARD_TIME 0.2
+#define BINGULATE_TIME 3.0
 
 class JankyFoxliftState;
 
@@ -31,8 +32,8 @@ public:
 	enum StateValue {
 		Idle,
 		HugIdle,
-		BinIdle,
 		BingulateDown,
+		BingulateWait,
 		BingulateUp,
 		DriveBackward,
 		RollersIn,
@@ -42,6 +43,7 @@ public:
 		LiftTote,
 		TurnToAuto,
 		DriveToAuto,
+		BingulateEnd,
 		End
 		
 	};
@@ -51,6 +53,7 @@ public:
 	Timer * driveToAutoTimer;
 	Timer * driveBackwardTimer;
 	Timer * forkliftTimer;
+	Timer*bingulateTimer;
 	Solenoid*binPiston;
 	Servo*binServo;
 	RobotDrive * ptRobot;
@@ -59,10 +62,14 @@ public:
 	bool goDownOnce;
 	
 	//Member functions
+	void RetractBinPiston();
+	void ExtendBinPiston();
+	void BinServoSetStart();
+	void BinServoSetEnd();
 	void StateEngine(int curState);
 	void GoForBox(void);
 	void GoForHug(void);
-	void GoToBinIdle();
+	void StartBinAuto();
 	void GoSideways(void);
 	void GoForward(void);
 	void GoLiftTote(void);
