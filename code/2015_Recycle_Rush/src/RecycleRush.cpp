@@ -205,6 +205,7 @@ private:
 
 	void TeleopPeriodic()
 	{
+		SmartDashboard::PutBoolean("limit Switch Mid closed", foxlift->IsLSwitchMidClosed());
 		SmartDashboard::PutBoolean("limit Switch Top closed", foxlift->IsLSwitchTopClosed());
 		SmartDashboard::PutNumber("Twist", joystick->GetZ());
 		SmartDashboard::PutNumber("XAxis", joystick->GetX());
@@ -217,6 +218,7 @@ private:
 		SmartDashboard::PutBoolean("Singulation UP/DOWN", foxlift->singulationTwo->Get());
 		SmartDashboard::PutBoolean("Intake pistons", foxlift->rollerPistons->Get());
 		SmartDashboard::PutNumber("Get Throttle", joystick->GetThrottle());
+
 
 		//MECANUM DRIVE
 		float yValue = joystick->GetY();
