@@ -199,7 +199,7 @@ void JankyFoxliftState::SetFoxlift(){
 }
 //Stop For Lift
 void JankyFoxliftState::StopLift(){
-	if(GetCurrentState() == Up ||GetCurrentState() == Down){
+	if(GetCurrentState() == Up ||GetCurrentState() == Down || GetCurrentState() == MiddleUp || GetCurrentState() == MiddleDown){
 		NewState(Init, "Stopped Boxlift");
 	}
 }
