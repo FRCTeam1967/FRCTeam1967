@@ -26,10 +26,11 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	
 	SetName(Idle,"Idle");
 	SetName(HugIdle, "In Hug Idle");
-	SetName(BinIdle, "In Bin Idle");
 	SetName(BingulateDown, "Going to get bin");
 	SetName(BingulateUp, "Putting Bingulate up");
 	SetName(DriveSideways, "Just drive sideways");
+	SetName(DriveBackward, "Driving back to auto");
+	SetName(RollersIn, "Bringing rollers in");
 	SetName(DriveForward,"Drive forward");
 	SetName(DownTote, "Down tote");
 	SetName(LiftTote, "Lift tote");
@@ -44,12 +45,20 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	turnTimer = new Timer();
 	driveToAutoTimer = new Timer();
 	forkliftTimer = new Timer();
+	driveBackwardTimer = new Timer();
+	bingulateTimer = new Timer();
+	binServo = new Servo(BINGULATE_SERVO);
+	binPiston = new Solenoid(BINGULATE_PISTON);
+
 	driveForwardTimer->Start();
 	driveSidewaysTimer->Start();
 	turnTimer->Start();
 	driveToAutoTimer->Start();
 	forkliftTimer->Start();
 	driveBackwardTimer->Start();
+	bingulateTimer->Start();
+	BinServoSetStart();
+	ExtendBinPiston();
 	printf("Newed/reset drive timer\n");
 	//Starting JankyTask at end of constructor
 	Start();
@@ -66,7 +75,23 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete driveToAutoTimer;
 	delete driveBackwardTimer;
 }
+//FUNCTIONS
 
+//Piston
+void JankyAutonomousState::RetractBinPiston(){
+	binPiston->Set(false);
+}
+void JankyAutonomousState::ExtendBinPiston(){
+	binPiston->Set(true);
+}
+//Servo
+void JankyAutonomousState::BinServoSetStart(){
+	binServo->SetAngle(0);
+}
+void JankyAutonomousState::BinServoSetEnd(){
+	binServo->SetAngle(360);
+}
+//Initial functions
 void JankyAutonomousState::GoForBox()
 {
 	NewState(Idle, "starting and going in idle");
@@ -78,9 +103,10 @@ void JankyAutonomousState::GoForHug()
 	NewState(HugIdle, "starting and going in idle");
 	BringInRollers();
 }
-void JankyAutonomousState::GoToBinIdle(){
-	NewState(BinIdle, "starting to go to bin idle");
+void JankyAutonomousState::StartBinAuto(){
+	NewState(BingulateDown, "Bringing Bingulate Down");
 }
+//State Functions
 void JankyAutonomousState::GoLiftTote()
 {
 	printf("LiftTote() called\n");
@@ -175,8 +201,6 @@ void JankyAutonomousState::StateEngine(int curState)
 				BringInRollers();
 			}
 			break;
-		case BinIdle:
-			break;
 		case RollersIn:
 			printf("In state RollersIn\n");
 			ptFoxLift->RetractArms();
@@ -205,6 +229,31 @@ void JankyAutonomousState::StateEngine(int curState)
 				printf("Limit Switch Middle Not Pressed\n");
 			}
 			break;
+		case BingulateDown:
+			RetractBinPiston();
+			bingulateTimer->Reset();
+			NewState(BingulateWait, "Bingulate is going down");
+			break;
+		case BingulateWait:
+			if(bingulateTimer->Get() >= BINGULATE_TIME){
+				driveBackwardTimer->Reset();
+				NewState(DriveBackward, "Bingulation Enabled");
+			}
+			break;
+		case DriveBackward:
+			if(driveBackwardTimer->Get() >= DRIVE_BACKWARD_TIME){
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+				NewState(BingulateUp,"In autozone");
+			}
+			else{
+			ptRobot->MecanumDrive_Cartesian(0.0,0.0,1.0,0.0);
+			}
+			break;
+		case BingulateUp:
+			BinServoSetEnd();
+			bingulateTimer->Reset();
+			NewState(BingulateEnd, "finishing autonomous");
+			break;
 		case TurnToAuto:
 			printf("In state TurnToAuto\n");
 			if(turnTimer->Get() >= TURN_TIME)
@@ -225,6 +274,11 @@ void JankyAutonomousState::StateEngine(int curState)
 			else
 			{
 				ptRobot->MecanumDrive_Cartesian(0.0,-1.0,0.0,0.0);
+			}
+			break;
+		case BingulateEnd:
+			if(bingulateTimer->Get() >= BINGULATE_TIME){
+				Terminate();
 			}
 			break;
 		case End:

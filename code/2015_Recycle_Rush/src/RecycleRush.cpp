@@ -253,10 +253,10 @@ private:
 				foxlift->StopRollers();
 		}
 		//Arm pistons
-		if((gameComponent->GetRightYAxis()*-1) < (-1)*(GC_DEADBAND_SIZE)){
+		if((gameComponent->GetRightYAxis()) < (-1)*(GC_DEADBAND_SIZE)){
 			foxlift->RetractArmsManual();
 		}
-		else if(abs(gameComponent->GetRightYAxis()*-1) <= GC_DEADBAND_SIZE){
+		else if((gameComponent->GetRightYAxis()) > GC_DEADBAND_SIZE){
 				foxlift->ExtendArmsManual();
 		}
 		//BOXLIFT
