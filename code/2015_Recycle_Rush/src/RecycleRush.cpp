@@ -270,7 +270,7 @@ private:
 		else if(gameComponent->GetY() > GC_DEADBAND_SIZE){
 			foxlift->SuckInTote();
 		}
-		else if(abs(gameComponent->GetX()) > GCSTOP_DEADBAND_SIZE)
+		if(abs(gameComponent->GetX()) > GCSTOP_DEADBAND_SIZE)
 		{
 			foxlift->StopRollers();
 		}
