@@ -129,23 +129,41 @@ private:
 		{
 			printf("autoZoneAndBin running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
+			jankyAuto->GoForBox();
 		}
 		else if (&autoZone == chooser->GetSelected())
 		{
 			printf("autoZone running\n");
 			autoZoneTimer = new Timer();
 			autoZoneTimer->Start();
+			if(autoZoneTimer->Get() >= AUTOZONE_TIMER )
+			{
+				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+			}
+			else
+			{
+				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
+			}
 		}
 		else if (&autoZoneBump == chooser->GetSelected())
 		{
 			printf("autoZone running\n");
 			autoZoneBumpTimer = new Timer();
 			autoZoneBumpTimer->Start();
+			if(autoZoneBumpTimer->Get() >= AUTOZONE_BUMP_TIMER )
+			{
+				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
+			}
+			else
+			{
+				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
+			}
 		}
 		else if (&autoZoneAndBinWithHug == chooser->GetSelected())
 		{
 			printf("autoZoneAndBinWithHug running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
+			jankyAuto->GoForHug();
 		}
 		else if (&autoZoneAndBingulate == chooser->GetSelected())
 		{
@@ -162,37 +180,6 @@ private:
 
 	void AutonomousPeriodic()
 	{
-		if (&autoZoneAndBin == chooser->GetSelected())
-		{
-			jankyAuto->GoForBox();
-		}
-		else if (&autoZoneAndBinWithHug == chooser->GetSelected())
-		{
-			jankyAuto->GoForHug();
-		}
-		else if (&autoZone == chooser->GetSelected())
-		{
-			if(autoZoneTimer->Get() >= AUTOZONE_TIMER )
-			{
-				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
-			}
-			else
-			{
-				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
-			}
-		}
-		else if (&autoZoneBump == chooser->GetSelected())
-		{
-			if(autoZoneBumpTimer->Get() >= AUTOZONE_BUMP_TIMER )
-			{
-				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
-			}
-			else
-			{
-				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
-			}
-
-		}
 		if(autonomousTimer->Get()>= AUTONOMOUS_TIME && jankyAuto){
 			printf("going to delete autonomous \n");
 			jankyAuto->Terminate();

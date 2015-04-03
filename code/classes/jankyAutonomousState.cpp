@@ -97,29 +97,17 @@ void JankyAutonomousState::BinServoSetEnd(){
 //Initial functions
 void JankyAutonomousState::GoForBox()
 {
-	NewState(Idle, "starting and going in idle");
-	GoLiftTote();
+	NewState(StateValue::DownTote,"Starting ");
 }
 
 void JankyAutonomousState::GoForHug()
 {
-	//NewState(HugIdle, "starting and going in idle");
+	NewState(HugIdle, "starting and going in idle");
 }
 void JankyAutonomousState::StartBinAuto(){
 	NewState(BingulateDown, "Bringing Bingulate Down");
 }
 //State Functions
-void JankyAutonomousState::GoLiftTote()
-{
-	printf("LiftTote() called\n");
-	if (GetCurrentState() == Idle)
-	{
-		NewState(StateValue::DownTote,"Starting ");
-	}
-	else
-		printf("Can't lift totes\n");
-}
-
 void JankyAutonomousState::GoTurnToAuto()
 {
 	printf("TurnToAuto() called\n");
@@ -144,7 +132,7 @@ void JankyAutonomousState::GoForwardToAuto()
 		printf("Can't drive to auto zone\n");
 }
 
-/*void JankyAutonomousState::BringInRollers()
+void JankyAutonomousState::BringInRollers()
 {
 	printf("DriveForwardToAuto() called\n");
 	if (GetCurrentState() == HugIdle)
@@ -154,7 +142,7 @@ void JankyAutonomousState::GoForwardToAuto()
 	}
 	else
 		printf("Can't bring in forklift\n");
-}*/
+}
 
 /*
 void JankyAutonomousState::GoSideways()
@@ -194,36 +182,34 @@ void JankyAutonomousState::StateEngine(int curState)
 		case Idle:
 			printf("In Idle\n");
 			break;
-		/*case HugIdle:
-			printf("In HugIdle\n");
+		case HugIdle:
 			ptFoxLift->GoMid();
 			if(ptFoxLift->IsLSwitchMidClosed())
 			{
 				ptFoxLift->StopLift();
 				BringInRollers();
 			}
-			break;*/
-		/*case RollersIn:
-			printf("In state RollersIn\n");
+			break;
+		case RollersIn:
 			ptFoxLift->RetractArms();
 			if (forkliftTimer->Get() >= FORKLIFT_TIME)
 			{
+				printf ("called GoTurnToAuto\n");
 				GoTurnToAuto();
-				printf ("called GoTurnToAuto");
 			}
-			break;*/
+			break;
 		case DownTote:
-			if (ptFoxLift->GetCurrentState()== JankyFoxliftState::StateValue::Init && ptFoxLift-> IsLSwitchDownClosed() == false){
+			if ( ptFoxLift-> IsLSwitchDownClosed() == false){
 				ptFoxLift->GoDown();
 			}
-			else if(ptFoxLift->GetCurrentState()== JankyFoxliftState::StateValue::Init && ptFoxLift->IsLSwitchDownClosed())
+			else if (ptFoxLift->IsLSwitchDownClosed())
 			{
 				ptFoxLift->GoMid();
 				NewState(LiftTote, " Down and now picking tote");
 			}
 			break;
 		case LiftTote:
-			if(ptFoxLift->IsLSwitchMidClosed())// must create a counter
+			if(ptFoxLift->IsLSwitchMidClosed())
 			{
 				ptFoxLift->StopLift();
 				turnTimer->Reset();
@@ -259,7 +245,6 @@ void JankyAutonomousState::StateEngine(int curState)
 			NewState(BingulateEnd, "finishing autonomous");
 			break;
 		case TurnToAuto:
-			printf("In state TurnToAuto\n");
 			if(turnTimer->Get() >= TURN_TIME)
 			{
 				driveToAutoTimer->Reset();
@@ -271,7 +256,6 @@ void JankyAutonomousState::StateEngine(int curState)
 			}
 			break;
 		case DriveToAuto:
-			printf("In state DriveToAuto\n");
 			if(driveToAutoTimer->Get() >= DRIVE_TO_AUTO_TIME)
 			{
 				NewState(End,"Done driving to auto zone");
