@@ -193,18 +193,20 @@ private:
 			}
 
 		}
-		/*if(autonomousTimer->Get()>= AUTONOMOUS_TIME && jankyAuto){
+		if(autonomousTimer->Get()>= AUTONOMOUS_TIME && jankyAuto){
 			printf("going to delete autonomous \n");
+			jankyAuto->Terminate();
+			Wait(.5);
 			delete jankyAuto;
 			jankyAuto = NULL;
 			printf("deleted autonomous \n");
-		}*/
+		}
 	}
 
 	void CameraInit()
 	{
 		printf("before opening camera\n");
-		camera = new AxisCamera("camera1967"); //image on SmartDash must have the IP address: camera1967.local
+		camera = new AxisCamera("camera1967.local"); //image on SmartDash must have the IP address: camera1967.local
 		printf("after opening camera\n");
 		camera->WriteResolution (AxisCamera::kResolution_320x240);
 		camera->WriteCompression(30);
@@ -215,13 +217,14 @@ private:
 		camera->WriteWhiteBalance(AxisCamera::kWhiteBalance_Automatic);
 		camera->WriteExposureControl(AxisCamera::kExposureControl_Automatic);
 		camera->WriteRotation(AxisCamera::kRotation_180);
+
 	}
 
 	void TeleopInit()
 	{
 		robot->SetSafetyEnabled(false);
 		foxlift->SetFoxlift();
-		//CameraInit();
+		CameraInit();
 	}
 
 	void TeleopPeriodic()
@@ -309,28 +312,28 @@ private:
 
 		//REORIENTATION
 		//When button is pressed and held, extend reorientation
-		if (gameComponent->GetButtonLB())
-		{
-			foxlift->Reorient();
-		}
+		//if (gameComponent->GetButtonLB())
+		//{
+			//foxlift->Reorient();
+		//}
 
 		//SINGULATION
 		//When any joystick top button is pressed and the trigger is pressed, extend piston one and low piston 2
-		if (joystick->IsAnyTopButtonPressed() && joystick->GetTrigger())
-		{
-			foxlift->SingulateTwo();
-		}
+		//if (joystick->IsAnyTopButtonPressed() && joystick->GetTrigger())
+		//{
+			//foxlift->SingulateTwo();
+		//}
 		//When any joystick top button is pressed, extend piston 1;
-		else if (joystick->IsAnyTopButtonPressed() && !joystick->GetTrigger())
-		{
-			foxlift->SingulateOne();
-		}
+		//else if (joystick->IsAnyTopButtonPressed() && !joystick->GetTrigger())
+		//{
+			//foxlift->SingulateOne();
+		//}
 
 		//Done Singulating and Reorienting
-		if (!joystick->IsAnyTopButtonPressed() && !gameComponent->GetButtonLB())
-		{
-			foxlift->DoneSingReor();
-		}
+		//if (!joystick->IsAnyTopButtonPressed() && !gameComponent->GetButtonLB())
+		//{
+			//foxlift->DoneSingReor();
+		//}
 	}
 
 	void TestInit()
