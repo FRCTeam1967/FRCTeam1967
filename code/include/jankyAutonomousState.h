@@ -14,7 +14,7 @@
 #define DRIVE_SIDEWAYS_TIME 1.0
 #define DRIVE_FORWARD_TIME 0.2
 #define TURN_TIME 0.75
-#define DRIVE_TO_AUTO_TIME 1.2
+#define DRIVE_TO_AUTO_TIME .6// was 1/2
 #define FORKLIFT_TIME 2.0
 #define BINGULATE_PISTON 5
 #define BINGULATE_SERVO 9
@@ -41,10 +41,12 @@ public:
 		DriveForward,
 		DownTote,
 		LiftTote,
+		LowerTote,
 		TurnToAuto,
 		DriveToAuto,
 		BingulateEnd,
-		End
+		End,
+		TheRealEnd,
 		
 	};
 	Timer * driveForwardTimer;

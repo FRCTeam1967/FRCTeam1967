@@ -15,7 +15,7 @@
 #define GCSTOP_DEADBAND_SIZE 0.75
 #define AUTOZONE_TIMER 1.2
 #define AUTOZONE_BUMP_TIMER 1.3
-#define AUTONOMOUS_TIME 10
+#define AUTONOMOUS_TIME 13.5
 
 class Robot: public IterativeRobot
 {
@@ -87,6 +87,7 @@ private:
 		pLR = new Talon(REAR_LEFT_CHANNEL);
 		pRR = new Talon(REAR_RIGHT_CHANNEL);
 		robot = new RobotDrive(pLF, pLR, pRF, pRR);
+		robot->SetSafetyEnabled(false);
 		char group [] = "DriveTrain";
 		lw = LiveWindow::GetInstance();
 		lw->AddActuator(group, "Front Left", pLF);
@@ -211,7 +212,7 @@ private:
 	{
 		robot->SetSafetyEnabled(false);
 		foxlift->SetFoxlift();
-		CameraInit();
+		//CameraInit();
 	}
 
 	void TeleopPeriodic()
@@ -235,7 +236,12 @@ private:
 		float yValue = joystick->GetY();
 		float xValue = joystick->GetX();
 		//this is apparently changing the twist
-		float rotation = joystick->GetJoystickTwist();
+		float rotation = joystick->GetRawAxis(2); //GetJoystickTwist();
+		/*
+		 * new logitech joystick- to twist you must do GetRawAxis (2) else if it is
+		 * the same type as the phoenix joystick- the use GetJoystickTwist() which
+		 * calls getThrottle()
+		 */
 		// GetZ() apparently is changed by the lever at the bottom.
 		robot->MecanumDrive_Cartesian(xValue, yValue, rotation, 0.0);
 		SmartDashboard::PutNumber("X-Value", xValue);

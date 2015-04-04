@@ -30,13 +30,15 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	SetName(BingulateUp, "Putting Bingulate up");
 	SetName(DriveSideways, "Just drive sideways");
 	SetName(DriveBackward, "Driving back to auto");
-	SetName(RollersIn, "Bringing rollers in");
+	SetName(RollersIn, "Bringing intake in");
+	SetName(LowerTote, "Lower tote");
 	SetName(DriveForward,"Drive forward");
 	SetName(DownTote, "Down tote");
 	SetName(LiftTote, "Lift tote");
 	SetName(TurnToAuto, "Turn toward auto");
 	SetName(DriveToAuto, "Drive toward auto");
 	SetName(End, "End - STOPPPPPP");
+	SetName(TheRealEnd, "Done auto");
 	printf("Set state names\n");
 	
 	driveForwardTimer = new Timer();
@@ -200,11 +202,13 @@ void JankyAutonomousState::StateEngine(int curState)
 			break;
 		case DownTote:
 			if ( ptFoxLift-> IsLSwitchDownClosed() == false){
+				printf("going down \n");
 				ptFoxLift->GoDown();
 			}
 			else if (ptFoxLift->IsLSwitchDownClosed())
 			{
-				ptFoxLift->GoMid();
+				//ptFoxLift->GoMid();
+				//printf("going mid\n");
 				NewState(LiftTote, " Down and now picking tote");
 			}
 			break;
@@ -216,7 +220,7 @@ void JankyAutonomousState::StateEngine(int curState)
 				NewState(TurnToAuto, "Tote is up");
 			}
 			else{
-				printf("Limit Switch Middle Not Pressed\n");
+				ptFoxLift->GoMid();
 			}
 			break;
 		case BingulateDown:
@@ -271,7 +275,18 @@ void JankyAutonomousState::StateEngine(int curState)
 			if(ptRobot)
 			{
 				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+				NewState(LowerTote, "Stopped driving-lower tote");
 			}
+			break;
+		case LowerTote:
+			if (ptFoxLift->IsLSwitchDownClosed()){
+				NewState(TheRealEnd, "tote is lowered");
+			}
+			else{
+				ptFoxLift->GoDown();
+			}
+			break;
+		case TheRealEnd:
 			break;
 		default:
 			printf("error current state = %d\n",curState);
