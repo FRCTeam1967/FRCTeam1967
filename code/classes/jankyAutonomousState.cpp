@@ -21,6 +21,7 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	ptFoxLift = foxLift;
 	driveOnce = false;
 	goDownOnce = false;
+	timesRepeated = 0;
 	SetMachineName("JankyAutonomousStateMachine");
 	printf("Set machine name\n");
 	
@@ -31,6 +32,7 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	SetName(DriveSideways, "Just drive sideways");
 	SetName(DriveBackward, "Driving back to auto");
 	SetName(RollersIn, "Bringing intake in");
+	SetName(MoveRightandRollIn, "Move right & move intake in");
 	SetName(LowerTote, "Lower tote");
 	SetName(DriveForward,"Drive forward");
 	SetName(DownTote, "Down tote");
@@ -51,7 +53,7 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	bingulateTimer = new Timer();
 	binServo = new Servo(BINGULATE_SERVO);
 	binPiston = new Solenoid(BINGULATE_PISTON);
-
+    moveRightTimer = new Timer();
 	driveForwardTimer->Start();
 	driveSidewaysTimer->Start();
 	turnTimer->Start();
@@ -59,6 +61,7 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	forkliftTimer->Start();
 	driveBackwardTimer->Start();
 	bingulateTimer->Start();
+	moveRightTimer->Start();
 	BinServoSetStart();
 	ExtendBinPiston();
 	printf("Newed/reset drive timer\n");
@@ -79,6 +82,7 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete binServo;
 	delete binPiston;
 	delete bingulateTimer;
+	delete moveRightTimer;
 }
 //FUNCTIONS
 
@@ -201,26 +205,52 @@ void JankyAutonomousState::StateEngine(int curState)
 			}
 			break;
 		case DownTote:
+			ptFoxLift->ExtendArms();
+			ptFoxLift->StopRollers();
+			ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
 			if ( ptFoxLift-> IsLSwitchDownClosed() == false){
 				printf("going down \n");
 				ptFoxLift->GoDown();
 			}
-			else if (ptFoxLift->IsLSwitchDownClosed())
+			else
 			{
+				if (timesRepeated == 2){
+					NewState(TurnToAuto, ("gotTote"));
+				}
 				//ptFoxLift->GoMid();
 				//printf("going mid\n");
+				else{
 				NewState(LiftTote, " Down and now picking tote");
+				}
 			}
 			break;
 		case LiftTote:
 			if(ptFoxLift->IsLSwitchMidClosed())
 			{
 				ptFoxLift->StopLift();
-				turnTimer->Reset();
-				NewState(TurnToAuto, "Tote is up");
+				if (timesRepeated < 2){
+					timesRepeated++;
+					moveRightTimer->Reset();
+					NewState(MoveRightandRollIn, "on 1st and 2nd tote");
+				}
+				else{
+					turnTimer->Reset();
+					NewState(TurnToAuto, "picked third tote");
+				}
 			}
 			else{
 				ptFoxLift->GoMid();
+			}
+			break;
+		case MoveRightandRollIn:
+			ptFoxLift->RetractArms();
+			ptFoxLift->PushOutTote();
+			if (moveRightTimer->Get() > MOVE_RIGHT_TIME){
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+				NewState(DownTote, "done pushing bin");
+			}
+			else{
+				ptRobot->MecanumDrive_Cartesian(0.0,-1.0,0.0,0.0);
 			}
 			break;
 		case BingulateDown:
@@ -275,7 +305,7 @@ void JankyAutonomousState::StateEngine(int curState)
 			if(ptRobot)
 			{
 				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
-				NewState(LowerTote, "Stopped driving-lower tote");
+				NewState(TheRealEnd, "Stopped driving-lower tote");
 			}
 			break;
 		case LowerTote:

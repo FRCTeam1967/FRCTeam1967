@@ -15,7 +15,7 @@
 #define GCSTOP_DEADBAND_SIZE 0.75
 #define AUTOZONE_TIMER 1.2
 #define AUTOZONE_BUMP_TIMER 1.3
-#define AUTONOMOUS_TIME 13.5
+#define AUTONOMOUS_TIME 13
 
 class Robot: public IterativeRobot
 {
@@ -236,11 +236,11 @@ private:
 		float yValue = joystick->GetY();
 		float xValue = joystick->GetX();
 		//this is apparently changing the twist
-		float rotation = joystick->GetRawAxis(2); //GetJoystickTwist();
+		float rotation = joystick->GetRawAxis(2);//GetJoystickTwist();
 		/*
-		 * new logitech joystick- to twist you must do GetRawAxis (2) else if it is
-		 * the same type as the phoenix joystick- the use GetJoystickTwist() which
-		 * calls getThrottle()
+		 * Use GetRawAxis(2) for getting the twist of the new logitech joystick
+		 * the GetJoystickTwist() function aka GetThrottle() is the function to use
+		 * for the old phoenix joystick.
 		 */
 		// GetZ() apparently is changed by the lever at the bottom.
 		robot->MecanumDrive_Cartesian(xValue, yValue, rotation, 0.0);

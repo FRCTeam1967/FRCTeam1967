@@ -135,15 +135,17 @@ public:
 			SmartDashboard::PutNumber("button12",button12Bool);
 			
 			
-			LeftaxisXValue = stick.GetX();
+			//LeftaxisXValue = stick.GetX();
+			LeftaxisXValue = stick.GetRawAxis(0);
 			SmartDashboard::PutNumber("Joystick1 X Axis",LeftaxisXValue);
-			LeftaxisYValue = 0 - stick.GetY();
+			//LeftaxisYValue = 0 - stick.GetY();
+			LeftaxisYValue = 0 - stick.GetRawAxis(1);
 			SmartDashboard::PutNumber("Joystick1 Y Axis",LeftaxisYValue);
 			LeftaxisZValue = stick.GetZ();
 			SmartDashboard::PutNumber("Joystick1 Z Axis",LeftaxisZValue);
 			
 			
-			RightaxisXValue = stick.GetTwist();
+			RightaxisXValue = stick.GetRawAxis(4);
 			SmartDashboard::PutNumber("Joystick2 X Axis", RightaxisXValue);
 			RightaxisYValue = 0 - stick.GetRawAxis(5);
 			SmartDashboard::PutNumber("Joystick2 Y Axis", RightaxisYValue);

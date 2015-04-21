@@ -14,13 +14,13 @@
 #define DRIVE_SIDEWAYS_TIME 1.0
 #define DRIVE_FORWARD_TIME 0.2
 #define TURN_TIME 0.75
-#define DRIVE_TO_AUTO_TIME .6// was 1/2
+#define DRIVE_TO_AUTO_TIME 1.0
 #define FORKLIFT_TIME 2.0
 #define BINGULATE_PISTON 5
 #define BINGULATE_SERVO 9
-#define DRIVE_BACKWARD_TIME 2.2
-#define BINGULATE_TIME 3.0
-
+#define DRIVE_BACKWARD_TIME 2.2//was 2.2//2.8
+#define BINGULATE_TIME 3.0//3.5
+#define MOVE_RIGHT_TIME 0.5
 class JankyFoxliftState;
 
 class JankyAutonomousState : public JankyStateMachine	{
@@ -37,6 +37,7 @@ public:
 		BingulateUp,
 		DriveBackward,
 		RollersIn,
+		MoveRightandRollIn,
 		DriveSideways,
 		DriveForward,
 		DownTote,
@@ -56,12 +57,15 @@ public:
 	Timer * driveBackwardTimer;
 	Timer * forkliftTimer;
 	Timer*bingulateTimer;
+	Timer*moveRightTimer;
 	Solenoid*binPiston;
 	Servo*binServo;
 	RobotDrive * ptRobot;
 	JankyFoxliftState * ptFoxLift;
 	bool driveOnce;
 	bool goDownOnce;
+	int timesRepeated;
+	float extraBinTime;
 	
 	//Member functions
 	void RetractBinPiston();
