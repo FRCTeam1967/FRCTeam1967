@@ -21,35 +21,50 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	ptFoxLift = foxLift;
 	driveOnce = false;
 	goDownOnce = false;
+	timesRepeated = 0;
 	SetMachineName("JankyAutonomousStateMachine");
 	printf("Set machine name\n");
 	
 	SetName(Idle,"Idle");
-	SetName(BinIdle, "Idle for Bingulate");
+	SetName(HugIdle, "In Hug Idle");
+	SetName(BingulateDown, "Going to get bin");
+	SetName(BingulateUp, "Putting Bingulate up");
 	SetName(DriveSideways, "Just drive sideways");
+	SetName(DriveBackward, "Driving back to auto");
+	SetName(RollersIn, "Bringing intake in");
+	SetName(MoveRightandRollIn, "Move right & move intake in");
+	SetName(LowerTote, "Lower tote");
 	SetName(DriveForward,"Drive forward");
 	SetName(DownTote, "Down tote");
 	SetName(LiftTote, "Lift tote");
 	SetName(TurnToAuto, "Turn toward auto");
 	SetName(DriveToAuto, "Drive toward auto");
 	SetName(End, "End - STOPPPPPP");
+	SetName(TheRealEnd, "Done auto");
 	printf("Set state names\n");
 	
 	driveForwardTimer = new Timer();
 	driveSidewaysTimer = new Timer();
-	binTimer = new Timer();
-	driveBackTimer = new Timer();
+	driveBackwardTimer = new Timer();
 	turnTimer = new Timer();
 	driveToAutoTimer = new Timer();
-	driveForwardTimer->Reset();
-	driveSidewaysTimer->Reset();
-	turnTimer->Reset();
-	driveToAutoTimer->Reset();
-
-	binPiston = new Solenoid(BIN_PISTON);
-
+	forkliftTimer = new Timer();
+	driveBackwardTimer = new Timer();
+	bingulateTimer = new Timer();
+	binServo = new Servo(BINGULATE_SERVO);
+	binPiston = new Solenoid(BINGULATE_PISTON);
+    moveRightTimer = new Timer();
+	driveForwardTimer->Start();
+	driveSidewaysTimer->Start();
+	turnTimer->Start();
+	driveToAutoTimer->Start();
+	forkliftTimer->Start();
+	driveBackwardTimer->Start();
+	bingulateTimer->Start();
+	moveRightTimer->Start();
+	BinServoSetStart();
+	ExtendBinPiston();
 	printf("Newed/reset drive timer\n");
-	
 	//Starting JankyTask at end of constructor
 	Start();
 }
@@ -63,27 +78,79 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete driveForwardTimer;
 	delete turnTimer;
 	delete driveToAutoTimer;
-	delete binTimer;
-	delete driveBackTimer;
+	delete driveBackwardTimer;
+	delete binServo;
 	delete binPiston;
+	delete bingulateTimer;
+	delete moveRightTimer;
 }
+//FUNCTIONS
 
-void JankyAutonomousState::ExtendBingulate() {
-	binPiston = true;
+//Piston
+void JankyAutonomousState::RetractBinPiston(){
+	binPiston->Set(true);
 }
-void JankyAutonomousState::RetractBingulate() {
-	binPiston = false;
+void JankyAutonomousState::ExtendBinPiston(){
+	binPiston->Set(false);
 }
-void JankyAutonomousState::StartAuto(){
-	NewState(Idle, "starting and going in idle");
+//Servo
+void JankyAutonomousState::BinServoSetStart(){
+	binServo->SetAngle(360);
 }
-void JankyAutonomousState::Go()
+void JankyAutonomousState::BinServoSetEnd(){
+	binServo->SetAngle(0);
+}
+//Initial functions
+void JankyAutonomousState::GoForBox()
 {
-	printf("Go() called\n");
-	//GoSideways();
-	NewState(DownTote, "Down for tote");
+	NewState(StateValue::DownTote,"Starting ");
 }
 
+void JankyAutonomousState::GoForHug()
+{
+	NewState(HugIdle, "starting and going in idle");
+}
+void JankyAutonomousState::StartBinAuto(){
+	NewState(BingulateDown, "Bringing Bingulate Down");
+}
+//State Functions
+void JankyAutonomousState::GoTurnToAuto()
+{
+	printf("TurnToAuto() called\n");
+	if (GetCurrentState() == LiftTote || GetCurrentState() == RollersIn)
+	{
+		turnTimer->Reset();
+		NewState(StateValue::TurnToAuto,"Done w/ lift or rollers");
+	}
+	else
+		printf("Can't turn to auto zone\n");
+}
+
+void JankyAutonomousState::GoForwardToAuto()
+{
+	printf("DriveForwardToAuto() called\n");
+	if (GetCurrentState() == TurnToAuto)
+	{
+		driveToAutoTimer->Reset();
+		NewState(StateValue::DriveToAuto,"Start driving to auto zone");
+	}
+	else
+		printf("Can't drive to auto zone\n");
+}
+
+void JankyAutonomousState::BringInRollers()
+{
+	printf("DriveForwardToAuto() called\n");
+	if (GetCurrentState() == HugIdle)
+	{
+		forkliftTimer->Reset();
+		NewState(StateValue::RollersIn,"Bring the forklift rollers in");
+	}
+	else
+		printf("Can't bring in forklift\n");
+}
+
+/*
 void JankyAutonomousState::GoSideways()
 {
 	printf("GoSideways() called\n");
@@ -112,82 +179,149 @@ void JankyAutonomousState::GoForward()
 	}
 	else
 		printf("Can't go forward\n");
-}
-
-void JankyAutonomousState::GoLiftTote()
-{
-	printf("LiftTote() called\n");
-	if (GetCurrentState() == DriveForward)
-	{
-		NewState(StateValue::LiftTote,"Start lifting tote");
-	}
-	else
-		printf("Can't lift totes\n");
-}
-
-void JankyAutonomousState::GoTurnToAuto()
-{
-	printf("TurnToAuto() called\n");
-	if (GetCurrentState() == LiftTote)
-	{
-		turnTimer->Start();
-		NewState(StateValue::TurnToAuto,"Start turning to face auto zone");
-	}
-	else
-		printf("Can't turn to auto zone\n");
-}
-
-void JankyAutonomousState::GoForwardToAuto()
-{
-	printf("DriveForwardToAuto() called\n");
-	if (GetCurrentState() == TurnToAuto)
-	{
-		driveToAutoTimer->Start();
-		NewState(StateValue::DriveToAuto,"Start driving to auto zone");
-	}
-	else
-		printf("Can't drive to auto zone\n");
-}
+}*/
 
 void JankyAutonomousState::StateEngine(int curState)
 {
 	switch(curState)
 	{
 		case Idle:
-			ptFoxLift->GoMid();
-			//Idle handled by GoForward() or StartAuto()
 			printf("In Idle\n");
 			break;
-		case BinIdle:
-			ExtendBingulate();
-			if(ptFoxLift->!IsLSwitchTopClosed()) {
-				foxlift
-			}
-			else if (ptFoxLift->IsLSwitchTopClosed()){
-				NewState(Bingulate, "Limit switch top pressed");
-			}
-			break;
-		case Bingulate:
-			ptFoxLift->StopLift();
-			RetractBingulate();
-			binTimer->Reset();
-			if(binTimer > BINGULATE_TIME) {
-				NewState(DriveBackToAuto, "Bingulate done");
+		case HugIdle:
+			ptFoxLift->GoMid();
+			if(ptFoxLift->IsLSwitchMidClosed())
+			{
+				ptFoxLift->StopLift();
+				BringInRollers();
 			}
 			break;
-		case DriveBackToAuto:
-			if(driveBackTimer->Get() >= DRIVE_BACKWARD_TIME) {
-				//NewState(End, "Ending Autonomous");
-				NewState(Unbingulate,"Done driving backward");
-			}
-			else {
-				ptRobot->MecanumDrive_Cartesian(0.0,0.5,0.0,0.0);
+		case RollersIn:
+			ptFoxLift->RetractArms();
+			if (forkliftTimer->Get() >= FORKLIFT_TIME)
+			{
+				printf ("called GoTurnToAuto\n");
+				GoTurnToAuto();
 			}
 			break;
-		case Unbingulate:
-			ptFoxLift->GoDown();
+		case DownTote:
+			ptFoxLift->ExtendArms();
+			ptFoxLift->StopRollers();
 			ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+			if ( ptFoxLift-> IsLSwitchDownClosed() == false){
+				printf("going down \n");
+				ptFoxLift->GoDown();
+			}
+			else
+			{
+				if (timesRepeated == 2){
+					NewState(TurnToAuto, ("gotTote"));
+				}
+				//ptFoxLift->GoMid();
+				//printf("going mid\n");
+				else{
+				NewState(LiftTote, " Down and now picking tote");
+				}
+			}
 			break;
+		case LiftTote:
+			if(ptFoxLift->IsLSwitchMidClosed())
+			{
+				ptFoxLift->StopLift();
+				if (timesRepeated < 2){
+					timesRepeated++;
+					moveRightTimer->Reset();
+					NewState(MoveRightandRollIn, "on 1st and 2nd tote");
+				}
+				else{
+					turnTimer->Reset();
+					NewState(TurnToAuto, "picked third tote");
+				}
+			}
+			else{
+				ptFoxLift->GoMid();
+			}
+			break;
+		case MoveRightandRollIn:
+			ptFoxLift->RetractArms();
+			ptFoxLift->PushOutTote();
+			if (moveRightTimer->Get() > MOVE_RIGHT_TIME){
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+				NewState(DownTote, "done pushing bin");
+			}
+			else{
+				ptRobot->MecanumDrive_Cartesian(0.0,-1.0,0.0,0.0);
+			}
+			break;
+		case BingulateDown:
+			RetractBinPiston();
+			bingulateTimer->Reset();
+			NewState(BingulateWait, "Bingulate is going down");
+			break;
+		case BingulateWait:
+			if(bingulateTimer->Get() >= BINGULATE_TIME){
+				driveBackwardTimer->Reset();
+				NewState(DriveBackward, "Bingulation Enabled");
+			}
+			break;
+		case DriveBackward:
+			if(driveBackwardTimer->Get() >= DRIVE_BACKWARD_TIME){
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+				NewState(BingulateUp,"In autozone");
+			}
+			else{
+			ptRobot->MecanumDrive_Cartesian(0.0,-0.35,0.0,0.0);
+			}
+			break;
+		case BingulateUp:
+			BinServoSetEnd();
+			bingulateTimer->Reset();
+			NewState(BingulateEnd, "finishing autonomous");
+			break;
+		case TurnToAuto:
+			if(turnTimer->Get() >= TURN_TIME)
+			{
+				driveToAutoTimer->Reset();
+				NewState(DriveToAuto, "done turning");
+			}
+			else
+			{
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,1.0,0.0);
+			}
+			break;
+		case DriveToAuto:
+			if(driveToAutoTimer->Get() >= DRIVE_TO_AUTO_TIME)
+			{
+				NewState(End,"Done driving to auto zone");
+			}
+			else
+			{
+				ptRobot->MecanumDrive_Cartesian(0.0,-1.0,0.0,0.0);
+			}
+			break;
+		case BingulateEnd:
+			break;
+		case End:
+			if(ptRobot)
+			{
+				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+				NewState(TheRealEnd, "Stopped driving-lower tote");
+			}
+			break;
+		case LowerTote:
+			if (ptFoxLift->IsLSwitchDownClosed()){
+				NewState(TheRealEnd, "tote is lowered");
+			}
+			else{
+				ptFoxLift->GoDown();
+			}
+			break;
+		case TheRealEnd:
+			break;
+		default:
+			printf("error current state = %d\n",curState);
+			break;
+		/*
 		case DriveSideways:
 			//printf("In state DriveSideways\n");
 			//if(driveSidewaysTimer->Get() >= DRIVE_SIDEWAYS_TIME)
@@ -204,8 +338,8 @@ void JankyAutonomousState::StateEngine(int curState)
 			printf("In state DriveForward\n");
 			if(driveForwardTimer->Get() >= DRIVE_FORWARD_TIME)
 			{
-				NewState(End, "Ending Autonomous");
-				//NewState(LiftTote,"Done driving forward");
+				//NewState(End, "Ending Autonomous");
+				NewState(DownTote,"Done driving forward");
 			}
 			else
 			{
@@ -221,50 +355,6 @@ void JankyAutonomousState::StateEngine(int curState)
 				ptFoxLift->GoDown();
 				goDownOnce = true;
 			}
-
-
-			break;
-		case LiftTote:
-			ptFoxLift->NewState(JankyFoxliftState::StateValue::Braking, "lifting tote");
-			ptFoxLift->GoMid();
-			if(ptFoxLift->IsLSwitchMidClosed()){
-				turnTimer->Start();
-				NewState(TurnToAuto, "tote up and turning");
-			}
-			//NewState(TurnToAuto,"Done lifting tote");
-			break;
-		case TurnToAuto:
-			printf("In state TurnToAuto\n");
-			if(turnTimer->Get() >= TURN_TIME)
-			{
-				GoForwardToAuto();
-				//NewState(DriveToAuto,"Done driving forward");
-			}
-			else
-			{
-				ptRobot->MecanumDrive_Cartesian(0.0,0.0,1.0,0.0);
-			}
-			break;
-		case DriveToAuto:
-			printf("In state DriveToAuto\n");
-			if(driveToAutoTimer->Get() >= DRIVE_TO_AUTO_TIME)
-			{
-				NewState(End,"Done driving to auto zone");
-			}
-			else
-			{
-				ptRobot->MecanumDrive_Cartesian(0.0,-1.0,0.0,0.0);
-			}
-			break;
-		case End:
-			if(ptRobot)
-			{
-				ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
-				Terminate();
-			}
-			break;
-		default:
-			printf("error current state = %d\n",curState);
-			break;
+			break; */
 	}
 }

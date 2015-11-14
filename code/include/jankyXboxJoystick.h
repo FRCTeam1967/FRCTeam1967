@@ -22,8 +22,8 @@
 #define BUTTON_RB_PORT 6
 #define BUTTON_BACK_PORT 7
 #define BUTTON_START_PORT 8
-#define LEFT_X_AXIS_CHANNEL 1
-#define LEFT_Y_AXIS_CHANNEL 2
+#define LEFT_X_AXIS_CHANNEL 0 // before 1
+#define LEFT_Y_AXIS_CHANNEL 1 // before 2
 #define RIGHT_X_AXIS_CHANNEL 4
 #define RIGHT_Y_AXIS_CHANNEL 5
 

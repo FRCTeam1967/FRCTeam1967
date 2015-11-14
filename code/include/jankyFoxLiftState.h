@@ -32,8 +32,8 @@
 #define REORIENTATION 2
 #define SINGULATION_ONE 3
 #define SINGULATION_TWO 4
-#define ROLLER_SPEED_FORWARD 0.5
-#define ROLLER_SPEED_BACKWARD -0.5
+#define ROLLER_SPEED_FORWARD 0.6
+#define ROLLER_SPEED_BACKWARD -0.75
 
 class JankyFoxliftState : public JankyStateMachine	{
 public:

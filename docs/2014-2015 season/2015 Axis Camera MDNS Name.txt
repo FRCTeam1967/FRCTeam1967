@@ -1,0 +1,46 @@
+Configuring AXIS Camera to obtain host names via DHCP
+Gillian McGinnis, Team 1967
+Version 1.0 Authored March 28, 2015
+You must complete all of these steps in order, otherwise it will not work.
+
+
+Before you start, reset your camera to factory settings (these steps can be found in the manual)
+
+
+1. Connecting (applies to all steps)
+   1. Connect the camera as well as your computer via ethernet cable to configured (and connected to RoboRio) D-Link
+   2. Connect camera to power source
+1. DHCP
+   1. Set ethernet cable IP address to 192.168.0.91 on the computer
+   2. On the computer, enter the IP address of the camera into the website bar to view the live feed
+      1. Since the camera is on factory settings, the IP will be 192.168.0.90
+   1. System Options → Network → TCP/IP → Basic
+   2. Under “IP Address Configuration”
+   3. Click “Obtain IP address via DHCP”
+   4. On the computer, set ethernet cable IP to obtain via DHCP
+1. Naming the Camera
+   1. In the configuration menu
+      1. Setup → System Options → Network → TCP/IP → Advanced
+      2. Under “Host Name Configuration”, click “Use host name:” and enter desired camera name
+         1. It is advised to give your camera a unique name to your own team so as not to interfere with other teams’ codes (i.e. include your team number in it)
+   1. In Bonjour
+      1. Setup → System Options → Network → TCP/IP → Bonjour
+      2. Enter the same desired camera name
+1. Optional, Mac only: Testing the camera name via dns-sd -q (You still must be connected to RoboRio)
+   1. On Mac
+      1. Open Terminal
+      2. Enter the following: dns-sd -q cameraName.local
+      3. It should give you two IP addresses with cameraName.local.
+1. Displaying the image on SmartDashboard (C++)
+   1. Connect the computer and camera to the D-Link on your robot
+      1. The camera will also need a power source
+   1. Open SmartDashboard
+   2. Open C++ viewer
+   3. Edit → Editable
+   4. Edit → Add → Simple Camera Viewer
+   5. You might want to resize the image to be larger
+   6. Right-click the image → IP settings
+   7. Enter the IP address as cameraName.local
+   8. Edit → Editable
+1. Adding the hostname to your code (C++)
+   1. object = new AxisCamera(“cameraName”);

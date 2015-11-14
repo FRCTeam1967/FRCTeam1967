@@ -12,8 +12,10 @@
 #define FRONT_RIGHT_CHANNEL 1
 #define REAR_RIGHT_CHANNEL 3
 #define GC_DEADBAND_SIZE 0.5
+#define GCSTOP_DEADBAND_SIZE 0.75
 #define AUTOZONE_TIMER 1.2
 #define AUTOZONE_BUMP_TIMER 1.3
+#define AUTONOMOUS_TIME 13
 
 class Robot: public IterativeRobot
 {
@@ -27,6 +29,7 @@ class Robot: public IterativeRobot
 	Talon *pRF;
 	Talon *pLR;
 	Talon *pRR;
+	Timer*autonomousTimer;
 	SendableChooser *chooser;
 	JankyAutonomousState *jankyAuto;
 	Timer* autoZoneTimer;
@@ -48,10 +51,13 @@ public:
 		jankyAuto = NULL;
 		autoZoneTimer = NULL;
 		autoZoneBumpTimer = NULL;
+		autonomousTimer = new Timer();
+		autonomousTimer->Start();
 	}
 	~Robot()
 	{
 		delete robot;
+		delete autonomousTimer;
 		delete gameComponent;
 		delete joystick;
 		delete foxlift;
@@ -70,6 +76,8 @@ private:
 	int autoZoneAndBin;
 	int autoZone;
 	int autoZoneBump;
+	int autoZoneAndBinWithHug;
+	int autoZoneAndBingulate;
 
 	void RobotInit()
 	{
@@ -79,6 +87,7 @@ private:
 		pLR = new Talon(REAR_LEFT_CHANNEL);
 		pRR = new Talon(REAR_RIGHT_CHANNEL);
 		robot = new RobotDrive(pLF, pLR, pRF, pRR);
+		robot->SetSafetyEnabled(false);
 		char group [] = "DriveTrain";
 		lw = LiveWindow::GetInstance();
 		lw->AddActuator(group, "Front Left", pLF);
@@ -92,9 +101,11 @@ private:
 		chooser = new SendableChooser();
 		// need to addDefault otherwise it won't work
 		chooser->AddDefault("Autonomous Nothing (Default)", &defaultAuto);
-		chooser->AddObject("Autonomous 1 Tote/Bin", &autoZoneAndBin);
+		chooser->AddObject("Autonomous Tote using Boxlift", &autoZoneAndBin);
 		chooser->AddObject("Autonomous Forward w/ no bump", &autoZone);
 		chooser->AddObject("Autonomous Forward w/ bump", &autoZoneBump);
+		chooser->AddObject("Autonomous Tote with Hugging", &autoZoneAndBinWithHug);
+		chooser->AddObject("Autonomous Bingulate", &autoZoneAndBingulate);
 		//put the different options on SmartDashboard
 		SmartDashboard::PutData("Autonomous modes", chooser);
 
@@ -106,10 +117,12 @@ private:
 
 	void AutonomousInit()
 	{
+		autonomousTimer->Reset();
+		foxlift->SetFoxlift();
 		printf("AutonomousInit() called\n");
 		robot->SetSafetyEnabled(false);
 
-		if (&defaultAuto == chooser->GetSelected())
+		if (&defaultAuto == chooser->GetSelected()) //THE BOXLIFT HAS TO START ABOVE THE TOTE HEIGHT
 		{
 			printf("defaultAuto running\n");
 		}
@@ -117,38 +130,13 @@ private:
 		{
 			printf("autoZoneAndBin running\n");
 			jankyAuto = new JankyAutonomousState(robot, foxlift);
-			jankyAuto->StartAuto();
+			jankyAuto->GoForBox();
 		}
 		else if (&autoZone == chooser->GetSelected())
 		{
 			printf("autoZone running\n");
 			autoZoneTimer = new Timer();
 			autoZoneTimer->Start();
-
-		}
-		else if (&autoZoneBump == chooser->GetSelected())
-		{
-			printf("autoZone running\n");
-			autoZoneBumpTimer = new Timer();
-			autoZoneBumpTimer->Start();
-
-		}
-		else
-		{
-			printf("something's wrong\n");
-		}
-		printf("end of AutonomousInit()");
-	}
-
-	void AutonomousPeriodic()
-	{
-		printf("AutonomousPeriodic() called");
-		if (&autoZoneAndBin == chooser->GetSelected())
-		{
-			jankyAuto->Go();
-		}
-		else if (&autoZone == chooser->GetSelected())
-		{
 			if(autoZoneTimer->Get() >= AUTOZONE_TIMER )
 			{
 				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
@@ -160,6 +148,9 @@ private:
 		}
 		else if (&autoZoneBump == chooser->GetSelected())
 		{
+			printf("autoZone running\n");
+			autoZoneBumpTimer = new Timer();
+			autoZoneBumpTimer->Start();
 			if(autoZoneBumpTimer->Get() >= AUTOZONE_BUMP_TIMER )
 			{
 				robot->MecanumDrive_Cartesian(0.0, 0.0, 0.0, 0.0);
@@ -169,12 +160,41 @@ private:
 				robot->MecanumDrive_Cartesian(0.0, -1.0, 0.0, 0.0);
 			}
 		}
+		else if (&autoZoneAndBinWithHug == chooser->GetSelected())
+		{
+			printf("autoZoneAndBinWithHug running\n");
+			jankyAuto = new JankyAutonomousState(robot, foxlift);
+			jankyAuto->GoForHug();
+		}
+		else if (&autoZoneAndBingulate == chooser->GetSelected())
+		{
+		printf("autoZoneAndBingulate\n");
+		jankyAuto = new JankyAutonomousState(robot, foxlift);
+		jankyAuto->StartBinAuto();
+		}
+		else
+		{
+			printf("something's wrong\n");
+		}
+		printf("end of AutonomousInit()");
+	}
+
+	void AutonomousPeriodic()
+	{
+		if(autonomousTimer->Get()>= AUTONOMOUS_TIME && jankyAuto){
+			printf("going to delete autonomous \n");
+			jankyAuto->Terminate();
+			Wait(.5);
+			delete jankyAuto;
+			jankyAuto = NULL;
+			printf("deleted autonomous \n");
+		}
 	}
 
 	void CameraInit()
 	{
 		printf("before opening camera\n");
-		camera = new AxisCamera("camera1967"); //image on SmartDash must have the IP address: camera1967.local
+		camera = new AxisCamera("camera1967.local"); //image on SmartDash must have the IP address: camera1967.local
 		printf("after opening camera\n");
 		camera->WriteResolution (AxisCamera::kResolution_320x240);
 		camera->WriteCompression(30);
@@ -185,6 +205,7 @@ private:
 		camera->WriteWhiteBalance(AxisCamera::kWhiteBalance_Automatic);
 		camera->WriteExposureControl(AxisCamera::kExposureControl_Automatic);
 		camera->WriteRotation(AxisCamera::kRotation_180);
+
 	}
 
 	void TeleopInit()
@@ -196,6 +217,7 @@ private:
 
 	void TeleopPeriodic()
 	{
+		SmartDashboard::PutBoolean("limit Switch Mid closed", foxlift->IsLSwitchMidClosed());
 		SmartDashboard::PutBoolean("limit Switch Top closed", foxlift->IsLSwitchTopClosed());
 		SmartDashboard::PutNumber("Twist", joystick->GetZ());
 		SmartDashboard::PutNumber("XAxis", joystick->GetX());
@@ -209,11 +231,17 @@ private:
 		SmartDashboard::PutBoolean("Intake pistons", foxlift->rollerPistons->Get());
 		SmartDashboard::PutNumber("Get Throttle", joystick->GetThrottle());
 
+
 		//MECANUM DRIVE
 		float yValue = joystick->GetY();
 		float xValue = joystick->GetX();
 		//this is apparently changing the twist
-		float rotation = joystick->GetJoystickTwist();
+		float rotation = joystick->GetRawAxis(2);//GetJoystickTwist();
+		/*
+		 * Use GetRawAxis(2) for getting the twist of the new logitech joystick
+		 * the GetJoystickTwist() function aka GetThrottle() is the function to use
+		 * for the old phoenix joystick.
+		 */
 		// GetZ() apparently is changed by the lever at the bottom.
 		robot->MecanumDrive_Cartesian(xValue, yValue, rotation, 0.0);
 		SmartDashboard::PutNumber("X-Value", xValue);
@@ -230,23 +258,28 @@ private:
 
 		//ForkLift
 		//if(gameComponent->GetLeftYAxis() > GC_DEADBAND_SIZE){
-		if(gameComponent->GetY()*-1 > GC_DEADBAND_SIZE){
+		if(gameComponent->GetY() < (-1)*(GC_DEADBAND_SIZE)){
 			foxlift->PushOutTote();
+			//foxlift->StopRollers();
 		}
 		//else if(gameComponent->GetLeftYAxis() < (-1)*(GC_DEADBAND_SIZE)){
-		else if((gameComponent->GetY()*-1) < (-1)*(GC_DEADBAND_SIZE)){
+		else if(gameComponent->GetY() > GC_DEADBAND_SIZE){
 			foxlift->SuckInTote();
 		}
+		if(abs(gameComponent->GetX()) > GCSTOP_DEADBAND_SIZE)
+		{
+			foxlift->StopRollers();
+		}
 		//else if(abs(gameComponent->GetLeftYAxis()) <= GC_DEADBAND_SIZE){
-		else if(abs(gameComponent->GetY()*-1) <= GC_DEADBAND_SIZE){
+		/*else if(abs(gameComponent->GetY()*-1) <= GC_DEADBAND_SIZE){
 				foxlift->StopRollers();
-		}
+		}*/
 		//Arm pistons
-		if((gameComponent->GetRightYAxis()*-1) < (-1)*(GC_DEADBAND_SIZE)){
-			foxlift->RetractArmsManual();
+		if(gameComponent->GetRightYAxis() < (-1)*(GC_DEADBAND_SIZE)){
+			foxlift->ExtendArmsManual();
 		}
-		else if(abs(gameComponent->GetRightYAxis()*-1) <= GC_DEADBAND_SIZE){
-				foxlift->ExtendArmsManual();
+		else if(gameComponent->GetRightYAxis() > GC_DEADBAND_SIZE){
+				foxlift->RetractArmsManual();
 		}
 		//BOXLIFT
 		// When button is pressed, raise the boxlift
@@ -272,28 +305,28 @@ private:
 
 		//REORIENTATION
 		//When button is pressed and held, extend reorientation
-		if (gameComponent->GetButtonLB())
-		{
-			foxlift->Reorient();
-		}
+		//if (gameComponent->GetButtonLB())
+		//{
+			//foxlift->Reorient();
+		//}
 
 		//SINGULATION
 		//When any joystick top button is pressed and the trigger is pressed, extend piston one and low piston 2
-		if (joystick->IsAnyTopButtonPressed() && joystick->GetTrigger())
-		{
-			foxlift->SingulateTwo();
-		}
+		//if (joystick->IsAnyTopButtonPressed() && joystick->GetTrigger())
+		//{
+			//foxlift->SingulateTwo();
+		//}
 		//When any joystick top button is pressed, extend piston 1;
-		else if (joystick->IsAnyTopButtonPressed() && !joystick->GetTrigger())
-		{
-			foxlift->SingulateOne();
-		}
+		//else if (joystick->IsAnyTopButtonPressed() && !joystick->GetTrigger())
+		//{
+			//foxlift->SingulateOne();
+		//}
 
 		//Done Singulating and Reorienting
-		if (!joystick->IsAnyTopButtonPressed() && !gameComponent->GetButtonLB())
-		{
-			foxlift->DoneSingReor();
-		}
+		//if (!joystick->IsAnyTopButtonPressed() && !gameComponent->GetButtonLB())
+		//{
+			//foxlift->DoneSingReor();
+		//}
 	}
 
 	void TestInit()
