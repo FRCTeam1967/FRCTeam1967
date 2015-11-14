@@ -25,6 +25,7 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	printf("Set machine name\n");
 	
 	SetName(Idle,"Idle");
+	SetName(BinIdle, "Idle for Bingulate");
 	SetName(DriveSideways, "Just drive sideways");
 	SetName(DriveForward,"Drive forward");
 	SetName(DownTote, "Down tote");
@@ -36,12 +37,16 @@ JankyAutonomousState::JankyAutonomousState(RobotDrive * pt, JankyFoxliftState * 
 	
 	driveForwardTimer = new Timer();
 	driveSidewaysTimer = new Timer();
+	binTimer = new Timer();
+	driveBackTimer = new Timer();
 	turnTimer = new Timer();
 	driveToAutoTimer = new Timer();
 	driveForwardTimer->Reset();
 	driveSidewaysTimer->Reset();
 	turnTimer->Reset();
 	driveToAutoTimer->Reset();
+
+	binPiston = new Solenoid(BIN_PISTON);
 
 	printf("Newed/reset drive timer\n");
 	
@@ -58,6 +63,16 @@ JankyAutonomousState::~JankyAutonomousState()
 	delete driveForwardTimer;
 	delete turnTimer;
 	delete driveToAutoTimer;
+	delete binTimer;
+	delete driveBackTimer;
+	delete binPiston;
+}
+
+void JankyAutonomousState::ExtendBingulate() {
+	binPiston = true;
+}
+void JankyAutonomousState::RetractBingulate() {
+	binPiston = false;
 }
 void JankyAutonomousState::StartAuto(){
 	NewState(Idle, "starting and going in idle");
@@ -143,6 +158,36 @@ void JankyAutonomousState::StateEngine(int curState)
 			//Idle handled by GoForward() or StartAuto()
 			printf("In Idle\n");
 			break;
+		case BinIdle:
+			ExtendBingulate();
+			if(ptFoxLift->!IsLSwitchTopClosed()) {
+				foxlift
+			}
+			else if (ptFoxLift->IsLSwitchTopClosed()){
+				NewState(Bingulate, "Limit switch top pressed");
+			}
+			break;
+		case Bingulate:
+			ptFoxLift->StopLift();
+			RetractBingulate();
+			binTimer->Reset();
+			if(binTimer > BINGULATE_TIME) {
+				NewState(DriveBackToAuto, "Bingulate done");
+			}
+			break;
+		case DriveBackToAuto:
+			if(driveBackTimer->Get() >= DRIVE_BACKWARD_TIME) {
+				//NewState(End, "Ending Autonomous");
+				NewState(Unbingulate,"Done driving backward");
+			}
+			else {
+				ptRobot->MecanumDrive_Cartesian(0.0,0.5,0.0,0.0);
+			}
+			break;
+		case Unbingulate:
+			ptFoxLift->GoDown();
+			ptRobot->MecanumDrive_Cartesian(0.0,0.0,0.0,0.0);
+			break;
 		case DriveSideways:
 			//printf("In state DriveSideways\n");
 			//if(driveSidewaysTimer->Get() >= DRIVE_SIDEWAYS_TIME)
@@ -159,8 +204,8 @@ void JankyAutonomousState::StateEngine(int curState)
 			printf("In state DriveForward\n");
 			if(driveForwardTimer->Get() >= DRIVE_FORWARD_TIME)
 			{
-				//NewState(End, "Ending Autonomous");
-				NewState(DownTote,"Done driving forward");
+				NewState(End, "Ending Autonomous");
+				//NewState(LiftTote,"Done driving forward");
 			}
 			else
 			{
