@@ -5,4 +5,9 @@ Windows- JDK 1.8.0
 Mac might require a java install 
 
 Go to websites to download JDK, Sourcetree, and Sublime Text 2
+
+For Source Tree Installation 
+ - sign into GitHub account to attach it to SourceTree 
+ - clone both testrepo and FRCTeam1967
+    * if you do not want it in the user folder (the default) you have to create two empty folders for the location of these two repositories
   
