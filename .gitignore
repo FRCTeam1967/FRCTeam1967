@@ -20,5 +20,8 @@
 /code/JankyRobotDrive/PPC603gnu
 .o*
 .a*
+*.cpp~
+*.h~
+*.*~
 Debug/
 language.settings.xml
