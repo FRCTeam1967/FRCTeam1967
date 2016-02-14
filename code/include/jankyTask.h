@@ -18,7 +18,7 @@ class JankyTask {
    * @brief Constructor which takes an optional taskname. In the absence of a task name,
    *        a task name will be created based upon the current system-time.
    */
-  JankyTask(const char* taskName = NULL, uint32_t priority = Task::kDefaultPriority);
+  JankyTask(const char* taskName = NULL);
   virtual ~JankyTask();
 
   /**

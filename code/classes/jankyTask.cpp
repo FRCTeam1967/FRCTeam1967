@@ -2,25 +2,24 @@
 #include "jankyTask.h"
 #include <string>
 
-JankyTask::JankyTask(const char* taskName, uint32_t priority) {
+JankyTask::JankyTask(const char* taskName) {
   char oldstyle_name[128];
 
   if (!taskName)
   {
-    sprintf(oldstyle_name, "jankyTask-%u", GetFPGATime());
+    sprintf(oldstyle_name, "jankyTask-%llu", GetFPGATime());
   }
 
   enabled_ = false;
   running_ = true;
   isDead_ = false;
 
-  task_ = new Task(oldstyle_name, (FUNCPTR)JankyTask::JankyPrivateStarterTask, priority);
-  task_->Start((uint32_t)this);
+  task_ = new Task(oldstyle_name, (FUNCPTR)JankyTask::JankyPrivateStarterTask, this);
 }
 
 JankyTask::~JankyTask(){
-  task_->Stop();
-
+  this->Terminate();
+  task_->join();
   delete task_;   // Now kill the WPI class for the task.
 }
 
