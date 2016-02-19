@@ -26,14 +26,13 @@ public:
 			scaling = NULL;
 		}
 	~Robot(){
+			delete drivestick;
+			delete joystick;
+			delete scaling;
 
 			drivestick = NULL;
 			joystick = NULL;
 			scaling = NULL;
-
-			delete drivestick;
-			delete joystick;
-			delete scaling;
 		}
 
 private:

@@ -41,6 +41,9 @@ jankyScaling::~jankyScaling()
 	piston->Set(false);
 	delete piston;
 	delete motorEncoder;
+
+	piston = NULL;
+	motorEncoder = NULL;
 }
 
 void jankyScaling::EncoderReset(){
@@ -56,8 +59,6 @@ void jankyScaling::MotorEncoderReset(){
 void jankyScaling::Release(){
 	printf("Releasing piston now\n");
 	piston->Set(true);												//Pushing out piston to hit the CAM; no need to bring it back in we believe
-	Wait(RELEASE_TIME);
-	piston->Set(false);
 }
 
 void jankyScaling::WindUp()
