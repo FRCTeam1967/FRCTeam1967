@@ -23,6 +23,7 @@ jankyScaling::jankyScaling(int encoderChannelA, int encoderChannelB, int motorCh
 	piston->Set(false);
 
 	motorEncoder = new JankyEncoder(encoderChannelA, encoderChannelB, motorChannel);
+	printf("Created new motorEncoder\n");
 	motorEncoder->setSpeed(WIND_SPEED);
 	printf("Set revolution\n");
 	//windUpCancel = false;
