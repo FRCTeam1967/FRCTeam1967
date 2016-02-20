@@ -18,8 +18,8 @@ class jankyScaling{
 public:
 	//member functions
 	jankyScaling(int encoderChannelA, int encoderChannelB, int motorChannel, int pistonChannel);
-	//jankyScaling();
 	~jankyScaling();
+	void ScalingStart();
 	void EncoderReset();
 	void MotorEncoderReset();
 	void Release();
@@ -29,13 +29,6 @@ public:
 
 
 	//member variables
-	/*int pistonChannel = 1;
-	int motorChannel = 2;
-	int encoderChannelA;
-	int encoderChannelB;
-	int motorChannel;
-	int pistonChannel;*/
-	//bool windUpCancel;
 	bool encoderReset;
 	Solenoid*piston;
 	JankyEncoder*motorEncoder;

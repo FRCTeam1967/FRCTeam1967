@@ -41,7 +41,7 @@ private:
 		drivestick = new jankyDrivestick(DRIVE_JOYSTICK_PORT);				//setting drivestick to have its port at DRIVE_JOYSTICK_PORT;
 		joystick = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		scaling = new jankyScaling(SCALING_ENCODER_CHANNELA, SCALING_ENCODER_CHANNELB, SCALING_MOTOR_CHANNEL, SCALING_PISTON_CHANNEL);
-		//scaling->EncoderReset();
+		scaling->ScalingStart();
 	}
 
 	void TeleopPeriodic(){
@@ -50,15 +50,12 @@ private:
 			scaling->Release();
 		}
 		if (joystick->GetButtonB() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
-			//scaling->MotorEncoderReset();
 			printf("Going to Wind Up now\n");
-			//scaling->EncoderReset();
 			scaling->WindUp();
 		}
 		if (joystick->GetButtonY() == true){
 			printf("Stopping WindUp\n");
 			scaling->StopWU();
-			//scaling->EncoderReset();
 		}
 	}
 };
