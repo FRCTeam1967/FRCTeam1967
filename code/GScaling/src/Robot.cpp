@@ -36,11 +36,15 @@ public:
 		}
 
 private:
-	void TeleopInit(){
+	void RobotInit(){
 		printf("Made it to RobotInit\n");
-		drivestick = new jankyDrivestick(DRIVE_JOYSTICK_PORT);				//setting drivestick to have its port at DRIVE_JOYSTICK_PORT;
+		drivestick = new jankyDrivestick(DRIVE_JOYSTICK_PORT);
 		joystick = new jankyXboxJoystick(GC_JOYSTICK_PORT);
 		scaling = new jankyScaling(SCALING_ENCODER_CHANNELA, SCALING_ENCODER_CHANNELB, SCALING_MOTOR_CHANNEL, SCALING_PISTON_CHANNEL);
+	}
+
+	void TeleopInit(){
+		printf("Made it to TeleopInit\n");
 		scaling->ScalingStart();
 	}
 

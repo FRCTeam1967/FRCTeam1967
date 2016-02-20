@@ -30,6 +30,7 @@ jankyScaling::jankyScaling(int encoderChannelA, int encoderChannelB, int motorCh
 	encoderReset = false;
 	//motorEncoder->Reset();
 	//motorEncoder->Start();
+	ScalingStart();
 
 }
 
