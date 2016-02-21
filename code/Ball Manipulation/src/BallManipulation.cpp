@@ -7,9 +7,9 @@
 #include "WPILib.h"
 #include "BallManipulation.h"
 
-#define PIVOT_BALL_SPEED 0.1
-#define PIVOT_DEFENSE_SPEED 0.1
-#define BALL_MOTOR_SPEED 0.1
+#define PIVOT_BALL_SPEED 0.2
+#define PIVOT_DEFENSE_SPEED 0.2
+#define BALL_MOTOR_SPEED 1.0
 #define CHANGED_BALL_MOTOR_SPEED 1.0
 #define STOP_PLACE 20
 
@@ -64,28 +64,30 @@ void BallManipulation::PivotBall(void) {
 
 void BallManipulation::PullIn(void) {
 	// pull in ball
-	ballMotor->Set(BALL_MOTOR_SPEED);
+	ballMotor->Set(-BALL_MOTOR_SPEED);
 }
 
 void BallManipulation::PushOut(void) {
 	// push out ball
-	ballMotor->Set(-BALL_MOTOR_SPEED);
+	ballMotor->Set(BALL_MOTOR_SPEED);
 }
 
 void BallManipulation::DefenseUp(void) {
 	// pivot pivotMotor forward if top limit switch not pressed
-	pivotMotor->Set(-PIVOT_DEFENSE_SPEED);
-
-	if (GetTopLS() == false) {
+	if (GetTopLS() == true) {
+		pivotMotor->Set(PIVOT_DEFENSE_SPEED);
+	}
+	else {
 		pivotMotor->Set(0.0);
 	}
 }
 
 void BallManipulation::DefenseDown(void) {
 	// pivot pivotMotor backwards if bottom limit switch not pressed
-	pivotMotor->Set(PIVOT_DEFENSE_SPEED);
-
-	if (GetBottomLS() == false) {
+	if (GetBottomLS() == true) {
+		pivotMotor->Set(-PIVOT_DEFENSE_SPEED);
+	}
+	else {
 		pivotMotor->Set(0.0);
 	}
 }
