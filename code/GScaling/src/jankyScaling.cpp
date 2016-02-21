@@ -16,13 +16,13 @@
 #define RELEASE_TIME 1.0
 
 //Constructor
-jankyScaling::jankyScaling(int encoderChannelA, int encoderChannelB, int motorChannel, int pistonChannel)
+jankyScaling::jankyScaling(int encoderChannelA, int encoderChannelB, int motorChannelA, int motorChannelB, int pistonChannel)
 {
 	piston = new Solenoid(19, pistonChannel);
 	printf("About to set piston to false\n");
 	//piston->Set(false);
 
-	motorEncoder = new JankyEncoder(encoderChannelA, encoderChannelB, motorChannel);
+	motorEncoder = new JankyEncoder(encoderChannelA, encoderChannelB, motorChannelA, motorChannelB);
 	printf("Created new motorEncoder\n");
 	//motorEncoder->setSpeed(WIND_SPEED);
 	printf("Set revolution\n");
@@ -50,6 +50,7 @@ void jankyScaling::ScalingStart(){
 	motorEncoder->setSpeed(WIND_SPEED);
 	motorEncoder->setRevolution(SCALING_WINDS);
 	motorEncoder->Start();
+	motorEncoder->motorGo();
 }
 
 void jankyScaling::Release(){
@@ -59,12 +60,13 @@ void jankyScaling::Release(){
 
 void jankyScaling::WindUp()
 {
+	motorEncoder->motorGo();
 	motorEncoder->Go();
 
 }
 
 void jankyScaling::StopWU(){
-	motorEncoder->Reset();											//Find a way to stop the motor without having to reset——stopMotor isn't working bc Go is overriding it?
+	motorEncoder->Stop();											//Find a way to stop the motor without having to reset——stopMotor isn't working bc Go is overriding it?
 	printf("Stopping wind\n");
 }
 

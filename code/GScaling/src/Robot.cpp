@@ -7,9 +7,10 @@
 
 #define DRIVE_JOYSTICK_PORT 1
 #define GC_JOYSTICK_PORT 0
-#define SCALING_ENCODER_CHANNELA 1
-#define SCALING_ENCODER_CHANNELB 0
-#define SCALING_MOTOR_CHANNEL 1
+#define SCALING_ENCODER_CHANNELA 0		//will be 2 in final bot
+#define SCALING_ENCODER_CHANNELB 1		//will be 3 in final bot
+#define SCALING_MOTOR_CHANNELA 1		//will be 7 in final bot
+#define SCALING_MOTOR_CHANNELB 2		//will be 8 in final bot
 #define SCALING_PISTON_CHANNEL 1
 
 class Robot:public IterativeRobot{
@@ -40,7 +41,7 @@ private:
 		printf("Made it to RobotInit\n");
 		drivestick = new jankyDrivestick(DRIVE_JOYSTICK_PORT);
 		joystick = new jankyXboxJoystick(GC_JOYSTICK_PORT);
-		scaling = new jankyScaling(SCALING_ENCODER_CHANNELA, SCALING_ENCODER_CHANNELB, SCALING_MOTOR_CHANNEL, SCALING_PISTON_CHANNEL);
+		scaling = new jankyScaling(SCALING_ENCODER_CHANNELA, SCALING_ENCODER_CHANNELB, SCALING_MOTOR_CHANNELA, SCALING_MOTOR_CHANNELB, SCALING_PISTON_CHANNEL);
 	}
 
 	void TeleopInit(){

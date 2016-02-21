@@ -17,7 +17,7 @@
 class jankyScaling{
 public:
 	//member functions
-	jankyScaling(int encoderChannelA, int encoderChannelB, int motorChannel, int pistonChannel);
+	jankyScaling(int encoderChannelA, int encoderChannelB, int motorChannelA, int motorChannelB, int pistonChannel);
 	~jankyScaling();
 	void ScalingStart();
 	void Release();

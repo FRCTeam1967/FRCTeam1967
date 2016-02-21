@@ -13,15 +13,20 @@
  * Construct instance of an encoder that runs in its own task.
  * 
 */
-JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int motorOneChannel)
+JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int motorOneChannel, int motorTwoChannel)
 {
-	pMotor = new CANTalon(motorOneChannel);
+	pMotor = new Talon(motorOneChannel);
+	pMotor2 = new Talon(motorTwoChannel);
 	pEncoder = new Encoder(encoderOneChannel, encoderTwoChannel);
 	maxTimer = new Timer();
 	maxTimer->Reset();
 	this->Reset();
 	motorSpeed = RESET_INITMOTORSPEED;
 	desiredMaxTime = DEFAULT_MAX_TIME;
+	targetcount = 1;
+	bEncoding = false;
+	bDone = false;
+	motorStop = false;
 }
 
 /*
@@ -30,13 +35,19 @@ JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int mot
 JankyEncoder::~JankyEncoder()
 {
 	delete pMotor;
+	delete pMotor2;
 	delete pEncoder;
 	delete maxTimer;
 }
 
-CANTalon * JankyEncoder::returnMotor()
+Talon * JankyEncoder::returnMotor()
 {
 	return pMotor;
+}
+
+Talon * JankyEncoder::returnMotor2()
+{
+	return pMotor2;
 }
 
 void JankyEncoder::setRevolution(float desiredRevolution)
@@ -53,11 +64,27 @@ float JankyEncoder::getRevolution()
 void JankyEncoder::stopMotor()
 {
 	pMotor->Set(0.0);
+	pMotor2->Set(0.0);
+	printf("Stopping Motors\n");
+}
+
+
+void JankyEncoder::motorGo()
+{
+	motorStop = false;
+	printf("Setting motorStop to false\n");
+}
+
+void JankyEncoder::Stop()
+{
+	motorStop = true;
+	printf("Stopping Motors\n");
 }
 
 void JankyEncoder::startMotor()
 {
 	pMotor->Set(motorSpeed);
+	pMotor2->Set(motorSpeed);
 }
 
 void JankyEncoder::setSpeed(float desiredSpeed)
@@ -111,7 +138,7 @@ void JankyEncoder::Run(void)
 		printf("abs(pEncoder->Get()) %d", abs(pEncoder->Get()));
 		if (bEncoding == true)
 		{
-			if (abs(pEncoder->Get()) >= targetcount || maxTimer->Get() >= desiredMaxTime)
+			if (abs(pEncoder->Get()) >= targetcount || maxTimer->Get() >= desiredMaxTime || motorStop == true)
 			{
 				bDone = true;
 				//printf ("Task targetcount reached\n");

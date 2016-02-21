@@ -13,7 +13,7 @@
 
 class JankyEncoder : public JankyTask	{
 public:
-	JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int motorOneChannel);
+	JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int motorOneChannel, int motorTwoChannel);
 	virtual ~JankyEncoder(void);
 	
 	//Member functions
@@ -22,23 +22,28 @@ public:
 	void Reset(void);
 	void startMotor();
 	void stopMotor();
+	void motorGo();
+	void Stop();
 	void setSpeed(float desiredSpeed);
 	bool isDone();
 	bool Go();
 	void Run();
-	CANTalon * returnMotor(void);
+	Talon * returnMotor(void);
+	Talon * returnMotor2(void);
 	void SetMaxTime(float maxTime);
 	
 	//Member variables
-	CANTalon * pMotor;
+	Talon * pMotor;
+	Talon * pMotor2;
 	int targetcount;
-	float currentRev;
+	//float currentRev;
 	float motorSpeed;
 	Encoder * pEncoder;
 	Timer * maxTimer;
 	bool bDone;
 	bool bEncoding;
 	float desiredMaxTime;
+	bool motorStop;
 
 };
 
