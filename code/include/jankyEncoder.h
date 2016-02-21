@@ -26,11 +26,11 @@ public:
 	bool isDone();
 	bool Go();
 	void Run();
-	Victor * returnMotor(void);
+	CANTalon * returnMotor(void);
 	void SetMaxTime(float maxTime);
 	
 	//Member variables
-	Victor * pMotor;
+	CANTalon * pMotor;
 	int targetcount;
 	float currentRev;
 	float motorSpeed;

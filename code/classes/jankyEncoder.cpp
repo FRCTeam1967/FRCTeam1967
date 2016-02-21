@@ -15,7 +15,7 @@
 */
 JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int motorOneChannel)
 {
-	pMotor = new Victor(motorOneChannel);
+	pMotor = new CANTalon(motorOneChannel);
 	pEncoder = new Encoder(encoderOneChannel, encoderTwoChannel);
 	maxTimer = new Timer();
 	maxTimer->Reset();
@@ -34,7 +34,7 @@ JankyEncoder::~JankyEncoder()
 	delete maxTimer;
 }
 
-Victor * JankyEncoder::returnMotor()
+CANTalon * JankyEncoder::returnMotor()
 {
 	return pMotor;
 }
