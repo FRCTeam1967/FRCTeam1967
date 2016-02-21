@@ -49,15 +49,15 @@ private:
 	}
 
 	void TeleopPeriodic(){
-		if (joystick->GetButtonA() == true){			//scaling Release; when button A on the Xbox controller is pressed, Release will be enabled
+		if (joystick->GetButtonX() == true){			//scaling Release; when button A on the Xbox controller is pressed, Release will be enabled
 			printf("Going to Release now\n");
 			scaling->Release();
 		}
-		if (joystick->GetButtonB() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
+		if (joystick->GetButtonY() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
 			printf("Going to Wind Up now\n");
 			scaling->WindUp();
 		}
-		if (joystick->GetButtonY() == true){
+		if (joystick->GetButtonB() == true){
 			printf("Stopping WindUp\n");
 			scaling->StopWU();
 		}

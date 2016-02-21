@@ -27,7 +27,6 @@ jankyScaling::jankyScaling(int encoderChannelA, int encoderChannelB, int motorCh
 	//motorEncoder->setSpeed(WIND_SPEED);
 	printf("Set revolution\n");
 
-	encoderReset = false;
 	//motorEncoder->Reset();
 	//motorEncoder->Start();
 	ScalingStart();
@@ -47,17 +46,10 @@ jankyScaling::~jankyScaling()
 
 void jankyScaling::ScalingStart(){
 	piston->Set(false);
+	motorEncoder->Reset();
 	motorEncoder->setSpeed(WIND_SPEED);
-	motorEncoder->Reset();
+	motorEncoder->setRevolution(SCALING_WINDS);
 	motorEncoder->Start();
-}
-
-void jankyScaling::EncoderReset(){
-	motorEncoder->Reset();
-}
-
-void jankyScaling::MotorEncoderReset(){
-	encoderReset = true;
 }
 
 void jankyScaling::Release(){
@@ -67,15 +59,13 @@ void jankyScaling::Release(){
 
 void jankyScaling::WindUp()
 {
-	motorEncoder->setRevolution(SCALING_WINDS);
 	motorEncoder->Go();
 
 }
 
 void jankyScaling::StopWU(){
-	//motorEncoder->stopMotor();
-	motorEncoder->Reset();
-	printf("Canceling all\n");
+	motorEncoder->Reset();											//Find a way to stop the motor without having to reset——stopMotor isn't working bc Go is overriding it?
+	printf("Stopping wind\n");
 }
 
 

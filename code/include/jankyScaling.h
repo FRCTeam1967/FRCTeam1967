@@ -20,8 +20,6 @@ public:
 	jankyScaling(int encoderChannelA, int encoderChannelB, int motorChannel, int pistonChannel);
 	~jankyScaling();
 	void ScalingStart();
-	void EncoderReset();
-	void MotorEncoderReset();
 	void Release();
 	void WindUp();
 	void StopWU();
