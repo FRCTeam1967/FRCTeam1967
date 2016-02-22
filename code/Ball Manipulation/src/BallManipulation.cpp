@@ -31,12 +31,12 @@ BallManipulation::~BallManipulation(void) {
 }
 
 void BallManipulation::ChangeSpeed(void) {
-	// changes speed of intake mechanism
-	float currentSpeed = ballMotor->Get();
+	// changes speed of pivot mechanism
+	float currentSpeed = pivotMotor->Get();
 	if (currentSpeed == BALL_MOTOR_SPEED) {
-		ballMotor->Set(CHANGED_BALL_MOTOR_SPEED);
+		pivotMotor->Set(CHANGED_BALL_MOTOR_SPEED);
 	} else if (currentSpeed == (-BALL_MOTOR_SPEED)) {
-		ballMotor->Set(-CHANGED_BALL_MOTOR_SPEED);
+		pivotMotor->Set(-CHANGED_BALL_MOTOR_SPEED);
 	}
 }
 
