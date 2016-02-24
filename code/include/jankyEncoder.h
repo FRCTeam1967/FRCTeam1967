@@ -23,18 +23,20 @@ public:
 	void startMotor();
 	void stopMotor();
 	void motorGo();
+	void stopCheck();
 	void Stop();
 	void setSpeed(float desiredSpeed);
 	bool isDone();
 	bool Go();
+	bool ReverseGo();
 	void Run();
-	Talon * returnMotor(void);
-	Talon * returnMotor2(void);
+	CANTalon * returnMotor(void);
+	CANTalon * returnMotor2(void);
 	void SetMaxTime(float maxTime);
 	
 	//Member variables
-	Talon * pMotor;
-	Talon * pMotor2;
+	CANTalon * pMotor;
+	CANTalon * pMotor2;
 	int targetcount;
 	//float currentRev;
 	float motorSpeed;
@@ -42,8 +44,11 @@ public:
 	Timer * maxTimer;
 	bool bDone;
 	bool bEncoding;
+	bool directionCheck;
 	float desiredMaxTime;
 	bool motorStop;
+	float pEncoderStartVal;
+	bool hasStopBeenPressed;
 
 };
 

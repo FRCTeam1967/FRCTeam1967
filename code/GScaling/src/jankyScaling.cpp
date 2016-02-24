@@ -12,7 +12,8 @@
 #include <cmath>
 
 #define SCALING_WINDS 16					//Scaling winch needs to turn 360 degrees exactly 16 times
-#define WIND_SPEED 1.0
+#define FW_WIND_SPEED 1.0
+#define BW_WIND_SPEED -1.0
 #define RELEASE_TIME 1.0
 
 //Constructor
@@ -47,7 +48,7 @@ jankyScaling::~jankyScaling()
 void jankyScaling::ScalingStart(){
 	piston->Set(false);
 	motorEncoder->Reset();
-	motorEncoder->setSpeed(WIND_SPEED);
+	//motorEncoder->setSpeed(WIND_SPEED);
 	motorEncoder->setRevolution(SCALING_WINDS);
 	motorEncoder->Start();
 	motorEncoder->motorGo();
@@ -58,15 +59,31 @@ void jankyScaling::Release(){
 	piston->Set(true);												//Pushing out piston to hit the CAM; no need to bring it back in we believe
 }
 
-void jankyScaling::WindUp()
+void jankyScaling::WindUp()											//pulling the robot up
 {
-	motorEncoder->motorGo();
-	motorEncoder->Go();
+	if (windCheck == true)
+	{
+		motorEncoder->setSpeed(FW_WIND_SPEED);
+		motorEncoder->motorGo();
+		motorEncoder->Go();
+	}
+	windCheck = false;
+}
 
+void jankyScaling::WindDn()											//extend the robot towards down
+{
+	if (windCheck == false)
+		{
+			motorEncoder->setSpeed(BW_WIND_SPEED);
+			motorEncoder->motorGo();
+			motorEncoder->ReverseGo();
+		}
+		windCheck = true;
 }
 
 void jankyScaling::StopWU(){
 	motorEncoder->Stop();											//Find a way to stop the motor without having to reset——stopMotor isn't working bc Go is overriding it?
+	motorEncoder->stopCheck();
 	printf("Stopping wind\n");
 }
 

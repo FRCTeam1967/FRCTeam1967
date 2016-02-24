@@ -7,10 +7,10 @@
 
 #define DRIVE_JOYSTICK_PORT 1
 #define GC_JOYSTICK_PORT 0
-#define SCALING_ENCODER_CHANNELA 0		//will be 2 in final bot
-#define SCALING_ENCODER_CHANNELB 1		//will be 3 in final bot
-#define SCALING_MOTOR_CHANNELA 1		//will be 7 in final bot
-#define SCALING_MOTOR_CHANNELB 2		//will be 8 in final bot
+#define SCALING_ENCODER_CHANNELA 3		//will be 2 in final bot
+#define SCALING_ENCODER_CHANNELB 2		//will be 3 in final bot
+#define SCALING_MOTOR_CHANNELA 7		//will be 7 in final bot
+#define SCALING_MOTOR_CHANNELB 8		//will be 8 in final bot
 #define SCALING_PISTON_CHANNEL 1
 
 class Robot:public IterativeRobot{
@@ -57,6 +57,10 @@ private:
 		if (joystick->GetButtonY() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
 			printf("Going to Wind Up now\n");
 			scaling->WindUp();
+		}
+		if (joystick->GetButtonA() == true){
+			printf("Going to Wind Down now\n");
+			scaling->WindDn();
 		}
 		if (joystick->GetButtonB() == true){
 			printf("Stopping WindUp\n");

@@ -15,8 +15,8 @@
 */
 JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int motorOneChannel, int motorTwoChannel)
 {
-	pMotor = new Talon(motorOneChannel);
-	pMotor2 = new Talon(motorTwoChannel);
+	pMotor = new CANTalon(motorOneChannel);
+	pMotor2 = new CANTalon(motorTwoChannel);
 	pEncoder = new Encoder(encoderOneChannel, encoderTwoChannel);
 	maxTimer = new Timer();
 	maxTimer->Reset();
@@ -27,6 +27,7 @@ JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int mot
 	bEncoding = false;
 	bDone = false;
 	motorStop = false;
+	directionCheck = false;
 }
 
 /*
@@ -40,12 +41,12 @@ JankyEncoder::~JankyEncoder()
 	delete maxTimer;
 }
 
-Talon * JankyEncoder::returnMotor()
+CANTalon * JankyEncoder::returnMotor()
 {
 	return pMotor;
 }
 
-Talon * JankyEncoder::returnMotor2()
+CANTalon * JankyEncoder::returnMotor2()
 {
 	return pMotor2;
 }
@@ -74,6 +75,12 @@ void JankyEncoder::motorGo()
 	motorStop = false;
 	printf("Setting motorStop to false\n");
 }
+
+void JankyEncoder::stopCheck()
+{
+	hasStopBeenPressed = true;
+}
+
 
 void JankyEncoder::Stop()
 {
@@ -115,9 +122,45 @@ void JankyEncoder::Reset(void)
 bool JankyEncoder::Go(void)
 {
 	printf ("INSIDE GO\n");
-	if (bEncoding == false)
+	if (bEncoding == false && abs(pEncoder->Get()) <= targetcount)
 	{
 		printf ("bEncoding = false\n");
+		directionCheck = true; //going "forward"
+		if (hasStopBeenPressed == false)
+		{
+			pEncoderStartVal = pEncoder->Get();
+		}
+		hasStopBeenPressed = false;
+		printf("Encoder Start Value Go %f\n", pEncoderStartVal);
+		startMotor();
+		maxTimer->Start();
+		bEncoding = true;
+		printf("bEncoding = true\n");
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+bool JankyEncoder::ReverseGo(void)
+{
+	printf ("INSIDE REVERSEGO\n");
+	if (bEncoding == true)
+		bEncoding = false;
+	if (bEncoding == false && pEncoder->Get() > 0)
+	{
+		printf ("bEncoding = false\n");
+		directionCheck = false; //going "backwards"
+		//printf("Switching Revolution to Negative %f \n", getRevolution()*-1);
+		//setRevolution(getRevolution() * -1);
+		if (hasStopBeenPressed == false)
+		{
+			pEncoderStartVal = pEncoder->Get();
+		}
+		hasStopBeenPressed = false;
+		printf("Encoder Start Value RevGo %f\n", pEncoderStartVal);
 		startMotor();
 		maxTimer->Start();
 		bEncoding = true;
@@ -135,19 +178,24 @@ void JankyEncoder::Run(void)
 	{
 		//printf ("GoodEncoder\n");
 		SmartDashboard::PutNumber ("Encodercount", abs(pEncoder->Get()));
-		printf("abs(pEncoder->Get()) %d", abs(pEncoder->Get()));
+
 		if (bEncoding == true)
 		{
-			if (abs(pEncoder->Get()) >= targetcount || maxTimer->Get() >= desiredMaxTime || motorStop == true)
+			printf("abs(pEncoder->Get()) %d \n", abs(pEncoder->Get()));
+			printf("motor stop value %d\n", motorStop);
+
+			if ( abs(pEncoder->Get() - pEncoderStartVal) >= targetcount || maxTimer->Get() >= desiredMaxTime || motorStop == true) 		//motorStop
 			{
 				bDone = true;
 				//printf ("Task targetcount reached\n");
 				stopMotor();
+				printf("Encoder Stop Value %d\n", pEncoder->Get());
+				bEncoding = false;
 				maxTimer->Stop();
 			}
 			else
 			{
-				printf ("Targetcount NOT reached\n");
+				//printf ("Targetcount NOT reached\n");
 				startMotor();
 			}
 		}

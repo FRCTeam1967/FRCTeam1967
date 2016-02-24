@@ -22,14 +22,16 @@ public:
 	void ScalingStart();
 	void Release();
 	void WindUp();
+	void WindDn();
 	void StopWU();
 	float GetWrap();
 
-
 	//member variables
 	bool encoderReset;
+	bool windCheck;
 	Solenoid*piston;
 	JankyEncoder*motorEncoder;
+
 
 };
 
