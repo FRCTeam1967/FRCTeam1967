@@ -47,7 +47,7 @@ bool jankyDrivestick::Get6()
 	return Joystick::GetRawButton(BUTTON_6_PORT);
 }
 
-bool jankyDrivestick::Get3()
+bool jankyDrivestick::Get4()
 {
 	return Joystick::GetRawButton(BUTTON_4_PORT);
 }
