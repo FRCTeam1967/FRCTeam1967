@@ -24,8 +24,12 @@ public:
 	void stopMotor();
 	void motorGo();
 	void stopCheck();
+	bool typeWind();
+	void setWind(bool wind);
+	void reverseWindCheck();
 	void Stop();
 	void setSpeed(float desiredSpeed);
+	bool isStopButtonPressed();
 	bool isDone();
 	bool Go();
 	bool ReverseGo();
@@ -45,6 +49,7 @@ public:
 	bool bDone;
 	bool bEncoding;
 	bool directionCheck;
+	bool windCheck;
 	float desiredMaxTime;
 	bool motorStop;
 	float pEncoderStartVal;

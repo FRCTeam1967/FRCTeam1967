@@ -19,6 +19,8 @@
 //Constructor
 jankyScaling::jankyScaling(int encoderChannelA, int encoderChannelB, int motorChannelA, int motorChannelB, int pistonChannel)
 {
+	windCheck = true;
+
 	piston = new Solenoid(19, pistonChannel);
 	printf("About to set piston to false\n");
 	//piston->Set(false);
@@ -61,24 +63,26 @@ void jankyScaling::Release(){
 
 void jankyScaling::WindUp()											//pulling the robot up
 {
-	if (windCheck == true)
+	if (motorEncoder->typeWind() == true || motorEncoder->isStopButtonPressed() == true)
 	{
 		motorEncoder->setSpeed(FW_WIND_SPEED);
 		motorEncoder->motorGo();
 		motorEncoder->Go();
+		motorEncoder->setWind(true);
 	}
-	windCheck = false;
+	//windCheck = false;
 }
 
 void jankyScaling::WindDn()											//extend the robot towards down
 {
-	if (windCheck == false)
+	if (motorEncoder->typeWind() == false || motorEncoder->isStopButtonPressed() == true)
 		{
 			motorEncoder->setSpeed(BW_WIND_SPEED);
 			motorEncoder->motorGo();
 			motorEncoder->ReverseGo();
+			motorEncoder->setWind(false);
 		}
-		windCheck = true;
+		//windCheck = true;
 }
 
 void jankyScaling::StopWU(){

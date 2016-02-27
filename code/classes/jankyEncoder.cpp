@@ -28,6 +28,7 @@ JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int mot
 	bDone = false;
 	motorStop = false;
 	directionCheck = false;
+	hasStopBeenPressed = false;
 }
 
 /*
@@ -70,19 +71,45 @@ void JankyEncoder::stopMotor()
 }
 
 
-void JankyEncoder::motorGo()
+void JankyEncoder::motorGo() //sets motorStop to false; because motorStop is false, the motor will not stop going
 {
 	motorStop = false;
 	printf("Setting motorStop to false\n");
 }
 
-void JankyEncoder::stopCheck()
+void JankyEncoder::stopCheck() //sets hasBeenPressed to true; shows that the emergency stop button has been pressed
 {
 	hasStopBeenPressed = true;
 }
 
+void JankyEncoder::reverseWindCheck() //reverses the value of windCheck which is a label for what type of wind was used (windUP vs. windDN)
+{
+	if (windCheck == true)
+	{
+		windCheck = false;
+	}
+	else if (windCheck == false)
+	{
+		windCheck = true;
+	}
+}
 
-void JankyEncoder::Stop()
+bool JankyEncoder::isStopButtonPressed() //allows hasStopBeenPressed to be a variable used in jankyScaling
+{
+	return hasStopBeenPressed;
+}
+
+bool JankyEncoder::typeWind() //allows windCheck to be a variable used in jankyScaling
+{
+	return windCheck;
+}
+
+void JankyEncoder::setWind(bool wind) //allows jankyScaling to set the value of the windCheck
+{
+	windCheck = wind;
+}
+
+void JankyEncoder::Stop() //sets motorStop to true, so that when the emergency stop button is pressed, the condition in the run function will be met and the motor will stop
 {
 	motorStop = true;
 	printf("Stopping Motors\n");
@@ -122,7 +149,7 @@ void JankyEncoder::Reset(void)
 bool JankyEncoder::Go(void)
 {
 	printf ("INSIDE GO\n");
-	if (bEncoding == false && abs(pEncoder->Get()) <= targetcount)
+	if (abs(pEncoder->Get()) <= targetcount) //used to be...if (bEncoding == false && abs(pEncoder->Get()) <= targetcount)
 	{
 		printf ("bEncoding = false\n");
 		directionCheck = true; //going "forward"
@@ -147,9 +174,7 @@ bool JankyEncoder::Go(void)
 bool JankyEncoder::ReverseGo(void)
 {
 	printf ("INSIDE REVERSEGO\n");
-	if (bEncoding == true)
-		bEncoding = false;
-	if (bEncoding == false && pEncoder->Get() > 0)
+	if (pEncoder->Get() > 0)	//used to be...if (bEncoding == false && pEncoder->Get() > 0)
 	{
 		printf ("bEncoding = false\n");
 		directionCheck = false; //going "backwards"
@@ -184,14 +209,19 @@ void JankyEncoder::Run(void)
 			printf("abs(pEncoder->Get()) %d \n", abs(pEncoder->Get()));
 			printf("motor stop value %d\n", motorStop);
 
-			if ( abs(pEncoder->Get() - pEncoderStartVal) >= targetcount || maxTimer->Get() >= desiredMaxTime || motorStop == true) 		//motorStop
+			if ( abs(pEncoder->Get() - pEncoderStartVal) >= targetcount || maxTimer->Get() >= desiredMaxTime )
 			{
 				bDone = true;
 				//printf ("Task targetcount reached\n");
+				reverseWindCheck();
 				stopMotor();
 				printf("Encoder Stop Value %d\n", pEncoder->Get());
 				bEncoding = false;
 				maxTimer->Stop();
+			}
+			else if (motorStop == true)
+			{
+				stopMotor();
 			}
 			else
 			{
