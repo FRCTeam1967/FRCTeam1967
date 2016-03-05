@@ -17,6 +17,8 @@ class Robot: public IterativeRobot
 	BallManipulation * bman;
 	jankyXboxJoystick * joystick;
 
+	bool pivotPressed = false;
+
 public:
 	Robot() {
 		bman = NULL;
@@ -64,8 +66,9 @@ private:
 		if (joystick->GetButtonRB() == true) {
 			bman->ChangeSpeed();
 		}
-		if (joystick->GetButtonB() == true) {
+		if (joystick->GetButtonB() == true || pivotPressed == true) {
 			bman->PivotBall();
+			pivotPressed = true;
 		}
 
 		float leftYValue = joystick->GetLeftYAxis();
