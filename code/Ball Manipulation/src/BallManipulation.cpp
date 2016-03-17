@@ -9,8 +9,8 @@
 
 #define PIVOT_BALL_SPEED 0.2
 #define PIVOT_DEFENSE_SPEED 0.2
-#define BALL_MOTOR_SPEED 1.0
-#define CHANGED_BALL_MOTOR_SPEED 1.0
+#define BALL_MOTOR_SPEED 0.75
+#define CHANGED_PIVOT_MOTOR_SPEED 0.5
 #define STOP_PLACE 20
 
 BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
@@ -33,32 +33,27 @@ BallManipulation::~BallManipulation(void) {
 void BallManipulation::ChangeSpeed(void) {
 	// changes speed of pivot mechanism
 	float currentSpeed = pivotMotor->Get();
-	if (currentSpeed == BALL_MOTOR_SPEED) {
-		pivotMotor->Set(CHANGED_BALL_MOTOR_SPEED);
-	} else if (currentSpeed == (-BALL_MOTOR_SPEED)) {
-		pivotMotor->Set(-CHANGED_BALL_MOTOR_SPEED);
+	if (currentSpeed == PIVOT_DEFENSE_SPEED || currentSpeed == (PIVOT_BALL_SPEED)) {
+		pivotMotor->Set(CHANGED_PIVOT_MOTOR_SPEED);
+	} else if (currentSpeed == (-PIVOT_DEFENSE_SPEED) || currentSpeed == (-PIVOT_BALL_SPEED)) {
+		pivotMotor->Set(-CHANGED_PIVOT_MOTOR_SPEED);
 	}
 }
 
 void BallManipulation::PivotBall(void) {
 	// pivots intake mechanism to a point, uses encoder
-	bool resetted = false;
-	bool donePivot = false;
 
-	while(donePivot == false) {
-		printf("\n encoder: %d", GetPivotEncoder());
-		if (resetted == false && GetBottomLS() == true) {
-			pivotMotor->Set(-PIVOT_BALL_SPEED);
-		}
-		else if (resetted == false && GetBottomLS() == false) {
-			pivotEncoder->Reset();
-			resetted = true;
-			pivotMotor->Set(PIVOT_BALL_SPEED);
-		}
-		else if (GetPivotEncoder() >= STOP_PLACE && resetted == true) {
-			pivotMotor->Set(0.0);
-			donePivot = true;
-		}
+	printf("\n encoder: %d", GetPivotEncoder());
+	if (resetted == false && GetBottomLS() == true) {
+		pivotMotor->Set(-PIVOT_BALL_SPEED);
+	}
+	else if (resetted == false && GetBottomLS() == false) {
+		pivotEncoder->Reset();
+		resetted = true;
+		pivotMotor->Set(PIVOT_BALL_SPEED);
+	}
+	else if (GetPivotEncoder() >= STOP_PLACE && resetted == true) {
+		pivotMotor->Set(0.0);
 	}
 }
 
