@@ -202,11 +202,11 @@ void JankyEncoder::Run(void)
 	if (pEncoder)
 	{
 		//printf ("GoodEncoder\n");
-		SmartDashboard::PutNumber ("Encodercount", abs(pEncoder->Get()));
+		SmartDashboard::PutNumber ("Encodercount", abs(pEncoder->Get())/360);
 
 		if (bEncoding == true)
 		{
-			printf("abs(pEncoder->Get()) %d \n", abs(pEncoder->Get()));
+			printf("abs(pEncoder->Get()) %d \n", abs(pEncoder->Get())/360);
 			printf("motor stop value %d\n", motorStop);
 
 			if ( abs(pEncoder->Get() - pEncoderStartVal) >= targetcount || maxTimer->Get() >= desiredMaxTime )
@@ -215,7 +215,7 @@ void JankyEncoder::Run(void)
 				//printf ("Task targetcount reached\n");
 				reverseWindCheck();
 				stopMotor();
-				printf("Encoder Stop Value %d\n", pEncoder->Get());
+				printf("Encoder Stop Value %d\n", pEncoder->Get()/360);
 				bEncoding = false;
 				maxTimer->Stop();
 			}
