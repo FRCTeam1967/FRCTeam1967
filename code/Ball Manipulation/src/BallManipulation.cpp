@@ -7,12 +7,13 @@
 #include "WPILib.h"
 #include "BallManipulation.h"
 
-#define PIVOT_BALL_SPEED 0.2
-#define PIVOT_DEFENSE_SPEED 0.2
+#define PIVOT_BALL_SPEED 0.5
+#define PIVOT_DEFENSE_SPEED 0.5
 #define BALL_MOTOR_SPEED 0.75
 #define CHANGED_PIVOT_MOTOR_SPEED 0.5
-#define STOP_PLACE 20
+#define STOP_PLACE 100
 
+bool resetted = false;
 BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
 		int pivotEncoderChannelB, int topLSChannel, int bottomLSChannel) {
 	ballMotor = new CANTalon(ballMotorChannel); // is actually a victor
