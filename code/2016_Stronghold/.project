@@ -39,7 +39,7 @@
 		<link>
 			<name>src/MegTwoTransmissions.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-1-PROJECT_LOC/MegTwoTransmissions/src/MegTwoTransmissions.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/MegTwoTransmissions.cpp</locationURI>
 		</link>
 		<link>
 			<name>src/jankyDrivestick.cpp</name>
