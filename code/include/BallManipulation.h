@@ -15,6 +15,9 @@ public:
 			int pivotEncoderChannelB, int topLSChannel, int bottomLSChannel);
 	virtual ~BallManipulation(void);
 
+	void PivotUp();
+	void DownForAuto();
+	void PivotDown();
 	void ResetPivotEncoder(void);
 	void PivotBall(void);
 	void PullIn(void);

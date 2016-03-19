@@ -10,7 +10,7 @@
 #define PIVOT_BALL_SPEED 0.2
 #define PIVOT_DEFENSE_SPEED 1.0
 #define BALL_MOTOR_SPEED 1.0
-#define CHANGED_BALL_MOTOR_SPEED 1.0
+#define CHANGED_BALL_MOTOR_SPEED 0.5
 #define STOP_PLACE 20
 
 BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
@@ -30,6 +30,9 @@ BallManipulation::~BallManipulation(void) {
 	delete bottomLS;
 }
 
+void BallManipulation::DownForAuto(){
+	pivotMotor->Set(-.3);
+}
 void BallManipulation::ChangeSpeed(void) {
 	// changes speed of intake mechanism
 	float currentSpeed = ballMotor->Get();
@@ -72,6 +75,25 @@ void BallManipulation::PushOut(void) {
 	ballMotor->Set(BALL_MOTOR_SPEED);
 }
 
+void BallManipulation::PivotUp(void) {
+	// pivot pivotMotor forward if top limit switch not pressed
+	if (GetTopLS() == true) {
+		pivotMotor->Set(CHANGED_BALL_MOTOR_SPEED);
+	}
+	else {
+		pivotMotor->Set(0.0);
+	}
+}
+
+void BallManipulation::PivotDown(void) {
+	// pivot pivotMotor backwards if bottom limit switch not pressed
+	if (GetBottomLS() == true) {
+		pivotMotor->Set(-CHANGED_BALL_MOTOR_SPEED);
+	}
+	else {
+		pivotMotor->Set(0.0);
+	}
+}
 void BallManipulation::DefenseUp(void) {
 	// pivot pivotMotor forward if top limit switch not pressed
 	if (GetTopLS() == true) {

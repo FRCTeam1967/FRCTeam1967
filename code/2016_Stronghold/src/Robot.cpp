@@ -3,6 +3,15 @@
 #include "jankyDrivestick.h"
 #include "jankyXboxJoystick.h"
 #include "BallManipulation.h"
+#include <math.h>
+
+//Autonomous Pound Defines
+#define TIME_CROSS_LOWBAR 2
+#define TIME_ARMS .8
+#define TIME_CROSS 2
+#define TIME_ROCK 1.5
+#define TIME_REACH .3
+#define TIME_BACK_LOWBAR .7
 
 //Chassis Channels
 #define LRCHANNEL 5
@@ -13,6 +22,7 @@
 #define L_TST_PISTON_CHANNEL 3
 #define L_TST_PISTON_MOD 19
 #define R_TST_PISTON_MOD 19
+#define DEADBAND_VALUE .1
 
 //Joystick Channels
 #define DRIVESTICKCHANNEL 0
@@ -35,20 +45,27 @@
 #define SC_MOTOR_ONE 7
 #define SC MOTOR_TWO 8
 
+// on janky bot- 8 is used for chassis
+
 class Robot: public IterativeRobot
 {
+	SendableChooser*chooserTwo;
 	CANTalon*lRMotor;
 	CANTalon*rRMotor;
 	CANTalon*lFMotor;
 	CANTalon*rFMotor;
-	jankyDrivestick*driveStick;
+	jankyXboxJoystick*driveStick;
 	MegTwoTransmissions* tTrans;
 	RobotDrive*drive;
 	bool notPressed = true;
 	BallManipulation * bman;
 	jankyXboxJoystick * xbox;
+	bool reverse = true;
+	Timer*autonomousTimer;
+
 public:
 	Robot(){
+		chooserTwo = NULL;
 		lRMotor = NULL;
 		rRMotor = NULL;
 		lFMotor = NULL;
@@ -58,8 +75,11 @@ public:
 		drive = NULL;
 		bman = NULL;
 		xbox = NULL;
+		autonomousTimer = new Timer();
+		autonomousTimer->Start();
 	}
 	~Robot(){
+		delete chooserTwo;
 		delete lRMotor;
 		delete rRMotor;
 		delete lFMotor;
@@ -71,30 +91,150 @@ public:
 		delete xbox;
 
 	}
+private:
+	//autonomous variables
+	int defaultAuto;
+	int reachDefenseAuto;
+	int crossRockDefenseAuto;
+	int crossLowBarAuto;
+	int lowBarBackAuto;
+	int crossLowBarBoulderAuto;
+	int lowBarBackBoulderAuto;
+
 	void RobotInit()
 	{
+		printf("hi");
+		chooserTwo = new SendableChooser();
 		lRMotor = new CANTalon(LRCHANNEL);
 		rRMotor = new CANTalon(RRCHANNEL);
 		lFMotor = new CANTalon(LFCHANNEL);
 		rFMotor = new CANTalon(RFCHANNEL);
-		driveStick = new jankyDrivestick(DRIVESTICKCHANNEL);
+		driveStick = new jankyXboxJoystick(DRIVESTICKCHANNEL);
 		tTrans = new MegTwoTransmissions(L_TST_PISTON_CHANNEL, R_TST_PISTON_CHANNEL, L_TST_PISTON_MOD, R_TST_PISTON_MOD);
 		drive = new RobotDrive(lFMotor,lRMotor,rFMotor,rRMotor);
 		bman = new BallManipulation(BM_ROLLER_MOTOR , BM_PIVOT_MOTOR, BM_ENCODER_A,
 						BM_ENCODER_B, LS_TOP, LS_BOTTOM);
 		xbox = new jankyXboxJoystick(XBOXCHANNEL);
+		drive -> SetSafetyEnabled(false);
+		chooserTwo->AddDefault("Does nothing(Default)",&defaultAuto);
+		chooserTwo->AddObject("Reaches Defense", &reachDefenseAuto);
+		chooserTwo->AddObject("Crosses Rock Wall+ Terrain",&crossRockDefenseAuto);
+		chooserTwo->AddObject("Crosses Low Bar(no ball)",&crossLowBarAuto);
+		chooserTwo->AddObject("Crosses Low Bar and Comes Back(no ball)",&lowBarBackAuto);
+		chooserTwo->AddObject("Crosses Low Bar(w/ ball)",&crossLowBarBoulderAuto);
+		chooserTwo->AddObject("Crosses Low Bar and Comes Back(w/ ball)",&lowBarBackBoulderAuto);
+		SmartDashboard::PutData("Autonomous modes", chooserTwo);
 	}
+	void AutonomousInit()
+		{
+			autonomousTimer->Reset();
+			drive->SetSafetyEnabled(false);
+			if(&defaultAuto == chooserTwo->GetSelected()){
+				printf("default auto/n");
+			}
+			else if(&reachDefenseAuto == chooserTwo->GetSelected()){
+				while (autonomousTimer->Get() <TIME_REACH){
+					drive->ArcadeDrive(0.0, 1.0);
+				}
+				drive->ArcadeDrive(0.0,0.0);
+			}
+			else if(&crossRockDefenseAuto == chooserTwo->GetSelected()){
+				while(autonomousTimer->Get() < TIME_ROCK){
+					drive->ArcadeDrive(0.0, 1.0);
+				}
+				drive->ArcadeDrive(0.0,0.0);
+			}
+			else if(&crossLowBarAuto == chooserTwo->GetSelected()){
+				while(autonomousTimer->Get() < TIME_ARMS){
+					bman->DownForAuto();
+				}
+				bman->StopPivotMotor();
+				while (autonomousTimer ->Get() > TIME_ARMS && autonomousTimer->Get() < TIME_CROSS_LOWBAR){
+					drive->ArcadeDrive(0.0, 1.0);
+				}
+				drive->ArcadeDrive(0.0,0.0);
+			}
+			else if(&lowBarBackAuto == chooserTwo->GetSelected()){
+				while(autonomousTimer->Get() < TIME_CROSS_LOWBAR){
+					drive->ArcadeDrive(0.0, 1.0);
+				}
+				while(autonomousTimer->Get() >= TIME_CROSS_LOWBAR && autonomousTimer->Get() < TIME_BACK_LOWBAR){
+					drive->ArcadeDrive(-1.0, 0.0);
+				}
+				drive->ArcadeDrive(0.0,0.0);
+			}
+			else if(&crossLowBarBoulderAuto== chooserTwo->GetSelected()){
+				while(autonomousTimer->Get() < TIME_CROSS_LOWBAR){
+					drive->ArcadeDrive(1.0, 0.0);
+				}
+				bman->PushOut();
+				drive->ArcadeDrive(0.0,0.0);
+			}
+			else if(&lowBarBackBoulderAuto== chooserTwo->GetSelected()){
+				while(autonomousTimer->Get() < TIME_CROSS_LOWBAR){
+					drive->ArcadeDrive(1.0, 0.0);
+				}
+				while(autonomousTimer->Get() >= TIME_CROSS_LOWBAR && autonomousTimer->Get() < TIME_BACK_LOWBAR){
+					drive->ArcadeDrive(-1.0, 0.0);
+				}
+				bman->PushOut();
+				drive->ArcadeDrive(0.0,0.0);
+			}
+
+		}
 
 	void TeleopPeriodic()
 	{
 		bool lPistonValue = tTrans->GetPistonL();
 		bool rPistonValue = tTrans->GetPistonR();
-		SmartDashboard::PutBoolean("Left Piston", lPistonValue);
-		SmartDashboard::PutBoolean("Right Piston", rPistonValue);
+		float leftYValue = xbox->GetLeftYAxis();
+		float rightYValue = xbox->GetRightYAxis();
+		SmartDashboard::PutBoolean("High Gear Left Piston", lPistonValue);
+		SmartDashboard::PutBoolean("High Gear Right Piston", rPistonValue);
+		SmartDashboard::PutBoolean("Is Chassis Reversed", reverse);
+		float lValue = driveStick->GetLeftYAxis();
+		float rValue = driveStick->GetRightYAxis();
 
-		float yValue = driveStick->GetY();
-		float rotate = driveStick->GetRawAxis(2);
-		drive->ArcadeDrive(-yValue, -rotate);
+		if (reverse == false){
+			drive->TankDrive(-lValue, rValue);
+		}
+		else{
+			if((lValue > .05 && rValue < -.05)||(lValue < -.05 && rValue > .05)){
+				drive->TankDrive(-lValue, rValue);
+			}
+			else{
+				drive->TankDrive(lValue,-rValue );
+			}
+		}
+		if (driveStick->GetButtonRB()){
+			reverse = true;
+		}
+		else if(driveStick->GetButtonLB()){
+			reverse = false;
+		}
+
+		bool trigger = driveStick->GetButtonY();
+			if(trigger && notPressed){
+				tTrans->SwitchGear();
+				notPressed = false;
+			}
+			else if(!trigger){
+				notPressed = true;
+			}
+
+		//if(abs(rotate) < DEADBAND_VALUE ){
+			//drive->ArcadeDrive(0.0,0.0);
+		//}
+		//else{
+			/*if(driveStick->Get2() == true){
+				drive->ArcadeDrive(yValue, rotate);
+			}
+			else{
+				drive->ArcadeDrive(-yValue, -rotate);
+			}
+		//}
+
+
 
 		bool trigger = driveStick->GetTrigger();
 		if(trigger && notPressed){
@@ -104,7 +244,8 @@ public:
 		else if(!trigger){
 			notPressed = true;
 		}
-
+		COMMENTED OUT CODE BC THE DRIVE TEAM NOW WANTS TO USE AN XBOX JOYSTICK TO DRIVE
+*/
 		SmartDashboard::PutNumber("Pivot Encoder Value: ", bman->GetPivotEncoder());
 		SmartDashboard::PutNumber("Right X Axis: ", xbox->GetRightXAxis());
 		SmartDashboard::PutNumber("Right Y Axis: ", xbox->GetRightYAxis());
@@ -115,14 +256,20 @@ public:
 		SmartDashboard::PutBoolean("Bottom: ", bman->GetBottomLS());
 
 		if (xbox->GetButtonRB() == true) {
-			bman->ChangeSpeed();
+			if (rightYValue < -MOVE_AXIS) {
+				bman->PivotUp();
+			}
+			else if (rightYValue > MOVE_AXIS) {
+				bman->PivotDown();
+			}
+			else {
+				bman->StopPivotMotor();
+			}
 		}
-		if (xbox->GetButtonB() == true) {
-			bman->PivotBall();
-		}
+		//if (xbox->GetButtonB() == true) {
+			//bman->PivotBall();
+		//}
 
-		float leftYValue = xbox->GetLeftYAxis();
-		float rightYValue = xbox->GetRightYAxis();
 
 		// pull in/push out ball using left xbox on xbox
 		if (leftYValue < -MOVE_AXIS) {
@@ -138,14 +285,16 @@ public:
 
 
 		// move defenses up/down using right xbox on xbox
-		if (rightYValue < -MOVE_AXIS) {
-			bman->DefenseUp();
-		}
-		else if (rightYValue > MOVE_AXIS) {
-			bman->DefenseDown();
-		}
-		else {
-			bman->StopPivotMotor();
+		if (xbox->GetButtonRB() == false){
+			if (rightYValue < -MOVE_AXIS) {
+				bman->DefenseUp();
+			}
+			else if (rightYValue > MOVE_AXIS) {
+				bman->DefenseDown();
+			}
+			else {
+				bman->StopPivotMotor();
+			}
 		}
 
 	}
