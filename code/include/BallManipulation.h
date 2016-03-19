@@ -36,7 +36,7 @@ public:
 	Encoder * pivotEncoder;
 	DigitalInput * topLS; // limit switch
 	DigitalInput * bottomLS;
-
+	bool resetted;
 };
 
 

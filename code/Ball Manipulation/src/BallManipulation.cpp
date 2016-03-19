@@ -13,7 +13,7 @@
 #define CHANGED_PIVOT_MOTOR_SPEED 0.5
 #define STOP_PLACE 100
 
-bool resetted = false;
+
 BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
 		int pivotEncoderChannelB, int topLSChannel, int bottomLSChannel) {
 	ballMotor = new CANTalon(ballMotorChannel); // is actually a victor
@@ -21,6 +21,7 @@ BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, 
 	pivotEncoder = new Encoder(pivotEncoderChannelA, pivotEncoderChannelB);
 	topLS = new DigitalInput(topLSChannel);
 	bottomLS = new DigitalInput(bottomLSChannel);
+	resetted = false;
 }
 
 BallManipulation::~BallManipulation(void) {
