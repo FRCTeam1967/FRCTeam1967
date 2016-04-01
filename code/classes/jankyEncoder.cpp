@@ -24,10 +24,12 @@ JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int mot
 	motorSpeed = RESET_INITMOTORSPEED;
 	desiredMaxTime = DEFAULT_MAX_TIME;
 	targetcount = 1;
+	initialVal = 0.0;
 	bEncoding = false;
 	bDone = false;
 	motorStop = false;
 	directionCheck = false;
+	windCheck = true;
 	hasStopBeenPressed = false;
 }
 
@@ -67,7 +69,7 @@ void JankyEncoder::stopMotor()
 {
 	pMotor->Set(0.0);
 	pMotor2->Set(0.0);
-	printf("Stopping Motors\n");
+	//printf("Stopping Motors\n");
 }
 
 
@@ -84,6 +86,7 @@ void JankyEncoder::stopCheck() //sets hasBeenPressed to true; shows that the eme
 
 void JankyEncoder::reverseWindCheck() //reverses the value of windCheck which is a label for what type of wind was used (windUP vs. windDN)
 {
+	initialVal = pEncoder->Get();
 	if (windCheck == true)
 	{
 		windCheck = false;
@@ -111,8 +114,9 @@ void JankyEncoder::setWind(bool wind) //allows jankyScaling to set the value of 
 
 void JankyEncoder::Stop() //sets motorStop to true, so that when the emergency stop button is pressed, the condition in the run function will be met and the motor will stop
 {
-	motorStop = true;
 	printf("Stopping Motors\n");
+	motorStop = true;
+	stopCheck();
 }
 
 void JankyEncoder::startMotor()
@@ -149,7 +153,7 @@ void JankyEncoder::Reset(void)
 bool JankyEncoder::Go(void)
 {
 	printf ("INSIDE GO\n");
-	if (abs(pEncoder->Get()) <= targetcount) //used to be...if (bEncoding == false && abs(pEncoder->Get()) <= targetcount)
+	if (abs(pEncoder->Get() - initialVal) <= targetcount) //used to be...if (bEncoding == false && abs(pEncoder->Get()) <= targetcount)
 	{
 		printf ("bEncoding = false\n");
 		directionCheck = true; //going "forward"
@@ -174,12 +178,10 @@ bool JankyEncoder::Go(void)
 bool JankyEncoder::ReverseGo(void)
 {
 	printf ("INSIDE REVERSEGO\n");
-	if (pEncoder->Get() > 0)	//used to be...if (bEncoding == false && pEncoder->Get() > 0)
+	if (abs(pEncoder->Get() - initialVal) <= targetcount)	//used to be...if (bEncoding == false && pEncoder->Get() > 0)
 	{
 		printf ("bEncoding = false\n");
 		directionCheck = false; //going "backwards"
-		//printf("Switching Revolution to Negative %f \n", getRevolution()*-1);
-		//setRevolution(getRevolution() * -1);
 		if (hasStopBeenPressed == false)
 		{
 			pEncoderStartVal = pEncoder->Get();
@@ -206,16 +208,14 @@ void JankyEncoder::Run(void)
 
 		if (bEncoding == true)
 		{
-			printf("abs(pEncoder->Get()) %d \n", abs(pEncoder->Get())/360);
-			printf("motor stop value %d\n", motorStop);
-
+			//printf("abs(pEncoder->Get()) %f pEncoderStartVal %f \n", float(abs(pEncoder->Get())/360), float(pEncoderStartVal/360));
 			if ( abs(pEncoder->Get() - pEncoderStartVal) >= targetcount || maxTimer->Get() >= desiredMaxTime )
 			{
 				bDone = true;
 				//printf ("Task targetcount reached\n");
 				reverseWindCheck();
 				stopMotor();
-				printf("Encoder Stop Value %d\n", pEncoder->Get()/360);
+				printf("Encoder Stop Value %d \n", pEncoder->Get()/360);
 				bEncoding = false;
 				maxTimer->Stop();
 			}

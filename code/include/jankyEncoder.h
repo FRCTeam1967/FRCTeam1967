@@ -44,6 +44,7 @@ public:
 	int targetcount;
 	//float currentRev;
 	float motorSpeed;
+	float initialVal;
 	Encoder * pEncoder;
 	Timer * maxTimer;
 	bool bDone;

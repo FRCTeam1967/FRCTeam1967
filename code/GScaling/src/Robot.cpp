@@ -5,10 +5,10 @@
 #include "jankyXboxJoystick.h"
 #include "jankyEncoder.h"
 
-//#define DRIVE_JOYSTICK_PORT 1
+//#define DRIVE_JOYSTICK_PORT 0
 #define GC_JOYSTICK_PORT 1
-#define SCALING_ENCODER_CHANNELA 2		//will be 2 in final bot
-#define SCALING_ENCODER_CHANNELB 3		//will be 3 in final bot
+#define SCALING_ENCODER_CHANNELA 0		//will be 2 in final bot
+#define SCALING_ENCODER_CHANNELB 1		//will be 3 in final bot
 #define SCALING_MOTOR_CHANNELA 7		//will be 7 in final bot
 #define SCALING_MOTOR_CHANNELB 8		//will be 8 in final bot
 #define SCALING_PISTON_CHANNEL 1
@@ -18,6 +18,7 @@ class Robot:public IterativeRobot{
 	//jankyDrivestick*drivestick;			//creating pointer for jankyDrivestick to be called drivestick
 	jankyXboxJoystick*joystick;			//creating pointer for jankyXboxJoystick to be called joystick
 	jankyScaling*scaling;				//creating pointer for jankyScaling to be called scaling
+	bool toggle = true;
 
 public:
 
@@ -50,21 +51,28 @@ private:
 	}
 
 	void TeleopPeriodic(){
-		if (joystick->GetButtonX() == true){			//scaling Release; when button A on the Xbox controller is pressed, Release will be enabled
+		if (toggle && joystick->GetButtonX() == true){			//scaling Release; when button A on the Xbox controller is pressed, Release will be enabled
+			toggle = false;
 			printf("Going to Release now\n");
 			scaling->Release();
 		}
-		if (joystick->GetButtonY() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
+		else if (toggle && joystick->GetButtonY() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
+			toggle = false;
 			printf("Going to Wind Up now\n");
 			scaling->WindUp();
 		}
-		if (joystick->GetButtonA() == true){
+		else if (toggle && joystick->GetButtonA() == true){
+			toggle = false;
 			printf("Going to Wind Down now\n");
 			scaling->WindDn();
 		}
-		if (joystick->GetButtonB() == true){
+		else if (toggle && joystick->GetButtonB() == true){
+			toggle = false;
 			printf("Stopping WindUp\n");
 			scaling->StopWU();
+		}
+		else if (!joystick->GetButtonX() && !joystick->GetButtonY() && !joystick->GetButtonA() && !joystick->GetButtonB()) {
+			toggle = true;
 		}
 	}
 };
