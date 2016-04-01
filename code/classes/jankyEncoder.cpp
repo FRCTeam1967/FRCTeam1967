@@ -152,14 +152,16 @@ void JankyEncoder::Reset(void)
 
 bool JankyEncoder::Go(void)
 {
+	initialVal = 0;
 	printf ("INSIDE GO\n");
 	if (abs(pEncoder->Get() - initialVal) <= targetcount) //used to be...if (bEncoding == false && abs(pEncoder->Get()) <= targetcount)
 	{
 		printf ("bEncoding = false\n");
 		directionCheck = true; //going "forward"
+		pEncoderStartVal = 0;
 		if (hasStopBeenPressed == false)
 		{
-			pEncoderStartVal = pEncoder->Get();
+			pEncoderStartVal = 0;  //0 used to be pEncoder->Get()
 		}
 		hasStopBeenPressed = false;
 		printf("Encoder Start Value Go %f\n", pEncoderStartVal);
@@ -177,14 +179,17 @@ bool JankyEncoder::Go(void)
 
 bool JankyEncoder::ReverseGo(void)
 {
+	initialVal = 16*360;
 	printf ("INSIDE REVERSEGO\n");
+	printf ("pEncode-initialVal = %d targetcount = %d\n", abs(pEncoder->Get() - initialVal), targetcount);
 	if (abs(pEncoder->Get() - initialVal) <= targetcount)	//used to be...if (bEncoding == false && pEncoder->Get() > 0)
 	{
 		printf ("bEncoding = false\n");
 		directionCheck = false; //going "backwards"
+		pEncoderStartVal = 16*360;
 		if (hasStopBeenPressed == false)
 		{
-			pEncoderStartVal = pEncoder->Get();
+			pEncoderStartVal = 16*360; //16 used to be pEncoder->Get()
 		}
 		hasStopBeenPressed = false;
 		printf("Encoder Start Value RevGo %f\n", pEncoderStartVal);

@@ -61,28 +61,34 @@ void jankyScaling::Release(){
 
 void jankyScaling::WindUp()											//pulling the robot up
 {
+	motorEncoder->setSpeed(FW_WIND_SPEED);
+	motorEncoder->motorGo();
+	motorEncoder->Go();
 	//StopWU();
-	if (motorEncoder->typeWind() == true || motorEncoder->isStopButtonPressed() == true)
+	/*if (motorEncoder->typeWind() == true || motorEncoder->isStopButtonPressed() == true)
 	{
 		motorEncoder->setSpeed(FW_WIND_SPEED);
 		motorEncoder->motorGo();
 		motorEncoder->Go();
 		motorEncoder->setWind(true);
 
-	}
+	}*/
 
 }
 
 void jankyScaling::WindDn()											//extend the robot towards down
 {
+	motorEncoder->setSpeed(BW_WIND_SPEED);
+	motorEncoder->motorGo();
+	motorEncoder->ReverseGo();
 	//StopWU();
-	if (motorEncoder->typeWind() == false || motorEncoder->isStopButtonPressed() == true)
+	/*if (motorEncoder->typeWind() == false || motorEncoder->isStopButtonPressed() == true)
 		{
 			motorEncoder->setSpeed(BW_WIND_SPEED);
 			motorEncoder->motorGo();
 			motorEncoder->ReverseGo();
 			motorEncoder->setWind(false);
-		}
+		}*/
 
 }
 
