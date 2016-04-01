@@ -28,9 +28,6 @@ JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int mot
 	bEncoding = false;
 	bDone = false;
 	motorStop = false;
-	directionCheck = false;
-	windCheck = true;
-	hasStopBeenPressed = false;
 }
 
 /*
@@ -79,44 +76,11 @@ void JankyEncoder::motorGo() //sets motorStop to false; because motorStop is fal
 	printf("Setting motorStop to false\n");
 }
 
-void JankyEncoder::stopCheck() //sets hasBeenPressed to true; shows that the emergency stop button has been pressed
-{
-	hasStopBeenPressed = true;
-}
-
-void JankyEncoder::reverseWindCheck() //reverses the value of windCheck which is a label for what type of wind was used (windUP vs. windDN)
-{
-	initialVal = pEncoder->Get();
-	if (windCheck == true)
-	{
-		windCheck = false;
-	}
-	else if (windCheck == false)
-	{
-		windCheck = true;
-	}
-}
-
-bool JankyEncoder::isStopButtonPressed() //allows hasStopBeenPressed to be a variable used in jankyScaling
-{
-	return hasStopBeenPressed;
-}
-
-bool JankyEncoder::typeWind() //allows windCheck to be a variable used in jankyScaling
-{
-	return windCheck;
-}
-
-void JankyEncoder::setWind(bool wind) //allows jankyScaling to set the value of the windCheck
-{
-	windCheck = wind;
-}
 
 void JankyEncoder::Stop() //sets motorStop to true, so that when the emergency stop button is pressed, the condition in the run function will be met and the motor will stop
 {
 	printf("Stopping Motors\n");
 	motorStop = true;
-	stopCheck();
 }
 
 void JankyEncoder::startMotor()
@@ -152,73 +116,39 @@ void JankyEncoder::Reset(void)
 
 bool JankyEncoder::Go(void)
 {
-	initialVal = 0;
+	initialVal = pEncoder->Get();
 	printf ("INSIDE GO\n");
-	if (abs(pEncoder->Get() - initialVal) <= targetcount) //used to be...if (bEncoding == false && abs(pEncoder->Get()) <= targetcount)
-	{
-		printf ("bEncoding = false\n");
-		directionCheck = true; //going "forward"
-		pEncoderStartVal = 0;
-		if (hasStopBeenPressed == false)
-		{
-			pEncoderStartVal = 0;  //0 used to be pEncoder->Get()
-		}
-		hasStopBeenPressed = false;
-		printf("Encoder Start Value Go %f\n", pEncoderStartVal);
-		startMotor();
-		maxTimer->Start();
-		bEncoding = true;
-		printf("bEncoding = true\n");
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	printf("Encoder Start Value Go %f\n", initialVal);
+	startMotor();
+	maxTimer->Start();
+	bEncoding = true;
+	printf("bEncoding = true\n");
+	return true;
 }
 
 bool JankyEncoder::ReverseGo(void)
 {
-	initialVal = 16*360;
+	initialVal = pEncoder->Get();
 	printf ("INSIDE REVERSEGO\n");
-	printf ("pEncode-initialVal = %d targetcount = %d\n", abs(pEncoder->Get() - initialVal), targetcount);
-	if (abs(pEncoder->Get() - initialVal) <= targetcount)	//used to be...if (bEncoding == false && pEncoder->Get() > 0)
-	{
-		printf ("bEncoding = false\n");
-		directionCheck = false; //going "backwards"
-		pEncoderStartVal = 16*360;
-		if (hasStopBeenPressed == false)
-		{
-			pEncoderStartVal = 16*360; //16 used to be pEncoder->Get()
-		}
-		hasStopBeenPressed = false;
-		printf("Encoder Start Value RevGo %f\n", pEncoderStartVal);
-		startMotor();
-		maxTimer->Start();
-		bEncoding = true;
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	printf("Encoder Start Value RevGo %f\n", initialVal);
+	startMotor();
+	maxTimer->Start();
+	bEncoding = true;
+	printf("bEncoding = true\n");
+	return true;
 }
 
 void JankyEncoder::Run(void)
 {	
 	if (pEncoder)
 	{
-		//printf ("GoodEncoder\n");
 		SmartDashboard::PutNumber ("Encodercount", abs(pEncoder->Get())/360);
 
 		if (bEncoding == true)
 		{
-			//printf("abs(pEncoder->Get()) %f pEncoderStartVal %f \n", float(abs(pEncoder->Get())/360), float(pEncoderStartVal/360));
-			if ( abs(pEncoder->Get() - pEncoderStartVal) >= targetcount || maxTimer->Get() >= desiredMaxTime )
+			if ( abs(pEncoder->Get() - initialVal) >= targetcount || maxTimer->Get() >= desiredMaxTime )
 			{
 				bDone = true;
-				//printf ("Task targetcount reached\n");
-				reverseWindCheck();
 				stopMotor();
 				printf("Encoder Stop Value %d \n", pEncoder->Get()/360);
 				bEncoding = false;
@@ -230,7 +160,6 @@ void JankyEncoder::Run(void)
 			}
 			else
 			{
-				//printf ("Targetcount NOT reached\n");
 				startMotor();
 			}
 		}
