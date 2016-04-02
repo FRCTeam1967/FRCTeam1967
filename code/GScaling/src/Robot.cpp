@@ -7,8 +7,8 @@
 
 //#define DRIVE_JOYSTICK_PORT 0
 #define GC_JOYSTICK_PORT 1
-#define SCALING_ENCODER_CHANNELA 0		//will be 2 in final bot
-#define SCALING_ENCODER_CHANNELB 1		//will be 3 in final bot
+#define SCALING_ENCODER_CHANNELA 2		//will be 2 in final bot
+#define SCALING_ENCODER_CHANNELB 3		//will be 3 in final bot
 #define SCALING_MOTOR_CHANNELA 7		//will be 7 in final bot
 #define SCALING_MOTOR_CHANNELB 8		//will be 8 in final bot
 #define SCALING_PISTON_CHANNEL 1
@@ -59,12 +59,12 @@ private:
 		else if (toggle && joystick->GetButtonY() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
 			toggle = false;
 			printf("Going to Wind Up now\n");
-			scaling->WindUp();
+			scaling->LiftUp();
 		}
 		else if (toggle && joystick->GetButtonA() == true){
 			toggle = false;
 			printf("Going to Wind Down now\n");
-			scaling->WindDn();
+			scaling->DropDn();
 		}
 		else if (toggle && joystick->GetButtonB() == true){
 			toggle = false;

@@ -118,7 +118,7 @@ bool JankyEncoder::Go(void)
 {
 	initialVal = pEncoder->Get();
 	printf ("INSIDE GO\n");
-	printf("Encoder Start Value Go %f\n", initialVal);
+	printf("Encoder Start Value Go %d\n", abs(initialVal));
 	startMotor();
 	maxTimer->Start();
 	bEncoding = true;
@@ -130,7 +130,7 @@ bool JankyEncoder::ReverseGo(void)
 {
 	initialVal = pEncoder->Get();
 	printf ("INSIDE REVERSEGO\n");
-	printf("Encoder Start Value RevGo %f\n", initialVal);
+	printf("Encoder Start Value RevGo %d\n", abs(initialVal));
 	startMotor();
 	maxTimer->Start();
 	bEncoding = true;
@@ -150,7 +150,7 @@ void JankyEncoder::Run(void)
 			{
 				bDone = true;
 				stopMotor();
-				printf("Encoder Stop Value %d \n", pEncoder->Get()/360);
+				printf("Encoder Stop Value %d \n", abs(pEncoder->Get()));
 				bEncoding = false;
 				maxTimer->Stop();
 			}

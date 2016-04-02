@@ -11,9 +11,9 @@
 #include "jankyEncoder.h"
 #include <cmath>
 
-#define SCALING_WINDS 16					//Scaling winch needs to turn 360 degrees exactly 16 times
-#define FW_WIND_SPEED 1
-#define BW_WIND_SPEED -1
+#define SCALING_WINDS 15					//Scaling winch needs to turn 360 degrees exactly 16 times
+#define FW_WIND_SPEED .5
+#define BW_WIND_SPEED -.5
 #define RELEASE_TIME 1.0
 
 //Constructor
@@ -44,6 +44,7 @@ void jankyScaling::ScalingStart(){
 	piston->Set(false);
 	motorEncoder->Reset();
 	motorEncoder->setRevolution(SCALING_WINDS);
+	motorEncoder->SetMaxTime(4.0);
 	motorEncoder->Start();
 	motorEncoder->motorGo();
 }
@@ -53,18 +54,18 @@ void jankyScaling::Release(){
 	piston->Set(true);												//Pushing out piston to hit the CAM; no need to bring it back in we believe
 }
 
-void jankyScaling::WindUp()											//pulling the robot up
+void jankyScaling::LiftUp()											//pulling the robot up
 {
 	motorEncoder->setSpeed(FW_WIND_SPEED);
-	motorEncoder->setRevolution(SCALING_WINDS - (motorEncoder->pEncoder->Get()/360));
+	motorEncoder->setRevolution(SCALING_WINDS - abs(motorEncoder->pEncoder->Get()/360));
 	motorEncoder->motorGo();
 	motorEncoder->Go();
 }
 
-void jankyScaling::WindDn()											//extend the robot towards down
+void jankyScaling::DropDn()											//extend the robot towards down
 {
 	motorEncoder->setSpeed(BW_WIND_SPEED);
-	motorEncoder->setRevolution((motorEncoder->pEncoder->Get())/360);
+	motorEncoder->setRevolution(abs((motorEncoder->pEncoder->Get())/360));
 	motorEncoder->motorGo();
 	motorEncoder->ReverseGo();
 }

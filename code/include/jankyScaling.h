@@ -21,8 +21,8 @@ public:
 	~jankyScaling();
 	void ScalingStart();
 	void Release();
-	void WindUp();
-	void WindDn();
+	void LiftUp();
+	void DropDn();
 	void StopWU();
 	float GetWrap();
 
