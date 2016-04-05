@@ -44,7 +44,7 @@ void jankyScaling::ScalingStart(){
 	piston->Set(false);
 	motorEncoder->Reset();
 	motorEncoder->setRevolution(SCALING_WINDS);
-	motorEncoder->SetMaxTime(4.0);
+	// motorEncoder->SetMaxTime(4.0);
 	motorEncoder->Start();
 	motorEncoder->motorGo();
 }
@@ -56,7 +56,7 @@ void jankyScaling::Release(){
 
 void jankyScaling::LiftUp()											//pulling the robot up
 {
-	motorEncoder->setSpeed(FW_WIND_SPEED);
+	motorEncoder->setSpeed(BW_WIND_SPEED);
 	motorEncoder->setRevolution(SCALING_WINDS - abs(motorEncoder->pEncoder->Get()/360));
 	motorEncoder->motorGo();
 	motorEncoder->Go();
@@ -64,7 +64,7 @@ void jankyScaling::LiftUp()											//pulling the robot up
 
 void jankyScaling::DropDn()											//extend the robot towards down
 {
-	motorEncoder->setSpeed(BW_WIND_SPEED);
+	motorEncoder->setSpeed(FW_WIND_SPEED);
 	motorEncoder->setRevolution(abs((motorEncoder->pEncoder->Get())/360));
 	motorEncoder->motorGo();
 	motorEncoder->ReverseGo();
