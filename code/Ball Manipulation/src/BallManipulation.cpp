@@ -11,13 +11,14 @@
 #define PIVOT_DEFENSE_SPEED 0.5
 #define BALL_MOTOR_SPEED 0.75
 #define CHANGED_PIVOT_MOTOR_SPEED 0.5
-#define STOP_PLACE 100
+#define STOP_PLACE 55
 
 
 BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
 		int pivotEncoderChannelB, int topLSChannel, int bottomLSChannel) {
 	ballMotor = new CANTalon(ballMotorChannel); // is actually a victor
 	pivotMotor = new CANTalon(pivotMotorChannel);
+	pivotMotor->ConfigNeutralMode(CANSpeedController::NeutralMode::kNeutralMode_Brake);
 	pivotEncoder = new Encoder(pivotEncoderChannelA, pivotEncoderChannelB);
 	topLS = new DigitalInput(topLSChannel);
 	bottomLS = new DigitalInput(bottomLSChannel);
@@ -50,11 +51,12 @@ void BallManipulation::PivotBall(void) {
 		pivotMotor->Set(-PIVOT_BALL_SPEED);
 	}
 	else if (resetted == false && GetBottomLS() == false) {
+		pivotMotor->Set(0.0);
 		pivotEncoder->Reset();
 		resetted = true;
 		pivotMotor->Set(PIVOT_BALL_SPEED);
 	}
-	else if (GetPivotEncoder() >= STOP_PLACE && resetted == true) {
+	else if (abs(GetPivotEncoder()) >= STOP_PLACE && resetted == true) {
 		pivotMotor->Set(0.0);
 	}
 }
