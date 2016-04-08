@@ -25,6 +25,8 @@ public:
 	void DropDn();
 	void StopWU();
 	float GetWrap();
+	void ManualLiftUp();
+	void ManualDropDown();
 
 	//member variables
 	bool encoderReset;

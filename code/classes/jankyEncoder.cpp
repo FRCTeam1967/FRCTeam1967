@@ -7,6 +7,7 @@
 
 #include "WPILib.h"
 #include "jankyEncoder.h"
+#include "jankyTask.h"
 #define RESET_WAIT 0.05
 
 /*
@@ -28,6 +29,7 @@ JankyEncoder::JankyEncoder(int encoderOneChannel, int encoderTwoChannel, int mot
 	bEncoding = false;
 	bDone = false;
 	motorStop = false;
+	itStopped = false;
 }
 
 /*
@@ -66,6 +68,8 @@ void JankyEncoder::stopMotor()
 {
 	pMotor->Set(0.0);
 	pMotor2->Set(0.0);
+	motorStop = true;
+	itStopped=true;
 	//printf("Stopping Motors\n");
 }
 
@@ -87,6 +91,7 @@ void JankyEncoder::startMotor()
 {
 	pMotor->Set(motorSpeed);
 	pMotor2->Set(motorSpeed);
+	itStopped=false;
 }
 
 void JankyEncoder::setSpeed(float desiredSpeed)

@@ -3,6 +3,8 @@
 #include "jankyDrivestick.h"
 #include "jankyXboxJoystick.h"
 #include "BallManipulation.h"
+#include "JankyScaling.h"
+#include "jankyEncoder.h"
 #include <math.h>
 
 //Autonomous Pound Defines
@@ -43,7 +45,7 @@
 #define SC_PISTON_CHANNEL 1
 #define SC_PISTON_MOD 19
 #define SC_MOTOR_ONE 7
-#define SC MOTOR_TWO 8
+#define SC_MOTOR_TWO 8
 
 // on janky bot- 8 is used for chassis
 
@@ -62,6 +64,10 @@ class Robot: public IterativeRobot
 	jankyXboxJoystick * xbox;
 	bool reverse = true;
 	Timer*autonomousTimer;
+	jankyScaling*scaling;				//creating pointer for jankyScaling to be called scaling
+	bool toggle = true;
+	bool pivotPressed = false;
+	bool scalingStopCheck = false;
 
 public:
 	Robot(){
@@ -75,6 +81,7 @@ public:
 		drive = NULL;
 		bman = NULL;
 		xbox = NULL;
+		scaling = NULL;
 		autonomousTimer = new Timer();
 		autonomousTimer->Start();
 	}
@@ -89,6 +96,7 @@ public:
 		delete drive;
 		delete bman;
 		delete xbox;
+		delete scaling;
 
 	}
 private:
@@ -115,6 +123,7 @@ private:
 		bman = new BallManipulation(BM_ROLLER_MOTOR , BM_PIVOT_MOTOR, BM_ENCODER_A,
 						BM_ENCODER_B, LS_TOP, LS_BOTTOM);
 		xbox = new jankyXboxJoystick(XBOXCHANNEL);
+		scaling = new jankyScaling(SC_ENCODER_A, SC_ENCODER_B,SC_MOTOR_ONE, SC_MOTOR_TWO, SC_PISTON_CHANNEL );
 		drive -> SetSafetyEnabled(false);
 		chooserTwo->AddDefault("Does nothing(Default)",&defaultAuto);
 		chooserTwo->AddObject("Reaches Defense", &reachDefenseAuto);
@@ -183,6 +192,10 @@ private:
 
 		}
 
+	void TeleopInit(){
+			scaling->ScalingStart();
+		}
+
 	void TeleopPeriodic()
 	{
 		bool lPistonValue = tTrans->GetPistonL();
@@ -194,17 +207,17 @@ private:
 		SmartDashboard::PutBoolean("Is Chassis Reversed", reverse);
 		float lValue = driveStick->GetLeftYAxis();
 		float rValue = driveStick->GetRightYAxis();
-
 		if (reverse == false){
-			drive->TankDrive(-lValue, rValue);
+					drive->TankDrive(-lValue, rValue);
 		}
 		else{
-			if((lValue > .05 && rValue < -.05)||(lValue < -.05 && rValue > .05)){
+			/*if((lValue > .05 && rValue < -.05)||(lValue < -.05 && rValue > .05)){
 				drive->TankDrive(-lValue, rValue);
 			}
 			else{
 				drive->TankDrive(lValue,-rValue );
-			}
+			}*/
+			drive->TankDrive(lValue,-rValue );
 		}
 		if (driveStick->GetButtonRB()){
 			reverse = true;
@@ -212,6 +225,55 @@ private:
 		else if(driveStick->GetButtonLB()){
 			reverse = false;
 		}
+		SmartDashboard::PutBoolean("Has Scaling Stopped?", scaling->motorEncoder->itStopped);
+		SmartDashboard::PutNumber("Encoder Number", scaling->motorEncoder->pEncoder->Get());
+		SmartDashboard::PutNumber("Encoder Revolution", (scaling->motorEncoder->pEncoder->Get()/360));
+		//scaling
+				if (toggle && xbox->GetButtonX() == true){			//scaling Release; when button A on the Xbox controller is pressed, Release will be enabled
+					toggle = false;
+					printf("Going to Release now\n");
+					scaling->Release();
+				}
+				else if (toggle && xbox->GetButtonY() == true){			//scaling WindUp; when button B on the Xbox controller is pressed, WindUp will be enabled
+					toggle = false;
+					printf("Going to Wind Up now\n");
+					scaling->ManualLiftUp();
+				}
+				else if (toggle && xbox->GetButtonA() == true){
+					toggle = false;
+					printf("Going to Wind Down now\n");
+					scaling->ManualDropDown();
+				}
+				else if (toggle && xbox->GetButtonB() == true){
+					toggle = false;
+					printf("Stopping WindUp\n");
+					scaling->StopWU();
+				}
+				else if (!xbox->GetButtonX() && !xbox->GetButtonY() && !xbox->GetButtonA() && !xbox->GetButtonB()) {
+					toggle = true;
+				}
+/*
+				if (xbox->GetButtonLB()==true)
+				{
+					scaling->motorEncoder->motorStop=false;
+					if (xbox->GetButtonY() == true)
+					{
+						scaling->ManualLiftUp();
+					}
+					if (xbox->GetButtonB() == true)
+					{
+						scaling->ManualDropDown();
+					}
+					scalingStopCheck=true;
+
+				}*/
+				else if(scalingStopCheck==true&&xbox->GetButtonLB()==false)
+					{
+						scaling->StopWU();
+						scalingStopCheck = false;
+					}
+
+
 
 		bool trigger = driveStick->GetButtonY();
 			if(trigger && notPressed){
@@ -255,17 +317,6 @@ private:
 		SmartDashboard::PutBoolean("Top: ", bman->GetTopLS());
 		SmartDashboard::PutBoolean("Bottom: ", bman->GetBottomLS());
 
-		if (xbox->GetButtonRB() == true) {
-			if (rightYValue < -MOVE_AXIS) {
-				bman->PivotUp();
-			}
-			else if (rightYValue > MOVE_AXIS) {
-				bman->PivotDown();
-			}
-			else {
-				bman->StopPivotMotor();
-			}
-		}
 		//if (xbox->GetButtonB() == true) {
 			//bman->PivotBall();
 		//}
@@ -283,21 +334,33 @@ private:
 			bman->StopBallMotor();
 		}
 
-
-		// move defenses up/down using right xbox on xbox
-		if (xbox->GetButtonRB() == false){
+		if (xbox->GetButtonRB() == true) {
 			if (rightYValue < -MOVE_AXIS) {
-				bman->DefenseUp();
+				bman->PivotUp();
 			}
 			else if (rightYValue > MOVE_AXIS) {
-				bman->DefenseDown();
+				bman->PivotDown();
 			}
 			else {
 				bman->StopPivotMotor();
 			}
 		}
 
+		// move defenses up/down using right xbox on xbox
+		if (xbox->GetButtonRB() == false){
+			if (rightYValue < -MOVE_AXIS) {
+			   bman->DefenseUp();
+			 }
+			else if (rightYValue > MOVE_AXIS) {
+				   bman->DefenseDown();
+			}
+			else {
+			  bman->StopPivotMotor();
+			}
+		}
 	}
-;};
+
+
+};
 
 START_ROBOT_CLASS(Robot)

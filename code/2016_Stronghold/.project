@@ -42,9 +42,19 @@
 			<locationURI>PARENT-1-PROJECT_LOC/classes/MegTwoTransmissions.cpp</locationURI>
 		</link>
 		<link>
-			<name>src/jankyDrivestick.cpp</name>
+			<name>src/jankyEncoder.cpp</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/jankyDrivestick.cpp</locationURI>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyEncoder.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/jankyScaling.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyScaling.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/jankyTask.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyTask.cpp</locationURI>
 		</link>
 		<link>
 			<name>src/jankyXboxJoystick.cpp</name>
