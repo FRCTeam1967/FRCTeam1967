@@ -41,6 +41,7 @@ public:
 	float initialVal;
 	Encoder * pEncoder;
 	Timer * maxTimer;
+	bool itStopped;
 	bool bDone;
 	bool bEncoding;
 	float desiredMaxTime;
