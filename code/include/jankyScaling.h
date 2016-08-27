@@ -27,6 +27,8 @@ public:
 	void ManualLiftUp();
 	void ManualDropDown();
 	float GetWrap();
+	void ManualLiftUp();
+	void ManualDropDown();
 
 	//member variables
 	bool encoderReset;
