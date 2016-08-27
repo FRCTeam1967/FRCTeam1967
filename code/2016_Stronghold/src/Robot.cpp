@@ -213,14 +213,38 @@ private:
 			reverse = false;
 		}
 
-		bool trigger = driveStick->GetButtonY();
-			if(trigger && notPressed){
-				tTrans->SwitchGear();
-				notPressed = false;
-			}
-			else if(!trigger){
-				notPressed = true;
-			}
+		bool ButtonX = driveStick->GetButtonX();
+		bool ButtonB = driveStick->GetButtonB();
+		bool Xnotpressed = true;
+		bool Bnotpressed = true;
+		//Button X for Low Gear
+		if(ButtonX&&Xnotpressed)
+		{
+			tTrans->LowGear();
+			Xnotpressed = false;
+		}
+		else if(!ButtonX)
+		{
+			Xnotpressed = true;
+		}
+		//Button B for High Gear
+		if(ButtonB&&Bnotpressed)
+		{
+			tTrans->HighGear();
+			Bnotpressed = false;
+		}
+		else if(!ButtonB)
+		{
+			Bnotpressed = true;
+		}
+		//bool trigger = driveStick->GetButtonY();
+		//	if(trigger && notPressed){
+		//		tTrans->SwitchGear();
+		//		notPressed = false;
+		//	}
+		//	else if(!trigger){
+		//		notPressed = true;
+		//	}
 
 		//if(abs(rotate) < DEADBAND_VALUE ){
 			//drive->ArcadeDrive(0.0,0.0);

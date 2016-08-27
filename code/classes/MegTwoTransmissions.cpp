@@ -19,6 +19,42 @@ void MegTwoTransmissions::SwitchGear(){
 		rPiston->Set(false);
 	}
 }
+void MegTwoTransmissions::LowGear()
+{
+	if(lPiston->Get() == true && rPiston->Get() == true)
+	{
+		lPiston->Set(false);
+		rPiston->Set(false);
+	}
+	else if(lPiston->Get() == true && rPiston->Get() == false)
+	{
+		lPiston->Set(false);
+		rPiston->Set(false);
+	}
+	else if(lPiston->Get() == false && rPiston->Get() == true)
+	{
+		lPiston->Set(false);
+		rPiston->Set(false);
+	}
+}
+void MegTwoTransmissions::HighGear()
+{
+	if(lPiston->Get() == false && rPiston->Get() == false)
+	{
+		lPiston->Set(true);
+		rPiston->Set(true);
+	}
+	else if(lPiston->Get() == true && rPiston->Get() == false)
+	{
+		lPiston->Set(true);
+		rPiston->Set(true);
+	}
+	else if(lPiston->Get() == false && rPiston->Get() == true)
+	{
+		lPiston->Set(true);
+		rPiston->Set(true);
+	}
+}
 bool MegTwoTransmissions::GetPistonL(){
 	bool lValue = lPiston->Get();
 	return lValue;
