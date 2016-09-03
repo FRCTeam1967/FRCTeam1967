@@ -42,8 +42,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/classes/MegTwoTransmissions.cpp</locationURI>
 		</link>
 		<link>
-<<<<<<< HEAD
-=======
 			<name>src/jankyEncoder.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyEncoder.cpp</locationURI>
@@ -59,7 +57,6 @@
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyTask.cpp</locationURI>
 		</link>
 		<link>
->>>>>>> 99310f417916f83d905dab924e74b8536b6bddc1
 			<name>src/jankyEncoder.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyEncoder.cpp</locationURI>
