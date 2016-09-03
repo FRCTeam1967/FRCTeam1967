@@ -33,9 +33,11 @@
 #define BM_ENCODER_B 1
 #define BM_PIVOT_MOTOR 1
 #define LS_TOP 4
+#define LS_MIDDLE 6
 #define LS_BOTTOM 5
+#define BM_PISTON 3
 #define BM_ROLLER_MOTOR 4
-#define MOVE_AXIS 0.9
+#define MOVE_AXIS 0.2
 
 //Scaling Channel
 #define SC_ENCODER_A 2
@@ -113,7 +115,7 @@ private:
 		tTrans = new MegTwoTransmissions(L_TST_PISTON_CHANNEL, R_TST_PISTON_CHANNEL, L_TST_PISTON_MOD, R_TST_PISTON_MOD);
 		drive = new RobotDrive(lFMotor,lRMotor,rFMotor,rRMotor);
 		bman = new BallManipulation(BM_ROLLER_MOTOR , BM_PIVOT_MOTOR, BM_ENCODER_A,
-						BM_ENCODER_B, LS_TOP, LS_BOTTOM);
+						BM_ENCODER_B, LS_TOP, LS_MIDDLE, LS_BOTTOM, BM_PISTON);
 		xbox = new jankyXboxJoystick(XBOXCHANNEL);
 		drive -> SetSafetyEnabled(false);
 		chooserTwo->AddDefault("Does nothing(Default)",&defaultAuto);
@@ -254,6 +256,12 @@ private:
 		SmartDashboard::PutNumber("Right Twist: ", xbox->GetRightTwist());
 		SmartDashboard::PutBoolean("Top: ", bman->GetTopLS());
 		SmartDashboard::PutBoolean("Bottom: ", bman->GetBottomLS());
+		SmartDashboard::PutNumber("Left Throttle: ", xbox->GetLeftThrottle());
+		SmartDashboard::PutNumber("Left Twist: ", xbox->GetLeftTwist());
+		SmartDashboard::PutBoolean("Piston: ", bman->GetPiston());
+		SmartDashboard::PutBoolean("RB: ", xbox->GetButtonRB());
+
+
 
 		if (xbox->GetButtonRB() == true) {
 			if (rightYValue < -MOVE_AXIS) {
@@ -285,17 +293,50 @@ private:
 
 
 		// move defenses up/down using right xbox on xbox
-		if (xbox->GetButtonRB() == false){
+		/*if (xbox->GetButtonRB() == false){
 			if (rightYValue < -MOVE_AXIS) {
-				bman->DefenseUp();
+				bman->DefenseUp(rightYValue);
 			}
 			else if (rightYValue > MOVE_AXIS) {
-				bman->DefenseDown();
+				bman->DefenseDown(rightYValue);
+			}
+			else {
+				bman->StopPivotMotor();
+			}
+		}*/
+
+
+		if (xbox->GetButtonRB() == false){
+			if (rightYValue < -MOVE_AXIS) {
+				bman->DefenseUp(rightYValue);
+			}
+			else if (rightYValue > MOVE_AXIS) {
+				bman->DefenseDown(rightYValue);
 			}
 			else {
 				bman->StopPivotMotor();
 			}
 		}
+
+
+		// shoot goal if left twist pressed
+		if (xbox->GetLeftTwist() >= 0.1) {
+			if (bman->GetPiston() == false) {
+				bman->SetPiston(true);
+			}
+			else {
+				bman->SetPiston(false);
+			}
+			//bman->ShootGoal();
+		}
+
+		// if left throttle pressed? ??
+		// switch piston in or out after done? not sure if it'll work, check true/falses
+		/*if (xbox->GetLeftThrottle > 0) {
+			if (bman->GetPiston() == true) {
+				bman->SetPiston(false);
+			}
+		}*/
 
 	}
 ;};

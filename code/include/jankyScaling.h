@@ -24,6 +24,8 @@ public:
 	void LiftUp();
 	void DropDn();
 	void StopWU();
+	void ManualDropDown();
+	void ManualLiftUp();
 	float GetWrap();
 
 	//member variables
