@@ -24,6 +24,8 @@ public:
 	void LiftUp();
 	void DropDn();
 	void StopWU();
+	void ManualLiftUp();
+	void ManualDropDown();
 	float GetWrap();
 	void ManualLiftUp();
 	void ManualDropDown();

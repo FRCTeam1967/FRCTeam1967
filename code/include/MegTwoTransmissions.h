@@ -20,6 +20,8 @@ class MegTwoTransmissions {
 
 	//Functions of MegTwoTransmissions
 	void SwitchGear();
+	void LowGear();
+	void HighGear();
 	bool GetPistonL();
 	bool GetPistonR();
 };
