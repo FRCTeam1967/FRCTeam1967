@@ -24,9 +24,9 @@ public:
 	void LiftUp();
 	void DropDn();
 	void StopWU();
-	void ManualDropDown();
-	void ManualLiftUp();
 	float GetWrap();
+	void ManualLiftUp();
+	void ManualDropDown();
 
 	//member variables
 	bool encoderReset;
