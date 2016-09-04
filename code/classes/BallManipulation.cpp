@@ -2,7 +2,7 @@
  * BallManipulation.cpp
  *
  *  Created on: Feb 6, 2016
- *      Author: Elaine
+ *      Author: Sana
  */
 #include "WPILib.h"
 #include "BallManipulation.h"
@@ -111,7 +111,7 @@ void BallManipulation::PivotDown(void) {
 void BallManipulation::DefenseUp(float buttonAxis) {
 	// pivot pivotMotor forward if top limit switch not pressed
 	if (GetTopLS() == true) {
-		pivotMotor->Set(buttonAxis);
+		pivotMotor->Set(-buttonAxis);
 	}
 	else {
 		pivotMotor->Set(0.0);
@@ -121,7 +121,7 @@ void BallManipulation::DefenseUp(float buttonAxis) {
 void BallManipulation::DefenseDown(float buttonAxis) {
 	// pivot pivotMotor backwards if bottom limit switch not pressed
 	if (GetBottomLS() == true) {
-		pivotMotor->Set(buttonAxis);
+		pivotMotor->Set(-buttonAxis);
 	}
 	else {
 		pivotMotor->Set(0.0);
