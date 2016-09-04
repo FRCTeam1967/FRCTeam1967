@@ -11,9 +11,9 @@
 #include "jankyEncoder.h"
 #include <cmath>
 
-#define SCALING_WINDS 15					//Scaling winch needs to turn 360 degrees exactly 16 times
-#define FW_WIND_SPEED 1.0
-#define BW_WIND_SPEED -1.0
+#define SCALING_WINDS -15					//Scaling winch needs to turn 360 degrees exactly 16 times
+#define FW_WIND_SPEED -1.0
+#define BW_WIND_SPEED 1.0
 #define RELEASE_TIME 1.0
 
 //Constructor
