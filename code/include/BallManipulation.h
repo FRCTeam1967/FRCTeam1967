@@ -12,9 +12,11 @@
 class BallManipulation {
 public:
 	BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
-			int pivotEncoderChannelB, int topLSChannel, int bottomLSChannel);
+			int pivotEncoderChannelB, int topLSChannel, int middleLSChannel, int bottomLSChannel,
+			int pistonModNumber, int pistonChannel);
 	virtual ~BallManipulation(void);
 
+	void BmanStart();
 	void PivotUp();
 	void DownForAuto();
 	void PivotDown();
@@ -23,19 +25,25 @@ public:
 	void PullIn(void);
 	void PushOut(void);
 	void ChangeSpeed(void);
-	void DefenseUp(void);
-	void DefenseDown(void);
+	void DefenseUp(float buttonAxis);
+	void DefenseDown(float buttonAxis);
 	void StopPivotMotor(void);
 	void StopBallMotor(void);
+	void ShootGoal(void);
 	int GetPivotEncoder(void);
 	bool GetTopLS(void);
+	bool GetMiddleLS(void);
 	bool GetBottomLS(void);
+	bool GetPiston(void);
+	void SetPiston(bool on);
 
 	CANTalon * pivotMotor;
 	CANTalon * ballMotor;
 	Encoder * pivotEncoder;
 	DigitalInput * topLS; // limit switch
+	DigitalInput * middleLS;
 	DigitalInput * bottomLS;
+	Solenoid * shootPiston;
 	bool resetted;
 };
 
