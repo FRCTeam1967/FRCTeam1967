@@ -13,9 +13,10 @@ class BallManipulation {
 public:
 	BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
 			int pivotEncoderChannelB, int topLSChannel, int middleLSChannel, int bottomLSChannel,
-			int pistonChannel);
+			int pistonModNumber, int pistonChannel);
 	virtual ~BallManipulation(void);
 
+	void BmanStart();
 	void PivotUp();
 	void DownForAuto();
 	void PivotDown();
@@ -31,6 +32,7 @@ public:
 	void ShootGoal(void);
 	int GetPivotEncoder(void);
 	bool GetTopLS(void);
+	bool GetMiddleLS(void);
 	bool GetBottomLS(void);
 	bool GetPiston(void);
 	void SetPiston(bool on);

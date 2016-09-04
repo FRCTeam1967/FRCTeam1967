@@ -21,7 +21,7 @@
 #define LFCHANNEL 6
 #define RFCHANNEL 3
 #define R_TST_PISTON_CHANNEL 2
-#define L_TST_PISTON_CHANNEL 3
+#define L_TST_PISTON_CHANNEL 3 // three is not really there
 #define L_TST_PISTON_MOD 19
 #define R_TST_PISTON_MOD 19
 #define DEADBAND_VALUE .1
@@ -37,7 +37,8 @@
 #define LS_TOP 4
 #define LS_MIDDLE 6
 #define LS_BOTTOM 5
-#define BM_PISTON 3
+#define BM_PISTON 4
+#define BM_PISTON_MOD 19
 #define BM_ROLLER_MOTOR 4
 #define MOVE_AXIS 0.2
 
@@ -70,6 +71,8 @@ class Robot: public IterativeRobot
 	bool toggle = true;
 	bool pivotPressed = false;
 	bool scalingStopCheck = false;
+	bool Xnotpressed = true;
+	bool Bnotpressed = true;
 
 public:
 	Robot(){
@@ -123,7 +126,7 @@ private:
 		tTrans = new MegTwoTransmissions(L_TST_PISTON_CHANNEL, R_TST_PISTON_CHANNEL, L_TST_PISTON_MOD, R_TST_PISTON_MOD);
 		drive = new RobotDrive(lFMotor,lRMotor,rFMotor,rRMotor);
 		bman = new BallManipulation(BM_ROLLER_MOTOR , BM_PIVOT_MOTOR, BM_ENCODER_A,
-						BM_ENCODER_B, LS_TOP, LS_MIDDLE, LS_BOTTOM, BM_PISTON);
+						BM_ENCODER_B, LS_TOP, LS_MIDDLE, LS_BOTTOM, BM_PISTON_MOD, BM_PISTON);
 		xbox = new jankyXboxJoystick(XBOXCHANNEL);
 		scaling = new jankyScaling(SC_ENCODER_A, SC_ENCODER_B,SC_MOTOR_ONE, SC_MOTOR_TWO, SC_PISTON_CHANNEL );
 		drive -> SetSafetyEnabled(false);
@@ -196,6 +199,7 @@ private:
 
 	void TeleopInit(){
 			scaling->ScalingStart();
+			bman->BmanStart();
 		}
 
 	void TeleopPeriodic()
@@ -279,8 +283,7 @@ private:
 
 		bool ButtonX = driveStick->GetButtonX();
 		bool ButtonB = driveStick->GetButtonB();
-		bool Xnotpressed = true;
-		bool Bnotpressed = true;
+
 		//Button X for Low Gear
 		if(ButtonX&&Xnotpressed)
 		{
@@ -341,13 +344,24 @@ private:
 		SmartDashboard::PutNumber("Left Y Axis: ", xbox->GetLeftYAxis());
 		SmartDashboard::PutNumber("Right Twist: ", xbox->GetRightTwist());
 		SmartDashboard::PutBoolean("Top: ", bman->GetTopLS());
+		SmartDashboard::PutBoolean("Middle: ", bman->GetMiddleLS());
 		SmartDashboard::PutBoolean("Bottom: ", bman->GetBottomLS());
 		SmartDashboard::PutNumber("Left Throttle: ", xbox->GetLeftThrottle());
 		SmartDashboard::PutNumber("Left Twist: ", xbox->GetLeftTwist());
 		SmartDashboard::PutBoolean("Piston: ", bman->GetPiston());
 		SmartDashboard::PutBoolean("RB: ", xbox->GetButtonRB());
 
-
+		/*if (xbox->GetButtonRB() == true) {
+			if (rightYValue < -MOVE_AXIS) {
+				bman->PivotUp();
+			}
+			else if (rightYValue > MOVE_AXIS) {
+				bman->PivotDown();
+			}
+			else {
+				bman->StopPivotMotor();
+			}
+		}*/
 
 		//if (xbox->GetButtonB() == true) {
 			//bman->PivotBall();
@@ -368,57 +382,38 @@ private:
 
 
 		// move defenses up/down using right xbox on xbox
-		/*if (xbox->GetButtonRB() == false){
-			if (rightYValue < -MOVE_AXIS) {
-				bman->DefenseUp(rightYValue);
-			}
-			else if (rightYValue > MOVE_AXIS) {
-				bman->DefenseDown(rightYValue);
-			}
-			else {
-				bman->StopPivotMotor();
-			}
-		}*/
-
-
 		if (xbox->GetButtonRB() == false){
 			if (rightYValue < -MOVE_AXIS) {
 				bman->DefenseUp(rightYValue);
 			}
 			else if (rightYValue > MOVE_AXIS) {
 				bman->DefenseDown(rightYValue);
-
-/*		if (xbox->GetButtonRB() == true) {
-			if (rightYValue < -MOVE_AXIS) {
-				bman->PivotUp();
 			}
-			else if (rightYValue > MOVE_AXIS) {
-				bman->PivotDown();
-*/			}
 			else {
 				bman->StopPivotMotor();
 			}
 		}
 
 
-		// shoot goal if left twist pressed
-		if (xbox->GetLeftTwist() >= 0.1) {
-			if (bman->GetPiston() == false) {
+/*		if (xbox->GetButtonRB() == false){
+			if (rightYValue < -MOVE_AXIS) {
+				bman->DefenseUp(rightYValue);
+			}
+			else if (rightYValue > MOVE_AXIS) {
+				bman->DefenseDown(rightYValue);
+*/
+
+
+		// shoot goal if rb pressed
+		if (xbox->GetButtonRB() == true) {
+				SmartDashboard::PutNumber("Piston Path", 1);
 				bman->SetPiston(true);
-			}
-			else {
-				bman->SetPiston(false);
-			}
 			//bman->ShootGoal();
 		}
-
-		// if left throttle pressed? ??
-		// switch piston in or out after done? not sure if it'll work, check true/falses
-		/*if (xbox->GetLeftThrottle > 0) {
-			if (bman->GetPiston() == true) {
-				bman->SetPiston(false);
-			}
-		}*/
+		else {
+			SmartDashboard::PutNumber("Piston Path", 3);
+			bman->SetPiston(false);
+		}
 
 /*
 		// move defenses up/down using right xbox on xbox

@@ -14,14 +14,14 @@
 #define STOP_PLACE 20
 
 BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, int pivotEncoderChannelA,
-		int pivotEncoderChannelB, int topLSChannel,int middleLSChannel, int bottomLSChannel, int pistonChannel) {
+		int pivotEncoderChannelB, int topLSChannel,int middleLSChannel, int bottomLSChannel, int pistonModNumber, int pistonChannel) {
 	ballMotor = new CANTalon(ballMotorChannel); // is actually a victor
 	pivotMotor = new CANTalon(pivotMotorChannel);
 	pivotEncoder = new Encoder(pivotEncoderChannelA, pivotEncoderChannelB);
 	topLS = new DigitalInput(topLSChannel);
 	middleLS = new DigitalInput(middleLSChannel);
 	bottomLS = new DigitalInput(bottomLSChannel);
-	shootPiston = new Solenoid(pistonChannel);
+	shootPiston = new Solenoid(pistonModNumber, pistonChannel);
 }
 
 BallManipulation::~BallManipulation(void) {
@@ -32,6 +32,15 @@ BallManipulation::~BallManipulation(void) {
 	delete middleLS;
 	delete bottomLS;
 	delete shootPiston;
+}
+void BallManipulation::SetPiston(bool on) {
+	shootPiston->Set(on);
+	SmartDashboard::PutBoolean("Bman piston", on);
+
+}
+
+void BallManipulation::BmanStart() {
+	SetPiston(false);
 }
 
 void BallManipulation::DownForAuto(){
@@ -98,7 +107,8 @@ void BallManipulation::PivotDown(void) {
 		pivotMotor->Set(0.0);
 	}
 }
-/*void BallManipulation::DefenseUp(float buttonAxis) {
+
+void BallManipulation::DefenseUp(float buttonAxis) {
 	// pivot pivotMotor forward if top limit switch not pressed
 	if (GetTopLS() == true) {
 		pivotMotor->Set(buttonAxis);
@@ -116,9 +126,9 @@ void BallManipulation::DefenseDown(float buttonAxis) {
 	else {
 		pivotMotor->Set(0.0);
 	}
-}*/
+}
 
-void BallManipulation::DefenseUp(float buttonAxis) {
+/*void BallManipulation::DefenseUp(float buttonAxis) {
 	// pivot pivotMotor forward if top limit switch not pressed
 	if (GetTopLS() == true) {
 		pivotMotor->Set(PIVOT_DEFENSE_SPEED);
@@ -136,7 +146,7 @@ void BallManipulation::DefenseDown(float buttonAxis) {
 	else {
 		pivotMotor->Set(0.0);
 	}
-}
+}*/
 
 void BallManipulation::ResetPivotEncoder(void) {
 	// resets pivot encoder if bottom limit switch pressed
@@ -148,6 +158,10 @@ void BallManipulation::ResetPivotEncoder(void) {
 bool BallManipulation::GetTopLS(void) {
 	// return top limit switch value
 	return topLS->Get();
+}
+
+bool BallManipulation::GetMiddleLS(void) {
+	return middleLS->Get();
 }
 
 bool BallManipulation::GetBottomLS(void) {
@@ -164,9 +178,7 @@ bool BallManipulation::GetPiston(void) {
 	return shootPiston->Get();
 }
 
-void BallManipulation::SetPiston(bool on) {
-	shootPiston->Set(on);
-}
+
 
 void BallManipulation::StopPivotMotor(void) {
 	// stop the pivot motor
@@ -182,10 +194,16 @@ void BallManipulation::ShootGoal(void) {
 	// shoot a low goal
 	// needs a middle limit switch programmed in
 	// piston true/false might be inaccurate
-	if (shootPiston->Get() == true) {
-		PushOut();
-		shootPiston->Set(false);
+	if (GetTopLS() == true) {
 		PivotUp();
+		while (GetMiddleLS() == true) {
+			DefenseDown(0.5); // might be negative
+		}
+	}
+	if (shootPiston->Get() == false) {
+		PushOut();
+		shootPiston->Set(true);
+		DefenseUp(0.5);
 	}
 }
 
