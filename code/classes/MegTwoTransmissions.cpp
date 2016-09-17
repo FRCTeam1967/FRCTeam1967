@@ -19,7 +19,7 @@ void MegTwoTransmissions::SwitchGear(){
 		rPiston->Set(false);
 	}
 }
-void MegTwoTransmissions::LowGear()
+void MegTwoTransmissions::HighGear()
 {
 	if(lPiston->Get() == true && rPiston->Get() == true)
 	{
@@ -37,7 +37,7 @@ void MegTwoTransmissions::LowGear()
 		rPiston->Set(false);
 	}
 }
-void MegTwoTransmissions::HighGear()
+void MegTwoTransmissions::LowGear()
 {
 	if(lPiston->Get() == false && rPiston->Get() == false)
 	{
