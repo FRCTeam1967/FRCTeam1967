@@ -234,6 +234,11 @@ private:
 		SmartDashboard::PutBoolean("Has Scaling Stopped?", scaling->motorEncoder->itStopped);
 		SmartDashboard::PutNumber("Encoder Number", scaling->motorEncoder->pEncoder->Get());
 		SmartDashboard::PutNumber("Encoder Revolution", (scaling->motorEncoder->pEncoder->Get()/360));
+		SmartDashboard::PutBoolean("Get button x", xbox->GetButtonX());
+		SmartDashboard::PutBoolean("Get button y", xbox->GetButtonY());
+		SmartDashboard::PutBoolean("Get button a", xbox->GetButtonA());
+		SmartDashboard::PutBoolean("Get button b", xbox->GetButtonB());
+
 		//scaling
 				if (toggle && xbox->GetButtonX() == true){			//scaling Release; when button A on the Xbox controller is pressed, Release will be enabled
 					toggle = false;
@@ -384,10 +389,10 @@ private:
 		// move defenses up/down using right xbox on xbox
 		if (xbox->GetButtonRB() == false){
 			if (rightYValue < -MOVE_AXIS) {
-				bman->DefenseUp(rightYValue);
+				bman->DefenseUp(-0.4);
 			}
 			else if (rightYValue > MOVE_AXIS) {
-				bman->DefenseDown(rightYValue);
+				bman->DefenseDown(0.4);
 			}
 			else {
 				bman->StopPivotMotor();
@@ -403,12 +408,19 @@ private:
 				bman->DefenseDown(rightYValue);
 */
 
+		// move to middle limit switch from top if lb pressed
+		if (xbox->GetButtonLB() == true) {
+			bman->ToMiddleLS();
+		}
+		else {
+			bman->MiddleLSIdle();
+		}
 
 		// shoot goal if rb pressed
 		if (xbox->GetButtonRB() == true) {
 				SmartDashboard::PutNumber("Piston Path", 1);
-				bman->SetPiston(true);
-			//bman->ShootGoal();
+				//bman->SetPiston(true);
+			bman->ShootGoal();
 		}
 		else {
 			SmartDashboard::PutNumber("Piston Path", 3);

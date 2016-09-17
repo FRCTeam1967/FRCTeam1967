@@ -36,6 +36,8 @@ public:
 	bool GetBottomLS(void);
 	bool GetPiston(void);
 	void SetPiston(bool on);
+	void ToMiddleLS(void);
+	void MiddleLSIdle(void);
 
 	CANTalon * pivotMotor;
 	CANTalon * ballMotor;
@@ -44,7 +46,9 @@ public:
 	DigitalInput * middleLS;
 	DigitalInput * bottomLS;
 	Solenoid * shootPiston;
+	Timer * timer;
 	bool resetted;
+	int middleLSState;
 };
 
 
