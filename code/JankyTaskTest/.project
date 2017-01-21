@@ -29,7 +29,7 @@
 		<link>
 			<name>include</name>
 			<type>2</type>
-			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
+			<locationURI>WORKSPACE_LOC/include</locationURI>
 		</link>
 		<link>
 			<name>src/jankyTask.cpp</name>
