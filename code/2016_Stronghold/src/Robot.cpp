@@ -6,6 +6,7 @@
 #include "JankyScaling.h"
 #include "jankyEncoder.h"
 #include <math.h>
+#include "CANTalon.h"
 
 //Autonomous Pound Defines
 #define TIME_CROSS_LOWBAR 2
@@ -54,7 +55,7 @@
 
 class Robot: public IterativeRobot
 {
-	SendableChooser*chooserTwo;
+	SendableChooser<int*>chooserTwo;
 	CANTalon*lRMotor;
 	CANTalon*rRMotor;
 	CANTalon*lFMotor;
@@ -76,7 +77,6 @@ class Robot: public IterativeRobot
 
 public:
 	Robot(){
-		chooserTwo = NULL;
 		lRMotor = NULL;
 		rRMotor = NULL;
 		lFMotor = NULL;
@@ -91,7 +91,6 @@ public:
 		autonomousTimer->Start();
 	}
 	~Robot(){
-		delete chooserTwo;
 		delete lRMotor;
 		delete rRMotor;
 		delete lFMotor;
@@ -117,7 +116,6 @@ private:
 	void RobotInit()
 	{
 		printf("hi");
-		chooserTwo = new SendableChooser();
 		lRMotor = new CANTalon(LRCHANNEL);
 		rRMotor = new CANTalon(RRCHANNEL);
 		lFMotor = new CANTalon(LFCHANNEL);
@@ -130,35 +128,35 @@ private:
 		xbox = new jankyXboxJoystick(XBOXCHANNEL);
 		scaling = new jankyScaling(SC_ENCODER_A, SC_ENCODER_B,SC_MOTOR_ONE, SC_MOTOR_TWO, SC_PISTON_CHANNEL );
 		drive -> SetSafetyEnabled(false);
-		chooserTwo->AddDefault("Does nothing(Default)",&defaultAuto);
-		chooserTwo->AddObject("Reaches Defense", &reachDefenseAuto);
-		chooserTwo->AddObject("Crosses Rock Wall+ Terrain",&crossRockDefenseAuto);
-		chooserTwo->AddObject("Crosses Low Bar(no ball)",&crossLowBarAuto);
-		chooserTwo->AddObject("Crosses Low Bar and Comes Back(no ball)",&lowBarBackAuto);
-		chooserTwo->AddObject("Crosses Low Bar(w/ ball)",&crossLowBarBoulderAuto);
-		chooserTwo->AddObject("Crosses Low Bar and Comes Back(w/ ball)",&lowBarBackBoulderAuto);
-		SmartDashboard::PutData("Autonomous modes", chooserTwo);
+		chooserTwo.AddDefault("Does nothing(Default)",&defaultAuto);
+		chooserTwo.AddObject("Reaches Defense", &reachDefenseAuto);
+		chooserTwo.AddObject("Crosses Rock Wall+ Terrain",&crossRockDefenseAuto);
+		chooserTwo.AddObject("Crosses Low Bar(no ball)",&crossLowBarAuto);
+		chooserTwo.AddObject("Crosses Low Bar and Comes Back(no ball)",&lowBarBackAuto);
+		chooserTwo.AddObject("Crosses Low Bar(w/ ball)",&crossLowBarBoulderAuto);
+		chooserTwo.AddObject("Crosses Low Bar and Comes Back(w/ ball)",&lowBarBackBoulderAuto);
+		SmartDashboard::PutData("Autonomous modes", &chooserTwo);
 	}
 	void AutonomousInit()
 		{
 			autonomousTimer->Reset();
 			drive->SetSafetyEnabled(false);
-			if(&defaultAuto == chooserTwo->GetSelected()){
+			if(&defaultAuto == chooserTwo.GetSelected()){
 				printf("default auto/n");
 			}
-			else if(&reachDefenseAuto == chooserTwo->GetSelected()){
+			else if(&reachDefenseAuto == chooserTwo.GetSelected()){
 				while (autonomousTimer->Get() <TIME_REACH){
 					drive->ArcadeDrive(0.0, 1.0);
 				}
 				drive->ArcadeDrive(0.0,0.0);
 			}
-			else if(&crossRockDefenseAuto == chooserTwo->GetSelected()){
+			else if(&crossRockDefenseAuto == chooserTwo.GetSelected()){
 				while(autonomousTimer->Get() < TIME_ROCK){
 					drive->ArcadeDrive(0.0, 1.0);
 				}
 				drive->ArcadeDrive(0.0,0.0);
 			}
-			else if(&crossLowBarAuto == chooserTwo->GetSelected()){
+			else if(&crossLowBarAuto == chooserTwo.GetSelected()){
 				while(autonomousTimer->Get() < TIME_ARMS){
 					bman->DownForAuto();
 				}
@@ -168,7 +166,7 @@ private:
 				}
 				drive->ArcadeDrive(0.0,0.0);
 			}
-			else if(&lowBarBackAuto == chooserTwo->GetSelected()){
+			else if(&lowBarBackAuto == chooserTwo.GetSelected()){
 				while(autonomousTimer->Get() < TIME_CROSS_LOWBAR){
 					drive->ArcadeDrive(0.0, 1.0);
 				}
@@ -177,14 +175,15 @@ private:
 				}
 				drive->ArcadeDrive(0.0,0.0);
 			}
-			else if(&crossLowBarBoulderAuto== chooserTwo->GetSelected()){
+			else if(&crossLowBarBoulderAuto== chooserTwo.GetSelected()){
 				while(autonomousTimer->Get() < TIME_CROSS_LOWBAR){
 					drive->ArcadeDrive(1.0, 0.0);
+					bman->PullIn();
 				}
 				bman->PushOut();
 				drive->ArcadeDrive(0.0,0.0);
 			}
-			else if(&lowBarBackBoulderAuto== chooserTwo->GetSelected()){
+			else if(&lowBarBackBoulderAuto== chooserTwo.GetSelected()){
 				while(autonomousTimer->Get() < TIME_CROSS_LOWBAR){
 					drive->ArcadeDrive(1.0, 0.0);
 				}
