@@ -7,6 +7,7 @@
 #ifndef _JANKYENCODER_H
 #include "jankyTask.h"
 #include "WPILib.h"
+#include "CANTalon.h"
 #define _JANKYENCODER_H
 #define RESET_INITMOTORSPEED 0.2
 #define DEFAULT_MAX_TIME 9999

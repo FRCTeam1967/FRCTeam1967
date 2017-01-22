@@ -2,6 +2,7 @@
 #include "jankyTask.h"
 #include <string>
 
+
 JankyTask::JankyTask(const char* taskName) {
   char oldstyle_name[128];
 
@@ -14,16 +15,19 @@ JankyTask::JankyTask(const char* taskName) {
   running_ = true;
   isDead_ = false;
 
-  task_ = new Task(oldstyle_name, (FUNCPTR)JankyTask::JankyPrivateStarterTask, this);
+  pthread_create(&ptask, NULL, &JankyTask::JankyPrivateStarterTask, (void*)this);
+  //task_ = new Task(oldstyle_name, (FUNCPTR)JankyTask::JankyPrivateStarterTask, this);
 }
 
 JankyTask::~JankyTask(){
-  this->Terminate();
-  task_->join();
-  delete task_;   // Now kill the WPI class for the task.
+	void* res;
+	this->Terminate();
+  pthread_join(ptask, &res);
+  free(res);
 }
 
-void JankyTask::JankyPrivateStarterTask(JankyTask* task) {
+void* JankyTask::JankyPrivateStarterTask(void* vtask) {
+	JankyTask*task= (JankyTask*)vtask;
   while (task->running_) {
     if (task->enabled_) {
       task->Run();
@@ -34,6 +38,7 @@ void JankyTask::JankyPrivateStarterTask(JankyTask* task) {
   }
 
   task->isDead_ = true; // Falling off the edge of the earth...
+  return NULL;
 }
 
 void JankyTask::Start() {

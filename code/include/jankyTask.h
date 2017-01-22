@@ -1,5 +1,6 @@
 #ifndef JANKYTASK_H_
 #define JANKYTASK_H_
+#include <pthread.h>
 
 #include "WPILib.h"
 
@@ -28,7 +29,7 @@ class JankyTask {
    * @note When running, loops wait 2ms between calls to Run(). During pause, loop waits 50ms.
    * @param JankyTask the given JankyTask object to run.
    */
-  static void JankyPrivateStarterTask(JankyTask* task);
+  static void* JankyPrivateStarterTask(void* task);
 
   /**
    * @brief Starts the task.
@@ -57,7 +58,7 @@ class JankyTask {
   bool enabled_;
   bool running_;
   bool isDead_;
-  Task* task_;
+  pthread_t ptask;
 };
 
 #endif  // JANKYTASK_H_
