@@ -6,6 +6,7 @@
  */
 #include "WPILib.h"
 #include "BallManipulation.h"
+#include "CANTalon.h"
 
 #define PIVOT_BALL_SPEED 0.2
 #define PIVOT_DEFENSE_SPEED 1.0

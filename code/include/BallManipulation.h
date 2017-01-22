@@ -7,6 +7,7 @@
 
 #ifndef INCLUDE_BALLMANIPULATION_H_
 #include "WPILib.h"
+#include "CANTalon.h"
 #define INCLUDE_BALLMANIPULATION_H_
 
 class BallManipulation {

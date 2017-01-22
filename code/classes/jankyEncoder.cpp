@@ -6,8 +6,10 @@
  */
 
 #include "WPILib.h"
+#include "CANTalon.h"
 #include "jankyEncoder.h"
 #include "jankyTask.h"
+
 #define RESET_WAIT 0.05
 
 /*
