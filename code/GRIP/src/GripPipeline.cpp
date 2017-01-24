@@ -56,9 +56,9 @@ void GripPipeline::process(cv::Mat source0){
  * This method is a generated setter for source0.
  * @param source the Mat to set
  */
-void GripPipeline::setsource0(cv::Mat &source0){
-	source0.copyTo(this->source0);
-}
+//void GripPipeline::setsource0(cv::Mat &source0){
+	//source0.copyTo(this->source0);
+//}
 /**
  * This method is a generated getter for the output of a CV_resize.
  * @return Mat output from CV_resize.
@@ -173,7 +173,7 @@ std::vector<cv::KeyPoint>* GripPipeline::getfindBlobsOutput(){
 		params.maxCircularity = circularity[1];
 		params.filterByConvexity = false;
 		params.filterByInertia = false;
-		cv::Ptr<cv::SimpleBlobDetector> detector = SimpleBlobDetector::create(params);
+		cv::Ptr<cv::SimpleBlobDetector> detector = cv::SimpleBlobDetector::create(params);
 		detector->detect(input, blobList);
 	}
 

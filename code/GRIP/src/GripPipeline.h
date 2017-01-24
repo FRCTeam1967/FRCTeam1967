@@ -1,5 +1,5 @@
 #pragma once
-#include <vision/VisionPipeline.h>
+#include <vision/VisionRunner.h>
 
 #include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/highgui/highgui.hpp>
