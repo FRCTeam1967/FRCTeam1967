@@ -1,10 +1,10 @@
 #pragma once
-#include <vision/VisionRunner.h>
+#include "vision/VisionPipeline.h"
 
 #include <opencv2/objdetect/objdetect.hpp>
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
-//#include <opencv2/contrib/contrib.hpp> we don't have the contrib directory
+//#include <opencv2/contrib/contrib.hpp>
 #include <opencv2/core/core.hpp>
 #include <opencv2/features2d.hpp>
 #include <iostream>
@@ -14,6 +14,7 @@
 #include <vector>
 #include <string>
 #include <math.h>
+#include "WPILib.h"
 
 namespace grip {
 
@@ -26,26 +27,21 @@ class GripPipeline : public VisionPipeline {
 	private:
 		cv::Mat cvResizeOutput;
 		cv::Mat hsvThresholdOutput;
-		cv::Mat cvErodeOutput;
-		cv::Mat maskOutput;
-		std::vector<cv::KeyPoint> findBlobsOutput;
+		std::vector<std::vector<cv::Point> > findContoursOutput;
+		std::vector<std::vector<cv::Point> > filterContoursOutput;
 		void cvResize(cv::Mat &, cv::Size &, double , double , int , cv::Mat &);
 		void hsvThreshold(cv::Mat &, double [], double [], double [], cv::Mat &);
-		void cvErode(cv::Mat &, cv::Mat &, cv::Point &, double , int , cv::Scalar &, cv::Mat &);
-		void mask(cv::Mat &, cv::Mat &, cv::Mat &);
-		void findBlobs(cv::Mat &, double , double [], bool , std::vector<cv::KeyPoint> &);
+		void findContours(cv::Mat &, bool , std::vector<std::vector<cv::Point> > &);
+		void filterContours(std::vector<std::vector<cv::Point> > &, double , double , double , double , double , double , double [], double , double , double , double , std::vector<std::vector<cv::Point> > &);
 
 	public:
 		GripPipeline();
-		void process(cv::Mat source0);
+		void Process(cv::Mat & source0);
 		cv::Mat* getcvResizeOutput();
 		cv::Mat* gethsvThresholdOutput();
-		cv::Mat* getcvErodeOutput();
-		cv::Mat* getmaskOutput();
-		std::vector<cv::KeyPoint>* getfindBlobsOutput();
+		std::vector<std::vector<cv::Point> >* getfindContoursOutput();
+		std::vector<std::vector<cv::Point> >* getfilterContoursOutput();
 };
 
 
 } // end namespace grip
-
-
