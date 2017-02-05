@@ -6,6 +6,7 @@
  */
 #include "WPILib.h"
 #include "BallManipulation.h"
+#include "CANTalon.h"
 
 #define PIVOT_BALL_SPEED 0.2
 #define PIVOT_DEFENSE_SPEED 1.0
@@ -22,6 +23,8 @@ BallManipulation::BallManipulation(int ballMotorChannel, int pivotMotorChannel, 
 	middleLS = new DigitalInput(middleLSChannel);
 	bottomLS = new DigitalInput(bottomLSChannel);
 	shootPiston = new Solenoid(pistonModNumber, pistonChannel);
+	timer = new Timer();
+	int middleLSState = 0;
 }
 
 BallManipulation::~BallManipulation(void) {
@@ -192,18 +195,58 @@ void BallManipulation::StopBallMotor(void) {
 
 void BallManipulation::ShootGoal(void) {
 	// shoot a low goal
-	// needs a middle limit switch programmed in
-	// piston true/false might be inaccurate
-	if (GetTopLS() == true) {
-		PivotUp();
-		while (GetMiddleLS() == true) {
-			DefenseDown(0.5); // might be negative
-		}
-	}
+
+	PushOut();
+
 	if (shootPiston->Get() == false) {
-		PushOut();
 		shootPiston->Set(true);
-		DefenseUp(0.5);
+		DefenseUp(-0.9);
 	}
 }
+
+void BallManipulation::ToMiddleLS(void) {
+	// goes to middle limit switch from top or bottom
+	if(GetMiddleLS() == true) {
+		if (middleLSState == 0) {
+			middleLSState = 1;
+			DefenseUp(-0.2);
+		}
+		else if (middleLSState == 1) {
+			DefenseUp(-0.2);
+
+		}
+		else if(middleLSState == 2) {
+			if(timer->HasPeriodPassed(0.4)) {
+				timer->Stop();
+				middleLSState = 3;
+			}
+			DefenseDown(0.1);
+		}
+
+	}
+	else {
+		if (middleLSState == 1 || middleLSState == 0) {
+			middleLSState = 2;
+			timer->Reset();
+			timer->Start();
+			DefenseDown(0.1);
+		}
+		else if(middleLSState == 2) {
+			if(timer->HasPeriodPassed(0.4)) {
+				timer->Stop();
+				middleLSState = 3;
+			}
+			else {
+				DefenseDown(0.1);
+			}
+		}
+
+
+	}
+}
+
+void BallManipulation::MiddleLSIdle(void) {
+	middleLSState = 0;
+}
+
 
