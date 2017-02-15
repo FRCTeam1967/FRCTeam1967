@@ -11,24 +11,39 @@
 #include "WPILib.h"
 #include "CANTalon.h"
 
-class RopeClimbing {
+#include "jankyTask.h"
+
+class RopeClimbing:public JankyTask  {
 public:
 	RopeClimbing(int motorAChannel, int motorBChannel, int encoderChannelA, int encoderChannelB, int limitSwitchChannel);
 	virtual ~RopeClimbing();
 
+	void StartClimbing();
+	void StopClimbing();
+	void SetArmed();
+
+	void StartClimbingMotors();
+
+	// Only being made public for testing purposes
+	bool GetLimitSwitch();
+	double GetEncoder();
+	int GetState();
+
+	void Run();
+
+	int climbState;
+
+private:
 	CANTalon * motorA;
 	CANTalon * motorB;
     Encoder * encoder;
 	DigitalInput * limitSwitch;
 
-	void StartClimb();
-	void StopClimb();
+	//void StartClimbingMotors();
+	void StopClimbingMotors();
+
 	void SwitchStates();
 	bool LimitSwitchPressed();
-	bool GetLimitSwitch();
-	double GetEncoder();
-
-	int climbState;
 };
 
 #endif /* ROPECLIMBING_H_ */
