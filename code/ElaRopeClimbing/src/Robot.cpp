@@ -11,10 +11,10 @@
 #include "jankyXboxJoystick.h"
 #include "RopeClimbing.h"
 
-#define MOTOR_A_CHANNEL 5
-#define MOTOR_B_CHANNEL 6
-#define ENCODER_CHANNEL_A 1
-#define ENCODER_CHANNEL_B 2
+#define MOTOR_A_CHANNEL 7 // 5 on jankybot, 7 on programming board
+#define MOTOR_B_CHANNEL 3 // 6 on jankybot
+#define ENCODER_CHANNEL_A 3 // 1 on jankybot, 3 on programming board
+#define ENCODER_CHANNEL_B 4 // 2 on jankybot, 4 on programming board
 #define JOYSTICK_CHANNEL 0
 #define LIMIT_SWITCH_CHANNEL 0
 
@@ -43,21 +43,34 @@ public:
 
 	void TeleopPeriodic() {
 		// go through climb states when button A is pressed
-		SmartDashboard::PutNumber("climbing encoder: ", climb->GetEncoder());
+		SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
 		SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
-		/*if (climb->GetLimitSwitch())
+		SmartDashboard::PutBoolean("climbing state: ", climb->GetState());
+
+		climb->StartClimbing();
+
+		if (joystick->GetButtonB())
 		{
+			//climb->SwitchStates();
+			climb->StopClimbing();
+		}
+		if (joystick->GetButtonA())
+		{
+			climb->SetArmed();
+			//climb->encoder->Reset();
+			climb->StartClimbing();
+		}
+		/*if (joystick->GetButtonX())
+		{
+			//climb->encoder->Reset();
+			//climb->StartClimb();
+			while (climb->encoder->Get() < 5005)
+			{
+				climb->StartClimb();
+			}
 			climb->StopClimb();
 		}*/
 
-		if (joystick->GetButtonA())
-		{
-			climb->SwitchStates();
-		}
-		if (joystick->GetButtonB())
-		{
-			climb->StopClimb();
-		}
 	}
 
 	void TestPeriodic() {

@@ -32,6 +32,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
 		</link>
 		<link>
+			<name>src/jankyTask.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyTask.cpp</locationURI>
+		</link>
+		<link>
 			<name>src/jankyXboxJoystick.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyXboxJoystick.cpp</locationURI>
