@@ -30,5 +30,6 @@
 
 void PIDDrive::PIDWrite(double val) {
     driveRobot->Drive(-0.5, val);
+    printf("val %5.2f \n", val );//
 }
 
