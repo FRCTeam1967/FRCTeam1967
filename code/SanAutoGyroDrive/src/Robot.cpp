@@ -26,7 +26,7 @@ class Robot : public frc::IterativeRobot {
     PIDDrive*myRobot;
     float kP;
     PIDController * PID;
-  //  PIDGearAlignment*pidGear;
+
 public:
     Robot() {
         gyro = NULL;
@@ -38,7 +38,7 @@ public:
         myRobot = NULL;
         kP = 0.04;
         PID=NULL;
-       // pidGear=NULL;
+
     }
     ~Robot() {
         delete gyro;
@@ -49,13 +49,13 @@ public:
         delete stick;
         delete myRobot;
         delete PID;
-      //  delete pidGear;
+
     }
     void RobotInit() {
         gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
         printf("gyro \n");
 
-        //pidGear = new PIDGearAlignment();
+
 
         flMotor = new CANTalon(MOTOR_CHANNEL_FL);
 
@@ -81,16 +81,19 @@ public:
         gyro->Calibrate();
         printf("calibrate\n");
 
-        PID = new PIDController(kP, 0.0, 0.0, gyro, myRobot);
 
 
 
-          //  {
-            //myRobot->SetExpiration(0.1);
-            //}
+
+
+
 
     }
     void AutonomousInit() {
+
+    	gyro->Reset();
+        PID = new PIDController(kP, 0.0, 0.0, gyro, myRobot);
+        PID->Enable();
     /*	if (gyro==NULL) {
     		printf("gyroisnull \n");
     	}
@@ -98,7 +101,7 @@ public:
     		printf("notnull \n");
     	} */
 
-    	gyro->Reset();
+
     	 //printf("reset \n");
     }
     void AutonomousPeriodic() {
@@ -120,6 +123,8 @@ public:
         //returns the actual angle in degrees that the robot is facing
         SmartDashboard::PutNumber("Rate_of_Gyro", gyro->GetRate());
         //returns the rate of rotation of the gyro*/
+    	PID->SetInputRange(-180,180);
+    	PID->SetOutputRange(-1,1);
         PID->SetSetpoint(30.0);
 
     }
