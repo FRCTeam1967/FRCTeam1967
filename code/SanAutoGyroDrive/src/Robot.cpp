@@ -15,6 +15,7 @@
 #define MOTOR_CHANNEL_RR 5
 #define JOYSTICK_CHANNEL 0
 #include "PIDDrive.h"
+
 //so this is using the ADXRS450 class
 class Robot : public frc::IterativeRobot {
     ADXRS450_Gyro*gyro;
@@ -36,7 +37,7 @@ public:
         rrMotor = NULL;
         stick = NULL;
         myRobot = NULL;
-        kP = 0.04;
+        kP = 0.03;
         PID=NULL;
 
     }
@@ -55,10 +56,7 @@ public:
         gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
         printf("gyro \n");
 
-
-
         flMotor = new CANTalon(MOTOR_CHANNEL_FL);
-
         printf("motorFL \n");
 
         rlMotor = new CANTalon(MOTOR_CHANNEL_RL);
@@ -66,7 +64,6 @@ public:
 
         frMotor = new CANTalon(MOTOR_CHANNEL_FR);
         printf("motorFR\n");
-
 
         rrMotor = new CANTalon(MOTOR_CHANNEL_RR);
         printf("motorRR\n");
@@ -92,7 +89,10 @@ public:
     void AutonomousInit() {
 
     	gyro->Reset();
-        PID = new PIDController(kP, 0.0, 0.0, gyro, myRobot);
+
+
+        PID = new PIDController(kP, 0.005, 0.009, gyro, myRobot);
+
         PID->Enable();
     /*	if (gyro==NULL) {
     		printf("gyroisnull \n");
@@ -138,6 +138,25 @@ public:
 
 
     void TestPeriodic() {
+//    	gyro->Reset();
+//    	    	//NetworkTable table = NetworkTable.getTable("PID Values!!!!!");
+//    	    	//table.putDouble("p value", kP);
+//
+//    	        PID = new PIDController(kP, 0.0, 0.0, gyro, myRobot);
+//
+//    	        PID->Enable();
+//    	    /*	if (gyro==NULL) {
+//    	    		printf("gyroisnull \n");
+//    	    	}
+//    	    	else {
+//    	    		printf("notnull \n");
+//    	    	} */
+//
+//
+//    	    	 //printf("reset \n");
+//    	    	PID->SetInputRange(-180,180);
+//    	        	PID->SetOutputRange(-1,1);
+//    	            PID->SetSetpoint(30.0);
     }
 private:
 };

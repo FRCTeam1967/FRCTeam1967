@@ -29,7 +29,8 @@
 
 
 void PIDDrive::PIDWrite(double val) {
-    driveRobot->Drive(-0.5, val);
+    driveRobot->Drive(-0.5, -val);
+    SmartDashboard::PutNumber("value", val);
     printf("val %5.2f \n", val );//
 }
 
