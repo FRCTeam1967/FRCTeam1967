@@ -13,7 +13,8 @@
 
 #include "jankyTask.h"
 
-class RopeClimbing:public JankyTask  {
+//class RopeClimbing:public JankyTask  {
+class RopeClimbing  {
 public:
 	RopeClimbing(int motorAChannel, int motorBChannel, int encoderChannelA, int encoderChannelB, int limitSwitchChannel);
 	virtual ~RopeClimbing();
@@ -23,13 +24,14 @@ public:
 	void SetArmed();
 
 	void StartClimbingMotors();
+	void StopClimbingMotors();
 
 	// Only being made public for testing purposes
 	bool GetLimitSwitch();
 	double GetEncoder();
 	int GetState();
 
-	void Run();
+//	void Run();
 
 	int climbState;
 
@@ -40,7 +42,7 @@ private:
 	DigitalInput * limitSwitch;
 
 	//void StartClimbingMotors();
-	void StopClimbingMotors();
+
 
 	void SwitchStates();
 	bool LimitSwitchPressed();

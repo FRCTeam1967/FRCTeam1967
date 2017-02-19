@@ -11,7 +11,7 @@
 #define BALL_MOTOR_SPEED 0.75
 #define BALL_MOTOR_CHANNEL 4
 #define DOOR_PISTON_CHANNEL 5
-#define GEAR_BOX_CHANNEL 1
+#define GEAR_BOX_CHANNEL 1 //the only piston on robot rn
 #define PUSH_GEAR_CHANNEL 2
 
 

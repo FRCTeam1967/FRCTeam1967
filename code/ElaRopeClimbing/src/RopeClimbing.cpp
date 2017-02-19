@@ -31,6 +31,7 @@ RopeClimbing::RopeClimbing(int motorAChannel, int motorBChannel, int encoderChan
 	limitSwitch = new DigitalInput(limitSwitchChannel);
 	climbState = IDLE;
 	encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
+//	Start();
 }
 
 RopeClimbing::~RopeClimbing() {
@@ -63,14 +64,14 @@ void RopeClimbing::StartClimbingMotors()
 {
 	// Make both motors move at climbing speed
 	motorA->Set(CLIMB_SPEED);
-	//motorB->Set(CLIMB_SPEED);
+	motorB->Set(CLIMB_SPEED);
 }
 
 void RopeClimbing::StopClimbingMotors()
 {
 	// Make both motors stop
 	motorA->Set(0.0);
-	//motorB->Set(0.0);
+	motorB->Set(0.0);
 }
 
 bool RopeClimbing::LimitSwitchPressed()
@@ -136,8 +137,8 @@ void RopeClimbing::SwitchStates()
 	}
 }
 
-void RopeClimbing::Run()
+/*void RopeClimbing::Run()
 {
 	SwitchStates();
 	printf("I’m alive in run\n");
-}
+}*/
