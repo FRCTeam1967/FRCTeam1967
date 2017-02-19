@@ -15,12 +15,13 @@
 #define DOOR_PISTON_CHANNEL 5//our chassis
 #define GEAR_BOX_CHANNEL 1 //their chassis
 #define PUSH_GEAR_CHANNEL 2
+#define PCM_MOD_NUMBER 9
 
 GearsFuel::GearsFuel(int ballMotorChannel, int doorPistonChannel, int gearBoxChannel, int pushGearChannel){
 	ballMotor= new CANTalon(ballMotorChannel);
-	solenoid1 = new Solenoid(9,doorPistonChannel);
-	solenoid2 = new Solenoid(9,gearBoxChannel);
-	solenoid3 = new Solenoid(9,pushGearChannel);
+	solenoid1 = new Solenoid(PCM_MOD_NUMBER,doorPistonChannel);
+	solenoid2 = new Solenoid(PCM_MOD_NUMBER,gearBoxChannel);
+	solenoid3 = new Solenoid(PCM_MOD_NUMBER,pushGearChannel);
 
 
 }
