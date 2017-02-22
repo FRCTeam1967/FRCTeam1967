@@ -8,11 +8,9 @@
 #include "WPILib.h"
 #include "GearsFuel.h"
 #define XBOX_CHANNEL 1
-#define BALL_MOTOR_SPEED 0.75
-#define BALL_MOTOR_CHANNEL 4
-#define DOOR_PISTON_CHANNEL 5
-#define GEAR_BOX_CHANNEL 1
-#define PUSH_GEAR_CHANNEL 2
+#define GEAR_CHANNEL 1
+#define INTAKE_CHANNEL 2
+#define OUTTAKE_CHANNEL 3
 
 
 class Robot: public frc::IterativeRobot {
@@ -21,18 +19,21 @@ class Robot: public frc::IterativeRobot {
 	bool AnotPressed = true;
 	bool BnotPressed = true;
 	bool YnotPressed = true;
-	Solenoid * solenoid1;
-	Solenoid * solenoid2;
-	Solenoid * solenoid3;
+	bool XnotPressed = true;
+	bool LBnotPressed = true;
+	bool RBnotPressed = true;
+	Solenoid * gearPiston;
+	Solenoid * horzPiston;
+	Solenoid * vertPiston;
 
 
 public:
 	Robot() {
 		gefu = NULL;
 		xbox = NULL;
-		solenoid1 = NULL;
-		solenoid2 = NULL;
-		solenoid3 = NULL;
+		gearPiston = NULL;
+		horzPiston = NULL;
+		vertPiston = NULL;
 
 	}
 	~Robot() {
@@ -42,7 +43,7 @@ public:
 	}
 public:
 	void RobotInit() {
-		gefu = new GearsFuel (BALL_MOTOR_CHANNEL, DOOR_PISTON_CHANNEL, GEAR_BOX_CHANNEL, PUSH_GEAR_CHANNEL);
+		gefu = new GearsFuel ( GEAR_CHANNEL, INTAKE_CHANNEL, OUTTAKE_CHANNEL);
 		xbox = new jankyXboxJoystick(XBOX_CHANNEL);
 
 
@@ -60,53 +61,69 @@ public:
 
 
 	void TeleopInit() {
-		//gefu->FuelIntake();
-		//gefu->BoxOut();
-		//gefu->DoorDown(); //for testing
-		//gefu->GearOut(); //for test purposes
+
 
 	}
 
 	void TeleopPeriodic() {
-//	if(xbox->GetButtonX()) {
-	//	gefu->StopBallMotor();
-	//}
-	//else{
-	//	gefu->FuelIntake();
-	//}
-	if(xbox->GetButtonA() && AnotPressed) {
-		gefu->DoorUp();
-		AnotPressed=false;
-	}
+		//for gear piston
+		printf("in teleop per \n");
 
-	else if (xbox->GetButtonA() && !(AnotPressed)) {
-		gefu->DoorDown();
-		AnotPressed=true;
-	}
+		if (xbox->GetButtonB() && BnotPressed) {
 
-	if (xbox->GetButtonB()) {
-		gefu->BoxOut();
+			gefu->GearOut();
+			BnotPressed=false;
+			printf("gearout \n");
+		}
+			else if (!xbox->GetButtonB()) {
+				BnotPressed=true;
 
-	}
-	else if (xbox->GetButtonX()) {
-		gefu->BoxIn();
-	}
+		}
+		if (xbox->GetButtonX() && XnotPressed) {
+			gefu->GearIn();
+			XnotPressed=false;
+			printf("gearin \n");
+		}
+		else if(!xbox->GetButtonX()) {
+			XnotPressed=true;
+		}
+		// for intake (piston 2)
+		if(xbox->GetButtonA() && AnotPressed) {
+				gefu->Horz();
+				AnotPressed=false;
+				printf("horz \n");
+			}
+		else if (!xbox->GetButtonA()) {
+			AnotPressed=true;
+				}
 
-	if (xbox->GetButtonY() && (YnotPressed)) {
-		gefu->GearOut();
-		YnotPressed=false;
-	}
-	else if (xbox->GetButtonY() && !(YnotPressed)) {
-		gefu->GearIn();
-		YnotPressed=true;
-	}
+			if (xbox->GetButtonY() && (YnotPressed)) {
+				gefu->Horz2();
+				YnotPressed=false;
+				printf("horz2 \n");
+			}
+			else if(!xbox->GetButtonY()) {
+						YnotPressed=true;
+					}
+		// for outtake (piston 3)
+		if (xbox->GetButtonLB() && (LBnotPressed)) {
+				gefu->Vert();
+				LBnotPressed=false;
+				printf("vert \n");
+			}
+		else if(!xbox->GetButtonLB()) {
+				LBnotPressed=true;
+			}
+			if (xbox->GetButtonRB() && (RBnotPressed)) {
+				gefu->Vert2();
+				RBnotPressed=false;
+				printf("vert2 \n");
+			}
+			else if(!xbox->GetButtonRB()) {
+							RBnotPressed=true;
+						}
 
-	}
-
-
-
-
-
+			}
 
 	void TestPeriodic() {
 

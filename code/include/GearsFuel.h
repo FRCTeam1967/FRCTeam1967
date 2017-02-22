@@ -15,24 +15,21 @@
 
 class GearsFuel{
 public:
-	GearsFuel(int ballMotorChannel, int doorPistonChannel, int gearBoxChannel, int pushGearChannel);
+	GearsFuel( int gearChannel, int intakeChannel, int outtakeChannel);
 
 		virtual ~GearsFuel(void);
 
-		void FuelIntake(void);
-		void StopBallMotor(void);
-		void DoorUp(void);
-		void DoorDown(void);
-		void BoxOut(void);
-		void BoxIn(void);
+
+		void Vert(void);
+		void Vert2(void);
 		void GearOut(void);
 		void GearIn(void);
+		void Horz(void);
+		void Horz2(void);
 
-
-		CANTalon * ballMotor;
-		Solenoid * solenoid1;
-		Solenoid * solenoid2;
-		Solenoid * solenoid3;
+		Solenoid * gearPiston;
+		Solenoid * horzPiston;
+		Solenoid * vertPiston;
 
 
 
