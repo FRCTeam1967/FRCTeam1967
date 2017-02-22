@@ -26,10 +26,15 @@ public:
 	void StartClimbingMotors();
 	void StopClimbingMotors();
 
+	void StopAboveMaxCurrent();
+
 	// Only being made public for testing purposes
 	bool GetLimitSwitch();
 	double GetEncoder();
 	int GetState();
+
+	double GetMotorACurrent();
+	double GetMotorBCurrent();
 
 //	void Run();
 

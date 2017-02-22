@@ -23,6 +23,8 @@
 #define ENCODER_DISTANCE 5
 #define DISTANCE_PER_PULSE CIRCUMFERENCE / PULSES_PER_REVOLUTION
 
+#define MAX_CURRENT 40 // max number of amps motors can go
+
 RopeClimbing::RopeClimbing(int motorAChannel, int motorBChannel, int encoderChannelA, int encoderChannelB, int limitSwitchChannel) {
 	// TODO Auto-generated constructor stub
 	motorA = new CANTalon(motorAChannel);
@@ -72,6 +74,25 @@ void RopeClimbing::StopClimbingMotors()
 	// Make both motors stop
 	motorA->Set(0.0);
 	motorB->Set(0.0);
+}
+
+void RopeClimbing::StopAboveMaxCurrent()
+{
+	// Stops when talons reach current above 40 amps
+	if (motorA->GetOutputCurrent() >= MAX_CURRENT || motorB->GetOutputCurrent() >= MAX_CURRENT)
+	{
+		StopClimbingMotors();
+	}
+}
+
+double RopeClimbing::GetMotorACurrent()
+{
+	return motorA->GetOutputCurrent();
+}
+
+double RopeClimbing::GetMotorBCurrent()
+{
+	return motorB->GetOutputCurrent();
 }
 
 bool RopeClimbing::LimitSwitchPressed()

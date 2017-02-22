@@ -43,9 +43,9 @@
 //Gears and Fuel
 #define BALL_MOTOR_SPEED 0.75
 #define BALL_MOTOR_CHANNEL 4
-#define DOOR_PISTON_CHANNEL 5
-#define GEAR_BOX_CHANNEL 1 //the only piston on robot rn
-#define PUSH_GEAR_CHANNEL 2
+#define GEAR_CHANNEL 1
+#define INTAKE_CHANNEL 2
+#define OUTTAKE_CHANNEL 3
 
 class Robot: public frc::IterativeRobot {
 	CANTalon*flmotor;
@@ -64,10 +64,16 @@ class Robot: public frc::IterativeRobot {
     float kP;
     //PIDController * PID;
     GearsFuel * gefu;
-	bool Xnotpressed = true;
-	bool Bnotpressed = true;
+	bool DriveXnotpressed = true;
+	bool DriveBnotpressed = true;
 	bool GuelXnotpressed = true;
-	bool YnotPressed=true;
+	//
+    bool AnotPressed = true;
+    bool BnotPressed = true;
+    bool YnotPressed = true;
+    bool XnotPressed = true;
+    bool LBnotPressed = true;
+    bool RBnotPressed = true;
 	float avg;
 public:
 	Robot(){
@@ -121,12 +127,13 @@ public:
 			gamecomponentxbox = new jankyXboxJoystick(GAME_COMPONENT_XBOX_CHANNEL);
 			gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 	        //myRobot = new PIDDrive(flmotor, rlmotor, frmotor, rrmotor);
-	        gefu = new GearsFuel (BALL_MOTOR_CHANNEL, DOOR_PISTON_CHANNEL, GEAR_BOX_CHANNEL, PUSH_GEAR_CHANNEL);
+	        gefu = new GearsFuel (GEAR_CHANNEL, INTAKE_CHANNEL, OUTTAKE_CHANNEL);
 			//right_encoder->Reset();
 			//left_encoder->Reset();
 			gyro->Calibrate();
+			twotransmissions->LowGear();
 			drive->SetSafetyEnabled(false);
-			printf("DOne with robot init");
+			printf("Done with robot init");
 
 	}
 
@@ -186,59 +193,102 @@ public:
 			bool ButtonB = drivestick->GetButtonB();
 
 				//Button X for Low Gear
-				if(ButtonX&&Xnotpressed)
+				if(ButtonX&&DriveXnotpressed)
 				{
 					twotransmissions->LowGear();
-					Xnotpressed = false;
+					DriveXnotpressed = false;
 				}
 				else if(!ButtonX)
 				{
-					Xnotpressed = true;
+					DriveXnotpressed = true;
 				}
 				//Button B for High Gear
-				if(ButtonB&&Bnotpressed)
+				if(ButtonB&&DriveBnotpressed)
 				{
 					twotransmissions->HighGear();
-					Bnotpressed = false;
+					DriveBnotpressed = false;
 				}
 				else if(!ButtonB)
 				{
-					Bnotpressed = true;
+					DriveBnotpressed = true;
 				}
 
 			//Climbing Code
 			// go through climb states when button A is pressed
 				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
 				SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
-				//SmartDashboard::PutBoolean("climbing state: ", climb->GetState());
-
-				if (gamecomponentxbox->GetButtonB())
+				SmartDashboard::PutNumber("climb motor A current: ", climb->GetMotorACurrent());
+				SmartDashboard::PutNumber("climb motor B current: ", climb->GetMotorBCurrent());
+				SmartDashboard::PutNumber("Left Throttle", drivestick->GetLeftThrottle());
+				SmartDashboard::PutNumber("Right Throttle", drivestick->GetRightThrottle());
+				// Drivestick button A starts climbing motors
+				if (drivestick->GetButtonA())
 				{
-					//climb->SwitchStates();
-					climb->StopClimbingMotors();
-				}
-				if (gamecomponentxbox->GetButtonA())
-				{
-					//climb->encoder->Reset();
 					climb->StartClimbingMotors();
 				}
+
+				// Drivestick button Y stops climbing motors
+				if (drivestick->GetButtonY())
+				{
+					climb->StopClimbingMotors();
+				}
+
+				// stops climbing motors if current is above MAX_CURRENT (40) amps
+				climb->StopAboveMaxCurrent();
+
 	//Gears and Fuel Code
 		//Button X for Box pushed out
-		if (gamecomponentxbox->GetButtonX() && GuelXnotpressed) {
-			gefu->BoxOut();
-			GuelXnotpressed=false;
-		}
-		else if (!gamecomponentxbox->GetButtonX()) {
-			GuelXnotpressed=true;
-		}
-		//Button Y for Box in
-		if (gamecomponentxbox->GetButtonY() && YnotPressed) {
-			gefu->BoxIn();
-			YnotPressed=false;
-		}
-		else if(!gamecomponentxbox->GetButtonX()) {
-			YnotPressed=true;
-		}
+
+		        if (gamecomponentxbox->GetButtonB() && BnotPressed) {
+		            gefu->GearOut();
+		            BnotPressed=false;
+		            printf("gearout \n");
+		        }
+		            else if (!gamecomponentxbox->GetButtonB()) {
+		                BnotPressed=true;
+		        }
+		        if (gamecomponentxbox->GetButtonX() && XnotPressed) {
+		            gefu->GearIn();
+		            XnotPressed=false;
+		            printf("gearin \n");
+		        }
+		        else if(!gamecomponentxbox->GetButtonX()) {
+		            XnotPressed=true;
+		        }
+		        // for intake (piston 2)
+		        if(gamecomponentxbox->GetButtonA() && AnotPressed) {
+		                gefu->Horz();
+		                AnotPressed=false;
+		                printf("horz \n");
+		            }
+		        else if (!gamecomponentxbox->GetButtonA()) {
+		            AnotPressed=true;
+		                }
+		            if (gamecomponentxbox->GetButtonY() && (YnotPressed)) {
+		                gefu->Horz2();
+		                YnotPressed=false;
+		                printf("horz2 \n");
+		            }
+		            else if(!gamecomponentxbox->GetButtonY()) {
+		                        YnotPressed=true;
+		                    }
+		        // for outtake (piston 3)
+		        if (gamecomponentxbox->GetButtonLB() && (LBnotPressed)) {
+		                gefu->Vert();
+		                LBnotPressed=false;
+		                printf("vert \n");
+		            }
+		        else if(!gamecomponentxbox->GetButtonLB()) {
+		                LBnotPressed=true;
+		            }
+		            if (gamecomponentxbox->GetButtonRB() && (RBnotPressed)) {
+		                gefu->Vert2();
+		                RBnotPressed=false;
+		                printf("vert2 \n");
+		            }
+		            else if(!gamecomponentxbox->GetButtonRB()) {
+		                            RBnotPressed=true;
+		                        }
 	}
 
 	void TestPeriodic() {
