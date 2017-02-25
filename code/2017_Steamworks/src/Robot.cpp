@@ -217,24 +217,22 @@ public:
 			// go through climb states when button A is pressed
 				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
 				SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
-				SmartDashboard::PutNumber("climb motor A current: ", climb->GetMotorACurrent());
+				SmartDashboard::PutNumber("climbing motor A current: ", climb->GetMotorACurrent());
 				SmartDashboard::PutNumber("climb motor B current: ", climb->GetMotorBCurrent());
 				SmartDashboard::PutNumber("Left Throttle", drivestick->GetLeftThrottle());
 				SmartDashboard::PutNumber("Right Throttle", drivestick->GetRightThrottle());
 				// Drivestick button A starts climbing motors
-				if (drivestick->GetButtonA())
+				// TODO: Move buttons to game component joystick
+				if (drivestick->GetButtonA() && !drivestick->GetButtonY())
 				{
-					climb->StartClimbingMotors();
+					climb->StartClimbing();
 				}
 
 				// Drivestick button Y stops climbing motors
 				if (drivestick->GetButtonY())
 				{
-					climb->StopClimbingMotors();
+					climb->StopClimbing();
 				}
-
-				// stops climbing motors if current is above MAX_CURRENT (40) amps
-				climb->StopAboveMaxCurrent();
 
 	//Gears and Fuel Code
 		//Button X for Box pushed out
