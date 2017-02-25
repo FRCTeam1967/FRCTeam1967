@@ -9,12 +9,11 @@
 #include "CANTalon.h"
 #include "RopeClimbing.h"
 
-#define IDLE 0
-#define ARMED 1
-#define STARTING 2
-#define CLIMBING 3
-#define FINISH_CLIMB 4
-#define STOP 5
+#define STOP 0
+#define START 1
+#define CLIMB 2
+//#define FINISH_CLIMB 4
+//#define STOP 5
 
 #define CLIMB_SPEED -0.5 // set it negative so electronics can have it standard
 
@@ -23,14 +22,17 @@
 #define ENCODER_DISTANCE 5
 #define DISTANCE_PER_PULSE CIRCUMFERENCE / PULSES_PER_REVOLUTION
 
+#define MAX_CURRENT 40 // max number of amps motors can go
+
 RopeClimbing::RopeClimbing(int motorAChannel, int motorBChannel, int encoderChannelA, int encoderChannelB, int limitSwitchChannel) {
 	// TODO Auto-generated constructor stub
 	motorA = new CANTalon(motorAChannel);
 	motorB = new CANTalon(motorBChannel);
 	encoder = new Encoder(encoderChannelA, encoderChannelB);
 	limitSwitch = new DigitalInput(limitSwitchChannel);
-	climbState = IDLE;
+	climbState = STOP;
 	encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
+	Start();
 }
 
 RopeClimbing::~RopeClimbing() {
@@ -44,7 +46,7 @@ RopeClimbing::~RopeClimbing() {
 void RopeClimbing::StartClimbing()
 {
 	// Set state to STARTING
-	climbState = STARTING;
+	climbState = START;
 }
 
 void RopeClimbing::StopClimbing()
@@ -53,24 +55,55 @@ void RopeClimbing::StopClimbing()
 	climbState = STOP;
 }
 
-void RopeClimbing::SetArmed()
-{
-	// Set state to ARMED
-	climbState = ARMED;
-}
 
 void RopeClimbing::StartClimbingMotors()
 {
 	// Make both motors move at climbing speed
-	motorA->Set(CLIMB_SPEED);
-	//motorB->Set(CLIMB_SPEED);
+	if (!AboveMaxCurrent())
+	{
+		motorA->Set(CLIMB_SPEED);
+		motorB->Set(CLIMB_SPEED);
+	}
 }
 
 void RopeClimbing::StopClimbingMotors()
 {
 	// Make both motors stop
 	motorA->Set(0.0);
-	//motorB->Set(0.0);
+	motorB->Set(0.0);
+}
+
+bool RopeClimbing::AboveMaxCurrent()
+{
+	// Returns true if either motor current is above MAX_CURRENT
+	if (motorA->GetOutputCurrent() >= MAX_CURRENT || motorB->GetOutputCurrent() >= MAX_CURRENT)
+	{
+		return true;
+	}
+	else
+	{
+		return false;
+	}
+}
+
+void RopeClimbing::StopAboveMaxCurrent()
+{
+	// Stops when talons reach current above 40 amps
+	if (AboveMaxCurrent())
+	{
+		climbState = STOP;
+	}
+}
+
+double RopeClimbing::GetMotorACurrent()
+{
+	// returns current of motor A
+	return motorA->GetOutputCurrent();
+}
+
+double RopeClimbing::GetMotorBCurrent()
+{
+	return motorB->GetOutputCurrent();
 }
 
 bool RopeClimbing::LimitSwitchPressed()
@@ -98,11 +131,21 @@ void RopeClimbing::SwitchStates()
 {
 	switch (climbState)
 	{
-		case IDLE:
-			printf("IDLE\n");
+		case STOP: // stop climbing motors
+//			printf("STOP\n");
+			StopClimbingMotors();
 			break;
-		case ARMED:
-			printf("ARMED\n");
+		case START: // starts climbing motors
+//			printf("START\n");
+			StartClimbingMotors();
+			climbState = CLIMB;
+			break;
+		case CLIMB: // stop climbing motors if currents above MAX_CURRENT (40 amps)
+//			printf("CLIMB\n");
+			StopAboveMaxCurrent();
+			break;
+		/*case IDLE:
+			printf("IDLE\n");
 			break;
 		case STARTING: // starts the climbing motors and goes to CLIMBING
 			printf("STARTING\n");
@@ -120,11 +163,11 @@ void RopeClimbing::SwitchStates()
 			break;
 		case FINISH_CLIMB: // motor is going and encoder counting; when reaches top, go to STOP
 			printf("FINISH_CLIMB\n");
-			/*if (encoder->GetDistance() >= ENCODER_DISTANCE)
+			if (encoder->GetDistance() >= ENCODER_DISTANCE)
 			{
 				climbState = STOP;
 			}*/
-			if (encoder->Get() >= 1440 * 6) // jankyBot encoder pulses per revolution
+			/*if (encoder->Get() >= 1440 * 6) // jankyBot encoder pulses per revolution
 			{
 				climbState = STOP;
 			}
@@ -132,12 +175,13 @@ void RopeClimbing::SwitchStates()
 		case STOP: // motor is going and encoder has reached stop value; stop climbing
 			printf("STOP\n");
 			StopClimbingMotors();
-			break;
+			break;*/
 	}
 }
 
 void RopeClimbing::Run()
 {
 	SwitchStates();
-	printf("I’m alive in run\n");
+
+	//printf("I’m alive in run\n");
 }
