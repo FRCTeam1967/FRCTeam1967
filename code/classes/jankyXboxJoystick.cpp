@@ -101,11 +101,11 @@ bool jankyXboxJoystick::GetButtonStart()
 }
 
 /**
- * Returns float from left trigger
+ * Returns float from left trigger (0.0-1.0)
  */
 float jankyXboxJoystick::GetLeftThrottle() 
 {
-	float leftThrottle = GetThrottle();
+	float leftThrottle = GetTwist();
 	if (leftThrottle > 0) {
 		return leftThrottle;
 	}
@@ -113,13 +113,12 @@ float jankyXboxJoystick::GetLeftThrottle()
 }
 
 /**
- * Returns float from right trigger
+ * Returns float from right trigger (0.0-1.0)
  */
 float jankyXboxJoystick::GetRightThrottle() 
 {
 	float rightThrottle = GetThrottle();
-	if (rightThrottle < 0) {
-		rightThrottle = rightThrottle * -1;
+	if (rightThrottle > 0) {
 		return rightThrottle;
 	}
 	else return 0;
