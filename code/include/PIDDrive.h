@@ -11,7 +11,7 @@
 
 class PIDDrive : public frc::PIDOutput {
 public:
-	PIDDrive(SpeedController * motor1, SpeedController * motor2,SpeedController * motor3,SpeedController * motor4);
+	PIDDrive(RobotDrive*drive);
 	virtual ~PIDDrive(void);
 	RobotDrive*driveRobot;
 

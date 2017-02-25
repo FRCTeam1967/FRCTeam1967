@@ -9,6 +9,7 @@
 #include "CANTalon.h"
 #include <ADXRS450_Gyro.h>
 #include <SPI.h>
+#include "RobotDrive.h"
 #define MOTOR_CHANNEL_FL 1
 #define MOTOR_CHANNEL_RL 2
 #define MOTOR_CHANNEL_FR 6
@@ -24,7 +25,9 @@ class Robot : public frc::IterativeRobot {
     CANTalon*frMotor;
     CANTalon*rrMotor;
     Joystick*stick;
-    PIDDrive*myRobot;
+   // PIDDrive*myRobot;
+    PIDDrive*pDrive;
+    RobotDrive*drive;
     float kP;
     PIDController * PID;
 
@@ -36,9 +39,10 @@ public:
         frMotor = NULL;
         rrMotor = NULL;
         stick = NULL;
-        myRobot = NULL;
+        pDrive = NULL;
         kP = 0.03;
         PID=NULL;
+        drive=NULL;
 
     }
     ~Robot() {
@@ -48,8 +52,9 @@ public:
         delete frMotor;
         delete rrMotor;
         delete stick;
-        delete myRobot;
+        delete  pDrive;
         delete PID;
+        delete drive;
 
     }
     void RobotInit() {
@@ -68,7 +73,10 @@ public:
         rrMotor = new CANTalon(MOTOR_CHANNEL_RR);
         printf("motorRR\n");
 
-        myRobot = new PIDDrive(flMotor, rlMotor, frMotor, rrMotor);
+        drive = new RobotDrive(flMotor, frMotor, rlMotor, rrMotor);
+
+
+        pDrive = new PIDDrive(drive);
         printf("myRobot\n");
 
 
@@ -83,15 +91,13 @@ public:
 
 
 
-
-
     }
     void AutonomousInit() {
 
     	gyro->Reset();
 
 
-        PID = new PIDController(kP, 0.005, 0.009, gyro, myRobot);
+        PID = new PIDController(kP, 0.005, 0.009, gyro,  pDrive);
 
         PID->Enable();
     /*	if (gyro==NULL) {
