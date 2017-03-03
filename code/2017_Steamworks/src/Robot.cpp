@@ -15,14 +15,15 @@
 #include <cmath>
 //Channels for Jankybot
 //Chassis
-#define FRONT_LEFT_MOTOR_CHANNEL 3
-#define REAR_LEFT_MOTOR_CHANNEL 4
-#define FRONT_RIGHT_MOTOR_CHANNEL 1
-#define REAR_RIGHT_MOTOR_CHANNEL 2
+#define FRONT_LEFT_MOTOR_CHANNEL 1//3
+#define REAR_LEFT_MOTOR_CHANNEL 2//4
+#define FRONT_RIGHT_MOTOR_CHANNEL 3//1
+#define REAR_RIGHT_MOTOR_CHANNEL 4//2
 #define LPISTON_CHANNEL 0
 #define RPISTON_CHANNEL 0
 #define LPISTON_MOD 9
 #define RPISTON_MOD 9
+#define JOYSTICK_SENSITIVITY 0.4
 
 //Joystick Ports
 #define DRIVESTICK_CHANNEL 0
@@ -160,32 +161,39 @@ public:
 		//Joystick Values
 			float leftYaxis= drivestick->GetLeftYAxis();
 			float rightYaxis= drivestick->GetRightYAxis();
+			float joystick_sensitivity= JOYSTICK_SENSITIVITY; //
+			float lAxisVal= (joystick_sensitivity*(pow(leftYaxis,3)))+((1-joystick_sensitivity)*leftYaxis);
+			float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
 
 		//Tank Drive
 			if(drivestick->GetButtonRB()){//Code to make robot drive straighter by making both sides equal each other when RB is pressed
 				avg=(leftYaxis+rightYaxis)/2;
 				rightYaxis=avg;
 				leftYaxis=avg;
-				if (leftYaxis<0&&rightYaxis<0){ //forward driving
+				drive->TankDrive(-lAxisVal,-rAxisVal);
+				//Code from squaring joystick value
+				/*if (leftYaxis<0&&rightYaxis<0){ //forward driving
 					drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
 				}
 				else{ //backward driving
 					drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)*-1));
-				}
+				}*/
 			}
 			else{ //regular driving w/out pressing button
-				if (leftYaxis<0&&rightYaxis<0){//forward driving
+				drive->TankDrive(-lAxisVal,-rAxisVal);
+				//Code from squaring joystick value
+				/*if (leftYaxis<0&&rightYaxis<0){//forward driving with squared inputs for more precision
 					drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
 				}
-				else if(leftYaxis<0&&rightYaxis>0){
+				else if((leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)){//(leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)
 					drive->TankDrive(pow(leftYaxis,2), (pow(rightYaxis,2)*-1));
 				}
-				else if(leftYaxis>0&&rightYaxis<0){
+				else if((leftYaxis>=0&&rightYaxis<0) or (leftYaxis>0&&rightYaxis<=0)){
 					drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)));
 				}
 				else{
 					drive->TankDrive((pow(leftYaxis,2)*-1), ((pow(rightYaxis,2))*-1));
-				}
+				}*/
 			}
 
 			//Manual Two Speed Transmissions
