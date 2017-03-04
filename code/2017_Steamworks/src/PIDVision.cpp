@@ -37,6 +37,7 @@ void PIDVision::VisionInit(){
 
 	 cvSink = CameraServer::GetInstance()->GetVideo();
 	 outputStream = CameraServer::GetInstance()->PutVideo("Lines", 320, 240);
+	 isCapturing = false;
 
 
 }
@@ -66,9 +67,10 @@ void PIDVision::CancelDrivetoPeg(){
 
  }
  void PIDVision::StartCapturing(){
-
+	 isCapturing=true;
  }
  void PIDVision::StopCapturing(){
+	 isCapturing=false;
 
  }
  void PIDVision:: GetDistanceToTape(){
@@ -78,6 +80,7 @@ void PIDVision::CancelDrivetoPeg(){
 
  }
  void PIDVision::VisionLoop(){
+	 if (isCapturing){
 		if (cvSink.GrabFrame(mat) == 0)
 			{
 				outputStream.NotifyError(cvSink.GetError());
@@ -85,5 +88,5 @@ void PIDVision::CancelDrivetoPeg(){
 			}
 			gp.Process(mat);
 			outputStream.PutFrame(mat);
-
+	 }
  }

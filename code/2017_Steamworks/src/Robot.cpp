@@ -245,22 +245,21 @@ public:
 	//Gears and Fuel Code
 		//Button X for Box pushed out
 
-		        if (gamecomponentxbox->GetButtonB() && BnotPressed) {
+		        if (gamecomponentxbox->GetButtonB()) {
 		            gefu->GearOut();
-		            BnotPressed=false;
 		            printf("gearout \n");
 		        }
-		            else if (!gamecomponentxbox->GetButtonB()) {
-		                BnotPressed=true;
+		            else  {
+		             gefu->GearIn();
 		        }
-		        if (gamecomponentxbox->GetButtonX() && XnotPressed) {
+		     /*   if (gamecomponentxbox->GetButtonX() && XnotPressed) {
 		            gefu->GearIn();
 		            XnotPressed=false;
 		            printf("gearin \n");
 		        }
 		        else if(!gamecomponentxbox->GetButtonX()) {
 		            XnotPressed=true;
-		        }
+		        }*/
 		        // for intake (piston 2)
 		        if(gamecomponentxbox->GetButtonA() && AnotPressed) {
 		                gefu->Horz();

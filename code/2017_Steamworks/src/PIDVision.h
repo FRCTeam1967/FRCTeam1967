@@ -51,6 +51,7 @@ void GetDistanceToTape();
 void GetPegOffsetFromImageCenter();
 void VisionLoop();
 void VisionInit();
+bool isCapturing;
 
 
 //run vision in run
