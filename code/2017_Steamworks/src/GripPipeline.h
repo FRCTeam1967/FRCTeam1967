@@ -66,7 +66,7 @@ public:
 class GripPipeline : public VisionPipeline {
 private:
 	int difference;
-	int distance;
+	double distance;
 	int xMax;
 	int xMin;
 	int peg;
@@ -99,6 +99,8 @@ public:
 	std::vector<Line>* getfindLinesOutput();
 	std::vector<std::vector<cv::Point> >* getfindContoursOutput();
 	std::vector<std::vector<cv::Point> >* getfilterContoursOutput();
+	double getDistance();
+	int getOffset();
 
 };
 

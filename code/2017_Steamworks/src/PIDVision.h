@@ -47,8 +47,8 @@ cs::CvSource outputStream;
 void StartCapturing();
 void StopCapturing();
 //not sure about visibility yet (last 2) -leaning to private
-void GetDistanceToTape();
-void GetPegOffsetFromImageCenter();
+double GetDistanceToTape();
+int GetPegOffsetFromImageCenter();
 void VisionLoop();
 void VisionInit();
 bool isCapturing;

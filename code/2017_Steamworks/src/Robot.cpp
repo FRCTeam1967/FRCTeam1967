@@ -13,6 +13,9 @@
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 #include <cmath>
+#include "PIDVision.h"
+#include "GripPipeline.h"
+
 //Channels for Jankybot
 //Chassis
 #define FRONT_LEFT_MOTOR_CHANNEL 1//3
@@ -61,6 +64,7 @@ class Robot: public frc::IterativeRobot {
 	RopeClimbing * climb;
 	jankyXboxJoystick * gamecomponentxbox;
 	ADXRS450_Gyro*gyro;
+	PIDVision*pv;
 	//PIDDrive*myRobot;
     float kP;
     //PIDController * PID;
@@ -94,7 +98,7 @@ public:
 	        kP = 0.03;
 	        //PID=NULL;
 	        gefu = NULL;
-
+	        pv = NULL;
 		}
 	~Robot(){
 			delete flmotor;
@@ -112,7 +116,7 @@ public:
 	        //delete myRobot;
 	        //delete PID;
 	        delete gefu;
-
+	        delete pv;
 		}
 	void RobotInit() {
 			flmotor= new CANTalon(FRONT_LEFT_MOTOR_CHANNEL);
@@ -134,7 +138,9 @@ public:
 			gyro->Calibrate();
 			twotransmissions->LowGear();
 			drive->SetSafetyEnabled(false);
+			pv= new PIDVision();
 			printf("Done with robot init");
+
 
 	}
 
@@ -165,12 +171,33 @@ public:
 			float lAxisVal= (joystick_sensitivity*(pow(leftYaxis,3)))+((1-joystick_sensitivity)*leftYaxis);
 			float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
 
+			//PIDVision
+					if (drivestick->GetButtonY() && YnotPressed) {
+						pv->DriveToPeg();
+						YnotPressed=false;
+					}
+					else if (!drivestick->GetButtonY()) {
+						YnotPressed=true;
+					}
+					else if (drivestick->GetButtonA() && AnotPressed) {
+						pv->CancelDrivetoPeg();
+						AnotPressed=false;
+					}
+					else if(!drivestick->GetButtonA()) {
+						AnotPressed=true;
+					}
+					SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
+					SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
+
+
 		//Tank Drive
-			if(drivestick->GetButtonRB()){//Code to make robot drive straighter by making both sides equal each other when RB is pressed
+			if(drivestick->GetButtonRB()){
+				//Code to make robot drive straighter by making both sides equal each other when RB is pressed
 				avg=(leftYaxis+rightYaxis)/2;
 				rightYaxis=avg;
 				leftYaxis=avg;
 				drive->TankDrive(-lAxisVal,-rAxisVal);
+			}
 				//Code from squaring joystick value
 				/*if (leftYaxis<0&&rightYaxis<0){ //forward driving
 					drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
@@ -178,8 +205,8 @@ public:
 				else{ //backward driving
 					drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)*-1));
 				}*/
-			}
-			else{ //regular driving w/out pressing button
+
+			else{//regular driving w/out pressing button
 				drive->TankDrive(-lAxisVal,-rAxisVal);
 				//Code from squaring joystick value
 				/*if (leftYaxis<0&&rightYaxis<0){//forward driving with squared inputs for more precision

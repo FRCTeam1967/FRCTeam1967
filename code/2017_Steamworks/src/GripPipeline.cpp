@@ -183,5 +183,11 @@ double GripPipeline::findDistance(cv::Mat &input, std::vector<Line> &lineList, i
 	//printf ("    Distance: %d \n", distance);
 	return distance;
 }
+double GripPipeline::getDistance() {
+	return distance;
+}
+int GripPipeline::getOffset(){
+	return offset;
+}
 
 }

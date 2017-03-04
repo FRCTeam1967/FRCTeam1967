@@ -17,7 +17,8 @@ PIDVision::PIDVision() {
 	VisionInit();
 
 
-
+	//starts the task; always should be at the end of the constructor because anything that's used in run has to be initialized first
+	Start();
 }
 
 PIDVision::~PIDVision(void) {
@@ -44,6 +45,10 @@ void PIDVision::VisionInit(){
 
 
 void PIDVision::DriveToPeg() {
+	StartCapturing();
+	//TODO enable PID loop
+
+
 
 }
 bool PIDVision::ReadyToPushGearOut(){
@@ -51,19 +56,22 @@ bool PIDVision::ReadyToPushGearOut(){
 }
 
 void PIDVision::CancelDrivetoPeg(){
-
+	StopCapturing();
+	//TODO disable PID loop
 }
  double PIDVision::PIDGet(){
-	 return 1.0; //placeholder
+	 return gp.getOffset();
+
  }
 
  void PIDVision::PIDWrite(double output){
 
  }
  void PIDVision::Run(){
+	 if (isCapturing){
 
-  VisionLoop();
-
+		 VisionLoop();
+	 }
 
  }
  void PIDVision::StartCapturing(){
@@ -73,20 +81,21 @@ void PIDVision::CancelDrivetoPeg(){
 	 isCapturing=false;
 
  }
- void PIDVision:: GetDistanceToTape(){
+ double PIDVision:: GetDistanceToTape(){
+	 return gp.getDistance();
 
  }
- void PIDVision::GetPegOffsetFromImageCenter(){
+int PIDVision::GetPegOffsetFromImageCenter(){
+	 return gp.getOffset();
 
  }
  void PIDVision::VisionLoop(){
-	 if (isCapturing){
-		if (cvSink.GrabFrame(mat) == 0)
+	 		if (cvSink.GrabFrame(mat) == 0)
 			{
 				outputStream.NotifyError(cvSink.GetError());
 
 			}
 			gp.Process(mat);
 			outputStream.PutFrame(mat);
-	 }
+
  }
