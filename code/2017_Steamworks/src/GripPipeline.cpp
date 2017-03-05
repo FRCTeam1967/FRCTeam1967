@@ -168,6 +168,8 @@ double GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
 	offsetInches = offset * (10.375/difference); // finding the offset in inches
 	angle = ((atan(offsetInches/distance))*180)/(3.14); // calculates the angle the robot needs to drive (PID input)
 
+
+
 //	printf ("xMin %d \n", xMin);
 //	printf ("xMax %d \n", xMax);
 //	printf("Difference: %d   ", difference);
@@ -182,12 +184,17 @@ double GripPipeline::findDistance(cv::Mat &input, std::vector<Line> &lineList, i
 	distance = ( -5.5355*pow(10,-5)*pow(difference,3) + 0.0199*pow(difference,2) - 2.5918*(difference) + 137.8207 );
 	//printf ("    Distance: %d \n", distance);
 	return distance;
+
 }
+
+
 double GripPipeline::getDistance() {
 	return distance;
+	//TODO create a running/geometric average
 }
 int GripPipeline::getOffset(){
 	return offset;
+	//TODO create a running/geometric average
 }
 
 }

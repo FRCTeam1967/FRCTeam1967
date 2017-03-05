@@ -13,6 +13,8 @@
 #include <string>
 #include <math.h>
 #include "WPILib.h"
+#define X_RESOLUTION 320
+#define Y_RESOLUTION 240
 
 namespace grip
 {

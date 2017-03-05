@@ -24,13 +24,17 @@ class PIDVision : public frc::PIDSource, public frc::PIDOutput, JankyTask {
 
 public:
 
- PIDVision();
+ PIDVision(RobotDrive*drive);
  virtual ~PIDVision();
 
 
  bool ReadyToPushGearOut();//if true, stop
  void DriveToPeg();
  void CancelDrivetoPeg();
+ double GetDistanceToTape();
+ int GetPegOffsetFromImageCenter();
+ bool CapturingVal();
+
 
 protected:
 double PIDGet();
@@ -40,18 +44,22 @@ void Run();
 private:
 //variables
 cv::Mat mat;
+float kP;
+PIDController*PID;
 grip::GripPipeline gp;
 cs::UsbCamera cam0;
 cs::CvSink cvSink;
 cs::CvSource outputStream;
+RobotDrive*driveRobot;
 void StartCapturing();
 void StopCapturing();
 //not sure about visibility yet (last 2) -leaning to private
-double GetDistanceToTape();
-int GetPegOffsetFromImageCenter();
 void VisionLoop();
 void VisionInit();
 bool isCapturing;
+void PIDInit();
+
+//bool for ready, set it from PID write, get it from robto (ready to push gear out), and then push it out
 
 
 //run vision in run

@@ -138,7 +138,7 @@ public:
 			gyro->Calibrate();
 			twotransmissions->LowGear();
 			drive->SetSafetyEnabled(false);
-			pv= new PIDVision();
+			pv= new PIDVision(drive);
 			printf("Done with robot init");
 
 
@@ -172,6 +172,7 @@ public:
 			float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
 
 			//PIDVision
+
 					if (drivestick->GetButtonY() && YnotPressed) {
 						pv->DriveToPeg();
 						YnotPressed=false;
@@ -188,16 +189,18 @@ public:
 					}
 					SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
 					SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
+			if(pv->CapturingVal()) {
 
-
-		//Tank Drive
-			if(drivestick->GetButtonRB()){
-				//Code to make robot drive straighter by making both sides equal each other when RB is pressed
-				avg=(leftYaxis+rightYaxis)/2;
-				rightYaxis=avg;
-				leftYaxis=avg;
-				drive->TankDrive(-lAxisVal,-rAxisVal);
 			}
+			else{
+			//Tank Drive
+				if(drivestick->GetButtonRB()){
+					//Code to make robot drive straighter by making both sides equal each other when RB is pressed
+						avg=(leftYaxis+rightYaxis)/2;
+						rightYaxis=avg;
+						leftYaxis=avg;
+						drive->TankDrive(-lAxisVal,-rAxisVal);
+									}
 				//Code from squaring joystick value
 				/*if (leftYaxis<0&&rightYaxis<0){ //forward driving
 					drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
@@ -206,23 +209,23 @@ public:
 					drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)*-1));
 				}*/
 
-			else{//regular driving w/out pressing button
-				drive->TankDrive(-lAxisVal,-rAxisVal);
-				//Code from squaring joystick value
-				/*if (leftYaxis<0&&rightYaxis<0){//forward driving with squared inputs for more precision
-					drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
+				else{//regular driving w/out pressing button
+					drive->TankDrive(-lAxisVal,-rAxisVal);
+					//Code from squaring joystick value
+					/*if (leftYaxis<0&&rightYaxis<0){//forward driving with squared inputs for more precision
+						drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
+					}
+					else if((leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)){//(leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)
+						drive->TankDrive(pow(leftYaxis,2), (pow(rightYaxis,2)*-1));
+					}
+					else if((leftYaxis>=0&&rightYaxis<0) or (leftYaxis>0&&rightYaxis<=0)){
+						drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)));
+					}
+					else{
+						drive->TankDrive((pow(leftYaxis,2)*-1), ((pow(rightYaxis,2))*-1));
+					}*/
 				}
-				else if((leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)){//(leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)
-					drive->TankDrive(pow(leftYaxis,2), (pow(rightYaxis,2)*-1));
-				}
-				else if((leftYaxis>=0&&rightYaxis<0) or (leftYaxis>0&&rightYaxis<=0)){
-					drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)));
-				}
-				else{
-					drive->TankDrive((pow(leftYaxis,2)*-1), ((pow(rightYaxis,2))*-1));
-				}*/
 			}
-
 			//Manual Two Speed Transmissions
 			bool ButtonX = drivestick->GetButtonX();
 			bool ButtonB = drivestick->GetButtonB();
@@ -258,16 +261,16 @@ public:
 				SmartDashboard::PutNumber("Right Throttle", drivestick->GetRightThrottle());
 				// Drivestick button A starts climbing motors
 				// TODO: Move buttons to game component joystick
-				if (drivestick->GetButtonA() && !drivestick->GetButtonY())
-				{
-					climb->StartClimbing();
-				}
+			//	if (drivestick->GetButtonA() && !drivestick->GetButtonY())
+				//{
+				//	climb->StartClimbing();
+				//}
 
 				// Drivestick button Y stops climbing motors
-				if (drivestick->GetButtonY())
-				{
-					climb->StopClimbing();
-				}
+				//if (drivestick->GetButtonY())
+				//{
+					//climb->StopClimbing();
+				//}
 
 	//Gears and Fuel Code
 		//Button X for Box pushed out
