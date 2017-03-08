@@ -79,6 +79,7 @@ void PIDVision::CancelDrivetoPeg(){
  void PIDVision::PIDWrite(double output){
 	if (gp.getDistance() >1000) {
 		 driveRobot->Drive(0.0, output);
+		 isReadytoPushGear=true;
 		 //TODO disable PID Loop??
 	 }
 	else if(gp.getDistance() >30 ){

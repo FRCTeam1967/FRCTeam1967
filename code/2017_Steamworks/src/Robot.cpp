@@ -79,6 +79,7 @@ class Robot: public frc::IterativeRobot {
     bool XnotPressed = true;
     bool LBnotPressed = true;
     bool RBnotPressed = true;
+    bool isReadytoPushGear=false;
 	float avg;
 public:
 	Robot(){
@@ -155,6 +156,9 @@ public:
 		//PID->SetInputRange(-180,180);
 	    //PID->SetOutputRange(-1,1);
 		//PID->SetSetpoint(30.0);
+	/*	if(isReadytoPushGear) {
+			GearOut();
+		}*/
 	}
 
 	void TeleopInit() {

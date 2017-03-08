@@ -34,6 +34,7 @@ public:
  double GetDistanceToTape();
  int GetPegOffsetFromImageCenter();
  bool CapturingVal();
+ bool isReadytoPushGear;
 
 
 protected:
@@ -53,11 +54,13 @@ cs::CvSource outputStream;
 RobotDrive*driveRobot;
 void StartCapturing();
 void StopCapturing();
+bool isCapturing;
+void PIDInit();
 //not sure about visibility yet (last 2) -leaning to private
 void VisionLoop();
 void VisionInit();
-bool isCapturing;
-void PIDInit();
+
+
 
 //bool for ready, set it from PID write, get it from robto (ready to push gear out), and then push it out
 
