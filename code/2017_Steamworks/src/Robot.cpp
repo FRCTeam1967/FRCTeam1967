@@ -8,6 +8,7 @@
 #include "PIDDrive.h"
 #include "RopeClimbing.h"
 #include "GearsFuel.h"
+#include "JankyFuelDoor.h"
 #include <IterativeRobot.h>
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
@@ -49,6 +50,9 @@
 #define GEAR_CHANNEL 1
 #define INTAKE_CHANNEL 2
 #define OUTTAKE_CHANNEL 3
+#define FUEL_COLLECT 1
+#define FUEL_CLOSE_DOOR 2
+#define FUEL_DUMP 3
 
 class Robot: public frc::IterativeRobot {
 	CANTalon*flmotor;
@@ -67,13 +71,15 @@ class Robot: public frc::IterativeRobot {
     float kP;
     //PIDController * PID;
     GearsFuel * gefu;
+	JankyFuelDoor*fuel_door;
 	bool DriveXnotpressed = true;
 	bool DriveLBnotpressed = true;
 	bool GuelXnotpressed = true;
-
 	// gears/fuel booleans
     bool AnotPressed = true;
     bool XnotPressed = true;
+    bool RBnotPressed = true;
+    bool LBnotPressed = true;
 
 	float avg;
 public:
@@ -94,7 +100,7 @@ public:
 	        kP = 0.03;
 	        //PID=NULL;
 	        gefu = NULL;
-
+	        fuel_door=NULL;
 		}
 	~Robot(){
 			delete flmotor;
@@ -112,7 +118,7 @@ public:
 	        //delete myRobot;
 	        //delete PID;
 	        delete gefu;
-
+	        delete fuel_door;
 		}
 	void RobotInit() {
 			flmotor= new CANTalon(FRONT_LEFT_MOTOR_CHANNEL);
@@ -128,7 +134,8 @@ public:
 			gameComponentXbox = new jankyXboxJoystick(GAME_COMPONENT_XBOX_CHANNEL);
 			gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 	        //myRobot = new PIDDrive(flmotor, rlmotor, frmotor, rrmotor);
-	        gefu = new GearsFuel (GEAR_CHANNEL, INTAKE_CHANNEL, OUTTAKE_CHANNEL);
+	        gefu = new GearsFuel (GEAR_CHANNEL);
+	        fuel_door = new JankyFuelDoor(OUTTAKE_CHANNEL, INTAKE_CHANNEL);
 			//right_encoder->Reset();
 			//left_encoder->Reset();
 			gyro->Calibrate();
@@ -267,6 +274,32 @@ public:
                 else {
                     gefu->GearIn();
                 }
+
+				//Fuel Door
+				// A for collecting fuel (fuel door opens, block pushed down, fuel door closes)
+				if(gameComponentXbox->GetButtonA()&&AnotPressed){
+					fuel_door->Command(FUEL_COLLECT);
+					AnotPressed=false;
+				}
+				else if (!gameComponentXbox->GetButtonA()){
+					AnotPressed=true;
+				}
+				// RB for closing fuel door
+				if(gameComponentXbox->GetButtonRB()&&RBnotPressed){
+					fuel_door->Command(FUEL_CLOSE_DOOR);
+					RBnotPressed=false;
+				}
+				else if (!gameComponentXbox->GetButtonRB()){
+					RBnotPressed=true;
+				}
+				// LB (on game component xbox controller) for dumping fuel (opening fuel door)
+				if(gameComponentXbox->GetButtonLB()&&LBnotPressed){
+					fuel_door->Command(FUEL_DUMP);
+					LBnotPressed=false;
+				}
+				else if(!gameComponentXbox->GetButtonLB()){
+					LBnotPressed=true;
+				}
 
 				// TODO: figure out if drive team needs this section
 /*                //Outtake Piston (2): Make piston go out & in
