@@ -22,10 +22,17 @@ void GripPipeline::Process(cv::Mat & source0)
 	cvResize(cvResizeSrc, cvResizeDsize, cvResizeFx, cvResizeFy, cvResizeInterpolation, this->cvResizeOutput);
 
 	cv::Mat hsvThresholdInput = cvResizeOutput;
+//
+//	double hsvThresholdHue[] = {52,62};
+//	double hsvThresholdSaturation[] = {0,6};
+//	double hsvThresholdValue[] = {250,255};
+		double hsvThresholdHue[] = {42,72};
+		double hsvThresholdSaturation[] = {0,20};
+		double hsvThresholdValue[] = {230,255};
 
-	double hsvThresholdHue[] = {69,180};
-	double hsvThresholdSaturation[] = {172,255};
-	double hsvThresholdValue[] = {112,255};
+//	double hsvThresholdHue[] = {69,180};
+//	double hsvThresholdSaturation[] = {172,255};
+//	double hsvThresholdValue[] = {112,255};
 	hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, this->hsvThresholdOutput);
 
 	cv::Mat findContoursInput = hsvThresholdOutput;
@@ -181,8 +188,10 @@ double GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
 // FIND DISTANCE
 double GripPipeline::findDistance(cv::Mat &input, std::vector<Line> &lineList, int difference)
 {
+
 	distance = ( -5.5355*pow(10,-5)*pow(difference,3) + 0.0199*pow(difference,2) - 2.5918*(difference) + 137.8207 );
-	//printf ("    Distance: %d \n", distance);
+	printf ("    Distance: %f \n", distance);
+	printf ("    Difference: %d \n", difference);
 	return distance;
 
 }

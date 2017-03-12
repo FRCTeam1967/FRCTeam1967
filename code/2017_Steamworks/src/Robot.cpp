@@ -27,6 +27,7 @@
 #define LPISTON_MOD 9
 #define RPISTON_MOD 9
 #define JOYSTICK_SENSITIVITY 0.4
+#define A_TIME 4
 
 //Joystick Ports
 #define DRIVESTICK_CHANNEL 0
@@ -69,15 +70,17 @@ class Robot: public frc::IterativeRobot {
     float kP;
     //PIDController * PID;
     GearsFuel * gefu;
+    Timer autonomousTimer;
 	bool DriveXnotpressed = true;
 	bool DriveBnotpressed = true;
 	bool GuelXnotpressed = true;
+
 	//
     bool AnotPressed = true;
     bool BnotPressed = true;
-    bool YnotPressed = true;
     bool XnotPressed = true;
     bool LBnotPressed = true;
+    bool YnotPressed = true;
     bool RBnotPressed = true;
     bool isReadytoPushGear=false;
 	float avg;
@@ -100,6 +103,8 @@ public:
 	        //PID=NULL;
 	        gefu = NULL;
 	        pv = NULL;
+
+
 		}
 	~Robot(){
 			delete flmotor;
@@ -146,6 +151,9 @@ public:
 	}
 
 	void AutonomousInit() override {
+
+		autonomousTimer.Reset();
+		 autonomousTimer.Start();
 		drive->SetSafetyEnabled(false);
 		gyro->Reset();
    //     PID = new PIDController(kP, 0.005, 0.009, gyro, myRobot);
@@ -159,10 +167,17 @@ public:
 	/*	if(isReadytoPushGear) {
 			GearOut();
 		}*/
+		if (autonomousTimer.Get() < A_TIME) {
+			drive->TankDrive(0.5, 0.5);
+		}
+		else if(autonomousTimer.Get() > A_TIME) {
+			drive->TankDrive(0.0, 0,0);
+		}
 	}
 
-	void TeleopInit() {
 
+	void TeleopInit() {
+		   YnotPressed = true;
 	}
 
 	void TeleopPeriodic() {
@@ -177,24 +192,34 @@ public:
 
 			//PIDVision
 
-					if (drivestick->GetButtonY() && YnotPressed) {
-						pv->DriveToPeg();
-						YnotPressed=false;
-					}
-					else if (!drivestick->GetButtonY()) {
-						YnotPressed=true;
-					}
-					else if (drivestick->GetButtonA() && AnotPressed) {
-						pv->CancelDrivetoPeg();
-						AnotPressed=false;
-					}
-					else if(!drivestick->GetButtonA()) {
-						AnotPressed=true;
-					}
+				if (drivestick->GetButtonY() && YnotPressed) {
+					SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+					pv->DriveToPeg();
+					YnotPressed=false;
+					SmartDashboard::PutBoolean("afterDrivetoPeg", YnotPressed);
+				}
+				else if (!drivestick->GetButtonY()) {
+					SmartDashboard::PutBoolean("shouldbetrue", YnotPressed);
+					YnotPressed=true;
+				}
+				else if (drivestick->GetButtonA() && AnotPressed) {
+					SmartDashboard::PutBoolean("CancelDrivetoPeg", YnotPressed);
+					pv->CancelDrivetoPeg();
+					AnotPressed=false;
+				}
+				else if(!drivestick->GetButtonA()) {
+					SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+					AnotPressed=true;
+				}
+
 					SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
 					SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
 			if(pv->CapturingVal()) {
+				if(pv->ReadyToPushGearOut()) {
+					gefu->GearOut();
+					pv->CancelDrivetoPeg();
 
+				}
 			}
 			else{
 			//Tank Drive

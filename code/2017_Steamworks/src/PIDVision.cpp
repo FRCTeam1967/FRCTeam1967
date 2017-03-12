@@ -17,7 +17,7 @@ PIDVision::PIDVision(RobotDrive*drive) {
 	VisionInit();
 	driveRobot=drive;
 	PIDInit();
-
+	isReadytoPushGear=false;
 
 
 	//starts the task; always should be at the end of the constructor because anything that's used in run has to be initialized first
@@ -42,6 +42,7 @@ void PIDVision::VisionInit(){
 	 cvSink = CameraServer::GetInstance()->GetVideo();
 	 outputStream = CameraServer::GetInstance()->PutVideo("Lines", 320, 240);
 	 isCapturing = false;
+
 }
 
 void PIDVision::PIDInit(){
@@ -57,19 +58,21 @@ void PIDVision::PIDInit(){
 //PIDInit?  joysticks give up access/we give up access (disable PID controller)
 
 void PIDVision::DriveToPeg() {
-	StartCapturing();
-//	PID->Enable();
-	//TODO enable PID loop
+	if(!isCapturing) {
+		StartCapturing();
+		PID->Enable();
+	}
 }
 
 bool PIDVision::ReadyToPushGearOut(){
-	return false; //placeholder
+	return isReadytoPushGear;
 }
 
 void PIDVision::CancelDrivetoPeg(){
 	StopCapturing();
 	PID->Disable();
-	//TODO disable PID loop
+	driveRobot->Drive(0.0, 0.0);
+	isReadytoPushGear=false;
 }
  double PIDVision::PIDGet(){
 	 return gp.getOffset();
@@ -77,24 +80,26 @@ void PIDVision::CancelDrivetoPeg(){
  }
 
  void PIDVision::PIDWrite(double output){
+
 	if (gp.getDistance() >1000) {
-		 driveRobot->Drive(0.0, output);
+		 driveRobot->Drive(0.0, -output);
 		 isReadytoPushGear=true;
+		 printf("PID Write is done \n ");
 		 //TODO disable PID Loop??
 	 }
 	else if(gp.getDistance() >30 ){
 		//TODO set PID vals for each new speed
-		 driveRobot->Drive(0.5, output);
+		 driveRobot->Drive(-0.5, -output);
 	 }
 	 else if(gp.getDistance() >= 18 ) {
-			driveRobot->Drive(0.25, output);
+			driveRobot->Drive(-0.25, -output);
 		}
 	 else if (gp.getDistance() < 18) {
-		 driveRobot->Drive(0.15, output);
+		 driveRobot->Drive(-0.15, -output);
 	 }
 
-
  }
+
  void PIDVision::Run(){
 	 if (isCapturing){
 
