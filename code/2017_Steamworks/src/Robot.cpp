@@ -84,6 +84,7 @@ class Robot: public frc::IterativeRobot {
 	// gears/fuel booleans
     bool AnotPressed = true;
     bool XnotPressed = true;
+    bool LBnotPressed= true;
 
 	float avg;
 
@@ -198,6 +199,22 @@ public:
 	void TeleopPeriodic() {
 		printf("In teleop periodic");
 //		gyro->Reset();
+
+		// TODO: finish turning with LB and RB
+		if (drivestick->GetButtonLB()&&LBnotPressed)
+		{
+			drive->TankDrive(-.4,.4);
+			LBnotPressed=false;
+		}
+		else if(!drivestick->GetButtonLB()){
+			LBnotPressed=true;
+		}
+
+		if (drivestick->GetButtonRB())
+		{
+			drive->TankDrive(.4, -.4);
+		}
+
 		//Joystick Values
 			float leftYaxis= drivestick->GetLeftYAxis();
 			float rightYaxis= drivestick->GetRightYAxis();
@@ -240,15 +257,7 @@ public:
                 }*/
 			}
 
-			// turning with LB and RB
-			if (drivestick->GetButtonLB())
-			{
-				drive->TankDrive(-.2,.2);
-			}
-			if (drivestick->GetButtonRB())
-			{
-				drive->TankDrive(.2, -.2);
-			}
+
 
 			//Manual Two Speed Transmissions
 			//bool ButtonX = drivestick->GetButtonX();
