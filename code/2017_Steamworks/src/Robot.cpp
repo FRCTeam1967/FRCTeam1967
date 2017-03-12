@@ -27,6 +27,8 @@
 #define RPISTON_MOD 9
 #define JOYSTICK_SENSITIVITY 0.4
 
+#define TURN_SPEED .2
+
 //Joystick Ports
 #define DRIVESTICK_CHANNEL 0
 #define GAME_COMPONENT_XBOX_CHANNEL 1
@@ -50,6 +52,14 @@
 #define INTAKE_CHANNEL 2
 #define OUTTAKE_CHANNEL 3
 
+#define ENCODERA_CHANNEL 5
+#define ENCODERB_CHANNEL 6
+
+#define STRAIGHT_DISTANCE 288 // inches - set to 288 to cross auto line from back, 206.3 is the distance from the center peg to the line
+#define CIRCUMFERENCE 6 * 3.14 // inches
+#define PULSES_PER_REVOLUTION 6
+#define DISTANCE_PER_PULSE CIRCUMFERENCE / PULSES_PER_REVOLUTION // inches
+
 class Robot: public frc::IterativeRobot {
 	CANTalon*flmotor;
 	CANTalon*rlmotor;
@@ -62,7 +72,7 @@ class Robot: public frc::IterativeRobot {
 	//Encoder*left_encoder;
 	RopeClimbing * climb;
 	jankyXboxJoystick * gameComponentXbox;
-	ADXRS450_Gyro*gyro;
+//	ADXRS450_Gyro*gyro;
 	//PIDDrive*myRobot;
     float kP;
     //PIDController * PID;
@@ -76,6 +86,9 @@ class Robot: public frc::IterativeRobot {
     bool XnotPressed = true;
 
 	float avg;
+
+    Counter * encoderA;
+    Counter * encoderB;
 public:
 	Robot(){
 			flmotor=NULL;
@@ -89,12 +102,14 @@ public:
 			//left_encoder=NULL;
 			climb=NULL;
 			gameComponentXbox=NULL;
-			gyro=NULL;
+//			gyro=NULL;
 	        //myRobot = NULL;
 	        kP = 0.03;
 	        //PID=NULL;
 	        gefu = NULL;
 
+	        encoderA = NULL;
+	        encoderB = NULL;
 		}
 	~Robot(){
 			delete flmotor;
@@ -108,10 +123,13 @@ public:
 			//delete left_encoder;
 			delete climb;
 			delete gameComponentXbox;
-			delete gyro;
+//			delete gyro;
 	        //delete myRobot;
 	        //delete PID;
 	        delete gefu;
+
+	        delete encoderA;
+	        delete encoderB;
 
 		}
 	void RobotInit() {
@@ -126,29 +144,51 @@ public:
 			//left_encoder = new Encoder(LEFT_ENCODER_CHANNEL_A, LEFT_ENCODER_CHANNEL_A);
 			climb = new RopeClimbing(MOTOR_A_CHANNEL, MOTOR_B_CHANNEL, ENCODER_CHANNEL_A, ENCODER_CHANNEL_B, LIMIT_SWITCH_CHANNEL);
 			gameComponentXbox = new jankyXboxJoystick(GAME_COMPONENT_XBOX_CHANNEL);
-			gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
+//			gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 	        //myRobot = new PIDDrive(flmotor, rlmotor, frmotor, rrmotor);
 	        gefu = new GearsFuel (GEAR_CHANNEL, INTAKE_CHANNEL, OUTTAKE_CHANNEL);
 			//right_encoder->Reset();
 			//left_encoder->Reset();
-			gyro->Calibrate();
+//			gyro->Calibrate();
 			twoTransmissions->LowGear();
 			drive->SetSafetyEnabled(false);
 			printf("Done with robot init");
 
+			// camera for drive practice
+	        cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
+	        cs::UsbCamera cam1 = CameraServer::GetInstance()->StartAutomaticCapture(1);
+
+			 encoderA = new Counter(ENCODERA_CHANNEL);
+			 encoderB = new Counter(ENCODERB_CHANNEL);
+			 encoderA->Reset();
+			 encoderB->Reset();
 	}
 
 	void AutonomousInit() override {
 		drive->SetSafetyEnabled(false);
-		gyro->Reset();
+//		gyro->Reset();
    //     PID = new PIDController(kP, 0.005, 0.009, gyro, myRobot);
     //    PID->Enable();
+		 encoderA->Reset();
+		 encoderB->Reset();
 	}
 
 	void AutonomousPeriodic() {
 		//PID->SetInputRange(-180,180);
 	    //PID->SetOutputRange(-1,1);
 		//PID->SetSetpoint(30.0);
+
+		SmartDashboard::PutNumber("encoder A get", encoderA->Get());
+		SmartDashboard::PutNumber("encoder B get", encoderB->Get());
+		SmartDashboard::PutNumber("encoder A distance", encoderA->Get() * DISTANCE_PER_PULSE);
+		SmartDashboard::PutNumber("encoder B distance", encoderB->Get() * DISTANCE_PER_PULSE);
+		if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE) {
+			drive->TankDrive(.6, .6); // gets more inaccurate as speed is increased
+		}
+		else
+		{
+			drive->TankDrive(0.0, 0.0);
+		}
 	}
 
 	void TeleopInit() {
@@ -157,7 +197,7 @@ public:
 
 	void TeleopPeriodic() {
 		printf("In teleop periodic");
-		gyro->Reset();
+//		gyro->Reset();
 		//Joystick Values
 			float leftYaxis= drivestick->GetLeftYAxis();
 			float rightYaxis= drivestick->GetRightYAxis();
@@ -166,7 +206,11 @@ public:
 			float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
 
 		//Tank Drive
-			if(drivestick->GetButtonRB()){//Code to make robot drive straighter by making both sides equal each other when RB is pressed
+			// RT makes it go straight
+			// LT makes it high gear
+			// RB makes it turn right
+			// LB makes it turn left
+			if(drivestick->GetRightThrottle() >= .9){//Code to make robot drive straighter by making both sides equal each other when RB is pressed
 				avg=(leftYaxis+rightYaxis)/2;
 				rightYaxis=avg;
 				leftYaxis=avg;
@@ -196,9 +240,19 @@ public:
                 }*/
 			}
 
+			// turning with LB and RB
+			if (drivestick->GetButtonLB())
+			{
+				drive->TankDrive(-.2,.2);
+			}
+			if (drivestick->GetButtonRB())
+			{
+				drive->TankDrive(.2, -.2);
+			}
+
 			//Manual Two Speed Transmissions
 			//bool ButtonX = drivestick->GetButtonX();
-			bool ButtonLB = drivestick->GetButtonLB();
+			bool ButtonLT = drivestick->GetLeftThrottle() >= .9;
 
 				//Button X for Low Gear
 				/*if(ButtonX&&DriveXnotpressed)
@@ -222,7 +276,7 @@ public:
 				}*/
 
 				// hold down LB for high gear
-				if (ButtonLB)
+				if (ButtonLT)
 				{
 					twoTransmissions->LowGear();
 				}
@@ -279,6 +333,7 @@ public:
                     gefu->Horz2();
                     AnotPressed=true;
                 }*/
+
 	}
 
 	void TestPeriodic() {
