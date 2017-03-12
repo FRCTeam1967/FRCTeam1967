@@ -15,7 +15,7 @@
 
 class GearsFuel{
 public:
-	GearsFuel( int gearChannel, int intakeChannel, int outtakeChannel);
+	GearsFuel( int gearChannel);
 
 		virtual ~GearsFuel(void);
 
@@ -28,8 +28,6 @@ public:
 		void Horz2(void);
 
 		Solenoid * gearPiston;
-		Solenoid * horzPiston;
-		Solenoid * vertPiston;
 
 
 

@@ -8,6 +8,7 @@
 #include "PIDDrive.h"
 #include "RopeClimbing.h"
 #include "GearsFuel.h"
+#include "JankyFuelDoor.h"
 #include <IterativeRobot.h>
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
@@ -48,9 +49,12 @@
 //Gears and Fuel
 #define BALL_MOTOR_SPEED 0.75
 #define BALL_MOTOR_CHANNEL 4
-#define GEAR_CHANNEL 1
-#define INTAKE_CHANNEL 2
-#define OUTTAKE_CHANNEL 3
+#define GEAR_CHANNEL 1 // 1 on robot
+#define INTAKE_CHANNEL 2 //2 on robot
+#define OUTTAKE_CHANNEL 3 //3 on robot
+#define STARTCOLLECTING 1
+#define CLOSE_DOOR 2
+#define DUMP 3
 
 #define ENCODERA_CHANNEL 5
 #define ENCODERB_CHANNEL 6
@@ -77,14 +81,16 @@ class Robot: public frc::IterativeRobot {
     float kP;
     //PIDController * PID;
     GearsFuel * gefu;
+	JankyFuelDoor*fuel_door;
 	bool DriveXnotpressed = true;
 	bool DriveLBnotpressed = true;
 	bool GuelXnotpressed = true;
-
 	// gears/fuel booleans
     bool AnotPressed = true;
     bool XnotPressed = true;
-    bool LBnotPressed= true;
+
+    bool RBnotPressed = true;
+    bool LBnotPressed = true;
 
 	float avg;
 
@@ -108,10 +114,11 @@ public:
 	        kP = 0.03;
 	        //PID=NULL;
 	        gefu = NULL;
-
-	        encoderA = NULL;
+            encoderA = NULL;
 	        encoderB = NULL;
+	        fuel_door=NULL;
 		}
+    
 	~Robot(){
 			delete flmotor;
 			delete rlmotor;
@@ -128,11 +135,11 @@ public:
 	        //delete myRobot;
 	        //delete PID;
 	        delete gefu;
-
 	        delete encoderA;
 	        delete encoderB;
-
+	        delete fuel_door;
 		}
+    
 	void RobotInit() {
 			flmotor= new CANTalon(FRONT_LEFT_MOTOR_CHANNEL);
 			rlmotor= new CANTalon(REAR_LEFT_MOTOR_CHANNEL);
@@ -147,13 +154,16 @@ public:
 			gameComponentXbox = new jankyXboxJoystick(GAME_COMPONENT_XBOX_CHANNEL);
 //			gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 	        //myRobot = new PIDDrive(flmotor, rlmotor, frmotor, rrmotor);
-	        gefu = new GearsFuel (GEAR_CHANNEL, INTAKE_CHANNEL, OUTTAKE_CHANNEL);
+	        gefu = new GearsFuel (GEAR_CHANNEL);
+	        fuel_door = new JankyFuelDoor(OUTTAKE_CHANNEL, INTAKE_CHANNEL);
 			//right_encoder->Reset();
 			//left_encoder->Reset();
 //			gyro->Calibrate();
 			twoTransmissions->LowGear();
+
 			drive->SetSafetyEnabled(false);
 			printf("Done with robot init");
+			fuel_door->SetToQuiet();
 
 			// camera for drive practice
 	        cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
@@ -193,7 +203,7 @@ public:
 	}
 
 	void TeleopInit() {
-
+	    fuel_door->SetToQuiet();
 	}
 
 	void TeleopPeriodic() {
@@ -330,6 +340,45 @@ public:
                 else {
                     gefu->GearIn();
                 }
+
+				//Fuel Door
+				// A for collecting fuel (fuel door opens, block pushed down, fuel door closes)
+				bool ButtonA=gameComponentXbox->GetButtonA();
+				bool ButtonRB=gameComponentXbox->GetButtonRB();
+				bool gameComponentButtonLB=gameComponentXbox->GetButtonLB();
+				SmartDashboard::PutBoolean("Button A", ButtonA);
+				SmartDashboard::PutBoolean("A not Pressed", AnotPressed);
+				SmartDashboard::PutBoolean("Button RB", ButtonRB);
+				SmartDashboard::PutBoolean("Button LB", gameComponentButtonLB);
+				if(ButtonA&&AnotPressed){
+					fuel_door->Command(STARTCOLLECTING);
+					printf("Button A Pressed, Fuel Collect Command\n");
+					AnotPressed=false;
+				}
+				else if (!ButtonA){
+					AnotPressed=true;
+					printf("Button A not Pressed\n");
+				}
+				// RB for closing fuel door
+				if(ButtonRB&&RBnotPressed){
+					fuel_door->Command(CLOSE_DOOR);
+					printf("Button RB Pressed, Fuel Collect Command\n");
+					RBnotPressed=false;
+				}
+				else if (!ButtonRB){
+					RBnotPressed=true;
+					printf("Button RB not Pressed\n");
+				}
+				// LB (on game component xbox controller) for dumping fuel (opening fuel door)
+				if(gameComponentButtonLB&&LBnotPressed){
+					fuel_door->Command(DUMP);
+					printf("Button LB Pressed, Fuel Collect Command\n");
+					LBnotPressed=false;
+				}
+				else if(!gameComponentButtonLB){
+					LBnotPressed=true;
+					printf("Button LB not Pressed\n");
+				}
 
 				// TODO: figure out if drive team needs this section
 /*                //Outtake Piston (2): Make piston go out & in

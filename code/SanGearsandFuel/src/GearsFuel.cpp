@@ -16,11 +16,8 @@
 #define INTAKE_CHANNEL 2
 #define OUTTAKE_CHANNEL 3
 
-GearsFuel::GearsFuel(int gearChannel, int intakeChannel, int outtakeChannel){
-
+GearsFuel::GearsFuel(int gearChannel){
 	gearPiston = new Solenoid(9,gearChannel);
-	horzPiston = new Solenoid(9,intakeChannel);
-	vertPiston = new Solenoid(9,outtakeChannel);
 
 
 }
@@ -28,8 +25,6 @@ GearsFuel::GearsFuel(int gearChannel, int intakeChannel, int outtakeChannel){
 GearsFuel::~GearsFuel(void) {
 
 	delete gearPiston;
-	delete horzPiston;
-	delete vertPiston;
 }
 
 
@@ -43,22 +38,6 @@ void GearsFuel::GearIn(void){
 	//move box in
 	gearPiston->Set(false);
 }
-void GearsFuel::Horz(void) {  //horizontal piston
-	//move door up
-	horzPiston->Set(true);
-}
-void GearsFuel::Horz2(void){
-	//move door down
-	horzPiston->Set(false);
-}
-
-void GearsFuel::Vert(void){
-	vertPiston->Set(true);
-}
-void GearsFuel::Vert2(void){
-	vertPiston->Set(false);
-}
-
 //////
 
 
