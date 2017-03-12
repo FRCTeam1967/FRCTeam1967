@@ -47,12 +47,12 @@
 //Gears and Fuel
 #define BALL_MOTOR_SPEED 0.75
 #define BALL_MOTOR_CHANNEL 4
-#define GEAR_CHANNEL 1
-#define INTAKE_CHANNEL 2
-#define OUTTAKE_CHANNEL 3
-#define FUEL_COLLECT 1
-#define FUEL_CLOSE_DOOR 2
-#define FUEL_DUMP 3
+#define GEAR_CHANNEL 1 // 1 on robot
+#define INTAKE_CHANNEL 2 //2 on robot
+#define OUTTAKE_CHANNEL 3 //3 on robot
+#define STARTCOLLECTING 1
+#define CLOSE_DOOR 2
+#define DUMP 3
 
 class Robot: public frc::IterativeRobot {
 	CANTalon*flmotor;
@@ -139,9 +139,9 @@ public:
 			//right_encoder->Reset();
 			//left_encoder->Reset();
 			gyro->Calibrate();
-			twoTransmissions->LowGear();
 			drive->SetSafetyEnabled(false);
 			printf("Done with robot init");
+			fuel_door->SetToQuiet();
 
 	}
 
@@ -159,7 +159,7 @@ public:
 	}
 
 	void TeleopInit() {
-
+	    fuel_door->SetToQuiet();
 	}
 
 	void TeleopPeriodic() {
@@ -277,28 +277,41 @@ public:
 
 				//Fuel Door
 				// A for collecting fuel (fuel door opens, block pushed down, fuel door closes)
-				if(gameComponentXbox->GetButtonA()&&AnotPressed){
-					fuel_door->Command(FUEL_COLLECT);
+				bool ButtonA=gameComponentXbox->GetButtonA();
+				bool ButtonRB=gameComponentXbox->GetButtonRB();
+				bool gameComponentButtonLB=gameComponentXbox->GetButtonLB();
+				SmartDashboard::PutBoolean("Button A", ButtonA);
+				SmartDashboard::PutBoolean("A not Pressed", AnotPressed);
+				SmartDashboard::PutBoolean("Button RB", ButtonRB);
+				SmartDashboard::PutBoolean("Button LB", gameComponentButtonLB);
+				if(ButtonA&&AnotPressed){
+					fuel_door->Command(STARTCOLLECTING);
+					printf("Button A Pressed, Fuel Collect Command\n");
 					AnotPressed=false;
 				}
-				else if (!gameComponentXbox->GetButtonA()){
+				else if (!ButtonA){
 					AnotPressed=true;
+					printf("Button A not Pressed\n");
 				}
 				// RB for closing fuel door
-				if(gameComponentXbox->GetButtonRB()&&RBnotPressed){
-					fuel_door->Command(FUEL_CLOSE_DOOR);
+				if(ButtonRB&&RBnotPressed){
+					fuel_door->Command(CLOSE_DOOR);
+					printf("Button RB Pressed, Fuel Collect Command\n");
 					RBnotPressed=false;
 				}
-				else if (!gameComponentXbox->GetButtonRB()){
+				else if (!ButtonRB){
 					RBnotPressed=true;
+					printf("Button RB not Pressed\n");
 				}
 				// LB (on game component xbox controller) for dumping fuel (opening fuel door)
-				if(gameComponentXbox->GetButtonLB()&&LBnotPressed){
-					fuel_door->Command(FUEL_DUMP);
+				if(gameComponentButtonLB&&LBnotPressed){
+					fuel_door->Command(DUMP);
+					printf("Button LB Pressed, Fuel Collect Command\n");
 					LBnotPressed=false;
 				}
-				else if(!gameComponentXbox->GetButtonLB()){
+				else if(!gameComponentButtonLB){
 					LBnotPressed=true;
+					printf("Button LB not Pressed\n");
 				}
 
 				// TODO: figure out if drive team needs this section

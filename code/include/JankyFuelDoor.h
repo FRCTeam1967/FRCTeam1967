@@ -5,10 +5,11 @@
  *      Author: AnishaKabir
  */
 #include "WPILib.h"
+#include "jankyTask.h"
 #ifndef SRC_JANKYFUELDOOR_H_
 #define SRC_JANKYFUELDOOR_H_
 
-class JankyFuelDoor {
+class JankyFuelDoor:public JankyTask {
 
 public:
 	JankyFuelDoor(int vertical_piston_channel, int horizontal_piston_channel);
@@ -19,11 +20,11 @@ public:
 	void PushDownBlock();
 	void CloseDoor();
 	void PullUpBlock();
-	void Command(int command);
+	void SetToQuiet();
+	void Command(int currentCommand);
 	void Run();
 
 	int fuelDoorState;
-	int currentCommand;
 
 };
 

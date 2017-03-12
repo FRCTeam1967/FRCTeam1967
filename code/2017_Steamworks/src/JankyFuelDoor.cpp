@@ -16,9 +16,11 @@
 
 
 JankyFuelDoor::JankyFuelDoor(int vertical_piston_channel, int horizontal_piston_channel) {
-	doorPiston = new Solenoid(9, horizontal_piston_channel);
+	doorPiston = new Solenoid(9, horizontal_piston_channel); //9 on robot and 19 on test robot
 	blockPiston = new Solenoid(9, vertical_piston_channel);
 	fuelDoorState = QUIET;
+	Start();
+
 	// TODO Auto-generated constructor stub
 // need timer + all the pistons
 }
@@ -45,56 +47,72 @@ void JankyFuelDoor::PullUpBlock(){
 	blockPiston->Set(false);
 }
 
-void JankyFuelDoor::Command(int currentCommand){
-	switch(fuelDoorState){
-			case QUIET:
-				if (currentCommand==1){
-					fuelDoorState=STARTCOLLECTING;
-				}
-				if (currentCommand==3){
-					fuelDoorState=DUMPING;
-				}
-				break;
-			case STARTCOLLECTING:
-				JankyFuelDoor::OpenDoor();
-				Wait(2);
-				JankyFuelDoor::PushDownBlock();
-				Wait(2);
-				JankyFuelDoor::CloseDoor();
-				fuelDoorState=ISCOLLECTING;
-				break;
-			case ISCOLLECTING:
-				if (currentCommand==2){
-					fuelDoorState=ISCLOSINGAFTERCOLLECTING;
-				}
-				break;
-			case ISCLOSINGAFTERCOLLECTING:
-				JankyFuelDoor::PullUpBlock();
-				Wait(2);
-				fuelDoorState=QUIET;
-				break;
-			case ISCLOSINGAFTERDUMPING:
-				JankyFuelDoor::CloseDoor();
-				Wait(2);
-				fuelDoorState=QUIET;
-				break;
-			case DUMPING:
-				JankyFuelDoor::OpenDoor();
-				if (currentCommand==2){
-					fuelDoorState=ISCLOSINGAFTERDUMPING;
-				}
-				break;
-	/*if (currentCommand==1){
-	}
-	else if (currentCommand==2){
+void JankyFuelDoor::SetToQuiet(){
+	fuelDoorState=QUIET;
+}
 
+void JankyFuelDoor::Command(int currentCommand){
+	if (currentCommand==1){
+		if (fuelDoorState==QUIET){
+			printf("State Changed to Start Collecting");
+			fuelDoorState=STARTCOLLECTING;
+		}
+	}
+	else if(currentCommand==2){
+		if (fuelDoorState==ISCOLLECTING){
+			fuelDoorState=ISCLOSINGAFTERCOLLECTING;
+		}
+		else if(fuelDoorState==DUMPING){
+			fuelDoorState=ISCLOSINGAFTERDUMPING;
+		}
 	}
 	else if(currentCommand==3){
-
-	}*/
+		if(fuelDoorState==QUIET){
+		fuelDoorState=DUMPING;
+		}
 	}
 }
 void JankyFuelDoor::Run(){
-
+	switch(fuelDoorState){
+		case QUIET:
+			CloseDoor();
+			PullUpBlock();
+			printf("In Quiet State\n");
+			break;
+		case STARTCOLLECTING:
+				OpenDoor();
+				printf("Door Opened, Begin Wait\n");
+				Wait(2);
+				printf("End of Wait\n");
+				PushDownBlock();
+				printf("Block Pushed Down, Begin Wait\n");
+				Wait(2);
+				printf("End of Wait\n");
+				CloseDoor();
+				printf("Door Closed\n");
+				fuelDoorState=ISCOLLECTING;
+				break;
+		case ISCOLLECTING:
+			printf("In IsCollecting State\n");
+			break;
+		case ISCLOSINGAFTERCOLLECTING:
+			PullUpBlock();
+			printf("Block Pulled Up, Begin Wait\n");
+			Wait(2);
+			printf("End of Wait\n");
+			fuelDoorState=QUIET;
+			break;
+		case ISCLOSINGAFTERDUMPING:
+			CloseDoor();
+			printf("Door Closed, Begin Wait\n");
+			Wait(2);
+			printf("End of Wait\n");
+			fuelDoorState=QUIET;
+			break;
+		case DUMPING:
+			OpenDoor();
+			printf("Door Opened\n");
+		break;
+	}
 }
 
