@@ -64,7 +64,12 @@
 #define PULSES_PER_REVOLUTION 6
 #define DISTANCE_PER_PULSE CIRCUMFERENCE / PULSES_PER_REVOLUTION // inches
 
+// sendable chooser
+#define DEFAULT_AUTO 1
+#define BASELINE_AUTO 2
+
 class Robot: public frc::IterativeRobot {
+	SendableChooser<int*>chooser;
 	CANTalon*flmotor;
 	CANTalon*rlmotor;
 	CANTalon*frmotor;
@@ -75,7 +80,7 @@ class Robot: public frc::IterativeRobot {
 	//Encoder*right_encoder;
 	//Encoder*left_encoder;
 	RopeClimbing * climb;
-	jankyXboxJoystick * gameComponentXbox;
+	jankyXboxJoystick*gameComponentXbox;
 //	ADXRS450_Gyro*gyro;
 	//PIDDrive*myRobot;
     float kP;
@@ -96,6 +101,12 @@ class Robot: public frc::IterativeRobot {
 
     Counter * encoderA;
     Counter * encoderB;
+
+    // chooser variables
+    int defaultAuto=DEFAULT_AUTO;
+    int baseLine= BASELINE_AUTO;
+    int autoMode = DEFAULT_AUTO;
+
 public:
 	Robot(){
 			flmotor=NULL;
@@ -173,6 +184,13 @@ public:
 			 encoderB = new Counter(ENCODERB_CHANNEL);
 			 encoderA->Reset();
 			 encoderB->Reset();
+
+			 // sendable chooser
+			 		chooser.AddDefault("does nothing (default)", &defaultAuto);
+			 		chooser.AddObject("base line", &baseLine);
+			 		SmartDashboard::PutData("Autonomous modes", &chooser);
+			 		printf("Done with robot init");
+
 	}
 
 	void AutonomousInit() override {
@@ -182,6 +200,22 @@ public:
     //    PID->Enable();
 		 encoderA->Reset();
 		 encoderB->Reset();
+
+//		 	 	autonomous = new Autonomous(drive);
+		 		drive->SetSafetyEnabled(false);
+		 	//	gyro->Reset();
+		 		//     PID = new PIDController(kP, 0.005, 0.009, gyro, myRobot);
+		 		//    PID->Enable();
+		 		if(&defaultAuto == chooser.GetSelected())
+		 		{
+		 			printf("default auto\n");
+		 			autoMode = DEFAULT_AUTO;
+		 		}
+		 		else if(&baseLine == chooser.GetSelected())
+		 		{
+		 			printf("base line \n");
+		 			autoMode = BASELINE_AUTO;
+		 		}
 	}
 
 	void AutonomousPeriodic() {
@@ -189,17 +223,25 @@ public:
 	    //PID->SetOutputRange(-1,1);
 		//PID->SetSetpoint(30.0);
 
+		if (autoMode == DEFAULT_AUTO)
+			printf ("default\n");
+		else if (autoMode == BASELINE_AUTO)
+			{
+			if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE)
+				{
+					drive->TankDrive(.6, .6); // gets more inaccurate as speed is increased
+				}
+			else
+				{
+					drive->TankDrive(0.0, 0.0);
+				}
+			}
+
 		SmartDashboard::PutNumber("encoder A get", encoderA->Get());
 		SmartDashboard::PutNumber("encoder B get", encoderB->Get());
 		SmartDashboard::PutNumber("encoder A distance", encoderA->Get() * DISTANCE_PER_PULSE);
 		SmartDashboard::PutNumber("encoder B distance", encoderB->Get() * DISTANCE_PER_PULSE);
-		if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE) {
-			drive->TankDrive(.6, .6); // gets more inaccurate as speed is increased
-		}
-		else
-		{
-			drive->TankDrive(0.0, 0.0);
-		}
+
 	}
 
 	void TeleopInit() {
