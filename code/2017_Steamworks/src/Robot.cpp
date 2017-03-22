@@ -29,6 +29,12 @@
 #define JOYSTICK_SENSITIVITY 0.4
 
 #define TURN_SPEED .2
+#define AUTO_TIME 5
+#define GEARAUTO_TIME 3.4
+#define SGAUTO_TIME 4.25
+#define STATE_THREE 4.45
+#define STOP_TIME 5.55
+#define BACKGEAR_AUTO 6.5
 
 //Joystick Ports
 #define DRIVESTICK_CHANNEL 0
@@ -50,7 +56,7 @@
 #define BALL_MOTOR_SPEED 0.75
 #define BALL_MOTOR_CHANNEL 4
 #define GEAR_CHANNEL 1 // 1 on robot
-#define INTAKE_CHANNEL 2 //2 on robot
+#define INTAKE_CHANNEL 2//2 on robot
 #define OUTTAKE_CHANNEL 3 //3 on robot
 #define STARTCOLLECTING 1
 #define CLOSE_DOOR 2
@@ -67,6 +73,7 @@
 // sendable chooser
 #define DEFAULT_AUTO 1
 #define BASELINE_AUTO 2
+#define CENTER_GEAR 3
 
 class Robot: public frc::IterativeRobot {
 	SendableChooser<int*>chooser;
@@ -77,6 +84,7 @@ class Robot: public frc::IterativeRobot {
 	jankyXboxJoystick*drivestick;
 	TwoTransmissions*twoTransmissions;
 	RobotDrive*drive;
+	Timer autonomousTimer;
 	//Encoder*right_encoder;
 	//Encoder*left_encoder;
 	RopeClimbing * climb;
@@ -106,6 +114,7 @@ class Robot: public frc::IterativeRobot {
     int defaultAuto=DEFAULT_AUTO;
     int baseLine= BASELINE_AUTO;
     int autoMode = DEFAULT_AUTO;
+    int centerGear = CENTER_GEAR;
 
 public:
 	Robot(){
@@ -128,6 +137,7 @@ public:
             encoderA = NULL;
 	        encoderB = NULL;
 	        fuel_door=NULL;
+	        autonomousTimer.Start();
 		}
     
 	~Robot(){
@@ -170,10 +180,9 @@ public:
 			//right_encoder->Reset();
 			//left_encoder->Reset();
 //			gyro->Calibrate();
-			twoTransmissions->LowGear();
+			twoTransmissions->HighGear();
 
 			drive->SetSafetyEnabled(false);
-			printf("Done with robot init");
 			fuel_door->SetToQuiet();
 
 			// camera for drive practice
@@ -188,12 +197,15 @@ public:
 			 // sendable chooser
 			 		chooser.AddDefault("does nothing (default)", &defaultAuto);
 			 		chooser.AddObject("base line", &baseLine);
+			 		chooser.AddObject("gear!", &centerGear);
 			 		SmartDashboard::PutData("Autonomous modes", &chooser);
 			 		printf("Done with robot init");
 
 	}
 
 	void AutonomousInit() override {
+		autonomousTimer.Reset();
+		autonomousTimer.Start();
 		drive->SetSafetyEnabled(false);
 //		gyro->Reset();
    //     PID = new PIDController(kP, 0.005, 0.009, gyro, myRobot);
@@ -216,6 +228,10 @@ public:
 		 			printf("base line \n");
 		 			autoMode = BASELINE_AUTO;
 		 		}
+		 		else if(&centerGear == chooser.GetSelected()) {
+		 			printf("gear auto \n");
+		 			autoMode = CENTER_GEAR;
+		 		}
 	}
 
 	void AutonomousPeriodic() {
@@ -223,33 +239,73 @@ public:
 	    //PID->SetOutputRange(-1,1);
 		//PID->SetSetpoint(30.0);
 
-		if (autoMode == DEFAULT_AUTO)
+		if  (autoMode == DEFAULT_AUTO)
 			printf ("default\n");
-		else if (autoMode == BASELINE_AUTO)
-			{
-			if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE)
-				{
-					drive->TankDrive(.6, .6); // gets more inaccurate as speed is increased
-				}
-			else
-				{
-					drive->TankDrive(0.0, 0.0);
-				}
+
+		else if (autoMode == BASELINE_AUTO) {
+			//			if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE)
+//				{
+//					drive->TankDrive(.6, .6); // gets more inaccurate as speed is increased
+//				}
+
+			if(autonomousTimer.Get()<AUTO_TIME){
+				drive->TankDrive(0.5,0.5);
+			}
+//			else
+//				{
+//					drive->TankDrive(0.0, 0.0);
+//				}
+			else if(autonomousTimer.Get()>AUTO_TIME) {
+				drive->TankDrive(0.0,0.0);
+
+			}
+		}
+		else if(autoMode == CENTER_GEAR) {
+			if(autonomousTimer.Get()<GEARAUTO_TIME) { //drive to peg-3.25 seconds
+				drive->TankDrive(-0.5,-0.5);
+			}
+			else if(autonomousTimer.Get()>GEARAUTO_TIME && autonomousTimer.Get()<SGAUTO_TIME) { //push gear out 1.3  seconds22
+				drive->TankDrive(0.0,0.0);
+				gefu->GearOut();
+			}
+			else if(autonomousTimer.Get()>SGAUTO_TIME && autonomousTimer.Get()<STATE_THREE) {
+				drive->TankDrive(0.5,0.5);
+				gefu->GearIn();
+			}
+		else if (autonomousTimer.Get()>STATE_THREE && autonomousTimer.Get()<STOP_TIME) {//drive backwards for .25 seconds and push gear out 2nd time
+				drive->TankDrive(0.5,0.5);
+				gefu->GearOut();
 			}
 
-		SmartDashboard::PutNumber("encoder A get", encoderA->Get());
-		SmartDashboard::PutNumber("encoder B get", encoderB->Get());
-		SmartDashboard::PutNumber("encoder A distance", encoderA->Get() * DISTANCE_PER_PULSE);
-		SmartDashboard::PutNumber("encoder B distance", encoderB->Get() * DISTANCE_PER_PULSE);
+			else if(autonomousTimer.Get()>STOP_TIME && autonomousTimer.Get()<BACKGEAR_AUTO) { //drive backwards for 1.95 seconds
+				drive->TankDrive(0.5, 0.5);
+				gefu->GearIn();
+
+			}
+
+	else if (autonomousTimer.Get()>BACKGEAR_AUTO) {
+				drive->TankDrive(0.0,0.0); //dont drive duh
+
+		}
+		}
+//		SmartDashboard::PutNumber("encoder A get", encoderA->Get());
+//		SmartDashboard::PutNumber("encoder B get", encoderB->Get());
+//		SmartDashboard::PutNumber("encoder A distance", encoderA->Get() * DISTANCE_PER_PULSE);
+//		SmartDashboard::PutNumber("encoder B distance", encoderB->Get() * DISTANCE_PER_PULSE);
 
 	}
 
 	void TeleopInit() {
+
+
 	    fuel_door->SetToQuiet();
 	}
 
 	void TeleopPeriodic() {
 		printf("In teleop periodic");
+		SmartDashboard::PutBoolean("High Gear", twoTransmissions->lPiston->Get());
+		SmartDashboard::PutBoolean("Yashna is a garbage queen", true);
+
 //		gyro->Reset();
 
 		// TODO: finish turning with LB and RB
