@@ -27,6 +27,16 @@
 	</natures>
 	<linkedResources>
 		<link>
+			<name>GripPipeline.cpp</name>
+			<type>1</type>
+			<locationURI>PROJECT_LOC/src/GripPipeline.cpp</locationURI>
+		</link>
+		<link>
+			<name>PIDVision.cpp</name>
+			<type>1</type>
+			<locationURI>PROJECT_LOC/src/PIDVision.cpp</locationURI>
+		</link>
+		<link>
 			<name>include</name>
 			<type>2</type>
 			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>

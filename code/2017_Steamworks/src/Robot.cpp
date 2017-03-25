@@ -84,6 +84,7 @@ class Robot: public frc::IterativeRobot {
     bool RBnotPressed = true;
     bool isReadytoPushGear=false;
 	float avg;
+	int dOutlierCount;
 public:
 	Robot(){
 			flmotor=NULL;
@@ -145,7 +146,11 @@ public:
 			twotransmissions->LowGear();
 			drive->SetSafetyEnabled(false);
 			pv= new PIDVision(drive);
+			dOutlierCount = 0;
 			printf("Done with robot init");
+
+
+
 
 
 	}
@@ -184,51 +189,60 @@ public:
 		printf("In teleop periodic");
 		gyro->Reset();
 		//Joystick Values
-			float leftYaxis= drivestick->GetLeftYAxis();
-			float rightYaxis= drivestick->GetRightYAxis();
-			float joystick_sensitivity= JOYSTICK_SENSITIVITY; //
-			float lAxisVal= (joystick_sensitivity*(pow(leftYaxis,3)))+((1-joystick_sensitivity)*leftYaxis);
-			float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
+		float leftYaxis= drivestick->GetLeftYAxis();
+		float rightYaxis= drivestick->GetRightYAxis();
+		float joystick_sensitivity= JOYSTICK_SENSITIVITY; //
+		float lAxisVal= (joystick_sensitivity*(pow(leftYaxis,3)))+((1-joystick_sensitivity)*leftYaxis);
+		float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
 
 			//PIDVision
 
-				if (drivestick->GetButtonY() && YnotPressed) {
-					SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
-					pv->DriveToPeg();
-					YnotPressed=false;
-					SmartDashboard::PutBoolean("afterDrivetoPeg", YnotPressed);
-				}
-				else if (!drivestick->GetButtonY()) {
-					SmartDashboard::PutBoolean("shouldbetrue", YnotPressed);
-					YnotPressed=true;
-				}
-				else if (drivestick->GetButtonA() && AnotPressed) {
-					SmartDashboard::PutBoolean("CancelDrivetoPeg", YnotPressed);
-					pv->CancelDrivetoPeg();
-					AnotPressed=false;
-				}
-				else if(!drivestick->GetButtonA()) {
-					SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
-					AnotPressed=true;
-				}
+		if (drivestick->GetButtonY() && YnotPressed) {
+			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+			pv->DriveToPeg();
+			YnotPressed=false;
+			SmartDashboard::PutBoolean("afterDrivetoPeg", YnotPressed);
+		}
+		else if (!drivestick->GetButtonY()) {
+			SmartDashboard::PutBoolean("shouldbetrue", YnotPressed);
+			YnotPressed=true;
+		}
+		else if (drivestick->GetButtonA() && AnotPressed) {
+			SmartDashboard::PutBoolean("CancelDrivetoPeg", YnotPressed);
+			pv->CancelDrivetoPeg();
+			AnotPressed=false;
+		}
+		else if(!drivestick->GetButtonA()) {
+			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+			AnotPressed=true;
+		}
+		//find outlier for distance
 
-					SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
-					SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
-			if(pv->CapturingVal()) {
-				if(pv->ReadyToPushGearOut()) {
-					gefu->GearOut();
-					pv->CancelDrivetoPeg();
+		if(pv->GetDistanceToTape()>500 || pv->GetDistanceToTape()<0) {
+			dOutlierCount++;
+			SmartDashboard::PutNumber("distance outlier count", dOutlierCount);
+		 }
+		SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
+		SmartDashboard::PutNumber("TapeDistance2", pv->GetDistanceToTape());
 
-				}
+
+		SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
+		SmartDashboard::PutNumber("Peg Offset from Center2 :" , pv->GetPegOffsetFromImageCenter());
+		if(pv->CapturingVal()) {
+			if(pv->ReadyToPushGearOut()) {
+				gefu->GearOut();
+				pv->CancelDrivetoPeg();
+
 			}
-			else{
+		}
+		else{
 			//Tank Drive
-				if(drivestick->GetButtonRB()){
-					//Code to make robot drive straighter by making both sides equal each other when RB is pressed
-						avg=(leftYaxis+rightYaxis)/2;
-						rightYaxis=avg;
-						leftYaxis=avg;
-						drive->TankDrive(-lAxisVal,-rAxisVal);
+			if(drivestick->GetButtonRB()){
+				//Code to make robot drive straighter by making both sides equal each other when RB is pressed
+				avg=(leftYaxis+rightYaxis)/2;
+				rightYaxis=avg;
+				leftYaxis=avg;
+				drive->TankDrive(-lAxisVal,-rAxisVal);
 									}
 				//Code from squaring joystick value
 				/*if (leftYaxis<0&&rightYaxis<0){ //forward driving
