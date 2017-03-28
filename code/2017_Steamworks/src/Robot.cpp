@@ -17,10 +17,12 @@
 //Channels for Jankybot
 //Chassis
 
+
 #define FRONT_LEFT_MOTOR_CHANNEL 1//3
 #define REAR_LEFT_MOTOR_CHANNEL 2//4
 #define FRONT_RIGHT_MOTOR_CHANNEL 3//1
 #define REAR_RIGHT_MOTOR_CHANNEL 4//2
+
 
 #define LPISTON_CHANNEL 0
 #define RPISTON_CHANNEL 0
@@ -85,8 +87,6 @@ class Robot: public frc::IterativeRobot {
 	TwoTransmissions*twoTransmissions;
 	RobotDrive*drive;
 	Timer autonomousTimer;
-	//Encoder*right_encoder;
-	//Encoder*left_encoder;
 	RopeClimbing * climb;
 	jankyXboxJoystick*gameComponentXbox;
 //	ADXRS450_Gyro*gyro;
@@ -194,19 +194,22 @@ public:
 			 encoderA->Reset();
 			 encoderB->Reset();
 
+
 			 // sendable chooser
 			 		chooser.AddDefault("does nothing (default)", &defaultAuto);
 			 		chooser.AddObject("base line", &baseLine);
 			 		chooser.AddObject("gear!", &centerGear);
 			 		SmartDashboard::PutData("Autonomous modes", &chooser);
-			 		printf("Done with robot init");
+			 		printf("Done with robot init \n");
 
 	}
+
 
 	void AutonomousInit() override {
 		autonomousTimer.Reset();
 		autonomousTimer.Start();
 		drive->SetSafetyEnabled(false);
+
 //		gyro->Reset();
    //     PID = new PIDController(kP, 0.005, 0.009, gyro, myRobot);
     //    PID->Enable();
@@ -220,12 +223,12 @@ public:
 		 		//    PID->Enable();
 		 		if(&defaultAuto == chooser.GetSelected())
 		 		{
-		 			printf("default auto\n");
+		 			printf("default auto yashna is a bleating goat ~anisha \n");
 		 			autoMode = DEFAULT_AUTO;
 		 		}
 		 		else if(&baseLine == chooser.GetSelected())
 		 		{
-		 			printf("base line \n");
+		 			printf("base line also Yashna is a garbage queen ~sana \n");
 		 			autoMode = BASELINE_AUTO;
 		 		}
 		 		else if(&centerGear == chooser.GetSelected()) {
@@ -241,22 +244,40 @@ public:
 
 		if  (autoMode == DEFAULT_AUTO)
 			printf ("default\n");
-
-		else if (autoMode == BASELINE_AUTO) {
-			//			if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE)
+		else if (autoMode == BASELINE_AUTO)
+			{
+//			if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE)
 //				{
 //					drive->TankDrive(.6, .6); // gets more inaccurate as speed is increased
 //				}
-
-			if(autonomousTimer.Get()<AUTO_TIME){
+			if(autonomousTimer.Get()<AUTO_TIME) {
 				drive->TankDrive(0.5,0.5);
+			}
+			else if (autonomousTimer.Get()>AUTO_TIME) {
+				drive->TankDrive(0.0,0.0);
 			}
 //			else
 //				{
 //					drive->TankDrive(0.0, 0.0);
 //				}
-			else if(autonomousTimer.Get()>AUTO_TIME) {
+			}
+		else if(autoMode==LIT_AUTO) {
+			if(autonomousTimer.Get()<GAUTO_TIME) {
+				drive->TankDrive(0.5,0.5);
+			}
+			else if(autonomousTimer.Get()>GAUTO_TIME && autonomousTimer.Get()<STOP_TIME) {
 				drive->TankDrive(0.0,0.0);
+				gefu->GearOut();
+			}
+			else if(autonomousTimer.Get()>STOP_TIME && autonomousTimer.Get()<BGAUTO_TIME) {
+				drive->TankDrive(-0.5, -0.5);
+			}
+			else{
+				drive->TankDrive(0.0,0.0);
+			}
+
+
+		}
 
 			}
 		}
@@ -395,21 +416,19 @@ public:
 				// hold down LB for high gear
 				if (ButtonLT)
 				{
-					twoTransmissions->LowGear();
+					twoTransmissions->HighGear();
 				}
 				else
 				{
-					twoTransmissions->HighGear();
+					twoTransmissions->LowGear();
 				}
 
 			//Climbing Code
 			// go through climb states when button A is pressed
-				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
-				SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
-				SmartDashboard::PutNumber("climbing motor A current: ", climb->GetMotorACurrent());
-				SmartDashboard::PutNumber("climb motor B current: ", climb->GetMotorBCurrent());
-				SmartDashboard::PutNumber("Left Throttle", drivestick->GetLeftThrottle());
-				SmartDashboard::PutNumber("Right Throttle", drivestick->GetRightThrottle());
+//				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
+//				SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
+//				SmartDashboard::PutNumber("climbing motor A current: ", climb->GetMotorACurrent());
+//				SmartDashboard::PutNumber("climb motor B current: ", climb->GetMotorBCurrent());
 				// Drivestick button Y starts climbing motors
 				// Climbing only goes as long as Y is held down
 				if (gameComponentXbox->GetButtonY() && !gameComponentXbox->GetButtonB())
@@ -433,7 +452,6 @@ public:
                 //Gear Piston (1): Make piston go out & in with button X
 				if (gameComponentXbox->GetButtonX()) {
 					gefu->GearOut();
-				    printf("gearout \n");
 				}
                 else {
                     gefu->GearIn();
@@ -450,32 +468,32 @@ public:
 				SmartDashboard::PutBoolean("Button LB", gameComponentButtonLB);
 				if(ButtonA&&AnotPressed){
 					fuel_door->Command(STARTCOLLECTING);
-					printf("Button A Pressed, Fuel Collect Command\n");
+//					printf("Button A Pressed, Fuel Collect Command\n");
 					AnotPressed=false;
 				}
 				else if (!ButtonA){
 					AnotPressed=true;
-					printf("Button A not Pressed\n");
+//					printf("Button A not Pressed\n");
 				}
 				// RB for closing fuel door
 				if(ButtonRB&&RBnotPressed){
 					fuel_door->Command(CLOSE_DOOR);
-					printf("Button RB Pressed, Fuel Collect Command\n");
+//					printf("Button RB Pressed, Fuel Collect Command\n");
 					RBnotPressed=false;
 				}
 				else if (!ButtonRB){
 					RBnotPressed=true;
-					printf("Button RB not Pressed\n");
+//					printf("Button RB not Pressed\n");
 				}
 				// LB (on game component xbox controller) for dumping fuel (opening fuel door)
 				if(gameComponentButtonLB&&LBnotPressed){
 					fuel_door->Command(DUMP);
-					printf("Button LB Pressed, Fuel Collect Command\n");
+//					printf("Button LB Pressed, Fuel Collect Command\n");
 					LBnotPressed=false;
 				}
 				else if(!gameComponentButtonLB){
 					LBnotPressed=true;
-					printf("Button LB not Pressed\n");
+//					printf("Button LB not Pressed\n");
 				}
 
 				// TODO: figure out if drive team needs this section
