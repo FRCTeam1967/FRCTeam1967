@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -14,6 +15,10 @@
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
 #include <cmath>
+#include "PIDVision.h"
+#include "GripPipeline.h"
+
+
 //Channels for Jankybot
 //Chassis
 
@@ -29,6 +34,7 @@
 #define LPISTON_MOD 9
 #define RPISTON_MOD 9
 #define JOYSTICK_SENSITIVITY 0.4
+#define A_TIME 4
 
 #define TURN_SPEED .2
 #define AUTO_TIME 5
@@ -88,24 +94,34 @@ class Robot: public frc::IterativeRobot {
 	RobotDrive*drive;
 	Timer autonomousTimer;
 	RopeClimbing * climb;
-	jankyXboxJoystick*gameComponentXbox;
-//	ADXRS450_Gyro*gyro;
+
+	jankyXboxJoystick * gameComponentXbox;
+	ADXRS450_Gyro*gyro;
+	PIDVision*pv;
 	//PIDDrive*myRobot;
     float kP;
     //PIDController * PID;
     GearsFuel * gefu;
+
 	JankyFuelDoor*fuel_door;
+
+
+
 	bool DriveXnotpressed = true;
 	bool DriveLBnotpressed = true;
 	bool GuelXnotpressed = true;
+	 bool AnotPressed = true;
+	    bool BnotPressed = true;
+	    bool XnotPressed = true;
+	    bool LBnotPressed = true;
+	    bool YnotPressed = true;
+	    bool RBnotPressed = true;
+	    bool isReadytoPushGear=false;
+		float avg;
+		int dOutlierCount;
+		int dOutlier4000Count;
 	// gears/fuel booleans
-    bool AnotPressed = true;
-    bool XnotPressed = true;
 
-    bool RBnotPressed = true;
-    bool LBnotPressed = true;
-
-	float avg;
 
     Counter * encoderA;
     Counter * encoderB;
@@ -115,6 +131,10 @@ class Robot: public frc::IterativeRobot {
     int baseLine= BASELINE_AUTO;
     int autoMode = DEFAULT_AUTO;
     int centerGear = CENTER_GEAR;
+
+
+
+
 
 public:
 	Robot(){
@@ -131,13 +151,15 @@ public:
 			gameComponentXbox=NULL;
 //			gyro=NULL;
 	        //myRobot = NULL;
-	        kP = 0.03;
+//	        kP = 0.03;
 	        //PID=NULL;
 	        gefu = NULL;
             encoderA = NULL;
 	        encoderB = NULL;
 	        fuel_door=NULL;
 	        autonomousTimer.Start();
+
+	        pv = NULL;
 		}
     
 	~Robot(){
@@ -159,6 +181,8 @@ public:
 	        delete encoderA;
 	        delete encoderB;
 	        delete fuel_door;
+
+	        delete pv;
 		}
     
 	void RobotInit() {
@@ -183,6 +207,7 @@ public:
 			twoTransmissions->HighGear();
 
 			drive->SetSafetyEnabled(false);
+
 			fuel_door->SetToQuiet();
 
 			// camera for drive practice
@@ -202,12 +227,24 @@ public:
 			 		SmartDashboard::PutData("Autonomous modes", &chooser);
 			 		printf("Done with robot init \n");
 
+			pv= new PIDVision(drive);
+			dOutlierCount = 0;
+			dOutlier4000Count=0;
+			printf("Done with robot init");
+
+
+
+
+
 	}
 
 
 	void AutonomousInit() override {
+
+
 		autonomousTimer.Reset();
-		autonomousTimer.Start();
+		 autonomousTimer.Start();
+
 		drive->SetSafetyEnabled(false);
 
 //		gyro->Reset();
@@ -242,6 +279,7 @@ public:
 	    //PID->SetOutputRange(-1,1);
 		//PID->SetSetpoint(30.0);
 
+
 		if  (autoMode == DEFAULT_AUTO)
 			printf ("default\n");
 		else if (autoMode == BASELINE_AUTO)
@@ -257,28 +295,6 @@ public:
 				drive->TankDrive(0.0,0.0);
 			}
 			}
-//			else
-//				{
-//					drive->TankDrive(0.0, 0.0);
-//				}
-
-//		else if(autoMode==LIT_AUTO) {
-//			if(autonomousTimer.Get()<GAUTO_TIME) {
-//				drive->TankDrive(0.5,0.5);
-//			}
-//			else if(autonomousTimer.Get()>GAUTO_TIME && autonomousTimer.Get()<STOP_TIME) {
-//				drive->TankDrive(0.0,0.0);
-//				gefu->GearOut();
-//			}
-//			else if(autonomousTimer.Get()>STOP_TIME && autonomousTimer.Get()<BGAUTO_TIME) {
-//				drive->TankDrive(-0.5, -0.5);
-//			}
-//			else{
-//				drive->TankDrive(0.0,0.0);
-//			}
-
-
-
 
 
 
@@ -315,12 +331,25 @@ public:
 //		SmartDashboard::PutNumber("encoder A distance", encoderA->Get() * DISTANCE_PER_PULSE);
 //		SmartDashboard::PutNumber("encoder B distance", encoderB->Get() * DISTANCE_PER_PULSE);
 
+	/*	if(isReadytoPushGear) {
+			GearOut();
+		}*/
+		if (autonomousTimer.Get() < A_TIME) {
+			drive->TankDrive(0.5, 0.5);
+		}
+		else if(autonomousTimer.Get() > A_TIME) {
+			drive->TankDrive(0.0, 0,0);
+		}
 	}
 
+
+
+
+//    fuel_door->SetToQuiet();   commented this out because this was error
+
 	void TeleopInit() {
+		   YnotPressed = true;
 
-
-	    fuel_door->SetToQuiet();
 	}
 
 	void TeleopPeriodic() {
@@ -346,22 +375,77 @@ public:
 		}
 
 		//Joystick Values
-			float leftYaxis= drivestick->GetLeftYAxis();
-			float rightYaxis= drivestick->GetRightYAxis();
-			float joystick_sensitivity= JOYSTICK_SENSITIVITY; //
-			float lAxisVal= (joystick_sensitivity*(pow(leftYaxis,3)))+((1-joystick_sensitivity)*leftYaxis);
-			float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
+
 
 		//Tank Drive
 			// RT makes it go straight
 			// LT makes it high gear
 			// RB makes it turn right
 			// LB makes it turn left
-			if(drivestick->GetRightThrottle() >= .9){//Code to make robot drive straighter by making both sides equal each other when RB is pressed
+		float leftYaxis= drivestick->GetLeftYAxis();
+		float rightYaxis= drivestick->GetRightYAxis();
+		float joystick_sensitivity= JOYSTICK_SENSITIVITY; //
+		float lAxisVal= (joystick_sensitivity*(pow(leftYaxis,3)))+((1-joystick_sensitivity)*leftYaxis);
+		float rAxisVal= (joystick_sensitivity*(pow(rightYaxis,3)))+((1-joystick_sensitivity)*rightYaxis);
+
+			//PIDVision
+
+		if (drivestick->GetButtonY() && YnotPressed) {
+			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+			pv->DriveToPeg();
+			YnotPressed=false;
+			SmartDashboard::PutBoolean("afterDrivetoPeg", YnotPressed);
+		}
+		else if (!drivestick->GetButtonY()) {
+			SmartDashboard::PutBoolean("shouldbetrue", YnotPressed);
+			YnotPressed=true;
+		}
+		if (drivestick->GetButtonA() && AnotPressed) {
+			SmartDashboard::PutBoolean("CancelDrivetoPeg", YnotPressed);
+			pv->CancelDrivetoPeg();
+			AnotPressed=false;
+		}
+		else if(!drivestick->GetButtonA()) {
+			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+			AnotPressed=true;
+		}
+		//find outlier for distance
+
+		if((pv->GetDistanceToTape()>500 && pv->GetDistanceToTape()<4000)  || pv->GetDistanceToTape()<0) {
+			dOutlierCount++;
+			SmartDashboard::PutNumber("distance outlier count", dOutlierCount);
+		 }
+		if(pv->GetDistanceToTape()>4000) {
+			dOutlier4000Count++;
+			SmartDashboard::PutNumber("greater than 4000 count", dOutlier4000Count);
+
+		}
+		if(pv->GetDistanceToTape()<100) {
+		SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
+		}
+		SmartDashboard::PutNumber("TapeDistance2", pv->GetDistanceToTape());
+
+
+
+		SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
+		SmartDashboard::PutNumber("Peg Offset from Center2 :" , pv->GetPegOffsetFromImageCenter());
+		if(pv->CapturingVal()) {
+			if(pv->ReadyToPushGearOut()) {
+//				gefu->GearOut();
+				pv->CancelDrivetoPeg();
+
+			}
+		}
+		else{
+			//Tank Drive
+			if(drivestick->GetButtonRB()){
+				//Code to make robot drive straighter by making both sides equal each other when RB is pressed
+
 				avg=(leftYaxis+rightYaxis)/2;
 				rightYaxis=avg;
 				leftYaxis=avg;
 				drive->TankDrive(-lAxisVal,-rAxisVal);
+									}
 				//Code from squaring joystick value
 				/*if (leftYaxis<0&&rightYaxis<0){ //forward driving
 					drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
@@ -369,25 +453,27 @@ public:
 				else{ //backward driving
 					drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)*-1));
 				}*/
-			}
-			else{ //regular driving w/out pressing button
-                drive->TankDrive(-lAxisVal,-rAxisVal);
-                //Code from squaring joystick value
-                /*if (leftYaxis<0&&rightYaxis<0){//forward driving with squared inputs for more precision
-                    drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
-                }
-                else if((leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)){//(leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)
-                    drive->TankDrive(pow(leftYaxis,2), (pow(rightYaxis,2)*-1));
-                }
-                else if((leftYaxis>=0&&rightYaxis<0) or (leftYaxis>0&&rightYaxis<=0)){
-                    drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)));
-                }
-                else{
-                    drive->TankDrive((pow(leftYaxis,2)*-1), ((pow(rightYaxis,2))*-1));
-                }*/
-			}
 
 
+
+
+				else{//regular driving w/out pressing button
+					drive->TankDrive(-lAxisVal,-rAxisVal);
+					//Code from squaring joystick value
+					/*if (leftYaxis<0&&rightYaxis<0){//forward driving with squared inputs for more precision
+						drive->TankDrive((pow(leftYaxis,2)), (pow(rightYaxis,2)));
+					}
+					else if((leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)){//(leftYaxis<=0&&rightYaxis>0) or (leftYaxis<0&&rightYaxis>=0)
+						drive->TankDrive(pow(leftYaxis,2), (pow(rightYaxis,2)*-1));
+					}
+					else if((leftYaxis>=0&&rightYaxis<0) or (leftYaxis>0&&rightYaxis<=0)){
+						drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)));
+					}
+					else{
+						drive->TankDrive((pow(leftYaxis,2)*-1), ((pow(rightYaxis,2))*-1));
+					}*/
+				}
+			}
 
 			//Manual Two Speed Transmissions
 			//bool ButtonX = drivestick->GetButtonX();
@@ -426,6 +512,7 @@ public:
 
 			//Climbing Code
 			// go through climb states when button A is pressed
+
 //				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
 //				SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
 //				SmartDashboard::PutNumber("climbing motor A current: ", climb->GetMotorACurrent());
@@ -508,6 +595,25 @@ public:
                     gefu->Horz2();
                     AnotPressed=true;
                 }*/
+
+				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
+				SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
+				SmartDashboard::PutNumber("climbing motor A current: ", climb->GetMotorACurrent());
+				SmartDashboard::PutNumber("climb motor B current: ", climb->GetMotorBCurrent());
+				SmartDashboard::PutNumber("Left Throttle", drivestick->GetLeftThrottle());
+				SmartDashboard::PutNumber("Right Throttle", drivestick->GetRightThrottle());
+				// Drivestick button A starts climbing motors
+				// TODO: Move buttons to game component joystick
+			//	if (drivestick->GetButtonA() && !drivestick->GetButtonY())
+				//{
+				//	climb->StartClimbing();
+				//}
+
+				// Drivestick button Y stops climbing motors
+				//if (drivestick->GetButtonY())
+				//{
+					//climb->StopClimbing();
+				//}
 
 	}
 
