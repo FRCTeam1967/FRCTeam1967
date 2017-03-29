@@ -256,31 +256,32 @@ public:
 			else if (autonomousTimer.Get()>AUTO_TIME) {
 				drive->TankDrive(0.0,0.0);
 			}
+			}
 //			else
 //				{
 //					drive->TankDrive(0.0, 0.0);
 //				}
-			}
-		else if(autoMode==LIT_AUTO) {
-			if(autonomousTimer.Get()<GAUTO_TIME) {
-				drive->TankDrive(0.5,0.5);
-			}
-			else if(autonomousTimer.Get()>GAUTO_TIME && autonomousTimer.Get()<STOP_TIME) {
-				drive->TankDrive(0.0,0.0);
-				gefu->GearOut();
-			}
-			else if(autonomousTimer.Get()>STOP_TIME && autonomousTimer.Get()<BGAUTO_TIME) {
-				drive->TankDrive(-0.5, -0.5);
-			}
-			else{
-				drive->TankDrive(0.0,0.0);
-			}
+
+//		else if(autoMode==LIT_AUTO) {
+//			if(autonomousTimer.Get()<GAUTO_TIME) {
+//				drive->TankDrive(0.5,0.5);
+//			}
+//			else if(autonomousTimer.Get()>GAUTO_TIME && autonomousTimer.Get()<STOP_TIME) {
+//				drive->TankDrive(0.0,0.0);
+//				gefu->GearOut();
+//			}
+//			else if(autonomousTimer.Get()>STOP_TIME && autonomousTimer.Get()<BGAUTO_TIME) {
+//				drive->TankDrive(-0.5, -0.5);
+//			}
+//			else{
+//				drive->TankDrive(0.0,0.0);
+//			}
 
 
-		}
 
-			}
-		}
+
+
+
 		else if(autoMode == CENTER_GEAR) {
 			if(autonomousTimer.Get()<GEARAUTO_TIME) { //drive to peg-3.25 seconds
 				drive->TankDrive(-0.5,-0.5);
