@@ -46,6 +46,8 @@ private:
 //variables
 cv::Mat mat;
 float kP;
+int inputCount;
+bool closeEnough;
 PIDController*PID;
 grip::GripPipeline gp;
 cs::UsbCamera cam0;

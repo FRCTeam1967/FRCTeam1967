@@ -20,6 +20,7 @@ PIDVision::PIDVision(RobotDrive*drive) {
 	isReadytoPushGear=false;
 
 
+
 	//starts the task; always should be at the end of the constructor because anything that's used in run has to be initialized first
 	Start();
 }
@@ -43,16 +44,19 @@ void PIDVision::VisionInit(){
 	 outputStream = CameraServer::GetInstance()->PutVideo("Lines", 320, 240);
 	 isCapturing = false;
 
+
 }
 
 void PIDVision::PIDInit(){
+//og .03
+	kP=0.001;
 
-	kP=0.03;
-
-	PID=new PIDController(kP, 0.0 , 0.0, this, this);
+	PID=new PIDController(kP, 0.2 , 0.0, this, this);
 	PID->SetInputRange(-(X_RESOLUTION/2), (X_RESOLUTION/2));
 	PID->SetOutputRange(-1,1);
 	PID->SetSetpoint(0.0);
+	 inputCount=0;
+	 closeEnough=false;
 
 }
 //PIDInit?  joysticks give up access/we give up access (disable PID controller)
@@ -73,30 +77,60 @@ void PIDVision::CancelDrivetoPeg(){
 	PID->Disable();
 	driveRobot->Drive(0.0, 0.0);
 	isReadytoPushGear=false;
+	closeEnough=false;
 }
  double PIDVision::PIDGet(){
-	 return gp.getOffset();
+	int localOffset = gp.getOffset();
+	 if(localOffset<=(X_RESOLUTION/2) && localOffset>=-(X_RESOLUTION/2)){
+		 return  localOffset;
+	 }
 
+	 else {
+		 inputCount++;
+		 SmartDashboard::PutNumber("# of clipped PID inputs", inputCount);
+		 if( localOffset>(X_RESOLUTION/2)) {
+
+			 return X_RESOLUTION/2;
+
+		 }
+		 else {
+
+			 return -X_RESOLUTION/2;
+
+		 }
+	 }
  }
 
  void PIDVision::PIDWrite(double output){
-
-	if (gp.getDistance() >1000) {
-		 driveRobot->Drive(0.0, -output);
-		 isReadytoPushGear=true;
-		 printf("PID Write is done \n ");
-		 //TODO disable PID Loop??
-	 }
-	else if(gp.getDistance() >30 ){
+int localDistance = gp.getDistance();
+//	if (gp.getDistance() >1000) {
+//		 driveRobot->Drive(0.0, -output);
+//		 isReadytoPushGear=true;
+//		 printf("PID Write is done \n ");
+//	 }
+	 if (localDistance>1000 && closeEnough) {
+			 driveRobot->Drive(0.0, -output);
+					 isReadytoPushGear=true;
+			 SmartDashboard::PutString("Inbound Speed", "0");
+		 }
+ if(localDistance >30 ){
 		//TODO set PID vals for each new speed
-		 driveRobot->Drive(-0.5, -output);
+		 driveRobot->Drive(-0.3, -output/3);
+		 SmartDashboard::PutString("Inbound Speed", "high");
 	 }
-	 else if(gp.getDistance() >= 18 ) {
-			driveRobot->Drive(-0.25, -output);
+	 else if(localDistance > 18 ) {
+			driveRobot->Drive(-0.3, -output/3); //was -0.3 -changed for testing purposes
+			closeEnough=true;
+			 SmartDashboard::PutString("Inbound Speed", "med");
 		}
-	 else if (gp.getDistance() < 18) {
-		 driveRobot->Drive(-0.15, -output);
+	 else if (localDistance<=18 && localDistance>0) {
+		 driveRobot->Drive(0.0, -output);
+				 isReadytoPushGear=true;
+				 printf("PID Write is done \n ");
+		 SmartDashboard::PutString("Inbound Speed", "0");
 	 }
+
+SmartDashboard::PutNumber("output value PW", output/3);
 
  }
 
@@ -104,6 +138,8 @@ void PIDVision::CancelDrivetoPeg(){
 	 if (isCapturing){
 
 		 VisionLoop();
+		 SmartDashboard::PutNumber("BadDifference", gp.getBadDifference());
+		 SmartDashboard::PutNumber("BadOffset", gp.getBadOffset());
 	 }
 
  }

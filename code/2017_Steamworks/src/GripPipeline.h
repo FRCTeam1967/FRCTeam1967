@@ -72,7 +72,10 @@ private:
 	int xMax;
 	int xMin;
 	int peg;
+	int localOffset;
 	int offset;
+	int badOffset;
+	int badDifference;
 	double offsetInches;
 	double angle;
 	cv::Mat cvResizeOutput;
@@ -87,7 +90,7 @@ private:
 	void filterContours(std::vector<std::vector<cv::Point> > &, double , double , double , double , double , double , double [], double , double , double , double , std::vector<std::vector<cv::Point> > &);
 	void cvErode(cv::Mat &, cv::Mat &, cv::Point &, double , int , cv::Scalar &, cv::Mat &);
 	void findLines(cv::Mat &, std::vector<Line> &);
-	double findCenter(cv::Mat &input, std::vector<Line> &lineList);
+	void findCenter(cv::Mat &input, std::vector<Line> &lineList);
 	double findDistance(cv::Mat &input, std::vector<Line> &lineList, int difference);
 
 	// void printLines(cv::Mat &input, std::vector<Line> &lineList);
@@ -103,6 +106,8 @@ public:
 	std::vector<std::vector<cv::Point> >* getfilterContoursOutput();
 	double getDistance();
 	int getOffset();
+	int getBadDifference();
+		int getBadOffset();
 
 };
 

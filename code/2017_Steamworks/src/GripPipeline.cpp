@@ -9,6 +9,10 @@ namespace grip
 
 GripPipeline::GripPipeline()
 {
+	offset=0;
+	distance=0;
+	badOffset = 0;
+	badDifference = 0;
 
 }
 
@@ -22,17 +26,14 @@ void GripPipeline::Process(cv::Mat & source0)
 	cvResize(cvResizeSrc, cvResizeDsize, cvResizeFx, cvResizeFy, cvResizeInterpolation, this->cvResizeOutput);
 
 	cv::Mat hsvThresholdInput = cvResizeOutput;
-//
-//	double hsvThresholdHue[] = {52,62};
-//	double hsvThresholdSaturation[] = {0,6};
-//	double hsvThresholdValue[] = {250,255};
-		double hsvThresholdHue[] = {42,72};
-		double hsvThresholdSaturation[] = {0,20};
-		double hsvThresholdValue[] = {230,255};
 
 //	double hsvThresholdHue[] = {69,180};
 //	double hsvThresholdSaturation[] = {172,255};
 //	double hsvThresholdValue[] = {112,255};
+	double hsvThresholdHue[] = {71,91};
+	double hsvThresholdSaturation[] = {110,255};
+	double hsvThresholdValue[] = {80,255};
+
 	hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, this->hsvThresholdOutput);
 
 	cv::Mat findContoursInput = hsvThresholdOutput;
@@ -43,7 +44,7 @@ void GripPipeline::Process(cv::Mat & source0)
 	cv::Mat cvErodeSrc = hsvThresholdOutput;
 	cv::Mat cvErodeKernel;
 	cv::Point cvErodeAnchor(-1, -1);
-	double cvErodeIterations = 1;
+	double cvErodeIterations = 4;
 	int cvErodeBordertype = cv::BORDER_CONSTANT;
 	cv::Scalar cvErodeBordervalue(-1);
 	cvErode(cvErodeSrc, cvErodeKernel, cvErodeAnchor, cvErodeIterations, cvErodeBordertype, cvErodeBordervalue, this->cvErodeOutput);
@@ -51,8 +52,8 @@ void GripPipeline::Process(cv::Mat & source0)
 	cv::Mat findLinesInput = cvErodeOutput;
 	findLines(findLinesInput, this->findLinesOutput);
 
-//	print the lines
-//	GripPipeline::printLines(source0, findLinesOutput);
+	//	print the lines
+	//	GripPipeline::printLines(source0, findLinesOutput);
 
 	// find center
 	GripPipeline::findCenter(source0, findLinesOutput);
@@ -150,7 +151,7 @@ void GripPipeline::findLines(cv::Mat &input, std::vector<Line> &lineList)
 //        }
 
 // FIND CENTER
-double GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
+void GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
 {
 	xMax = 0;
 	xMin = 320;
@@ -170,33 +171,45 @@ double GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
 	}
 
 	difference =  xMax-xMin;
-	peg = (xMax - xMin)/2 + xMin; // the x value of the peg
-	offset = ((X_RESOLUTION/2) - peg); // the difference in x between the peg and the center of the screen
-	offsetInches = offset * (10.375/difference); // finding the offset in inches
-	angle = ((atan(offsetInches/distance))*180)/(3.14); // calculates the angle the robot needs to drive (PID input)
+	if (difference < X_RESOLUTION)
+	{
+		peg = (xMax - xMin)/2 + xMin; // the x value of the peg
+		localOffset = ((X_RESOLUTION/2) - peg); // the difference in x between the peg and the center of the screen
+		if (abs(localOffset) < X_RESOLUTION / 2)
+		{
+			offset = localOffset;
+			offsetInches = offset * (10.375/difference); // finding the offset in inches
+			angle = ((atan(offsetInches/distance))*180)/(3.14); // calculates the angle the robot needs to drive (PID input)
+			//	printf ("xMin %d \n", xMin);
+			//	printf ("xMax %d \n", xMax);
+			//	printf("Difference: %d   ", difference);
+			//	printf ("    Angle %f      ", angle);
+		}
+		else
+			badOffset ++;
+	}
+	else
+		badDifference ++;
 
-
-
-//	printf ("xMin %d \n", xMin);
-//	printf ("xMax %d \n", xMax);
-//	printf("Difference: %d   ", difference);
-//	printf ("    Angle %f      ", angle);
-
-	return offset;
 }
 
 // FIND DISTANCE
 double GripPipeline::findDistance(cv::Mat &input, std::vector<Line> &lineList, int difference)
 {
-
 	distance = ( -5.5355*pow(10,-5)*pow(difference,3) + 0.0199*pow(difference,2) - 2.5918*(difference) + 137.8207 );
-	printf ("    Distance: %f \n", distance);
-	printf ("    Difference: %d \n", difference);
+	//printf ("    Distance: %d \n", distance);
 	return distance;
-
 }
 
+int GripPipeline::getBadDifference()
+{
+	return badDifference;
+}
 
+int GripPipeline::getBadOffset()
+{
+	return badOffset;
+}
 double GripPipeline::getDistance() {
 	return distance;
 	//TODO create a running/geometric average
@@ -205,5 +218,6 @@ int GripPipeline::getOffset(){
 	return offset;
 	//TODO create a running/geometric average
 }
+
 
 }

@@ -1,3 +1,4 @@
+
 #include <iostream>
 #include <memory>
 #include <string>
@@ -15,6 +16,7 @@
 #include <cmath>
 #include "PIDVision.h"
 #include "GripPipeline.h"
+
 
 //Channels for Jankybot
 //Chassis
@@ -85,6 +87,7 @@ class Robot: public frc::IterativeRobot {
     bool isReadytoPushGear=false;
 	float avg;
 	int dOutlierCount;
+	int dOutlier4000Count;
 public:
 	Robot(){
 			flmotor=NULL;
@@ -100,7 +103,7 @@ public:
 			gamecomponentxbox=NULL;
 			gyro=NULL;
 	        //myRobot = NULL;
-	        kP = 0.03;
+//	        kP = 0.03;
 	        //PID=NULL;
 	        gefu = NULL;
 	        pv = NULL;
@@ -147,6 +150,7 @@ public:
 			drive->SetSafetyEnabled(false);
 			pv= new PIDVision(drive);
 			dOutlierCount = 0;
+			dOutlier4000Count=0;
 			printf("Done with robot init");
 
 
@@ -207,7 +211,7 @@ public:
 			SmartDashboard::PutBoolean("shouldbetrue", YnotPressed);
 			YnotPressed=true;
 		}
-		else if (drivestick->GetButtonA() && AnotPressed) {
+		if (drivestick->GetButtonA() && AnotPressed) {
 			SmartDashboard::PutBoolean("CancelDrivetoPeg", YnotPressed);
 			pv->CancelDrivetoPeg();
 			AnotPressed=false;
@@ -218,19 +222,27 @@ public:
 		}
 		//find outlier for distance
 
-		if(pv->GetDistanceToTape()>500 || pv->GetDistanceToTape()<0) {
+		if((pv->GetDistanceToTape()>500 && pv->GetDistanceToTape()<4000)  || pv->GetDistanceToTape()<0) {
 			dOutlierCount++;
 			SmartDashboard::PutNumber("distance outlier count", dOutlierCount);
 		 }
+		if(pv->GetDistanceToTape()>4000) {
+			dOutlier4000Count++;
+			SmartDashboard::PutNumber("greater than 4000 count", dOutlier4000Count);
+
+		}
+		if(pv->GetDistanceToTape()<100) {
 		SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
+		}
 		SmartDashboard::PutNumber("TapeDistance2", pv->GetDistanceToTape());
+
 
 
 		SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
 		SmartDashboard::PutNumber("Peg Offset from Center2 :" , pv->GetPegOffsetFromImageCenter());
 		if(pv->CapturingVal()) {
 			if(pv->ReadyToPushGearOut()) {
-				gefu->GearOut();
+//				gefu->GearOut();
 				pv->CancelDrivetoPeg();
 
 			}
