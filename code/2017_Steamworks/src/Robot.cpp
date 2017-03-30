@@ -17,6 +17,7 @@
 #include <cmath>
 #include "PIDVision.h"
 #include "GripPipeline.h"
+#include "AutoSteamworks.h"
 
 
 //Channels for Jankybot
@@ -82,6 +83,9 @@
 #define DEFAULT_AUTO 1
 #define BASELINE_AUTO 2
 #define CENTER_GEAR 3
+#define CENTER_PEG 4
+#define LEFT_PEG 5
+#define RIGHT_PEG 6
 
 class Robot: public frc::IterativeRobot {
 	SendableChooser<int*>chooser;
@@ -94,7 +98,6 @@ class Robot: public frc::IterativeRobot {
 	RobotDrive*drive;
 	Timer autonomousTimer;
 	RopeClimbing * climb;
-
 	jankyXboxJoystick * gameComponentXbox;
 	ADXRS450_Gyro*gyro;
 	PIDVision*pv;
@@ -102,6 +105,7 @@ class Robot: public frc::IterativeRobot {
     float kP;
     //PIDController * PID;
     GearsFuel * gefu;
+    Autonomous * autosteam;
 
 	JankyFuelDoor*fuel_door;
 
@@ -131,9 +135,10 @@ class Robot: public frc::IterativeRobot {
     int baseLine= BASELINE_AUTO;
     int autoMode = DEFAULT_AUTO;
     int centerGear = CENTER_GEAR;
-
-
-
+    int centerPegAuto = CENTER_PEG;
+    int rightPegAuto = RIGHT_PEG;
+    int leftPegAuto = LEFT_PEG;
+    //chooser variable pt 2
 
 
 public:
@@ -224,6 +229,9 @@ public:
 			 		chooser.AddDefault("does nothing (default)", &defaultAuto);
 			 		chooser.AddObject("base line", &baseLine);
 			 		chooser.AddObject("gear!", &centerGear);
+			 		chooser.AddObject("center", &centerPegAuto);
+			 		chooser.AddObject("left", &leftPegAuto);
+			 		chooser.AddObject("right", &rightPegAuto);
 			 		SmartDashboard::PutData("Autonomous modes", &chooser);
 			 		printf("Done with robot init \n");
 
@@ -272,14 +280,25 @@ public:
 		 			printf("gear auto \n");
 		 			autoMode = CENTER_GEAR;
 		 		}
+		 		else if (&centerPegAuto == chooser.GetSelected()) {
+		 			printf("center peg \n");
+		 			autoMode = CENTER_PEG;
+		 		}
+		 		else if(&rightPegAuto == chooser.GetSelected()) {
+		 			printf("right peg \n");
+		 			autoMode= RIGHT_PEG;
+		 		}
+		 		else if(&leftPegAuto == chooser.GetSelected()) {
+		 			printf("left peg \n");
+		 			autoMode= LEFT_PEG;
+		 		}
+
 	}
 
 	void AutonomousPeriodic() {
 		//PID->SetInputRange(-180,180);
 	    //PID->SetOutputRange(-1,1);
 		//PID->SetSetpoint(30.0);
-
-
 		if  (autoMode == DEFAULT_AUTO)
 			printf ("default\n");
 		else if (autoMode == BASELINE_AUTO)
@@ -295,6 +314,24 @@ public:
 				drive->TankDrive(0.0,0.0);
 			}
 			}
+		else if(autoMode== CENTER_PEG) {
+			pv->DriveToPeg();
+			gefu->GearOut();
+		}
+		else if (autosteam-> AutoIsInInit() == true) {
+						if (autoMode == 4){
+							autosteam -> LineUpTapeMiddlePosition();
+						}
+						else if (autoMode == 5) {
+							autosteam -> LineUpTapeRightPosition();
+						}
+						else if (autoMode == 6) {
+							autosteam -> LineUpTapeLeftPosition();
+						}
+						else if (autoMode == 4){
+							autosteam -> DrivePastBaseLine();
+						}
+					}
 
 
 
@@ -453,9 +490,6 @@ public:
 				else{ //backward driving
 					drive->TankDrive((pow(leftYaxis,2)*-1), (pow(rightYaxis,2)*-1));
 				}*/
-
-
-
 
 				else{//regular driving w/out pressing button
 					drive->TankDrive(-lAxisVal,-rAxisVal);
