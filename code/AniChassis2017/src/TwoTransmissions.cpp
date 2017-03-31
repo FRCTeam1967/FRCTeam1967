@@ -10,12 +10,12 @@ TwoTransmissions::~TwoTransmissions(){
 	delete lPiston;
 	delete rPiston;
 }
-void TwoTransmissions::HighGear()
+void TwoTransmissions::LowGear() //used to say high
 {
 		lPiston->Set(false);
 		rPiston->Set(false);
 }
-void TwoTransmissions::LowGear()
+void TwoTransmissions::HighGear() //used to say low
 {
 		lPiston->Set(true);
 		rPiston->Set(true);
