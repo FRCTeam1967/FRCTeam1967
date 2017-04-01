@@ -20,12 +20,15 @@ public:
 	virtual ~RopeClimbing();
 
 	void StartClimbing();
+	void StartFastClimbing();
 	void StopClimbing();
 
 	// Only being made public for testing purposes
 	bool GetLimitSwitch();
 	double GetEncoder();
 	int GetState();
+
+
 	bool AboveMaxCurrent();
 
 	double GetMotorACurrent();
@@ -40,9 +43,13 @@ private:
 	DigitalInput * limitSwitch;
 
 	int climbState;
+//	double climbSpeed;
 
+	//void StartClimbingMotors(double speed);
 	void StartClimbingMotors();
+	void StartFastClimbingMotors();
 	void StopClimbingMotors();
+
 
 	void StopAboveMaxCurrent();
 

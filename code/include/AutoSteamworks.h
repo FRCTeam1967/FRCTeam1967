@@ -9,16 +9,18 @@
 #define INCLUDE_AUTOSTEAMWORKS_H_
 #include "WPILib.h"
 #include "CANTalon.h"
-
+#include "PIDVision.h"
+#include "GearsFuel.h"
 
 #include "jankyTask.h"
 
 class Autonomous:public JankyTask {
 public:
-	Autonomous(RobotDrive*drive);
+	Autonomous(RobotDrive*drive, PIDVision*pv, GearsFuel*gefu);
 	virtual ~Autonomous();
 
 	bool AutoIsInInit();
+	void StartVisionDriving();
 	void LineUpTapeMiddlePosition();
 	void LineUpTapeLeftPosition();
 	void LineUpTapeRightPosition();
@@ -30,6 +32,7 @@ public:
 	void SwitchAutoStates();
 	void Run();
 
+
 private:
 	int autoStates;
 	bool reachedTape;
@@ -39,6 +42,9 @@ private:
 	bool linedUpRight;
 	bool stateMachineIsInAutoInit;
 	RobotDrive * autoDrive;
+	PIDVision * pV;
+	GearsFuel * geFu;
+	Timer * autoTimer;
 };
 
 
@@ -47,4 +53,3 @@ private:
 
 
 
-#endif /* INCLUDE_AUTOSTEAMWORKS_H_ */

@@ -109,7 +109,8 @@ class Robot: public frc::IterativeRobot {
 
 	JankyFuelDoor*fuel_door;
 
-
+	// lights
+	Relay * light;
 
 	bool DriveXnotpressed = true;
 	bool DriveLBnotpressed = true;
@@ -165,6 +166,8 @@ public:
 	        autonomousTimer.Start();
 
 	        pv = NULL;
+
+	        light = NULL;
 		}
     
 	~Robot(){
@@ -188,6 +191,8 @@ public:
 	        delete fuel_door;
 
 	        delete pv;
+
+	        delete light;
 		}
     
 	void RobotInit() {
@@ -217,7 +222,9 @@ public:
 
 			// camera for drive practice
 	        cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
+	        cam0.SetFPS(15);
 	        cs::UsbCamera cam1 = CameraServer::GetInstance()->StartAutomaticCapture(1);
+	        cam1.SetFPS(15);
 
 			 encoderA = new Counter(ENCODERA_CHANNEL);
 			 encoderB = new Counter(ENCODERB_CHANNEL);
@@ -241,14 +248,12 @@ public:
 			printf("Done with robot init");
 
 
-
-
-
+			light = new Relay(0, Relay::kForwardOnly);
+			light ->Set(Relay::Value::kOff);
 	}
 
-
 	void AutonomousInit() override {
-
+		autosteam = new Autonomous(drive, pv, gefu);
 
 		autonomousTimer.Reset();
 		 autonomousTimer.Start();
@@ -299,6 +304,8 @@ public:
 		//PID->SetInputRange(-180,180);
 	    //PID->SetOutputRange(-1,1);
 		//PID->SetSetpoint(30.0);
+		SmartDashboard::PutBoolean("High Gear", twoTransmissions->lPiston->Get());
+
 		if  (autoMode == DEFAULT_AUTO)
 			printf ("default\n");
 		else if (autoMode == BASELINE_AUTO)
@@ -314,26 +321,21 @@ public:
 				drive->TankDrive(0.0,0.0);
 			}
 			}
-		else if(autoMode== CENTER_PEG) {
-			pv->DriveToPeg();
-			gefu->GearOut();
-		}
-		else if (autosteam-> AutoIsInInit() == true) {
-						if (autoMode == 4){
-							autosteam -> LineUpTapeMiddlePosition();
-						}
-						else if (autoMode == 5) {
-							autosteam -> LineUpTapeRightPosition();
-						}
-						else if (autoMode == 6) {
-							autosteam -> LineUpTapeLeftPosition();
-						}
-						else if (autoMode == 4){
-							autosteam -> DrivePastBaseLine();
-						}
-					}
 
-
+//		else if (autosteam-> AutoIsInInit() == true) {
+//						if (autoMode == 4){
+//							autosteam -> LineUpTapeMiddlePosition();
+//						}
+//						else if (autoMode == 5) {
+//							autosteam -> LineUpTapeRightPosition();
+//						}
+//						else if (autoMode == 6) {
+//							autosteam -> LineUpTapeLeftPosition();
+//						}
+//						else if (autoMode == 4){
+//							autosteam -> DrivePastBaseLine();
+//						}
+//					}
 
 		else if(autoMode == CENTER_GEAR) {
 			if(autonomousTimer.Get()<GEARAUTO_TIME) { //drive to peg-3.25 seconds
@@ -353,7 +355,7 @@ public:
 			}
 
 			else if(autonomousTimer.Get()>STOP_TIME && autonomousTimer.Get()<BACKGEAR_AUTO) { //drive backwards for 1.95 seconds
-				drive->TankDrive(0.5, 0.5);
+				drive->TankDrive(0.0, 0.0);
 				gefu->GearIn();
 
 			}
@@ -363,6 +365,11 @@ public:
 
 		}
 		}
+		else if(autoMode==CENTER_PEG) {
+			if(autosteam->AutoIsInInit()) {
+			autosteam->LineUpTapeMiddlePosition();
+			}//sets autostates to middle
+		}
 //		SmartDashboard::PutNumber("encoder A get", encoderA->Get());
 //		SmartDashboard::PutNumber("encoder B get", encoderB->Get());
 //		SmartDashboard::PutNumber("encoder A distance", encoderA->Get() * DISTANCE_PER_PULSE);
@@ -371,12 +378,12 @@ public:
 	/*	if(isReadytoPushGear) {
 			GearOut();
 		}*/
-		if (autonomousTimer.Get() < A_TIME) {
-			drive->TankDrive(0.5, 0.5);
-		}
-		else if(autonomousTimer.Get() > A_TIME) {
-			drive->TankDrive(0.0, 0,0);
-		}
+//		if (autonomousTimer.Get() < A_TIME) {
+//			drive->TankDrive(0.5, 0.5);
+//		}
+//		else if(autonomousTimer.Get() > A_TIME) {
+//			drive->TankDrive(0.0, 0,0);
+//		}
 	}
 
 
@@ -556,15 +563,19 @@ public:
 				if (gameComponentXbox->GetButtonY() && !gameComponentXbox->GetButtonB())
 				{
 					climb->StartClimbing();
-				}
-				else
-				{
-					climb->StopClimbing();
-				}
 
+				}
+//				else
+//				{
+//					climb->StopClimbing();
+//				}
+//
 				// Drivestick button B stops climbing motors (very useless)
-				if (gameComponentXbox->GetButtonB())
+				else if (gameComponentXbox->GetButtonB() && !gameComponentXbox->GetButtonY())
 				{
+					climb->StartFastClimbing();
+				}
+				else{
 					climb->StopClimbing();
 				}
 
@@ -648,6 +659,15 @@ public:
 				//{
 					//climb->StopClimbing();
 				//}
+
+				if (gameComponentXbox->GetRightThrottle() > .5)
+				{
+					light->Set(Relay::Value::kOn);
+				}
+				else
+				{
+					light->Set(Relay::Value::kOff);
+				}
 
 	}
 

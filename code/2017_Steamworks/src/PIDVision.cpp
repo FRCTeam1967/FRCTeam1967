@@ -35,6 +35,7 @@ void PIDVision::VisionInit(){
 
 	cam0= CameraServer::GetInstance()->StartAutomaticCapture(0);
 
+
 	cam0.SetResolution(X_RESOLUTION, Y_RESOLUTION);
 	cam0.SetExposureManual(30); //the higher exposure allows to see the tape from farther
 	// TODO: don't hardcode the value for resolution
@@ -49,9 +50,10 @@ void PIDVision::VisionInit(){
 
 void PIDVision::PIDInit(){
 //og .03
-	kP=0.001;
+//	kP=0.001;
+	kP=-0.05;
 
-	PID=new PIDController(kP, 0.2 , 0.0, this, this);
+	PID=new PIDController(kP, 0.0 , 0.0, this, this);
 	PID->SetInputRange(-(X_RESOLUTION/2), (X_RESOLUTION/2));
 	PID->SetOutputRange(-1,1);
 	PID->SetSetpoint(0.0);
@@ -111,21 +113,25 @@ int localDistance = gp.getDistance();
 	 if (localDistance>1000 && closeEnough) {
 			 driveRobot->Drive(0.0, -output);
 					 isReadytoPushGear=true;
+					 printf("%d",closeEnough );
 			 SmartDashboard::PutString("Inbound Speed", "0");
 		 }
- if(localDistance >30 ){
+	 else if(localDistance >30 && ! closeEnough){
 		//TODO set PID vals for each new speed
 		 driveRobot->Drive(-0.3, -output/3);
+		 printf("%d",closeEnough );
 		 SmartDashboard::PutString("Inbound Speed", "high");
 	 }
-	 else if(localDistance > 18 ) {
+	 else if(localDistance > 18 && !closeEnough) {
 			driveRobot->Drive(-0.3, -output/3); //was -0.3 -changed for testing purposes
 			closeEnough=true;
+			 printf("%d",closeEnough );
 			 SmartDashboard::PutString("Inbound Speed", "med");
 		}
 	 else if (localDistance<=18 && localDistance>0) {
 		 driveRobot->Drive(0.0, -output);
 				 isReadytoPushGear=true;
+				 printf("%d",closeEnough );
 				 printf("PID Write is done \n ");
 		 SmartDashboard::PutString("Inbound Speed", "0");
 	 }
@@ -163,7 +169,7 @@ bool PIDVision::CapturingVal(){
 }
 
  void PIDVision::VisionLoop(){
-	 		if (cvSink.GrabFrame(mat) == 0)
+	 		if (cvSink.GrabFrame(mat) == 0 )
 			{
 				outputStream.NotifyError(cvSink.GetError());
 

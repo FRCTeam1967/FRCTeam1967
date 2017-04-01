@@ -12,10 +12,12 @@
 #define STOP 0
 #define START 1
 #define CLIMB 2
+#define START_FAST 3
 //#define FINISH_CLIMB 4
 //#define STOP 5
 
 #define CLIMB_SPEED -0.5 // set it negative so electronics can have it standard
+#define FAST_SPEED -0.75 //faster for less time
 
 #define CIRCUMFERENCE 0.375 * 3.14
 #define PULSES_PER_REVOLUTION 500 //1440
@@ -31,7 +33,9 @@ RopeClimbing::RopeClimbing(int motorAChannel, int motorBChannel, int encoderChan
 	encoder = new Encoder(encoderChannelA, encoderChannelB);
 	limitSwitch = new DigitalInput(limitSwitchChannel);
 	climbState = STOP;
+	//climbSpeed= CLIMB_SPEED;
 	encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
+
 	Start();
 }
 
@@ -47,6 +51,14 @@ void RopeClimbing::StartClimbing()
 {
 	// Set state to STARTING
 	climbState = START;
+//	climbSpeed = speed;
+}
+
+void RopeClimbing::StartFastClimbing()
+{
+	// Set state to STARTING
+	climbState = START_FAST;
+//	climbSpeed = speed;
 }
 
 void RopeClimbing::StopClimbing()
@@ -63,6 +75,16 @@ void RopeClimbing::StartClimbingMotors()
 	{
 		motorA->Set(CLIMB_SPEED);
 		motorB->Set(CLIMB_SPEED);
+	}
+}
+
+void RopeClimbing::StartFastClimbingMotors()
+{
+	// Make both motors move at fast climbing speed
+	if (!AboveMaxCurrent())
+	{
+		motorA->Set(FAST_SPEED);
+		motorB->Set(FAST_SPEED);
 	}
 }
 
@@ -143,6 +165,11 @@ void RopeClimbing::SwitchStates()
 		case CLIMB: // stop climbing motors if currents above MAX_CURRENT (40 amps)
 //			printf("CLIMB\n");
 			StopAboveMaxCurrent();
+			break;
+		case START_FAST: // starts climbing motors
+	//			printf("START\n");
+			StartFastClimbingMotors();
+			climbState = CLIMB;
 			break;
 		/*case IDLE:
 			printf("IDLE\n");
