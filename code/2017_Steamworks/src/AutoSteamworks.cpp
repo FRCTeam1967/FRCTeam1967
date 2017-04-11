@@ -121,9 +121,11 @@ void Autonomous::DrivePastBaseLine() {
 
 
 void Autonomous::StopAutoDriving() {
-	autoDrive -> Drive(0.0, 0.0);
+	autoDrive -> TankDrive(0.0, 0.0);
 }
-
+void Autonomous::AutoStop() {
+	autoStates=STOP;
+}
 
 void Autonomous::SwitchAutoStates() {
 	switch (autoStates) {
@@ -136,7 +138,10 @@ void Autonomous::SwitchAutoStates() {
 		autoStates= WAITING_FOR_PEG;
 		break;
 	case WAITING_FOR_PEG:
+		SmartDashboard::PutNumber("TapeDistance:", pV->GetDistanceToTape());
+				SmartDashboard::PutNumber("TapeDistance2", pV->GetDistanceToTape());
 		if(pV->ReadyToPushGearOut()==true) {
+			printf("%d \n", pV->ReadyToPushGearOut());
 			pV->CancelDrivetoPeg();
 			autoStates=PUSH_GEAR;
 
@@ -153,7 +158,7 @@ void Autonomous::SwitchAutoStates() {
 	case BACK_UP:
 //		BackUpTape();
 		if(autoTimer->Get()<3) {
-		autoDrive->Drive(0.5,0.5);
+		autoDrive->TankDrive(0.5,0.5);
 		}
 		else{
 			autoStates = STOP;

@@ -113,25 +113,25 @@ int localDistance = gp.getDistance();
 	 if (localDistance>1000 && closeEnough) {
 			 driveRobot->Drive(0.0, -output);
 					 isReadytoPushGear=true;
-					 printf("%d",closeEnough );
+					 printf("is close enough? >1000 %d \n",closeEnough );
 			 SmartDashboard::PutString("Inbound Speed", "0");
 		 }
-	 else if(localDistance >30 && ! closeEnough){
+	if(localDistance >30){
 		//TODO set PID vals for each new speed
 		 driveRobot->Drive(-0.3, -output/3);
-		 printf("%d",closeEnough );
+		 printf("is close enough? >30 %d \n",closeEnough );
 		 SmartDashboard::PutString("Inbound Speed", "high");
 	 }
-	 else if(localDistance > 18 && !closeEnough) {
+	  if(localDistance > 18 ) {
 			driveRobot->Drive(-0.3, -output/3); //was -0.3 -changed for testing purposes
 			closeEnough=true;
-			 printf("%d",closeEnough );
+			 printf("is close enough? >18 %d \n",closeEnough );
 			 SmartDashboard::PutString("Inbound Speed", "med");
 		}
-	 else if (localDistance<=18 && localDistance>0) {
+	 if (localDistance<=18 && localDistance>0) {
 		 driveRobot->Drive(0.0, -output);
 				 isReadytoPushGear=true;
-				 printf("%d",closeEnough );
+				 printf("is close enough? <18 %d \n",closeEnough );
 				 printf("PID Write is done \n ");
 		 SmartDashboard::PutString("Inbound Speed", "0");
 	 }

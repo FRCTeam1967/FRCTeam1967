@@ -106,7 +106,8 @@ class Robot: public frc::IterativeRobot {
     //PIDController * PID;
     GearsFuel * gefu;
     Autonomous * autosteam;
-
+//    cs::UsbCamera *cam0;
+//    cs::UsbCamera * cam1;
 	JankyFuelDoor*fuel_door;
 
 	// lights
@@ -221,10 +222,17 @@ public:
 			fuel_door->SetToQuiet();
 
 			// camera for drive practice
-	        cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
-	        cam0.SetFPS(15);
-	        cs::UsbCamera cam1 = CameraServer::GetInstance()->StartAutomaticCapture(1);
-	        cam1.SetFPS(15);
+////cam0 = new cs::UsbCamera;
+//			cs::UsbCamera cam1
+//cam0=CameraServer::GetInstance()->StartAutomaticCapture(0);
+//	       cam0->SetFPS(15);
+////cam1 = new cs::UsbCamera;
+//cs::UsbCamera cam0 =CameraServer::GetInstance()->StartAutomaticCapture(1);
+// cam1->SetFPS(15);
+			cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
+		cam0.SetFPS(15);
+		cs::UsbCamera cam1 = CameraServer::GetInstance()->StartAutomaticCapture(1);
+		cam1.SetFPS(15);
 
 			 encoderA = new Counter(ENCODERA_CHANNEL);
 			 encoderB = new Counter(ENCODERB_CHANNEL);
@@ -306,10 +314,10 @@ public:
 		//PID->SetSetpoint(30.0);
 		SmartDashboard::PutBoolean("High Gear", twoTransmissions->lPiston->Get());
 
-		if  (autoMode == DEFAULT_AUTO)
+		if  (autoMode == DEFAULT_AUTO) {
 			printf ("default\n");
-		else if (autoMode == BASELINE_AUTO)
-			{
+		}
+		else if (autoMode == BASELINE_AUTO)	{
 //			if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE)
 //				{
 //					drive->TankDrive(.6, .6); // gets more inaccurate as speed is increased
@@ -320,7 +328,7 @@ public:
 			else if (autonomousTimer.Get()>AUTO_TIME) {
 				drive->TankDrive(0.0,0.0);
 			}
-			}
+		}
 
 //		else if (autosteam-> AutoIsInInit() == true) {
 //						if (autoMode == 4){
@@ -360,11 +368,11 @@ public:
 
 			}
 
-	else if (autonomousTimer.Get()>BACKGEAR_AUTO) {
+			else if (autonomousTimer.Get()>BACKGEAR_AUTO) {
 				drive->TankDrive(0.0,0.0); //dont drive duh
 
-		}
-		}
+			}
+	}
 		else if(autoMode==CENTER_PEG) {
 			if(autosteam->AutoIsInInit()) {
 			autosteam->LineUpTapeMiddlePosition();
@@ -392,6 +400,7 @@ public:
 //    fuel_door->SetToQuiet();   commented this out because this was error
 
 	void TeleopInit() {
+			autosteam->AutoStop();
 		   YnotPressed = true;
 
 	}
@@ -404,19 +413,19 @@ public:
 //		gyro->Reset();
 
 		// TODO: finish turning with LB and RB
-		if (drivestick->GetButtonLB()&&LBnotPressed)
-		{
-			drive->TankDrive(-.4,.4);
-			LBnotPressed=false;
-		}
-		else if(!drivestick->GetButtonLB()){
-			LBnotPressed=true;
-		}
-
-		if (drivestick->GetButtonRB())
-		{
-			drive->TankDrive(.4, -.4);
-		}
+//		if (drivestick->GetButtonLB()&&LBnotPressed)
+//		{
+//			drive->TankDrive(-.4,.4);
+//			LBnotPressed=false;
+//		}
+//		else if(!drivestick->GetButtonLB()){
+//			LBnotPressed=true;
+//		}
+//
+//		if (drivestick->GetButtonRB())
+//		{
+//			drive->TankDrive(.4, -.4);
+//		}
 
 		//Joystick Values
 

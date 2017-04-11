@@ -54,7 +54,7 @@ void JankyFuelDoor::SetToQuiet(){
 void JankyFuelDoor::Command(int currentCommand){
 	if (currentCommand==1){
 		if (fuelDoorState==QUIET){
-			printf("State Changed to Start Collecting");
+	//		printf("State Changed to Start Collecting");
 			fuelDoorState=STARTCOLLECTING;
 		}
 	}
@@ -77,7 +77,7 @@ void JankyFuelDoor::Run(){
 		case QUIET:
 			CloseDoor();
 			PullUpBlock();
-			printf("In Quiet State\n");
+	//		printf("In Quiet State\n");
 			break;
 		case STARTCOLLECTING:
 				OpenDoor();

@@ -31,6 +31,7 @@ public:
 	void StopAutoDriving();
 	void SwitchAutoStates();
 	void Run();
+	void AutoStop();
 
 
 private:
