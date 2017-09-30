@@ -9,7 +9,7 @@
 #include "PIDDrive.h"
 #include "RopeClimbing.h"
 #include "GearsFuel.h"
-#include "JankyFuelDoor.h"
+//#include "JankyFuelDoor.h"
 #include <IterativeRobot.h>
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
@@ -24,10 +24,10 @@
 //Chassis
 
 
-#define FRONT_LEFT_MOTOR_CHANNEL 1//3
-#define REAR_LEFT_MOTOR_CHANNEL 2//4
-#define FRONT_RIGHT_MOTOR_CHANNEL 3//1
-#define REAR_RIGHT_MOTOR_CHANNEL 4//2
+#define FRONT_LEFT_MOTOR_CHANNEL 4//3
+#define REAR_LEFT_MOTOR_CHANNEL 3//4
+#define FRONT_RIGHT_MOTOR_CHANNEL 2//1
+#define REAR_RIGHT_MOTOR_CHANNEL 1//2
 
 
 #define LPISTON_CHANNEL 0
@@ -108,7 +108,7 @@ class Robot: public frc::IterativeRobot {
     Autonomous * autosteam;
 //    cs::UsbCamera *cam0;
 //    cs::UsbCamera * cam1;
-	JankyFuelDoor*fuel_door;
+//	JankyFuelDoor*fuel_door;
 
 	// lights
 	Relay * light;
@@ -163,7 +163,7 @@ public:
 	        gefu = NULL;
             encoderA = NULL;
 	        encoderB = NULL;
-	        fuel_door=NULL;
+//	        fuel_door=NULL;
 	        autonomousTimer.Start();
 
 	        pv = NULL;
@@ -189,7 +189,7 @@ public:
 	        delete gefu;
 	        delete encoderA;
 	        delete encoderB;
-	        delete fuel_door;
+//	        delete fuel_door;
 
 	        delete pv;
 
@@ -211,7 +211,7 @@ public:
 //			gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 	        //myRobot = new PIDDrive(flmotor, rlmotor, frmotor, rrmotor);
 	        gefu = new GearsFuel (GEAR_CHANNEL);
-	        fuel_door = new JankyFuelDoor(OUTTAKE_CHANNEL, INTAKE_CHANNEL);
+//	        fuel_door = new JankyFuelDoor(OUTTAKE_CHANNEL, INTAKE_CHANNEL);
 			//right_encoder->Reset();
 			//left_encoder->Reset();
 //			gyro->Calibrate();
@@ -219,20 +219,20 @@ public:
 
 			drive->SetSafetyEnabled(false);
 
-			fuel_door->SetToQuiet();
+//			fuel_door->SetToQuiet();
 
 			// camera for drive practice
-////cam0 = new cs::UsbCamera;
+//cam0 = new cs::UsbCamera;
 //			cs::UsbCamera cam1
 //cam0=CameraServer::GetInstance()->StartAutomaticCapture(0);
 //	       cam0->SetFPS(15);
 ////cam1 = new cs::UsbCamera;
 //cs::UsbCamera cam0 =CameraServer::GetInstance()->StartAutomaticCapture(1);
 // cam1->SetFPS(15);
-			cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
-		cam0.SetFPS(15);
-		cs::UsbCamera cam1 = CameraServer::GetInstance()->StartAutomaticCapture(1);
-		cam1.SetFPS(15);
+//			cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
+//		cam0.SetFPS(15);
+//		cs::UsbCamera cam1 = CameraServer::GetInstance()->StartAutomaticCapture(1);
+//		cam1.SetFPS(15);
 
 			 encoderA = new Counter(ENCODERA_CHANNEL);
 			 encoderB = new Counter(ENCODERB_CHANNEL);
@@ -248,15 +248,15 @@ public:
 			 		chooser.AddObject("left", &leftPegAuto);
 			 		chooser.AddObject("right", &rightPegAuto);
 			 		SmartDashboard::PutData("Autonomous modes", &chooser);
-			 		printf("Done with robot init \n");
+//			 		printf("Done with robot init \n");
 
 			pv= new PIDVision(drive);
 			dOutlierCount = 0;
 			dOutlier4000Count=0;
-			printf("Done with robot init");
+//			printf("Done with robot init");
 
 
-			light = new Relay(0, Relay::kForwardOnly);
+			light = new Relay(1, Relay::kForwardOnly);
 			light ->Set(Relay::Value::kOff);
 	}
 
@@ -281,28 +281,28 @@ public:
 		 		//    PID->Enable();
 		 		if(&defaultAuto == chooser.GetSelected())
 		 		{
-		 			printf("default auto yashna is a bleating goat ~anisha \n");
+//		 			printf("default auto yashna is a bleating goat ~anisha \n");
 		 			autoMode = DEFAULT_AUTO;
 		 		}
 		 		else if(&baseLine == chooser.GetSelected())
 		 		{
-		 			printf("base line also Yashna is a garbage queen ~sana \n");
+//		 			printf("base line also Yashna is a garbage queen ~sana \n");
 		 			autoMode = BASELINE_AUTO;
 		 		}
 		 		else if(&centerGear == chooser.GetSelected()) {
-		 			printf("gear auto \n");
+//		 			printf("gear auto \n");
 		 			autoMode = CENTER_GEAR;
 		 		}
 		 		else if (&centerPegAuto == chooser.GetSelected()) {
-		 			printf("center peg \n");
+//		 			printf("center peg \n");
 		 			autoMode = CENTER_PEG;
 		 		}
 		 		else if(&rightPegAuto == chooser.GetSelected()) {
-		 			printf("right peg \n");
+//		 			printf("right peg \n");
 		 			autoMode= RIGHT_PEG;
 		 		}
 		 		else if(&leftPegAuto == chooser.GetSelected()) {
-		 			printf("left peg \n");
+//		 			printf("left peg \n");
 		 			autoMode= LEFT_PEG;
 		 		}
 
@@ -315,7 +315,7 @@ public:
 		SmartDashboard::PutBoolean("High Gear", twoTransmissions->lPiston->Get());
 
 		if  (autoMode == DEFAULT_AUTO) {
-			printf ("default\n");
+//			printf ("default\n");
 		}
 		else if (autoMode == BASELINE_AUTO)	{
 //			if (encoderA->Get() * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE || encoderB->Get()  * DISTANCE_PER_PULSE < STRAIGHT_DISTANCE)
@@ -400,15 +400,17 @@ public:
 //    fuel_door->SetToQuiet();   commented this out because this was error
 
 	void TeleopInit() {
-			autosteam->AutoStop();
+//			autosteam->AutoStop();
 		   YnotPressed = true;
 
 	}
 
 	void TeleopPeriodic() {
-		printf("In teleop periodic");
-		SmartDashboard::PutBoolean("High Gear", twoTransmissions->lPiston->Get());
-		SmartDashboard::PutBoolean("Yashna is a garbage queen", true);
+		SmartDashboard::PutNumber("local distance in robot.cpp?", pv->GetDistanceToTape());
+
+//		printf("In teleop periodic");
+//		SmartDashboard::PutBoolean("High Gear", twoTransmissions->lPiston->Get());
+//		SmartDashboard::PutBoolean("Yashna is a garbage queen", true);
 
 //		gyro->Reset();
 
@@ -444,49 +446,49 @@ public:
 			//PIDVision
 
 		if (drivestick->GetButtonY() && YnotPressed) {
-			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+//			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
 			pv->DriveToPeg();
 			YnotPressed=false;
-			SmartDashboard::PutBoolean("afterDrivetoPeg", YnotPressed);
+//			SmartDashboard::PutBoolean("afterDrivetoPeg", YnotPressed);
 		}
 		else if (!drivestick->GetButtonY()) {
-			SmartDashboard::PutBoolean("shouldbetrue", YnotPressed);
+//			SmartDashboard::PutBoolean("shouldbetrue", YnotPressed);
 			YnotPressed=true;
 		}
 		if (drivestick->GetButtonA() && AnotPressed) {
-			SmartDashboard::PutBoolean("CancelDrivetoPeg", YnotPressed);
+//			SmartDashboard::PutBoolean("CancelDrivetoPeg", YnotPressed);
 			pv->CancelDrivetoPeg();
 			AnotPressed=false;
 		}
 		else if(!drivestick->GetButtonA()) {
-			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
+//			SmartDashboard::PutBoolean("DrivetoPeg", YnotPressed);
 			AnotPressed=true;
 		}
 		//find outlier for distance
 
 		if((pv->GetDistanceToTape()>500 && pv->GetDistanceToTape()<4000)  || pv->GetDistanceToTape()<0) {
 			dOutlierCount++;
-			SmartDashboard::PutNumber("distance outlier count", dOutlierCount);
+//			SmartDashboard::PutNumber("distance outlier count", dOutlierCount);
 		 }
 		if(pv->GetDistanceToTape()>4000) {
 			dOutlier4000Count++;
-			SmartDashboard::PutNumber("greater than 4000 count", dOutlier4000Count);
+//			SmartDashboard::PutNumber("greater than 4000 count", dOutlier4000Count);
 
 		}
 		if(pv->GetDistanceToTape()<100) {
-		SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
+//		SmartDashboard::PutNumber("TapeDistance:", pv->GetDistanceToTape());
 		}
-		SmartDashboard::PutNumber("TapeDistance2", pv->GetDistanceToTape());
+//		SmartDashboard::PutNumber("TapeDistance2", pv->GetDistanceToTape());
 
-
-
-		SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
-		SmartDashboard::PutNumber("Peg Offset from Center2 :" , pv->GetPegOffsetFromImageCenter());
+		SmartDashboard::PutBoolean("is ready to push gear out?", pv->isReadytoPushGear);
+		SmartDashboard::PutBoolean("is capturing val and ready to push gear out", false);
+//		SmartDashboard::PutNumber("Peg Offset from Center :" , pv->GetPegOffsetFromImageCenter());
+//		SmartDashboard::PutNumber("Peg Offset from Center2 :" , pv->GetPegOffsetFromImageCenter());
 		if(pv->CapturingVal()) {
 			if(pv->ReadyToPushGearOut()) {
+				SmartDashboard::PutBoolean("is capturing val and ready to push gear out", true);
 //				gefu->GearOut();
 				pv->CancelDrivetoPeg();
-
 			}
 		}
 		else{
@@ -604,12 +606,12 @@ public:
 				bool ButtonA=gameComponentXbox->GetButtonA();
 				bool ButtonRB=gameComponentXbox->GetButtonRB();
 				bool gameComponentButtonLB=gameComponentXbox->GetButtonLB();
-				SmartDashboard::PutBoolean("Button A", ButtonA);
+/*				SmartDashboard::PutBoolean("Button A", ButtonA);
 				SmartDashboard::PutBoolean("A not Pressed", AnotPressed);
 				SmartDashboard::PutBoolean("Button RB", ButtonRB);
-				SmartDashboard::PutBoolean("Button LB", gameComponentButtonLB);
+				SmartDashboard::PutBoolean("Button LB", gameComponentButtonLB);*/
 				if(ButtonA&&AnotPressed){
-					fuel_door->Command(STARTCOLLECTING);
+//					fuel_door->Command(STARTCOLLECTING);
 //					printf("Button A Pressed, Fuel Collect Command\n");
 					AnotPressed=false;
 				}
@@ -619,7 +621,7 @@ public:
 				}
 				// RB for closing fuel door
 				if(ButtonRB&&RBnotPressed){
-					fuel_door->Command(CLOSE_DOOR);
+//					fuel_door->Command(CLOSE_DOOR);
 //					printf("Button RB Pressed, Fuel Collect Command\n");
 					RBnotPressed=false;
 				}
@@ -629,7 +631,7 @@ public:
 				}
 				// LB (on game component xbox controller) for dumping fuel (opening fuel door)
 				if(gameComponentButtonLB&&LBnotPressed){
-					fuel_door->Command(DUMP);
+//					fuel_door->Command(DUMP);
 //					printf("Button LB Pressed, Fuel Collect Command\n");
 					LBnotPressed=false;
 				}
@@ -650,12 +652,12 @@ public:
                     AnotPressed=true;
                 }*/
 
-				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
+/*				SmartDashboard::PutNumber("climbing encoder get: ", climb->GetEncoder());
 				SmartDashboard::PutBoolean("limit switch: ", climb->GetLimitSwitch());
 				SmartDashboard::PutNumber("climbing motor A current: ", climb->GetMotorACurrent());
 				SmartDashboard::PutNumber("climb motor B current: ", climb->GetMotorBCurrent());
 				SmartDashboard::PutNumber("Left Throttle", drivestick->GetLeftThrottle());
-				SmartDashboard::PutNumber("Right Throttle", drivestick->GetRightThrottle());
+				SmartDashboard::PutNumber("Right Throttle", drivestick->GetRightThrottle());*/
 				// Drivestick button A starts climbing motors
 				// TODO: Move buttons to game component joystick
 			//	if (drivestick->GetButtonA() && !drivestick->GetButtonY())

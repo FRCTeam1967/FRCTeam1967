@@ -30,9 +30,12 @@ void GripPipeline::Process(cv::Mat & source0)
 //	double hsvThresholdHue[] = {69,180};
 //	double hsvThresholdSaturation[] = {172,255};
 //	double hsvThresholdValue[] = {112,255};
-	double hsvThresholdHue[] = {71,91};
-	double hsvThresholdSaturation[] = {110,255};
-	double hsvThresholdValue[] = {80,255};
+//	double hsvThresholdHue[] = {71,91};
+//	double hsvThresholdSaturation[] = {110,255};
+//	double hsvThresholdValue[] = {80,255};
+	double hsvThresholdHue[] = {65,78};
+	double hsvThresholdSaturation[] = {255,255};
+	double hsvThresholdValue[] = {71,121};
 
 	hsvThreshold(hsvThresholdInput, hsvThresholdHue, hsvThresholdSaturation, hsvThresholdValue, this->hsvThresholdOutput);
 
@@ -156,7 +159,7 @@ void GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
 	xMax = 0;
 	xMin = 320;
 
-	//printf("lineList.size %d \n",lineList.size());
+	printf("lineList.size %d \n",lineList.size());
 
 	for (unsigned int pos = 0; pos < lineList.size(); pos++)
 	{
@@ -180,10 +183,15 @@ void GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
 			offset = localOffset;
 			offsetInches = offset * (10.375/difference); // finding the offset in inches
 			angle = ((atan(offsetInches/distance))*180)/(3.14); // calculates the angle the robot needs to drive (PID input)
-			//	printf ("xMin %d \n", xMin);
-			//	printf ("xMax %d \n", xMax);
-			//	printf("Difference: %d   ", difference);
-			//	printf ("    Angle %f      ", angle);
+			SmartDashboard::PutNumber("xMin", xMin);
+			SmartDashboard::PutNumber("xMax", xMax);
+			SmartDashboard::PutNumber("Difference", difference);
+			SmartDashboard::PutNumber("Angle", angle);
+			printf ("xMin %d \n", xMin);
+			printf ("xMax %d \n", xMax);
+			printf("Difference: %d   ", difference);
+			printf ("    Angle %f      ", angle);
+			printf("Distance: %f /n", distance);
 		}
 		else
 			badOffset ++;
@@ -197,7 +205,7 @@ void GripPipeline::findCenter(cv::Mat &input, std::vector<Line> &lineList)
 double GripPipeline::findDistance(cv::Mat &input, std::vector<Line> &lineList, int difference)
 {
 	distance = ( -5.5355*pow(10,-5)*pow(difference,3) + 0.0199*pow(difference,2) - 2.5918*(difference) + 137.8207 );
-	//printf ("    Distance: %d \n", distance);
+	printf ("    Distance: %d \n", distance);
 	return distance;
 }
 
