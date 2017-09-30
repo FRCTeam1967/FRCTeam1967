@@ -92,7 +92,7 @@ class Robot: public frc::IterativeRobot {
     float kP;
     //PIDController * PID;
     GearsFuel * gefu;
-	JankyFuelDoor*fuel_door;
+	//JankyFuelDoor*fuel_door;
 	bool DriveXnotpressed = true;
 	bool DriveLBnotpressed = true;
 	bool GuelXnotpressed = true;
@@ -134,7 +134,7 @@ public:
 	        gefu = NULL;
             encoderA = NULL;
 	        encoderB = NULL;
-	        fuel_door=NULL;
+	        //fuel_door=NULL;
 	        autonomousTimer.Start();
 		}
     
@@ -156,7 +156,7 @@ public:
 	        delete gefu;
 	        delete encoderA;
 	        delete encoderB;
-	        delete fuel_door;
+	        //delete fuel_door;
 		}
     
 	void RobotInit() {
@@ -174,14 +174,14 @@ public:
 //			gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 	        //myRobot = new PIDDrive(flmotor, rlmotor, frmotor, rrmotor);
 	        gefu = new GearsFuel (GEAR_CHANNEL);
-	        fuel_door = new JankyFuelDoor(OUTTAKE_CHANNEL, INTAKE_CHANNEL);
+	        //fuel_door = new JankyFuelDoor(OUTTAKE_CHANNEL, INTAKE_CHANNEL);
 			//right_encoder->Reset();
 			//left_encoder->Reset();
 //			gyro->Calibrate();
 			twoTransmissions->LowGear();
 
 			drive->SetSafetyEnabled(false);
-			fuel_door->SetToQuiet();
+			//fuel_door->SetToQuiet();
 
 			// camera for drive practice
 	        cs::UsbCamera cam0 = CameraServer::GetInstance()->StartAutomaticCapture(0);
@@ -285,7 +285,7 @@ public:
 	}
 
 	void TeleopInit() {
-	    fuel_door->SetToQuiet();
+	    //fuel_door->SetToQuiet();
 	}
 
 	void TeleopPeriodic() {
@@ -425,7 +425,7 @@ public:
 				bool ButtonA=gameComponentXbox->GetButtonA();
 				bool ButtonRB=gameComponentXbox->GetButtonRB();
 				bool gameComponentButtonLB=gameComponentXbox->GetButtonLB();
-				SmartDashboard::PutBoolean("Button A", ButtonA);
+				/*SmartDashboard::PutBoolean("Button A", ButtonA);
 				SmartDashboard::PutBoolean("A not Pressed", AnotPressed);
 				SmartDashboard::PutBoolean("Button RB", ButtonRB);
 				SmartDashboard::PutBoolean("Button LB", gameComponentButtonLB);
@@ -457,7 +457,7 @@ public:
 				else if(!gameComponentButtonLB){
 					LBnotPressed=true;
 //					printf("Button LB not Pressed\n");
-				}
+				}*/
 
 				// TODO: figure out if drive team needs this section
 /*                //Outtake Piston (2): Make piston go out & in
