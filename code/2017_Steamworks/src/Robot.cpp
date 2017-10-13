@@ -32,7 +32,7 @@
 
 #define TURN_SPEED .2
 #define AUTO_TIME 4
-#define GAUTO_TIME 3.75
+#define GAUTO_TIME 3.6
 #define STOP_TIME 1.5
 #define BGAUTO_TIME 2
 
@@ -74,6 +74,7 @@
 #define DEFAULT_AUTO 1
 #define BASELINE_AUTO 2
 #define LIT_AUTO 3
+#define CENTER_GEAR_AUTO 4
 
 class Robot: public frc::IterativeRobot {
 	SendableChooser<int*>chooser;
@@ -113,6 +114,7 @@ class Robot: public frc::IterativeRobot {
     int baseLine= BASELINE_AUTO;
     int autoMode = DEFAULT_AUTO;
     int litAuto = LIT_AUTO;
+    int centerGear = CENTER_GEAR_AUTO;
 
 public:
 	Robot(){
@@ -196,7 +198,8 @@ public:
 			 // sendable chooser
 			 		chooser.AddDefault("does nothing (default)", &defaultAuto);
 			 		chooser.AddObject("base line", &baseLine);
-			 		chooser.AddObject("gear!!", &litAuto);
+			 		chooser.AddObject("lit auto", &litAuto);
+			 		chooser.AddObject("center gear auto", &centerGear);
 			 		SmartDashboard::PutData("Autonomous modes", &chooser);
 			 		printf("Done with robot init \n");
 
@@ -230,8 +233,12 @@ public:
 		 			autoMode = BASELINE_AUTO;
 		 		}
 		 		else if (&litAuto == chooser.GetSelected()) {
-		 			printf("gear auto \n");
+		 			printf("lit auto \n");
 		 			autoMode = LIT_AUTO;
+		 		}
+		 		else if (&centerGear == chooser.GetSelected()){
+		 			printf("center gear auto \n");
+		 			autoMode = CENTER_GEAR_AUTO;
 		 		}
 	}
 
@@ -273,10 +280,16 @@ public:
 			else{
 				drive->TankDrive(0.0,0.0);
 			}
-
-
 		}
-
+		else if(autoMode==CENTER_GEAR_AUTO){
+			if(autonomousTimer.Get()<GAUTO_TIME) {
+				drive->TankDrive(-0.5,-0.5);
+			}
+			else if(autonomousTimer.Get()>GAUTO_TIME) {
+				drive->TankDrive(0.0,0.0);
+				//gefu->GearOut();
+			}
+		}
 		SmartDashboard::PutNumber("encoder A get", encoderA->Get());
 		SmartDashboard::PutNumber("encoder B get", encoderB->Get());
 		SmartDashboard::PutNumber("encoder A distance", encoderA->Get() * DISTANCE_PER_PULSE);
