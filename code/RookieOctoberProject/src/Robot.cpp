@@ -77,7 +77,7 @@ private:
 
 	void AutonomousPeriodic() {
 		//Example
-		while(autonomousTimer->Get() <= 5){
+		if(autonomousTimer->Get() <= 5){
 			drive->TankDrive(1.0, 1.0);
 		}
 	}
