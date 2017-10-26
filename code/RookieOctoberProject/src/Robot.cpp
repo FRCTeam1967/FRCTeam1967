@@ -14,9 +14,9 @@
 #define DRIVESTICKCHANNEL 0
 
 //Chassis Channels
-#define LRCHANNEL 5
-#define RRCHANNEL 2
-#define LFCHANNEL 6
+#define LRCHANNEL 2
+#define RRCHANNEL 4
+#define LFCHANNEL 1
 #define RFCHANNEL 3
 #define R_TST_PISTON_CHANNEL 2
 #define L_TST_PISTON_CHANNEL 3 // three is not really there
@@ -71,15 +71,20 @@ private:
 
 	void AutonomousInit() override {
 		autonomousTimer->Reset();
-        autonomousTimer->Start();
 		drive->SetSafetyEnabled(false);
 	}
 
 	void AutonomousPeriodic() {
-		//Example
-		if(autonomousTimer->Get() <= 5){
-			drive->TankDrive(1.0, 1.0);
+
+		while(autonomousTimer->Get()<=0.1){
+			drive->TankDrive(-0.75, 0.75);
 		}
+
+		while(autonomousTimer->Get()>0.5){
+			drive->TankDrive(0.0, 0.0);
+		}
+
+
 	}
 
 	void TeleopInit() {
@@ -89,7 +94,7 @@ private:
 	void TeleopPeriodic() {
 		float lValue = driveStick->GetLeftYAxis();
 		float rValue = driveStick->GetRightYAxis();
-		drive->TankDrive(lValue,-rValue ); //motors wired in different directions on both sides
+		drive->TankDrive(-lValue,-rValue ); //motors wired in different directions on both sides
 		//-1.0 is value of both joysticks when pushed forward
 	}
 
