@@ -76,13 +76,6 @@ private:
 
 	void AutonomousPeriodic() {
 
-		while(autonomousTimer->Get()<=0.1){
-			drive->TankDrive(-0.75, 0.75);
-		}
-
-		while(autonomousTimer->Get()>0.5){
-			drive->TankDrive(0.0, 0.0);
-		}
 
 
 	}
