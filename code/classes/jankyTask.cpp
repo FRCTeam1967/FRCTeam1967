@@ -8,7 +8,7 @@ JankyTask::JankyTask(const char* taskName) {
 
   if (!taskName)
   {
-    sprintf(oldstyle_name, "jankyTask-%llu", GetFPGATime());
+    sprintf(oldstyle_name, "jankyTask-%llu", frc::RobotController::GetFPGATime()); //changed GetFPGATime() to frc::RobotController::GetFPGATime()
   }
 
   enabled_ = false;
