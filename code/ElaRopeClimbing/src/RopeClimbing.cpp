@@ -6,7 +6,7 @@
  */
 
 #include "WPILib.h"
-#include "CANTalon.h"
+#include "ctre/Phoenix.h"
 #include "RopeClimbing.h"
 
 #define STOP 0
@@ -28,8 +28,8 @@
 
 RopeClimbing::RopeClimbing(int motorAChannel, int motorBChannel, int encoderChannelA, int encoderChannelB, int limitSwitchChannel) {
 	// TODO Auto-generated constructor stub
-	motorA = new CANTalon(motorAChannel);
-	motorB = new CANTalon(motorBChannel);
+	motorA = new WPI_TalonSRX(motorAChannel);
+	motorB = new WPI_TalonSRX(motorBChannel);
 	encoder = new Encoder(encoderChannelA, encoderChannelB);
 	limitSwitch = new DigitalInput(limitSwitchChannel);
 	climbState = STOP;

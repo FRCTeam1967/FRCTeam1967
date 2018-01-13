@@ -7,7 +7,7 @@
 
 #ifndef GEARSFUEL_H_
 #include "WPILib.h"
-#include "CANTalon.h"
+#include "ctre/Phoenix.h"
 #define GEARSFUEL_H_
 #include "Solenoid.h"
 

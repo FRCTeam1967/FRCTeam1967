@@ -9,7 +9,7 @@
 #define ROPECLIMBING_H_
 
 #include "WPILib.h"
-#include "CANTalon.h"
+#include "ctre/Phoenix.h"
 
 #include "jankyTask.h"
 
@@ -37,8 +37,8 @@ public:
 	void Run();
 
 private:
-	CANTalon * motorA;
-	CANTalon * motorB;
+	WPI_TalonSRX * motorA;
+	WPI_TalonSRX * motorB;
     Encoder * encoder;
 	DigitalInput * limitSwitch;
 

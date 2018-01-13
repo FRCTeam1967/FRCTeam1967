@@ -3,7 +3,7 @@
 #include <memory>
 #include <string>
 #include "WPILib.h"
-#include "CANTalon.h"
+#include "ctre/Phoenix.h"
 #include "jankyXboxJoystick.h"
 #include "TwoTransmissions.h"
 #include "PIDDrive.h"
@@ -89,10 +89,10 @@
 
 class Robot: public frc::IterativeRobot {
 	SendableChooser<int*>chooser;
-	CANTalon*flmotor;
-	CANTalon*rlmotor;
-	CANTalon*frmotor;
-	CANTalon*rrmotor;
+	WPI_TalonSRX*flmotor;
+	WPI_TalonSRX*rlmotor;
+	WPI_TalonSRX*frmotor;
+	WPI_TalonSRX*rrmotor;
 	jankyXboxJoystick*drivestick;
 	TwoTransmissions*twoTransmissions;
 	RobotDrive*drive;
@@ -197,10 +197,10 @@ public:
 		}
     
 	void RobotInit() {
-			flmotor= new CANTalon(FRONT_LEFT_MOTOR_CHANNEL);
-			rlmotor= new CANTalon(REAR_LEFT_MOTOR_CHANNEL);
-			frmotor= new CANTalon(FRONT_RIGHT_MOTOR_CHANNEL);
-			rrmotor= new CANTalon(REAR_RIGHT_MOTOR_CHANNEL);
+			flmotor= new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
+			rlmotor= new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
+			frmotor= new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
+			rrmotor= new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 			drivestick= new jankyXboxJoystick(DRIVESTICK_CHANNEL);
 			twoTransmissions= new TwoTransmissions(LPISTON_CHANNEL, RPISTON_CHANNEL, LPISTON_MOD, RPISTON_MOD);
 			drive= new RobotDrive(flmotor, rlmotor, frmotor, rrmotor);

@@ -6,7 +6,7 @@
  */
 #include "WPILib.h"
 #include "AutoSteamworks.h"
-#include "CANTalon.h"
+#include "ctre/Phoenix.h"
 #include "PIDVision.h"
 
 #define INIT 0

@@ -8,7 +8,7 @@
 #ifndef INCLUDE_AUTOSTEAMWORKS_H_
 #define INCLUDE_AUTOSTEAMWORKS_H_
 #include "WPILib.h"
-#include "CANTalon.h"
+#include "ctre/Phoenix.h"
 #include "PIDVision.h"
 #include "GearsFuel.h"
 
