@@ -6,7 +6,7 @@
 
 class UpAndDown {
 public:
-	double newDistance;
+	double newHeight = 0.0;
 	double amountToMove;
 
 	UpAndDown(int lMotorChannel, int rMotorChannel, int limSwitchOneChannel, int limSwitchTwoChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2);
@@ -27,6 +27,7 @@ public:
 
 	double GetEncoderDistance();
 	void ResetEncoder();
+	double GetEncoderDistancePerPulse();
 
 	void EmergencyStopMechanism();
 	void MoveToNewHeight();

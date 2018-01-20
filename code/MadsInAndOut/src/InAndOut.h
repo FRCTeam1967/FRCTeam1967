@@ -12,26 +12,22 @@ public:
 	bool GetLimSwitchDown(); //Get the value of the lower limit switch (true/false)
 	bool GetLimSwitchUp(); //Get the value of the upper limit switch (true/false)
 
-//	void PistonPushOpen(); //Push the power cube out of the claw by pushing out the piston
-	void PistonDoorOpen(); //Open the "doors" of the claw by pushing out the piston
-
-//	void PistonPushClose(); //Bring the piston that pushed the cube back in so that it is ready to push another cube again
-	void PistonDoorClose(); //Close the "doors" of the claw by bringing in the piston
+	void PistonDoorOpen(); //Open the "doors" of the claw by bringing in the piston
+	void PistonDoorClose(); //Close the "doors" of the claw by pushing out the piston
 
 	void MotorClawForward(); //Make the claw mechanism extend forward 180º out of the robot
 	void MotorClawReverse(); //Make the claw mechanism extend forward 180º into the robot
 	void MotorClawStop();
 
-	void MotorRollForward();
-	void MotorRollReverse();
-	void MotorRollStop();
+	void MotorRollForward(); //Make the rollers go forward to push out the cube
+	void MotorRollReverse(); //Make the rollers go backwards to pull in the sube
+	void MotorRollStop(); //Make the rollers stop
 
 private:
 	WPI_TalonSRX*motorClaw;
 	WPI_TalonSRX*motorRoll;
 	Solenoid*pistonDoorRight;
 	Solenoid*pistonDoorLeft;
-//	Solenoid*pistonPush;
 	DigitalInput*limSwitchDown;
 	DigitalInput*limSwitchUp;
 };

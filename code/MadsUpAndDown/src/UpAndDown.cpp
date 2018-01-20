@@ -2,15 +2,17 @@
 #include "ctre/Phoenix.h"
 #include "UpAndDown.h"
 
-#define R_MOTOR_F_SPEED 1.0
-#define L_MOTOR_F_SPEED 1.0
-#define R_MOTOR_R_SPEED -1.0
-#define L_MOTOR_R_SPEED -1.0
+#define R_MOTOR_F_SPEED 0.5
+#define L_MOTOR_F_SPEED 0.5
+#define R_MOTOR_R_SPEED -0.5
+#define L_MOTOR_R_SPEED -0.5
 
 #define PULSES_PER_REVOLUTION 500
 #define CIRCUMFERENCE 0.399 * 3.14
 #define DISTANCE_PER_PULSE CIRCUMFERENCE/PULSES_PER_REVOLUTION
 
+#define UD_HYSTERESIS_POS 1
+#define UD_HYSTERESIS_NEG -1
 
 UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel, int limSwitchOneChannel, int limSwitchTwoChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2) {
 	lMotor = new WPI_TalonSRX(lMotorChannel);
@@ -61,45 +63,51 @@ void UpAndDown::ResetEncoder(){
 }
 void UpAndDown::EmergencyStopMechanism(){
 	if (GetLimSwitchOne()) {
-		RLMotorStop();
+		while (GetLimSwitchOne() == false) {
+			RLMotorReverse();
+		}
 	}
 	else if (GetLimSwitchTwo()) {
-		RLMotorStop();
-		ResetEncoder();
+		while (GetLimSwitchTwo() == false) {
+			RLMotorForward();
+		}
 	}
+}
+
+double UpAndDown::GetEncoderDistancePerPulse() {
+	return gameMotorEncoder -> GetDistancePerPulse();
 }
 
 void UpAndDown::SwitchHeight() {
-	newDistance = 19;
+	newHeight = 19;
 }
 
 void UpAndDown::ScaleLowHeight() {
-	newDistance = 48;
+	newHeight = 48.0;
 }
 
 void UpAndDown::ScaleMedHeight() {
-	newDistance = 60;
+	newHeight = 60.0;
 }
 
 void UpAndDown::ScaleHight() {
-	newDistance = 72;
+	newHeight = 72.0;
 }
 
 void UpAndDown::RegularHeight() {
-	newDistance = 0;
+	newHeight = 0.0;
 }
 
 void UpAndDown::MoveToNewHeight() {
-	amountToMove = newDistance - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+	amountToMove = newHeight - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
 
-	if (GetEncoderDistance() > amountToMove) {
-		RLMotorReverse(); //spin the motor backward
+	if (amountToMove > UD_HYSTERESIS_POS) {
+		RLMotorForward();
 	}
-	else if (GetEncoderDistance() < amountToMove) {
-		RLMotorForward(); //spin the motor forward
-
+	else if (amountToMove < UD_HYSTERESIS_NEG) {
+		RLMotorReverse();
 	}
-	else if (GetEncoderDistance() == amountToMove) {
-		RLMotorStop(); //stop spinning the motor
+	else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
+		RLMotorStop();
 	}
 }

@@ -25,6 +25,9 @@ class Robot : public frc::IterativeRobot {
 	InAndOut*inOut;
 	jankyXboxJoystick*gameJoystick;
 	bool lbHasNotBeenPressed = true;
+	bool rbHasNotBeenPressed = true;
+	bool clawShouldGoUp;
+	bool clawShouldGoDown;
 public:
 	Robot() {
 		inOut = NULL;
@@ -54,20 +57,8 @@ public:
 	void TeleopPeriodic() {
 
 		//		Define all of the buttons on the joystick
-		//		bool buttonA = gameJoystick->GetButtonA();
-//		bool buttonB = gameJoystick->GetButtonB();
-//		bool buttonX = gameJoystick -> GetButtonX();
 		bool buttonRB = gameJoystick -> GetButtonRB();
 		bool buttonLB = gameJoystick -> GetButtonLB();
-
-
-		//		Push out the power cube:
-		//		if (buttonA){
-		//			inOut->PistonPushOpen(); 	//if button A is pressed, the piston will go out
-		//		}
-		//		else if (!buttonA) {
-		//			inOut->PistonPushClose(); 	//When you take your finger off of "A" the piston will go back in.
-		//		}
 
 		//		Open/Close the claw's "doors" with pistons
 		if (buttonLB && lbHasNotBeenPressed == true){
@@ -79,20 +70,23 @@ public:
 			lbHasNotBeenPressed = true; //Makes it so that b has not been pressed
 		}
 
-		//		Put claw mechanism up/down based on what limit switches are pressed
-		//if the claw is in the robot & you press X, the arm will go down until the claw is fully out of the robot
-		if (inOut->GetLimSwitchUp() == true && buttonRB) {
-			while (inOut ->GetLimSwitchDown() == false){
-				inOut ->MotorClawForward(); //Have motor go @ speed of 1.0
-			}
-			inOut -> MotorClawStop();
+		//Put claw mechanism up/down based on what limit switches are pressed
+		if (buttonRB && rbHasNotBeenPressed) {
+			clawShouldGoDown = true;
+			rbHasNotBeenPressed = false;
 		}
-		//if the claw out of the robot & you press X, the arm will go up until the claw is fully inside the robot
-		else if (inOut ->GetLimSwitchDown() == true &&buttonRB) {
-			while (inOut ->GetLimSwitchUp() == false){
-				inOut ->MotorClawReverse(); //Have motor go @ speed of -1.0
-			}
-			inOut -> MotorClawStop();
+		else if (buttonRB && rbHasNotBeenPressed == false) {
+			clawShouldGoUp = true;
+			rbHasNotBeenPressed = true;
+		}
+
+		if (clawShouldGoDown && (inOut -> GetLimSwitchDown() == false)) {
+			inOut -> MotorClawForward();
+			clawShouldGoDown = false;
+		}
+		else if (clawShouldGoUp && (inOut -> GetLimSwitchUp() == false)) {
+			inOut -> MotorClawReverse();
+			clawShouldGoUp = false;
 		}
 
 		//Make the rollers go forward and backward:
@@ -101,7 +95,7 @@ public:
 		if (leftValue > 0.2) {
 			inOut -> MotorRollForward();
 		}
-		else if (leftValue <-0.2) {
+		else if (leftValue < -0.2) {
 			inOut -> MotorRollReverse();
 		}
 		else {
