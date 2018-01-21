@@ -14,8 +14,8 @@
 //These are NOT ACCURATE for the competition robot
 #define L_MOTOR_CHANNEL 2
 #define R_MOTOR_CHANNEL 2
-#define LIM_SWITCH_ONE_CHANNEL 6
-#define LIM_SWITCH_TWO_CHANNEL 9
+#define BOTTOM_LIM_SWITCH_CHANNEL 6
+#define TOP_LIM_SWITCH_CHANNEL 9
 #define GAME_MOTOR_ENCODER_CHANNEL_1 4
 #define GAME_MOTOR_ENCODER_CHANNEL_2 5
 
@@ -24,10 +24,7 @@
 class Robot : public frc::IterativeRobot {
 	jankyXboxJoystick*gameJoystick;
 	UpAndDown*upDown;
-//	double newDistance;
-//	double amountToMove;
 public:
-
 
 	Robot() {
 		gameJoystick = NULL;
@@ -38,9 +35,9 @@ public:
 		delete upDown;
 	}
 	void RobotInit() {
-		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, LIM_SWITCH_ONE_CHANNEL, LIM_SWITCH_TWO_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
+		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, BOTTOM_LIM_SWITCH_CHANNEL, TOP_LIM_SWITCH_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
-//		upDown->ResetEncoder();
+		upDown->ResetEncoder();
 
 	}
 
@@ -62,33 +59,45 @@ public:
 		bool buttonY = gameJoystick -> GetButtonY();
 		bool buttonA = gameJoystick -> GetButtonA();
 		bool buttonB = gameJoystick -> GetButtonB();
-		bool buttonRB = gameJoystick -> GetButtonRB();
+		bool buttonRT = gameJoystick -> GetRightThrottle();
 
+		//SmartDashboard comments
 		SmartDashboard::PutNumber("Game Component Encoder: ", upDown->GetEncoderDistance());
-		SmartDashboard::PutNumber("Desired Height", upDown -> newHeight);
+		SmartDashboard::PutNumber("Desired Height", upDown -> desiredHeight);
+		SmartDashboard::PutNumber("Amount To Move", upDown -> amountToMove);
 		SmartDashboard::PutNumber("Distance Per Pulse", upDown -> GetEncoderDistancePerPulse());
+		SmartDashboard::PutBoolean("Limit switch top value", upDown -> GetTopLimSwitch());
+		SmartDashboard::PutBoolean("Limit switch bottom value", upDown -> GetBottomLimSwitch());
 
+		//Stop the mechanism from going too high/low
+		upDown->EmergencyStopMechanism();
 
 		//have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
 			upDown -> SwitchHeight();
+			upDown -> isMechanismRunning = true;
 		}
 		else if (buttonY) {
 			upDown -> ScaleLowHeight();
+			upDown -> isMechanismRunning = true;
 		}
 		else if (buttonB) {
 			upDown -> ScaleMedHeight();
+			upDown -> isMechanismRunning = true;
 		}
 		else if (buttonA) {
 			upDown -> ScaleHight();
+			upDown -> isMechanismRunning = true;
 		}
-		else if (buttonRB) {
+		else if (buttonRT) {
 			upDown -> RegularHeight();
+			upDown -> isMechanismRunning = true;
 		}
 
-		upDown->MoveToNewHeight();
-//		upDown->EmergencyStopMechanism();
-
+		//Move the Up&Down mechanism to the height it needs to be at
+		if (upDown -> isMechanismRunning) {
+			upDown->MoveToNewHeight();
+		}
 	}
 
 	void TestPeriodic() {
