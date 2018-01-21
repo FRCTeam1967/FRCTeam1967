@@ -6,30 +6,42 @@
 
 class InAndOut {
 public:
-	InAndOut(int motorClawChannel, int pistonDoorLeftChannel, int pistonDoorRightChannel, int limSwitchUpChannel, int limSwitchDownChannel, int motorRollChannel);
+	double desiredDistanceToMove = 0.0;
+	double amountToMoveClaw = 0.0;
+
+	InAndOut(int motorClawChannel, int pistonDoorLeftChannel, int pistonDoorRightChannel, int limSwitchInsideChannel, int limSwitchOutsideChannel, int motorRollChannel, int clawEncoderChannel1, int clawEncoderChannel2);
 	virtual ~InAndOut();
 
-	bool GetLimSwitchDown(); //Get the value of the lower limit switch (true/false)
-	bool GetLimSwitchUp(); //Get the value of the upper limit switch (true/false)
+	bool GetLimSwitchOutside(); //Get the value of the limit switch for when the claw goes outside the robot(true/false)
+	bool GetLimSwitchInside(); //Get the value of the limit switch for when the claw goes inside the robot(true/false)
 
-	void PistonDoorOpen(); //Open the "doors" of the claw by bringing in the piston
-	void PistonDoorClose(); //Close the "doors" of the claw by pushing out the piston
+	void PistonDoorOpen(); //Open the "doors" of the claw by retracting the piston
+	void PistonDoorClose(); //Close the "doors" of the claw by engaging the piston
 
-	void MotorClawForward(); //Make the claw mechanism extend forward 180º out of the robot
-	void MotorClawReverse(); //Make the claw mechanism extend forward 180º into the robot
-	void MotorClawStop();
+	void MotorClawOutOfRobot(); //Make the claw mechanism extend forward out of the robot
+	void MotorClawIntoRobot(); //Make the claw mechanism extend backward into the robot
+	void MotorClawStop(); //Stop the claw mechanism
 
 	void MotorRollForward(); //Make the rollers go forward to push out the cube
-	void MotorRollReverse(); //Make the rollers go backwards to pull in the sube
+	void MotorRollReverse(); //Make the rollers go backwards to pull in the cube
 	void MotorRollStop(); //Make the rollers stop
+
+	double GetClawEncoderDistance();
+	void ResetClawEncoder();
+	double GetClawEncoderDistancePerPulse();
+
+	void  OutsideDistance();
+	void InsideDistance();
+	void MoveClawMechanism();
 
 private:
 	WPI_TalonSRX*motorClaw;
 	WPI_TalonSRX*motorRoll;
 	Solenoid*pistonDoorRight;
 	Solenoid*pistonDoorLeft;
-	DigitalInput*limSwitchDown;
-	DigitalInput*limSwitchUp;
+	DigitalInput*limSwitchOutside;
+	DigitalInput*limSwitchInside;
+	Encoder*clawEncoder;
 };
 
 #endif

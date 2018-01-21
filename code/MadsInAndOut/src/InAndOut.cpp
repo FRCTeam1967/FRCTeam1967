@@ -1,68 +1,111 @@
 #include "WPILib.h"
 #include "ctre/Phoenix.h"
 #include "InAndOut.h"
+
+//Motor speeds
 #define MOTOR_CLAW_F_SPEED 0.5
 #define MOTOR_CLAW_R_SPEED -0.5
 #define MOTOR_ROLL_F_SPEED 0.5
 #define MOTOR_ROLL_R_SPEED -0.5
+#define MOTOR_STOP_SPEED 0.0
 
-InAndOut::InAndOut(int motorClawChannel, int pistonDoorLeftChannel, int pistonDoorRightChannel, int limSwitchUpChannel, int limSwitchDownChannel, int motorRollChannel){
+//For distance per pulse in in/out mechanism's encoder
+#define CLAW_PULSES_PER_REVOLUTION 497
+#define CLAW_CIRCUMFERENCE 0.399 * 3.14
+#define CLAW_DISTANCE_PER_PULSE CLAW_CIRCUMFERENCE/CLAW_PULSES_PER_REVOLUTION
+
+//Hysteresis for in/out mechanism
+#define IO_HYSTERESIS_POS 1
+#define IO_HYSTERESIS_NEG -1
+
+InAndOut::InAndOut(int motorClawChannel, int pistonDoorLeftChannel, int pistonDoorRightChannel, int limSwitchInsideChannel, int limSwitchOutsideChannel, int motorRollChannel, int clawEncoderChannel1, int clawEncoderChannel2){
 	motorClaw = new WPI_TalonSRX(motorClawChannel);
 	pistonDoorLeft = new Solenoid(9, pistonDoorLeftChannel);
 	pistonDoorRight = new Solenoid(9, pistonDoorRightChannel);
-	limSwitchUp = new DigitalInput(limSwitchUpChannel);
-	limSwitchDown = new DigitalInput(limSwitchDownChannel);
+	limSwitchInside = new DigitalInput(limSwitchInsideChannel);
+	limSwitchOutside = new DigitalInput(limSwitchOutsideChannel);
 	motorRoll = new WPI_TalonSRX(motorRollChannel);
+	clawEncoder = new Encoder(clawEncoderChannel1, clawEncoderChannel2);
+	clawEncoder -> SetDistancePerPulse(CLAW_DISTANCE_PER_PULSE);
+
 }
 InAndOut::~InAndOut(){
 	delete motorClaw;
 	delete pistonDoorLeft;
 	delete pistonDoorRight;
-	delete limSwitchUp;
-	delete limSwitchDown;
+	delete limSwitchInside;
+	delete limSwitchOutside;
 }
-void InAndOut::MotorClawForward(){
-	motorClaw->Set(MOTOR_CLAW_F_SPEED); //make motor go forward @ full speed
+void InAndOut::MotorClawOutOfRobot(){
+	motorClaw->Set(MOTOR_CLAW_F_SPEED); ///Spin the motors on the claw mechanism forward, making the claw go out of the robot
 }
-void InAndOut::MotorClawReverse(){
-	motorClaw->Set(MOTOR_CLAW_R_SPEED); //make motor go backwards @ full speed
+void InAndOut::MotorClawIntoRobot(){
+	motorClaw->Set(MOTOR_CLAW_R_SPEED); //Spin the motors on the claw mechanism backward, making the claw go out of the robot
 }
 
 void InAndOut::PistonDoorOpen(){
-	pistonDoorLeft->Set(false); //make piston go out
+	pistonDoorLeft->Set(false); //Retract both pistons simultaneously
 	pistonDoorRight->Set(false);
-	//Check w/game component group to see how pistons are
-	//pistonDoor->Set(false);
+
 }
 
 void InAndOut::PistonDoorClose(){
-	pistonDoorLeft->Set(true); //make piston go in
-	pistonDoorRight->Set(true); //make piston go in
-
-	//Check w/game component group to see how pistons are
-	//pistonDoor->Set(false);
+	pistonDoorLeft->Set(true); //Engage both pistons simultaneously
+	pistonDoorRight->Set(true);
 
 }
-bool InAndOut::GetLimSwitchUp(){
-	return limSwitchUp->Get(); //get value (true/false) of limit switch
+bool InAndOut::GetLimSwitchInside(){
+	return limSwitchInside->Get(); //get value (true/false) of limit switch
 }
-bool InAndOut::GetLimSwitchDown(){
-	return limSwitchDown->Get(); //get value (true/false) of limit switch
+bool InAndOut::GetLimSwitchOutside(){
+	return limSwitchOutside->Get(); //get value (true/false) of limit switch
 }
 
 void InAndOut::MotorClawStop() {
-	motorClaw -> Set(0.0);
+	motorClaw -> Set(MOTOR_STOP_SPEED); //Stop the motors on the claw mechanism
 }
 
 void InAndOut::MotorRollForward() {
-	motorRoll -> Set(MOTOR_ROLL_F_SPEED);
+	motorRoll -> Set(MOTOR_ROLL_F_SPEED); //Make the rollers go forwards
 }
 
 void InAndOut::MotorRollReverse() {
-	motorRoll -> Set(MOTOR_ROLL_R_SPEED);
+	motorRoll -> Set(MOTOR_ROLL_R_SPEED); //Make the rollers go backwards
 }
 
 void InAndOut::MotorRollStop() {
-	motorRoll -> Set(0.0);
+	motorRoll -> Set(MOTOR_STOP_SPEED); //Stop the rollers
 }
 
+double InAndOut::GetClawEncoderDistance(){
+	return clawEncoder->GetDistance();
+}
+
+void InAndOut::ResetClawEncoder(){
+	clawEncoder -> Reset();
+}
+double InAndOut::GetClawEncoderDistancePerPulse() {
+	return clawEncoder -> GetDistancePerPulse();
+}
+void InAndOut::OutsideDistance() {
+	desiredDistanceToMove = 0.25;
+}
+void InAndOut::InsideDistance() {
+	desiredDistanceToMove = 0.0;
+
+}
+
+void InAndOut::MoveClawMechanism() {
+	amountToMoveClaw = desiredDistanceToMove - GetClawEncoderDistance();
+
+	if (amountToMoveClaw > IO_HYSTERESIS_POS) {
+		MotorClawOutOfRobot();
+	}
+	else if (amountToMoveClaw < IO_HYSTERESIS_NEG) {
+		MotorClawIntoRobot();
+	}
+	else if ((amountToMoveClaw < IO_HYSTERESIS_POS) && (amountToMoveClaw > IO_HYSTERESIS_NEG)) {
+		MotorClawStop();
+	}
+
+}

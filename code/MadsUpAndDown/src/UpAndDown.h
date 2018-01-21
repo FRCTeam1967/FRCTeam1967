@@ -6,18 +6,21 @@
 
 class UpAndDown {
 public:
-	double newHeight = 0.0;
+	double desiredHeight = 0.0;
 	double amountToMove;
+	bool reachedMaxHeight = false;
+	bool reachedMinHeight = true;
+	bool isMechanismRunning = false;
 
-	UpAndDown(int lMotorChannel, int rMotorChannel, int limSwitchOneChannel, int limSwitchTwoChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2);
+	UpAndDown(int lMotorChannel, int rMotorChannel, int bottomLimSwitchChannel, int topLimSwitchChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2);
 	virtual ~UpAndDown();
 
 	void RLMotorForward();
 	void RLMotorReverse();
 	void RLMotorStop();
 
-	bool GetLimSwitchOne();
-	bool GetLimSwitchTwo();
+	bool GetBottomLimSwitch();
+	bool GetTopLimSwitch();
 
 	void SwitchHeight();
 	void ScaleLowHeight();
@@ -36,8 +39,8 @@ private:
 	WPI_TalonSRX*lMotor;
 	WPI_TalonSRX*rMotor;
 
-	DigitalInput*limSwitchOne;
-	DigitalInput*limSwitchTwo;
+	DigitalInput*bottomLimSwitch;
+	DigitalInput*topLimSwitch;
 
 	Encoder*gameMotorEncoder;
 };

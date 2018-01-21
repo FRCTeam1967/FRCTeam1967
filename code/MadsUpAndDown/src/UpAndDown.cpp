@@ -2,32 +2,35 @@
 #include "ctre/Phoenix.h"
 #include "UpAndDown.h"
 
+//Motor speeds
 #define R_MOTOR_F_SPEED 0.5
 #define L_MOTOR_F_SPEED 0.5
 #define R_MOTOR_R_SPEED -0.5
 #define L_MOTOR_R_SPEED -0.5
 
-#define PULSES_PER_REVOLUTION 500
-#define CIRCUMFERENCE 0.399 * 3.14
-#define DISTANCE_PER_PULSE CIRCUMFERENCE/PULSES_PER_REVOLUTION
+//For distance per pulse in up/down mechanism's encoder
+#define UD_PULSES_PER_REVOLUTION 497
+#define UD_CIRCUMFERENCE 0.399 * 3.14
+#define UD_DISTANCE_PER_PULSE UD_CIRCUMFERENCE/UD_PULSES_PER_REVOLUTION
 
+//Up down hysteresis values
 #define UD_HYSTERESIS_POS 1
 #define UD_HYSTERESIS_NEG -1
 
-UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel, int limSwitchOneChannel, int limSwitchTwoChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2) {
+UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel, int bottomLimSwitchChannel, int topLimSwitchChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2) {
 	lMotor = new WPI_TalonSRX(lMotorChannel);
 	rMotor = new WPI_TalonSRX(rMotorChannel);
-	limSwitchOne = new DigitalInput(limSwitchOneChannel);
-	limSwitchTwo = new DigitalInput(limSwitchTwoChannel);
+	bottomLimSwitch = new DigitalInput(bottomLimSwitchChannel);
+	topLimSwitch = new DigitalInput(topLimSwitchChannel);
 	gameMotorEncoder = new Encoder(gameMotorEncoderChannel1, gameMotorEncoderChannel2);
-	gameMotorEncoder -> SetDistancePerPulse(DISTANCE_PER_PULSE);
+	gameMotorEncoder -> SetDistancePerPulse(UD_DISTANCE_PER_PULSE);
 }
 
 UpAndDown::~UpAndDown() {
 	delete lMotor;
 	delete rMotor;
-	delete limSwitchOne;
-	delete limSwitchTwo;
+	delete bottomLimSwitch;
+	delete topLimSwitch;
 	delete gameMotorEncoder;
 }
 
@@ -46,12 +49,12 @@ void UpAndDown::RLMotorStop() {
 	rMotor->Set(0.0);
 }
 
-bool UpAndDown::GetLimSwitchOne() {
-	return limSwitchOne -> Get();
+bool UpAndDown::GetBottomLimSwitch() {
+	return bottomLimSwitch -> Get();
 }
 
-bool UpAndDown::GetLimSwitchTwo() {
-	return limSwitchTwo -> Get();
+bool UpAndDown::GetTopLimSwitch() {
+	return topLimSwitch -> Get();
 }
 
 double UpAndDown::GetEncoderDistance(){
@@ -62,44 +65,42 @@ void UpAndDown::ResetEncoder(){
 	gameMotorEncoder -> Reset();
 }
 void UpAndDown::EmergencyStopMechanism(){
-	if (GetLimSwitchOne()) {
-		while (GetLimSwitchOne() == false) {
-			RLMotorReverse();
-		}
+	if (GetBottomLimSwitch()) {
+		RLMotorStop();
+		isMechanismRunning = false;
+		ResetEncoder();
 	}
-	else if (GetLimSwitchTwo()) {
-		while (GetLimSwitchTwo() == false) {
-			RLMotorForward();
-		}
+	else if (GetTopLimSwitch()) {
+		RLMotorStop();
+		isMechanismRunning = false;
 	}
 }
-
 double UpAndDown::GetEncoderDistancePerPulse() {
 	return gameMotorEncoder -> GetDistancePerPulse();
 }
 
 void UpAndDown::SwitchHeight() {
-	newHeight = 19;
+	desiredHeight = 19;
 }
 
 void UpAndDown::ScaleLowHeight() {
-	newHeight = 48.0;
+	desiredHeight = 48.0;
 }
 
 void UpAndDown::ScaleMedHeight() {
-	newHeight = 60.0;
+	desiredHeight = 60.0;
 }
 
 void UpAndDown::ScaleHight() {
-	newHeight = 72.0;
+	desiredHeight = 72.0;
 }
 
 void UpAndDown::RegularHeight() {
-	newHeight = 0.0;
+	desiredHeight = 0.0;
 }
 
 void UpAndDown::MoveToNewHeight() {
-	amountToMove = newHeight - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+	amountToMove = desiredHeight - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
 
 	if (amountToMove > UD_HYSTERESIS_POS) {
 		RLMotorForward();
@@ -109,5 +110,6 @@ void UpAndDown::MoveToNewHeight() {
 	}
 	else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
 		RLMotorStop();
+		isMechanismRunning = false;
 	}
 }
