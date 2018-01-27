@@ -1,6 +1,7 @@
 #include "WPILib.h"
 #include "ctre/Phoenix.h"
 #include "UpAndDown.h"
+#include "math.h"
 
 //Motor speeds
 #define R_MOTOR_F_SPEED 0.5
@@ -10,7 +11,7 @@
 
 //For distance per pulse in up/down mechanism's encoder
 #define UD_PULSES_PER_REVOLUTION 497
-#define UD_CIRCUMFERENCE 0.399 * 3.14
+#define UD_CIRCUMFERENCE 0.399 * M_PI
 #define UD_DISTANCE_PER_PULSE UD_CIRCUMFERENCE/UD_PULSES_PER_REVOLUTION
 
 //Up down hysteresis values
@@ -64,52 +65,97 @@ double UpAndDown::GetEncoderDistance(){
 void UpAndDown::ResetEncoder(){
 	gameMotorEncoder -> Reset();
 }
+
 void UpAndDown::EmergencyStopMechanism(){
-	if (GetBottomLimSwitch()) {
+	if (GetBottomLimSwitch() && bottomLimSwitchHasNotBeenPressed) {
 		RLMotorStop();
 		isMechanismRunning = false;
 		ResetEncoder();
+		bottomLimSwitchHasNotBeenPressed = false;
 	}
-	else if (GetTopLimSwitch()) {
+	else if (!GetBottomLimSwitch()) {
+		bottomLimSwitchHasNotBeenPressed = true;
+	}
+
+	if (GetTopLimSwitch() && topLimSwitchHasNotBeenPressed) {
 		RLMotorStop();
 		isMechanismRunning = false;
+		topLimSwitchHasNotBeenPressed = false;
+	}
+	else if (!GetTopLimSwitch()) {
+		topLimSwitchHasNotBeenPressed = true;
 	}
 }
+
 double UpAndDown::GetEncoderDistancePerPulse() {
 	return gameMotorEncoder -> GetDistancePerPulse();
 }
 
 void UpAndDown::SwitchHeight() {
 	desiredHeight = 19;
+	isMechanismRunning = true;
+
 }
 
 void UpAndDown::ScaleLowHeight() {
 	desiredHeight = 48.0;
+	isMechanismRunning = true;
 }
 
 void UpAndDown::ScaleMedHeight() {
 	desiredHeight = 60.0;
+	isMechanismRunning = true;
 }
 
 void UpAndDown::ScaleHight() {
 	desiredHeight = 72.0;
+	isMechanismRunning = true;
 }
 
 void UpAndDown::RegularHeight() {
 	desiredHeight = 0.0;
+	isMechanismRunning = true;
 }
 
-void UpAndDown::MoveToNewHeight() {
-	amountToMove = desiredHeight - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+void UpAndDown::SmartDashboardComments() {
+	SmartDashboard::PutNumber("Game Component Encoder: ", GetEncoderDistance());
+	SmartDashboard::PutNumber("Desired Height", desiredHeight);
+	SmartDashboard::PutNumber("Amount To Move", amountToMove);
+	SmartDashboard::PutNumber("Distance Per Pulse", GetEncoderDistancePerPulse());
+	SmartDashboard::PutBoolean("Limit switch top value", GetTopLimSwitch());
+	SmartDashboard::PutBoolean("Limit switch bottom value", GetBottomLimSwitch());
+}
 
-	if (amountToMove > UD_HYSTERESIS_POS) {
-		RLMotorForward();
-	}
-	else if (amountToMove < UD_HYSTERESIS_NEG) {
-		RLMotorReverse();
-	}
-	else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
+void UpAndDown::PutMechanismDown() {
+
+	RLMotorReverse();
+	if (GetBottomLimSwitch()) {
 		RLMotorStop();
-		isMechanismRunning = false;
+		needsToPutDownMechanism = false;
+		bottomLimSwitchHasNotBeenPressed = false;
+		topLimSwitchHasNotBeenPressed = true;
+	}
+}
+
+void UpAndDown::Run() {
+	if (needsToPutDownMechanism) {
+		PutMechanismDown();
+	}
+
+	EmergencyStopMechanism();
+
+	if (isMechanismRunning) {
+		amountToMove = desiredHeight - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+
+		if (amountToMove > UD_HYSTERESIS_POS) {
+			RLMotorForward();
+		}
+		else if (amountToMove < UD_HYSTERESIS_NEG) {
+			RLMotorReverse();
+		}
+		else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
+			RLMotorStop();
+			isMechanismRunning = false;
+		}
 	}
 }

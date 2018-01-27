@@ -1,26 +1,16 @@
 #include "WPILib.h"
+#include "jankyTask.h"
 #include "ctre/Phoenix.h"
 
 #ifndef UPANDDOWN_H_
 #define UPANDDOWN_H_
 
-class UpAndDown {
+class UpAndDown : public JankyTask {
 public:
-	double desiredHeight = 0.0;
-	double amountToMove;
-	bool reachedMaxHeight = false;
-	bool reachedMinHeight = true;
-	bool isMechanismRunning = false;
-
 	UpAndDown(int lMotorChannel, int rMotorChannel, int bottomLimSwitchChannel, int topLimSwitchChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2);
 	virtual ~UpAndDown();
 
-	void RLMotorForward();
-	void RLMotorReverse();
-	void RLMotorStop();
-
-	bool GetBottomLimSwitch();
-	bool GetTopLimSwitch();
+	virtual void Run();
 
 	void SwitchHeight();
 	void ScaleLowHeight();
@@ -28,13 +18,35 @@ public:
 	void ScaleHight();
 	void RegularHeight();
 
-	double GetEncoderDistance();
 	void ResetEncoder();
+
+	void SmartDashboardComments();
+
+protected:
+	void RLMotorForward();
+	void RLMotorReverse();
+	void RLMotorStop();
+
+	bool GetBottomLimSwitch();
+	bool GetTopLimSwitch();
+
+	double GetEncoderDistance();
 	double GetEncoderDistancePerPulse();
 
-	void EmergencyStopMechanism();
-	void MoveToNewHeight();
 private:
+	void EmergencyStopMechanism();
+
+	void PutMechanismDown();
+
+	bool isMechanismRunning = false;
+	double desiredHeight = 0.0;
+	double amountToMove = 0.0;
+
+	bool reachedMaxHeight = false;
+	bool reachedMinHeight = true;
+	bool needsToPutDownMechanism = true;
+	bool bottomLimSwitchHasNotBeenPressed = true;
+	bool topLimSwitchHasNotBeenPressed = true;
 
 	WPI_TalonSRX*lMotor;
 	WPI_TalonSRX*rMotor;

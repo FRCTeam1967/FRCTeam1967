@@ -5,9 +5,11 @@
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
+
 //We added these includes:
 #include <jankyXboxJoystick.h>
 #include "WPILib.h"
+#include "jankyTask.h"
 #include "ctre/Phoenix.h"
 #include <UpAndDown.h>
 
@@ -38,12 +40,11 @@ public:
 		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, BOTTOM_LIM_SWITCH_CHANNEL, TOP_LIM_SWITCH_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
 		upDown->ResetEncoder();
-
 	}
 
 
 	void AutonomousInit() override {
-
+		upDown->Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -61,42 +62,24 @@ public:
 		bool buttonB = gameJoystick -> GetButtonB();
 		bool buttonRT = gameJoystick -> GetRightThrottle();
 
-		//SmartDashboard comments
-		SmartDashboard::PutNumber("Game Component Encoder: ", upDown->GetEncoderDistance());
-		SmartDashboard::PutNumber("Desired Height", upDown -> desiredHeight);
-		SmartDashboard::PutNumber("Amount To Move", upDown -> amountToMove);
-		SmartDashboard::PutNumber("Distance Per Pulse", upDown -> GetEncoderDistancePerPulse());
-		SmartDashboard::PutBoolean("Limit switch top value", upDown -> GetTopLimSwitch());
-		SmartDashboard::PutBoolean("Limit switch bottom value", upDown -> GetBottomLimSwitch());
-
-		//Stop the mechanism from going too high/low
-		upDown->EmergencyStopMechanism();
+		//Display SmartDashboard Comments on the driver station
+		upDown -> SmartDashboardComments();
 
 		//have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
 			upDown -> SwitchHeight();
-			upDown -> isMechanismRunning = true;
 		}
 		else if (buttonY) {
 			upDown -> ScaleLowHeight();
-			upDown -> isMechanismRunning = true;
 		}
 		else if (buttonB) {
 			upDown -> ScaleMedHeight();
-			upDown -> isMechanismRunning = true;
 		}
 		else if (buttonA) {
 			upDown -> ScaleHight();
-			upDown -> isMechanismRunning = true;
 		}
 		else if (buttonRT) {
 			upDown -> RegularHeight();
-			upDown -> isMechanismRunning = true;
-		}
-
-		//Move the Up&Down mechanism to the height it needs to be at
-		if (upDown -> isMechanismRunning) {
-			upDown->MoveToNewHeight();
 		}
 	}
 
