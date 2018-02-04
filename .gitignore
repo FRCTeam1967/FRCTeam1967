@@ -18,6 +18,7 @@
 /code/UltimateAscent-2013/PPC603gnu
 /code/SimpleTemplate/PPC603gnu
 /code/JankyRobotDrive/PPC603gnu
+/code/jetson/cv-capture/build
 .o*
 .a*
 *.cpp~
