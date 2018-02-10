@@ -13,7 +13,7 @@ public:
 	AutoPIDDrive(RobotDrive*drive);
 	virtual ~AutoPIDDrive();
 	RobotDrive*chassis;
-	void PIDWrite(double val);
+	void PIDWrite(double output);
 };
 
 #endif /* SRC_AUTOPIDDRIVE_H_ */

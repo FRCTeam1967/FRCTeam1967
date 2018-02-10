@@ -12,11 +12,10 @@ AutoPIDDrive::AutoPIDDrive(RobotDrive*drive) {
 }
 
 AutoPIDDrive::~AutoPIDDrive() {
-	delete chassis;
+
 }
 
-void AutoPIDDrive::PIDWrite(double val){
-	chassis->Drive(0.4, val);
-	SmartDashboard::PutNumber("val", val);
-	printf("val: %f \n", val);
+void AutoPIDDrive::PIDWrite(double output){
+	chassis->Drive(0.4, output);
+	SmartDashboard::PutNumber("PID Output", output);
 }
