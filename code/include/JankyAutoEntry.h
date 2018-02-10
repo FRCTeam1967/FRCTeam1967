@@ -25,24 +25,14 @@ public:
 	 * if isComplete is true, it would call End then it would return true.
 	 */
 	bool IsComplete();
+
 	virtual bool JobDone() = 0;
-
-	/**
-	 * @brief - starts the action
-	 */
-	 virtual void RunAction() = 0;
+	virtual void RunAction() = 0;
 
 
-private:
-	/**
-	 * @brief Starts the entry and sets active to true. It will call RunAction.
-	 */
-	void Start();
-
-	/**
-	 * @brief End the entry and sets active to false.
-	 */
-	void End();
+protected:
+	virtual void Start() = 0;
+	virtual void End() = 0;
 
 };
 
