@@ -12,23 +12,24 @@
 #include <InAndOut.h>
 
 //Add channel numbers later (THESE ARE NOT ACCURATE)
-#define MOTOR_CLAW_CHANNEL 2
-#define PISTON_DOOR_LEFT_CHANNEL 2
-#define PISTON_DOOR_RIGHT_CHANNEL 3
-#define LIM_SWITCH_INSIDE_CHANNEL 6
-#define LIM_SWITCH_OUTSIDE_CHANNEL 9
+#define MOTOR_CLAW_CHANNEL 6
+#define PISTON_DOOR_LEFT_CHANNEL 0
+#define PISTON_DOOR_RIGHT_CHANNEL 1
+#define LIM_SWITCH_INSIDE_CHANNEL 1
+#define LIM_SWITCH_OUTSIDE_CHANNEL 2
 #define GC_XBOX_CHANNEL 0
-#define MOTOR_ROLL_CHANNEL 2
+#define MOTOR_ROLL_CHANNEL 6
 #define CLAW_ENCODER_CHANNEL_1 4
 #define CLAW_ENCODER_CHANNEL_2 5
+//#define PISTON_IN_OUT_1_CHANNEL 2
+//#define PISTON_IN_OUT_2_CHANNEL 3
 
 class Robot : public frc::IterativeRobot {
 	InAndOut*inOut;
 	jankyXboxJoystick*gameJoystick;
 	bool lbHasNotBeenPressed = true;
 	bool rbHasNotBeenPressed = true;
-	bool clawGoingForward = false;
-	bool clawGoingBackward = false;
+	bool toggleDoor = true;
 public:
 	Robot() {
 		inOut = NULL;
@@ -39,7 +40,7 @@ public:
 		delete gameJoystick;
 	}
 	void RobotInit() {
-		inOut = new InAndOut(MOTOR_CLAW_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, PISTON_DOOR_LEFT_CHANNEL, LIM_SWITCH_INSIDE_CHANNEL, LIM_SWITCH_OUTSIDE_CHANNEL, MOTOR_ROLL_CHANNEL, CLAW_ENCODER_CHANNEL_1, CLAW_ENCODER_CHANNEL_2);
+		inOut = new InAndOut(PISTON_DOOR_LEFT_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, MOTOR_ROLL_CHANNEL, MOTOR_CLAW_CHANNEL, LIM_SWITCH_INSIDE_CHANNEL, LIM_SWITCH_OUTSIDE_CHANNEL);
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
 	}
 
@@ -57,16 +58,15 @@ public:
 
 	void TeleopPeriodic() {
 
-		// Define all of the buttons/throttle on the joystick
+		// Define all of the buttons/throttles on the joystick
 		bool buttonRB = gameJoystick -> GetButtonRB();
 		bool buttonLB = gameJoystick -> GetButtonLB();
-		bool buttonBack = gameJoystick ->GetButtonBack();
-		bool buttonStart = gameJoystick -> GetButtonStart();
 		float leftValue = gameJoystick -> GetLeftYAxis();
+		float rightValue = gameJoystick -> GetRightYAxis();
+		//bool buttonBack = gameJoystick ->GetButtonBack();
+		//bool buttonStart = gameJoystick -> GetButtonStart();
 
-		SmartDashboard::PutBoolean("Limit switch outside value", inOut -> GetLimSwitchOutside());
-		SmartDashboard::PutBoolean("Limit switch inside value", inOut -> GetLimSwitchInside());
-
+		/*
 		//Move claw mechanism with encoders
 		if (buttonBack) {
 			inOut -> OutsideDistance();
@@ -76,47 +76,54 @@ public:
 		}
 
 		inOut -> MoveClawMechanism();
-
+		 */
 
 		//Put claw mechanism up/down based on what limit switches are pressed
 		if (buttonRB) {
 			if (inOut -> GetLimSwitchInside()) {
 				inOut -> MotorClawOutOfRobot();
-				clawGoingForward = true;
 			}
-			else {
+			else if (inOut -> GetLimSwitchInside() == false){
 				inOut -> MotorClawIntoRobot();
-				clawGoingBackward = true;
 			}
 		}
-		if (inOut -> GetLimSwitchOutside() && clawGoingForward) {
-			inOut -> MotorClawStop();
-			clawGoingForward = false;
-		}
-		else if (inOut -> GetLimSwitchInside() && clawGoingBackward) {
-			inOut -> MotorClawStop();
-			clawGoingBackward = false;
-		}
+		inOut -> MotorClawStopWithLimSwitches();
 
 		// Open/Close the claw's "doors" with pistons
 		if (buttonLB && lbHasNotBeenPressed == true){
-			inOut->PistonDoorOpen(); 	//if button B is pressed & B has not been pressed before, the piston will go out
-			lbHasNotBeenPressed = false; //Makes it so that b has now been pressed
+			if (toggleDoor) {
+				inOut->PistonDoorOpen();
+			}
+			else {
+				inOut->PistonDoorClose();
+			}
+			toggleDoor = !toggleDoor;
+			lbHasNotBeenPressed = false;
 		}
-		else if (buttonLB && lbHasNotBeenPressed == false) {
-			inOut->PistonDoorClose(); 	//if button B is pressed & B has been pressed before, the piston will go back in
-			lbHasNotBeenPressed = true; //Makes it so that b has not been pressed
+		else if (!buttonLB && !lbHasNotBeenPressed) {
+			lbHasNotBeenPressed = true;
 		}
 
 		//Make the rollers go forward and backward:
 		if (leftValue > 0.2) {
-			inOut -> MotorRollForward(); //If you push the left throttle go forward, rollers will push the cube out of the mechanism
+			inOut -> MotorRollForward();
 		}
 		else if (leftValue < -0.2) {
-			inOut -> MotorRollReverse(); //If you push the left throttle go forward, rollers will bring the cube into the mechanism
+			inOut -> MotorRollReverse();
 		}
 		else {
-			inOut -> MotorRollStop(); //If you do not touch the throttle, the rollers will stay still
+			inOut -> MotorRollStop();
+		}
+
+		//Make the claw mechanism go forward or backward manually --> use this for small movements
+		if (rightValue > 0.2) {
+			inOut -> MotorClawIntoRobot();
+		}
+		else if (rightValue <-0.2) {
+			inOut -> MotorClawOutOfRobot();
+		}
+		else {
+			inOut -> MotorClawStop();
 		}
 
 	}

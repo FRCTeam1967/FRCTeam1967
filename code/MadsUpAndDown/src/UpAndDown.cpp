@@ -23,8 +23,11 @@ UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel, int bottomLimSwitchCh
 	rMotor = new WPI_TalonSRX(rMotorChannel);
 	bottomLimSwitch = new DigitalInput(bottomLimSwitchChannel);
 	topLimSwitch = new DigitalInput(topLimSwitchChannel);
-	gameMotorEncoder = new Encoder(gameMotorEncoderChannel1, gameMotorEncoderChannel2);
-	gameMotorEncoder -> SetDistancePerPulse(UD_DISTANCE_PER_PULSE);
+	lMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	lMotor -> SetSelectedSensorPosition(0, 0, 10);
+
+//	gameMotorEncoder = new Encoder(gameMotorEncoderChannel1, gameMotorEncoderChannel2);
+//	gameMotorEncoder -> SetDistancePerPulse(UD_DISTANCE_PER_PULSE);
 }
 
 UpAndDown::~UpAndDown() {
@@ -32,7 +35,7 @@ UpAndDown::~UpAndDown() {
 	delete rMotor;
 	delete bottomLimSwitch;
 	delete topLimSwitch;
-	delete gameMotorEncoder;
+//	delete gameMotorEncoder;
 }
 
 void UpAndDown::RLMotorForward() {
@@ -58,19 +61,19 @@ bool UpAndDown::GetTopLimSwitch() {
 	return topLimSwitch -> Get();
 }
 
-double UpAndDown::GetEncoderDistance(){
-	return gameMotorEncoder->GetDistance();
-}
-
-void UpAndDown::ResetEncoder(){
-	gameMotorEncoder -> Reset();
-}
+//double UpAndDown::GetEncoderDistance(){
+//	return gameMotorEncoder->GetDistance();
+//}
+//
+//void UpAndDown::ResetEncoder(){
+//	gameMotorEncoder -> Reset();
+//}
 
 void UpAndDown::EmergencyStopMechanism(){
 	if (GetBottomLimSwitch() && bottomLimSwitchHasNotBeenPressed) {
 		RLMotorStop();
 		isMechanismRunning = false;
-		ResetEncoder();
+//		ResetEncoder();
 		bottomLimSwitchHasNotBeenPressed = false;
 	}
 	else if (!GetBottomLimSwitch()) {
@@ -87,9 +90,9 @@ void UpAndDown::EmergencyStopMechanism(){
 	}
 }
 
-double UpAndDown::GetEncoderDistancePerPulse() {
-	return gameMotorEncoder -> GetDistancePerPulse();
-}
+//double UpAndDown::GetEncoderDistancePerPulse() {
+//	return gameMotorEncoder -> GetDistancePerPulse();
+//}
 
 void UpAndDown::SwitchHeight() {
 	desiredHeight = 19;
@@ -118,10 +121,10 @@ void UpAndDown::RegularHeight() {
 }
 
 void UpAndDown::SmartDashboardComments() {
-	SmartDashboard::PutNumber("Game Component Encoder: ", GetEncoderDistance());
+//	SmartDashboard::PutNumber("Game Component Encoder: ", GetEncoderDistance());
 	SmartDashboard::PutNumber("Desired Height", desiredHeight);
 	SmartDashboard::PutNumber("Amount To Move", amountToMove);
-	SmartDashboard::PutNumber("Distance Per Pulse", GetEncoderDistancePerPulse());
+//	SmartDashboard::PutNumber("Distance Per Pulse", GetEncoderDistancePerPulse());
 	SmartDashboard::PutBoolean("Limit switch top value", GetTopLimSwitch());
 	SmartDashboard::PutBoolean("Limit switch bottom value", GetBottomLimSwitch());
 }
@@ -142,10 +145,12 @@ void UpAndDown::Run() {
 		PutMechanismDown();
 	}
 
+	SmartDashboardComments(); //Display SmartDashboard Comments on the driver station
+
 	EmergencyStopMechanism();
 
 	if (isMechanismRunning) {
-		amountToMove = desiredHeight - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+//		amountToMove = desiredHeight - GetEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
 
 		if (amountToMove > UD_HYSTERESIS_POS) {
 			RLMotorForward();
@@ -158,4 +163,10 @@ void UpAndDown::Run() {
 			isMechanismRunning = false;
 		}
 	}
+}
+
+double UpAndDown::GetGameMotorEncoderDistance() {
+	lmotorEncoderCount = lMotor->GetSensorCollection().GetQuadraturePosition();
+	lmotorEncoderDistance = (lmotorEncoderCount/UD_PULSES_PER_REVOLUTION)*UD_CIRCUMFERENCE;
+	return lmotorEncoderDistance;
 }

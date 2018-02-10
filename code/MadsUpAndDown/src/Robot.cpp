@@ -14,10 +14,10 @@
 #include <UpAndDown.h>
 
 //These are NOT ACCURATE for the competition robot
-#define L_MOTOR_CHANNEL 2
-#define R_MOTOR_CHANNEL 2
-#define BOTTOM_LIM_SWITCH_CHANNEL 6
-#define TOP_LIM_SWITCH_CHANNEL 9
+#define L_MOTOR_CHANNEL 6
+#define R_MOTOR_CHANNEL 6
+#define BOTTOM_LIM_SWITCH_CHANNEL 1
+#define TOP_LIM_SWITCH_CHANNEL 2
 #define GAME_MOTOR_ENCODER_CHANNEL_1 4
 #define GAME_MOTOR_ENCODER_CHANNEL_2 5
 
@@ -39,7 +39,7 @@ public:
 	void RobotInit() {
 		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, BOTTOM_LIM_SWITCH_CHANNEL, TOP_LIM_SWITCH_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
-		upDown->ResetEncoder();
+//		upDown->ResetEncoder();
 	}
 
 
@@ -61,9 +61,6 @@ public:
 		bool buttonA = gameJoystick -> GetButtonA();
 		bool buttonB = gameJoystick -> GetButtonB();
 		bool buttonRT = gameJoystick -> GetRightThrottle();
-
-		//Display SmartDashboard Comments on the driver station
-		upDown -> SmartDashboardComments();
 
 		//have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {

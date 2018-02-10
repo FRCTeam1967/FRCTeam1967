@@ -30,8 +30,10 @@ protected:
 	bool GetBottomLimSwitch();
 	bool GetTopLimSwitch();
 
-	double GetEncoderDistance();
-	double GetEncoderDistancePerPulse();
+//	double GetEncoderDistance();
+//	double GetEncoderDistancePerPulse();
+
+	double GetGameMotorEncoderDistance();
 
 private:
 	void EmergencyStopMechanism();
@@ -48,15 +50,16 @@ private:
 	bool bottomLimSwitchHasNotBeenPressed = true;
 	bool topLimSwitchHasNotBeenPressed = true;
 
+	double lmotorEncoderCount;
+	double lmotorEncoderDistance;
+
 	WPI_TalonSRX*lMotor;
 	WPI_TalonSRX*rMotor;
 
 	DigitalInput*bottomLimSwitch;
 	DigitalInput*topLimSwitch;
 
-	Encoder*gameMotorEncoder;
+//	Encoder*gameMotorEncoder;
 };
-
-
 
 #endif /* UPANDDOWN_H_ */
