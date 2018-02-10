@@ -19,6 +19,17 @@ JankyAutoEntry::~JankyAutoEntry() {
 
 }
 
+bool JankyAutoEntry::IsComplete(){
+	if(!active){
+		Start();
+	}
+	if(JobDone()){
+		End();
+		return true;
+	}
+	return false;
+}
+
 void JankyAutoEntry::Start()
 {
 	active = true;
@@ -28,9 +39,4 @@ void JankyAutoEntry::Start()
 void JankyAutoEntry::End()
 {
 	active = false;
-}
-
-bool JankyAutoEntry::GetActive()
-{
-	return active;
 }
