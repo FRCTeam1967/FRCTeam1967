@@ -11,7 +11,7 @@
 #define MOTOR_STOP_SPEED 0.0
 
 //For distance per pulse in in/out mechanism's encoder
-#define CLAW_PULSES_PER_REVOLUTION 497
+#define CLAW_PULSES_PER_REVOLUTION 4096
 #define CLAW_CIRCUMFERENCE 0.399 * M_PI
 #define CLAW_DISTANCE_PER_PULSE CLAW_CIRCUMFERENCE/CLAW_PULSES_PER_REVOLUTION
 
@@ -26,29 +26,30 @@ InAndOut::InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int mo
 	motorRoll = new WPI_TalonSRX(motorRollChannel);
 
 	motorClaw = new WPI_TalonSRX(motorClawChannel);
-	motorClaw ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	motorClaw->SetSelectedSensorPosition(0, 0, 10);
+	motorClaw -> ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	motorClaw -> SetSelectedSensorPosition(0, 0, 10);
+	motorClaw -> GetSensorCollection().SetQuadraturePosition(0,10);
 
-	limSwitchInside = new DigitalInput(limSwitchInsideChannel);
-	limSwitchOutside = new DigitalInput(limSwitchOutsideChannel);
+	limSwitchOutside->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 10, 0);
+	limSwitchInside->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 10, 0);
+
 
 	//UNUSED
 	//	clawEncoder = new Encoder(clawEncoderChannel1, clawEncoderChannel2);
 	//	clawEncoder -> SetDistancePerPulse(CLAW_DISTANCE_PER_PULSE);
 	//	pistonInOut1 = new Solenoid(9, pistonInOut1Channel);
 	//	pistonInOut2 = new Solenoid(9, pistonInOut2Channel);
-	//	limSwitchOutside ->ConfigSelectedFeedbackSensor(Analog, 0, 0);
-	//	limSwitchOutside->SetSelectedSensorPosition(0, 0, 10);
-	//	limSwitchInside ->ConfigSelectedFeedbackSensor(Analog, 0, 0);
-	//	limSwitchInside->SetSelectedSensorPosition(0, 0, 10);
+	//	limSwitchInside = new DigitalInput(limSwitchInsideChannel);
+	//	limSwitchOutside = new DigitalInput(limSwitchOutsideChannel);
+
 }
 InAndOut::~InAndOut(){
 	delete motorClaw;
 	delete motorRoll;
 	delete pistonDoorLeft;
 	delete pistonDoorRight;
-	delete limSwitchInside;
-	delete limSwitchOutside;
+	//	delete limSwitchInside;
+	//	delete limSwitchOutside;
 }
 
 void InAndOut::PistonDoorOpen(){
@@ -96,14 +97,14 @@ void InAndOut::MoveClawMechanism() {
 
 }
 
-bool InAndOut::GetLimSwitchInside(){
-	return limSwitchInside->Get(); //get value (true/false) of limit switch
-	//	return limSwitchInside ->GetSensorCollection().IsFwdLimitSwitchClosed();
+int InAndOut::GetLimSwitchInside(){
+	//	return limSwitchInside->Get(); //get value (true/false) of limit switch
+	return limSwitchInside ->GetSensorCollection().IsFwdLimitSwitchClosed();
 }
 
-bool InAndOut::GetLimSwitchOutside(){
-	return limSwitchOutside->Get(); //get value (true/false) of limit switch
-	//	return limSwitchOutside ->GetSensorCollection().IsFwdLimitSwitchClosed();
+int InAndOut::GetLimSwitchOutside(){
+	//	return limSwitchOutside->Get(); //get value (true/false) of limit switch
+	return limSwitchOutside ->GetSensorCollection().IsFwdLimitSwitchClosed();
 }
 
 void InAndOut::MotorClawStop() {
@@ -121,11 +122,11 @@ void InAndOut::MotorClawIntoRobot(){
 }
 
 void InAndOut::MotorClawStopWithLimSwitches(){
-	if (GetLimSwitchOutside() && clawGoingForward) {
+	if ((GetLimSwitchOutside()==1) && clawGoingForward) {
 		MotorClawStop();
 		clawGoingForward = false;
 	}
-	else if (GetLimSwitchInside() && clawGoingBackward) {
+	else if ((GetLimSwitchInside()==1) && clawGoingBackward) {
 		MotorClawStop();
 		clawGoingBackward = false;
 	}

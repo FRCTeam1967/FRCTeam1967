@@ -15,7 +15,7 @@
 
 //These are NOT ACCURATE for the competition robot
 #define L_MOTOR_CHANNEL 6
-#define R_MOTOR_CHANNEL 6
+#define R_MOTOR_CHANNEL 3
 #define BOTTOM_LIM_SWITCH_CHANNEL 1
 #define TOP_LIM_SWITCH_CHANNEL 2
 #define GAME_MOTOR_ENCODER_CHANNEL_1 4
@@ -37,14 +37,14 @@ public:
 		delete upDown;
 	}
 	void RobotInit() {
-		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, BOTTOM_LIM_SWITCH_CHANNEL, TOP_LIM_SWITCH_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
+		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
 //		upDown->ResetEncoder();
 	}
 
 
 	void AutonomousInit() override {
-		upDown->Start();
+//		upDown->Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -55,6 +55,8 @@ public:
 	}
 
 	void TeleopPeriodic() {
+		upDown->Start();
+
 		//assign button variables to the corresponding buttons on the joystick
 		bool buttonX = gameJoystick -> GetButtonX();
 		bool buttonY = gameJoystick -> GetButtonY();

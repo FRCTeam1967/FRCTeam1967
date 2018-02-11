@@ -28,8 +28,8 @@ public:
 	void MotorClawStop(); //Stop the claw mechanism
 	void MotorClawStopWithLimSwitches();
 
-	bool GetLimSwitchOutside(); //Get the value of the limit switch for when the claw goes outside the robot(true/false)
-	bool GetLimSwitchInside(); //Get the value of the limit switch for when the claw goes inside the robot(true/false)
+	int GetLimSwitchOutside(); //Get the value of the limit switch for when the claw goes outside the robot(true/false)
+	int GetLimSwitchInside(); //Get the value of the limit switch for when the claw goes inside the robot(true/false)
 
 	double GetEncoderDistance();
 
@@ -50,8 +50,8 @@ private:
 	Solenoid*pistonDoorRight;
 	Solenoid*pistonDoorLeft;
 	WPI_TalonSRX*motorClaw;
-	DigitalInput*limSwitchOutside;
-	DigitalInput*limSwitchInside;
+	WPI_TalonSRX*limSwitchOutside;
+	WPI_TalonSRX*limSwitchInside;
 
 	//UNUSED
 	//	Encoder*clawEncoder;
