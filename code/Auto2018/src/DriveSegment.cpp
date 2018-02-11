@@ -16,13 +16,14 @@
 #define DIAMETER 6
 #define CIRCUMFERENCE_INCHES DIAMETER*M_PI
 
-int distance;
 
-DriveSegment::DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance) {
+
+DriveSegment::DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance, double speed) {
 	distance = inchDistance;
 	chassis = drive;
 	_leftEncoder = leftEncoder;
 	_rightEncoder = rightEncoder;
+	_speed = speed;
 	// TODO Auto-generated constructor stub
 
 }
@@ -37,14 +38,13 @@ bool DriveSegment::JobDone(){
 	double lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	double rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
-		chassis->TankDrive(0.0, 0.0);
 		return true;
 	}
 	return false;
 }
 
 void DriveSegment::RunAction(){
-	chassis->TankDrive(0.4, 0.4);
+	chassis->TankDrive(_speed, _speed);
 }
 
 void DriveSegment::Start(){
@@ -53,5 +53,5 @@ void DriveSegment::Start(){
 }
 
 void DriveSegment::End(){
-
+	chassis->TankDrive(0.0, 0.0);
 }
