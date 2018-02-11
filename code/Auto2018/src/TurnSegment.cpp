@@ -10,14 +10,14 @@
 
 
 TurnSegment::TurnSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*chassis, double degreeOfTurn, double speed, double p, double i, double d) {
-_gyro = gyro;
-targetAngle = degreeOfTurn;
-drive = chassis;
-_speed = speed;
-kP = p;
-kI = i;
-kD = d;
-pid = new PIDController(kP,kI,kD,_gyro,this);
+	_gyro = gyro;
+	targetAngle = degreeOfTurn;
+	drive = chassis;
+	_speed = speed;
+	kP = p;
+	kI = i;
+	kD = d;
+	pid = new PIDController(kP,kI,kD,_gyro,this);
 }
 
 

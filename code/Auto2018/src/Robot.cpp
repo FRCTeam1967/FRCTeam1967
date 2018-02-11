@@ -8,6 +8,7 @@
 #include <iostream>
 #include <string>
 #include "WPILib.h"
+#include <Preferences.h>
 #include "ctre/Phoenix.h"
 #include "jankyXboxJoystick.h"
 #include "JankyAutoSelector.h"
@@ -16,6 +17,8 @@
 #include <LiveWindow/LiveWindow.h>
 #include <SmartDashboard/SendableChooser.h>
 #include <SmartDashboard/SmartDashboard.h>
+#include "DriveSegment.h"
+#include "JankyAutoSequencer.h"
 using namespace std;
 
 //auto modes
@@ -34,12 +37,13 @@ using namespace std;
 #define REAR_LEFT_MOTOR_CHANNEL 2
 #define FRONT_RIGHT_MOTOR_CHANNEL 3
 #define REAR_RIGHT_MOTOR_CHANNEL 4
+#define TEST_MOTOR_CHANNEL 6
 #define ENCODER_A_CHANNEL 2
 #define ENCODER_B_CHANNEL 3
-#define PULSES_PER_REVOLUTION 7
-#define GEAR_RATIO 2
-#define CIRCUMFERENCE 50
-#define DISTANCE_PER_PULSE CIRCUMFERENCE/PULSES_PER_REVOLUTION
+#define MEASURED_DIST_PER_PULSE 0.0912 //inches per encoder pulse
+#define ENCODER_UNITS_PER_ROTATION 4096
+#define DIAMETER 6
+#define CIRCUMFERENCE DIAMETER*M_PI
 #define DRIVE_TIME 1.2
 
 //joystick channels
@@ -57,14 +61,17 @@ class Robot : public frc::IterativeRobot {
 	frc::ADXRS450_Gyro*gyro;
 	frc::Encoder*encoder;
 	AutoPIDDrive*chassis;
-	PIDController*PID;
+	frc::PIDController*PID;
+	frc::Preferences*preferences;
+	WPI_TalonSRX*testmotor;
+	JankyAutoSequencer*sequencer;
 
 	int delayTime = 0;
 	int automode = DEFAULT_MODE;
 	char switchPos;
-	float kP = 0.04;
-	float kI = 0;
-	float kD = 0;
+	/*float kP;
+	float kI;
+	float kD;*/
 
 public:
 	Robot(){
@@ -79,6 +86,8 @@ public:
 		encoder=NULL;
 		chassis=NULL;
 		PID=NULL;
+		testmotor=NULL;
+		sequencer=NULL;
 	}
 	~Robot(){
 		delete selector;
@@ -92,6 +101,8 @@ public:
 		delete encoder;
 		delete chassis;
 		delete PID;
+		delete testmotor;
+		delete sequencer;
 	}
 
 	void RobotInit() {
@@ -105,11 +116,20 @@ public:
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		encoder = new Encoder(ENCODER_A_CHANNEL, ENCODER_B_CHANNEL);
 		chassis = new AutoPIDDrive(drive);
-		PID = new PIDController(kP, kI, kD, gyro, chassis);
+		preferences=Preferences::GetInstance();
+		testmotor=new WPI_TalonSRX(TEST_MOTOR_CHANNEL);
+		//preferences->PutFloat("pValue", 0.04);
+		//preferences->PutFloat("iValue", 0.0);
+		//preferences->PutFloat("dValue", 0.04);
+		//kP = preferences->GetFloat("pValue", 0.0);
+		//kI = preferences->GetFloat("iValue", 0.0);
+		//kD = preferences->GetFloat("dValue", 0.0);
 
+		//PID = new PIDController(kP, kI, kD, gyro, chassis);
+		sequencer = new JankyAutoSequencer(drive, gyro, rlmotor->GetSensorCollection(), rrmotor->GetSensorCollection());
 		selector->Init();
 		gyro->Calibrate(); //make sure robot is left unmoved for ~10 seconds during calibration
-		encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
+		//encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
 	}
 
 	void AutonomousInit() override {
@@ -129,62 +149,65 @@ public:
 		encoder->Reset();
 		PID->SetInputRange(-180.0, 180.0);
 		PID->SetOutputRange(-1.0, 1.0);
-		PID->SetSetpoint(0.0);
-		PID->Enable();
 	}
 
 	void AutonomousPeriodic() {
+		SmartDashboard::PutNumber("Encoder Count", encoder->Get());
 		if  (automode == DEFAULT_MODE) {
 			printf ("default\n");
 		}
 		else if(automode == L_CROSS_AUTOLINE && autonomousTimer.Get()>delayTime){
 			printf("starting left and crossing auto line \n");
-			float angle = gyro->GetAngle();
-			printf("Angle: %f \n", angle);
-			if(autonomousTimer.Get()>DRIVE_TIME){
-				PID->SetSetpoint(90.0);
-			}
+			sequencer->SetMode(L_CROSS_AUTOLINE);
+
 		}
 		else if(automode == L_SAME_SWITCH && autonomousTimer.Get()>delayTime){
 			printf("starting left and loading cube onto switch on left side \n");
-			//code
+			sequencer->SetMode(L_SAME_SWITCH);
 		}
 		else if(automode == L_OPPOSITE_SWITCH && autonomousTimer.Get()>delayTime){
 			printf("starting left and loading cube onto switch on right side \n");
-			//code
+			sequencer->SetMode(L_OPPOSITE_SWITCH);
 		}
 		else if(automode == M_LEFT_SWITCH && autonomousTimer.Get()>delayTime){
 			printf("starting middle and loading cube onto left switch \n");
-			//code
+			sequencer->SetMode(M_LEFT_SWITCH);
 		}
 		else if(automode == M_RIGHT_SWITCH && autonomousTimer.Get()>delayTime){
 			printf("starting middle and loading cube onto right switch \n");
-			//code
+			sequencer->SetMode(M_RIGHT_SWITCH);
 		}
 		else if(automode == R_CROSS_AUTOLINE && autonomousTimer.Get()>delayTime){
 			printf("starting right and crossing auto line \n");
-			//code
+			sequencer->SetMode(R_CROSS_AUTOLINE);
 		}
 		else if(automode == R_SAME_SWITCH && autonomousTimer.Get()>delayTime){
 			printf("starting right and loading cube onto switch on right side \n");
-			//code
+			sequencer->SetMode(R_SAME_SWITCH);
 		}
 		else if(automode == R_OPPOSITE_SWITCH && autonomousTimer.Get()>delayTime){
 			printf("starting right and loading cube onto switch on left side \n");
-			//code
+			sequencer->SetMode(R_OPPOSITE_SWITCH);
 		}
 	}
 
 	void TeleopInit() {
 		gyro->Reset();
-		encoder->Reset();
-		PID->Disable();
+		rlmotor->SetSelectedSensorPosition(0, 0, 10);
+		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		rrmotor->SetSelectedSensorPosition(0, 0, 10);
+		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 	}
 
 	void TeleopPeriodic() {
+		//testmotor->Set(0.35);
 		drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
 		SmartDashboard::PutNumber("Encoder Count", encoder->Get());
-		SmartDashboard::PutNumber("Encoder Distance", encoder->GetDistance());
+		SmartDashboard::PutNumber("Encoder Distance", (encoder->Get()*MEASURED_DIST_PER_PULSE));
+		float encoderCount = testmotor->GetSensorCollection().GetQuadraturePosition();
+		float encoderDistance = (encoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE; //double check that right type of encoder; also make sure this is a float
+		SmartDashboard::PutNumber("Test Encoder Count", encoderCount);
+		SmartDashboard::PutNumber("Test Encoder Distance", encoderDistance);
 	}
 
 	void TestPeriodic() {}
