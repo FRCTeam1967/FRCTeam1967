@@ -22,18 +22,20 @@ public:
 
 	void SmartDashboardComments();
 
-protected:
 	void RLMotorForward();
 	void RLMotorReverse();
 	void RLMotorStop();
 
+protected:
+
 	int GetBottomLimSwitch();
 	int GetTopLimSwitch();
 
-//	double GetEncoderDistance();
-//	double GetEncoderDistancePerPulse();
-
 	double GetGameMotorEncoderDistance();
+
+	//  Unused
+	//	double GetEncoderDistance();
+	//	double GetEncoderDistancePerPulse();
 
 private:
 	void EmergencyStopMechanism();
@@ -56,10 +58,10 @@ private:
 	WPI_TalonSRX*lMotor;
 	WPI_TalonSRX*rMotor;
 
-	WPI_TalonSRX*bottomLimSwitch;
-	WPI_TalonSRX*topLimSwitch;
-
-//	Encoder*gameMotorEncoder;
+	//  Unused
+	//	WPI_TalonSRX*bottomLimSwitch;
+	//	WPI_TalonSRX*topLimSwitch;
+	//	Encoder*gameMotorEncoder;
 };
 
 #endif /* UPANDDOWN_H_ */

@@ -9,7 +9,7 @@ public:
 	double desiredDistanceToMove = 0.0;
 	double amountToMoveClaw = 0.0;
 
-	InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int motorRollChannel, int motorClawChannel, int limSwitchInsideChannel, int limSwitchOutsideChannel);
+	InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int motorRollChannel, int motorClawChannel);
 	virtual ~InAndOut();
 
 	void PistonDoorOpen(); //Open the "doors" of the claw by retracting the piston
@@ -50,13 +50,13 @@ private:
 	Solenoid*pistonDoorRight;
 	Solenoid*pistonDoorLeft;
 	WPI_TalonSRX*motorClaw;
-	WPI_TalonSRX*limSwitchOutside;
-	WPI_TalonSRX*limSwitchInside;
 
 	//UNUSED
 	//	Encoder*clawEncoder;
 	//	Solenoid*pistonInOut1;
 	//	Solenoid*pistonInOut2;
+	//	WPI_TalonSRX*limSwitchOutside;
+	//	WPI_TalonSRX*limSwitchInside;
 };
 
 #endif
