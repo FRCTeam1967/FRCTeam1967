@@ -11,7 +11,7 @@
 using namespace std;
 using namespace cv;
 
-const int MIN_AREA =900; //pixels
+const int MIN_AREA =500; //pixels
 const float T_INCHES_HEIGHT = 16;
 const float T_INCHES_WIDTH = 2;
 const float T_INCHES_LEFT_WIDTH = 6;
@@ -20,22 +20,19 @@ const int FOV_PIXELS_WIDTH = 640;
 const float theta = 68.5 * 3.141592653589793238462643383279 / 360; //degrees
 const float MEASURED_HORIZ_FOV = 51.80498 * 3.141592653589793238462643383279 / 360;
 const float MEASURED_VERT_FOV = 38.3557 * 3.141592653589793238462643383279 / 360;
+#define DEFAULT_WIDTH_THRESHOLD 44
+int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 int main()
 {
 	cout << "set fmt before cap(1)" << endl;
     	system("v4l2-ctl -d /dev/video1 --verbose --set-fmt-video=width=1280,height=720,pixelformat=1");
-//    system("ffprobe -f v4l2 -input_format mjpeg -video_size 1280x720 /dev/video1");
 	system("v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
-	//system("v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=10 -c brightness=50");
 	cout << "get fmt before cap(1)" << endl;
 	system("v4l2-ctl -d /dev/video1 --get-fmt-video");
 	cout << "calling cap(1)" << endl;
         VideoCapture cap(1);
-	//cs::CvSource = cs::CvSource("src", cs::VideoMode::PixelFormat::kMJPEG, 1280, 640, 15);
 	system("v4l2-ctl -d /dev/video1 --verbose --set-fmt-video=width=1280,height=720,pixelformat=BGR3");
-//	VideoCapture cap("nvcamerasrc ! video/x-raw(memory:NVM), width=(int)1280, height=(int)720, format=(string)I420, framerate=(fraction)24/1 ! nvvidconv flip-method=2 ! video/x-raw, format=(string)BGRx ! videoconvert ! video/x-raw, format=(string)BGR ! appsink");
-//	VideoCapture cap("v4l2src ! device=/dev/video1 video/x-raw, width=(int)1280, height=(int)720, format=(string)RGB ! videoconvert ! appsink");
 	system("v4l2-ctl -d /dev/video1 --get-fmt-video");
 
 	cout << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
@@ -52,29 +49,20 @@ int main()
 
     auto start = chrono::high_resolution_clock::now();
     float frames = 0;
-	//vector<vector<Point>> contours;
 	vector<Point> maxContour;
 	vector<vector<Point>> contours;
 
-	//vector<Vec4i> lines;
-	double hue[] = {55,85};
-	double sat[] = {108,255};
-	double val[] = {46,151};
-
-	//double hue[] = {0,180};
-	//double sat[] = {0,255};
-	//double val[] = {222,255};
+	double hue[] = {62,73};
+	double sat[] = {174,255};
+	double val[] = {64,126};
 
      for(;;)
      {
 	Mat gray, frame, green, outline;
 //	cout << "height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
 //	cout << "width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
-        cap >> frame; 
-//	cout << "width get " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
-//	cout << "height: " << frame.size().height << endl;
-//	cout << "width: " << frame.size().width << endl;
-	imwrite("/home/nvidia/master-ocv/cv-capture/TapeButton.jpg", frame);
+        cap >> frame;
+	imwrite("/home/nvidia/master-ocv/cv-capture/TapeWindow.jpg", frame);
 	// convert from brg to hsv
 	cvtColor(frame, green, COLOR_BGR2HSV);
 	inRange(green,Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green); // filter green tape
@@ -91,7 +79,6 @@ int main()
 
 		if(contourArea(contours[c]) < MIN_AREA) 
 		{
-//			cout << "skipped" << c <<endl;
 			continue;
 		}
 		// draws contours of random colors
@@ -128,18 +115,16 @@ int main()
 		// parabolic formula distance
 		int rectHeight = boundRect[largestContour].height;
 		int rectWidth = boundRect[largestContour].width;
-		//float distance = 220-(1.23*rectHeight)+(0.00208*pow(rectHeight, 2));
 		cout << "rect height: " << rectHeight << endl;
 		cout << "rect width: " << rectWidth << endl;
-		//float distance = 220-(​1.23*​rectHeight)+(​0.00208*​pow(rectHeight, 2));
-		//cout << "parabolic distance: " << distance << endl;
 
 		Rect largestRect = boundRect[largestContour];
 		Rect largestRect2 = boundRect[largestContour2];
 		float leftCornerDist = abs(largestRect.tl().x - largestRect2.tl().x);
 		float rightCornerDist = abs(largestRect.br().x - largestRect2.br().x);
 
-		if(rectWidth < 44) {
+		if(rectWidth < widthThreshold) {
+			widthThreshold = DEFAULT_WIDTH_THRESHOLD + 5;
 			cout<<"frame width: "<<frame.size().width<<endl;
 			cout<<"frame height: "<<frame.size().height<<endl;
 			float fovHeight = FOV_PIXELS_HEIGHT * T_INCHES_HEIGHT / rectHeight;
@@ -156,6 +141,7 @@ int main()
 			cout << "Vertical distance to tape: " << verticalDistanceToTape << endl;
 		}
 		else {
+			widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 			cout<<"frame width: "<<frame.size().width<<endl;
 			cout<<"frame height: "<<frame.size().height<<endl;
 			float fovWidth = FOV_PIXELS_WIDTH * T_INCHES_WIDTH / rectWidth;
@@ -184,19 +170,9 @@ int main()
 			cout << "Horizontal distance average: " << (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2 << endl;
 		}
 	}
-	// new frame from camera
-        // Sobel(frme, gray, CV_8U, 1, 1);
-        // cvtColor(frame, gray, COLOR_RGB2GRAY);
-	// Canny(gray, frame, 35, 125);
-        // fastNlMeansDenoising(gray, frame);
 
-        // fastNlMeansDenoising(gray, frame);
-	// findContours(green, contours, RETR_LIST, CHAIN_APPROX_SIMPLE);
-	// max(contours, contours, maxContour);
-	
-	//return minAreaRect(contours);
 
-        // imshow("camera feed", gray);
+
 	circle(frame, Point(0, 0), 3, Scalar(255, 0, 0), 10);
 	imshow("camera feed", frame);
         imshow("filtered green", green);
