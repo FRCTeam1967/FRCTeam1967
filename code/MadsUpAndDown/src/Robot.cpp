@@ -39,12 +39,12 @@ public:
 	void RobotInit() {
 		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
-//		upDown->ResetEncoder();
+		//		upDown->ResetEncoder();
 	}
 
 
 	void AutonomousInit() override {
-//		upDown->Start();
+		//		upDown->Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -64,6 +64,9 @@ public:
 		bool buttonB = gameJoystick -> GetButtonB();
 		bool buttonRT = gameJoystick -> GetRightThrottle();
 
+		//  For testing mechanism
+		//	float leftValue = gameJoystick -> GetLeftYAxis();
+
 		//have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
 			upDown -> SwitchHeight();
@@ -80,7 +83,22 @@ public:
 		else if (buttonRT) {
 			upDown -> RegularHeight();
 		}
+
+		//For testing up/down mechanism
+		/*
+		if (leftValue > 0.2) {
+			upDown ->RLMotorForward();
+		}
+		else if (leftValue < -0.2) {
+			upDown ->RLMotorReverse();
+		}
+		else {
+			upDown->RLMotorStop();
+		}
+		 */
 	}
+
+
 
 	void TestPeriodic() {
 

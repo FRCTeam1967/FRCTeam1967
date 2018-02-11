@@ -40,7 +40,7 @@ public:
 		delete gameJoystick;
 	}
 	void RobotInit() {
-		inOut = new InAndOut(PISTON_DOOR_LEFT_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, MOTOR_ROLL_CHANNEL, MOTOR_CLAW_CHANNEL, LIM_SWITCH_INSIDE_CHANNEL, LIM_SWITCH_OUTSIDE_CHANNEL);
+		inOut = new InAndOut(PISTON_DOOR_LEFT_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, MOTOR_ROLL_CHANNEL, MOTOR_CLAW_CHANNEL);
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
 	}
 
@@ -65,18 +65,6 @@ public:
 		float rightValue = gameJoystick -> GetRightYAxis();
 		//bool buttonBack = gameJoystick ->GetButtonBack();
 		//bool buttonStart = gameJoystick -> GetButtonStart();
-
-		/*
-		//Move claw mechanism with encoders
-		if (buttonBack) {
-			inOut -> OutsideDistance();
-		}
-		else if (buttonStart) {
-			inOut -> InsideDistance();
-		}
-
-		inOut -> MoveClawMechanism();
-		 */
 
 		//Put claw mechanism up/down based on what limit switches are pressed
 		if (buttonRB) {
@@ -125,6 +113,19 @@ public:
 		else {
 			inOut -> MotorClawStop();
 		}
+
+		// Unused
+		/*
+		//Move claw mechanism with encoders
+		if (buttonBack) {
+			inOut -> OutsideDistance();
+		}
+		else if (buttonStart) {
+			inOut -> InsideDistance();
+		}
+
+		inOut -> MoveClawMechanism();
+		 */
 
 	}
 

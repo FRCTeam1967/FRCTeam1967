@@ -19,7 +19,7 @@
 #define IO_HYSTERESIS_POS 0.001
 #define IO_HYSTERESIS_NEG -0.001
 
-InAndOut::InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int motorRollChannel, int motorClawChannel, int limSwitchInsideChannel, int limSwitchOutsideChannel){
+InAndOut::InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int motorRollChannel, int motorClawChannel){
 	pistonDoorLeft = new Solenoid(9, pistonDoorLeftChannel);
 	pistonDoorRight = new Solenoid(9, pistonDoorRightChannel);
 
@@ -30,8 +30,8 @@ InAndOut::InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int mo
 	motorClaw -> SetSelectedSensorPosition(0, 0, 10);
 	motorClaw -> GetSensorCollection().SetQuadraturePosition(0,10);
 
-	limSwitchOutside->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 10, 0);
-	limSwitchInside->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 10, 0);
+	motorClaw->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+	motorClaw->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
 
 
 	//UNUSED
@@ -48,6 +48,8 @@ InAndOut::~InAndOut(){
 	delete motorRoll;
 	delete pistonDoorLeft;
 	delete pistonDoorRight;
+
+	//  Unused
 	//	delete limSwitchInside;
 	//	delete limSwitchOutside;
 }
@@ -99,12 +101,12 @@ void InAndOut::MoveClawMechanism() {
 
 int InAndOut::GetLimSwitchInside(){
 	//	return limSwitchInside->Get(); //get value (true/false) of limit switch
-	return limSwitchInside ->GetSensorCollection().IsFwdLimitSwitchClosed();
+	return motorClaw ->GetSensorCollection().IsFwdLimitSwitchClosed();
 }
 
 int InAndOut::GetLimSwitchOutside(){
 	//	return limSwitchOutside->Get(); //get value (true/false) of limit switch
-	return limSwitchOutside ->GetSensorCollection().IsFwdLimitSwitchClosed();
+	return motorClaw ->GetSensorCollection().IsRevLimitSwitchClosed();
 }
 
 void InAndOut::MotorClawStop() {
