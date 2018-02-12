@@ -72,7 +72,7 @@ template <class Class, typename MethodPtr>
 class InvokeMethodAction {
  public:
   InvokeMethodAction(Class* obj_ptr, MethodPtr method_ptr)
-      : method_ptr_(method_ptr), obj_ptr_(obj_ptr) {}
+      : obj_ptr_(obj_ptr), method_ptr_(method_ptr) {}
 
   template <typename Result, typename ArgumentTuple>
   Result Perform(const ArgumentTuple& args) const {
@@ -81,28 +81,11 @@ class InvokeMethodAction {
   }
 
  private:
-  // The order of these members matters.  Reversing the order can trigger
-  // warning C4121 in MSVC (see
-  // http://computer-programming-forum.com/7-vc.net/6fbc30265f860ad1.htm ).
-  const MethodPtr method_ptr_;
   Class* const obj_ptr_;
+  const MethodPtr method_ptr_;
 
   GTEST_DISALLOW_ASSIGN_(InvokeMethodAction);
 };
-
-// An internal replacement for std::copy which mimics its behavior. This is
-// necessary because Visual Studio deprecates ::std::copy, issuing warning 4996.
-// However Visual Studio 2010 and later do not honor #pragmas which disable that
-// warning.
-template<typename InputIterator, typename OutputIterator>
-inline OutputIterator CopyElements(InputIterator first,
-                                   InputIterator last,
-                                   OutputIterator output) {
-  for (; first != last; ++first, ++output) {
-    *output = *first;
-  }
-  return output;
-}
 
 }  // namespace internal
 
@@ -161,7 +144,7 @@ WithArg(const InnerAction& action) {
 ACTION_TEMPLATE(ReturnArg,
                 HAS_1_TEMPLATE_PARAMS(int, k),
                 AND_0_VALUE_PARAMS()) {
-  return ::testing::get<k>(args);
+  return std::tr1::get<k>(args);
 }
 
 // Action SaveArg<k>(pointer) saves the k-th (0-based) argument of the
@@ -169,7 +152,7 @@ ACTION_TEMPLATE(ReturnArg,
 ACTION_TEMPLATE(SaveArg,
                 HAS_1_TEMPLATE_PARAMS(int, k),
                 AND_1_VALUE_PARAMS(pointer)) {
-  *pointer = ::testing::get<k>(args);
+  *pointer = ::std::tr1::get<k>(args);
 }
 
 // Action SaveArgPointee<k>(pointer) saves the value pointed to
@@ -177,7 +160,7 @@ ACTION_TEMPLATE(SaveArg,
 ACTION_TEMPLATE(SaveArgPointee,
                 HAS_1_TEMPLATE_PARAMS(int, k),
                 AND_1_VALUE_PARAMS(pointer)) {
-  *pointer = *::testing::get<k>(args);
+  *pointer = *::std::tr1::get<k>(args);
 }
 
 // Action SetArgReferee<k>(value) assigns 'value' to the variable
@@ -185,13 +168,13 @@ ACTION_TEMPLATE(SaveArgPointee,
 ACTION_TEMPLATE(SetArgReferee,
                 HAS_1_TEMPLATE_PARAMS(int, k),
                 AND_1_VALUE_PARAMS(value)) {
-  typedef typename ::testing::tuple_element<k, args_type>::type argk_type;
+  typedef typename ::std::tr1::tuple_element<k, args_type>::type argk_type;
   // Ensures that argument #k is a reference.  If you get a compiler
   // error on the next line, you are using SetArgReferee<k>(value) in
   // a mock function whose k-th (0-based) argument is not a reference.
   GTEST_COMPILE_ASSERT_(internal::is_reference<argk_type>::value,
                         SetArgReferee_must_be_used_with_a_reference_argument);
-  ::testing::get<k>(args) = value;
+  ::std::tr1::get<k>(args) = value;
 }
 
 // Action SetArrayArgument<k>(first, last) copies the elements in
@@ -202,11 +185,15 @@ ACTION_TEMPLATE(SetArgReferee,
 ACTION_TEMPLATE(SetArrayArgument,
                 HAS_1_TEMPLATE_PARAMS(int, k),
                 AND_2_VALUE_PARAMS(first, last)) {
-  // Visual Studio deprecates ::std::copy, so we use our own copy in that case.
+  // Microsoft compiler deprecates ::std::copy, so we want to suppress warning
+  // 4996 (Function call with parameters that may be unsafe) there.
 #ifdef _MSC_VER
-  internal::CopyElements(first, last, ::testing::get<k>(args));
-#else
-  ::std::copy(first, last, ::testing::get<k>(args));
+# pragma warning(push)          // Saves the current warning state.
+# pragma warning(disable:4996)  // Temporarily disables warning 4996.
+#endif
+  ::std::copy(first, last, ::std::tr1::get<k>(args));
+#ifdef _MSC_VER
+# pragma warning(pop)           // Restores the warning state.
 #endif
 }
 
@@ -215,7 +202,7 @@ ACTION_TEMPLATE(SetArrayArgument,
 ACTION_TEMPLATE(DeleteArg,
                 HAS_1_TEMPLATE_PARAMS(int, k),
                 AND_0_VALUE_PARAMS()) {
-  delete ::testing::get<k>(args);
+  delete ::std::tr1::get<k>(args);
 }
 
 // This action returns the value pointed to by 'pointer'.

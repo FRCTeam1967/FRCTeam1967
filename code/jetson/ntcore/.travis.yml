@@ -1,4 +1,3 @@
-sudo: true
 language: java
 
 matrix:
@@ -8,25 +7,22 @@ matrix:
       sudo: required
     - os: osx
       osx_image: xcode8
+      env: WPILIB_FLAGS=-PskipArm
 
 addons:
   apt:
-    sources:
-      - deadsnakes
     packages:
       - g++-multilib
       - lib32stdc++6
-      - python3.5
 
 before_install:
   - .travis-scripts/install.sh
 
 install:
-  - ./gradlew build -PbuildAll
+  - ./gradlew assemble $WPILIB_FLAGS
 
 script:
-  - .travis-scripts/wpiformat.sh
-  - ./gradlew build -PbuildAll
+  - ./gradlew build $WPILIB_FLAGS
 
 before_cache:
   - rm -f $HOME/.gradle/caches/modules-2/modules-2.lock
