@@ -41,7 +41,8 @@ DriveSegment*drive120Inches;
 DriveSegment*drive144Inches;
 DriveSegment*drive162Inches;
 
-JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder) {
+//JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder) {
+JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder) {
 	SetMachineName("JankyAutoSequencer");
 	SetName(Rest, "Rest");
 	SetName(TurnLeft90, "Turn Left 90 Degrees");
@@ -54,21 +55,29 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	SetName(Drive120Inches, "Drive straight 120 inches");
 	SetName(Drive144Inches, "Drive straight 144 inches");
 	SetName(Drive162Inches, "Drive straight 162 inches");
-	SetName(ReleaseCube, "Release the cube onto the switch");
-	SetName(Stop, "Robot has reached End of Sequence");
+	SetName(ReleaseCube, "Release cube onto the switch");
+	SetName(Stop, "End of Sequence");
 
 	turnLeft90 = new TurnSegment(gyro, drive, -90.0, TURN_SPEED, kP, kI, kD);
 	turnRight90 = new TurnSegment(gyro, drive, 90.0, TURN_SPEED, kP, kI, kD);
 	turnLeft45 = new TurnSegment(gyro, drive, -45.0, TURN_SPEED, kP, kI, kD);
 	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, kP, kI, kD);
-	drive6Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 6, DRIVE_SPEED);
+	drive6Inches = new DriveSegment(drive, encoder, 6, DRIVE_SPEED);
+	drive60Inches = new DriveSegment(drive, encoder, 60, DRIVE_SPEED);
+	drive72Inches = new DriveSegment(drive, encoder, 72, DRIVE_SPEED);
+	drive120Inches = new DriveSegment(drive, encoder, 120, DRIVE_SPEED);
+	drive144Inches = new DriveSegment(drive, encoder, 144, DRIVE_SPEED);
+	drive162Inches = new DriveSegment(drive, encoder, 162, DRIVE_SPEED);
+	/*drive6Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 6, DRIVE_SPEED);
 	drive60Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 60, DRIVE_SPEED);
 	drive72Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 72, DRIVE_SPEED);
 	drive120Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 120, DRIVE_SPEED);
 	drive144Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 144, DRIVE_SPEED);
-	drive162Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 162, DRIVE_SPEED);
+	drive162Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 162, DRIVE_SPEED);*/
 	c = 0;
 	aMode = DEFAULT_MODE;
+	gyro->Calibrate();
+	Start(); //most important part!!
 	/*SetName(DrivingSwitchEdge, "Drive Straight 162 inches");
 	SetName(TurningToRightSwitchEdge, "Turn left 90 degrees and drive forward 6 inches");
 	SetName(TurningToLeftSwitchEdge, "Turn right 90 degrees and drive forward 6 inches");
@@ -88,17 +97,32 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 
 JankyAutoSequencer::~JankyAutoSequencer() {
 	// TODO Auto-generated destructor stub
+	delete turnLeft90;
+	delete turnRight90;
+	delete turnLeft45;
+	delete turnRight45;
+	delete drive6Inches;
+	delete drive60Inches;
+	delete drive72Inches;
+	delete drive120Inches;
+	delete drive144Inches;
+	delete drive162Inches;
 }
 
 void JankyAutoSequencer::SetMode(int mode){ //call set mode in autoPeriodic
-	aMode=mode;
+	if(aMode!=DONE){
+		aMode=mode;
+	}
 }
 
 void JankyAutoSequencer::StateEngine(int curState)
 {
 	switch(curState){
 		case Rest:
-			if(aMode==L_CROSS_AUTOLINE){
+			if(aMode==DONE){
+				printf("SEQUENCE DONE!!! \n");
+			}
+			else if(aMode==L_CROSS_AUTOLINE){
 				NewState(TurnLeft45, "Left Cross Auto Line selected");
 			}
 			else if(aMode==L_SAME_SWITCH){

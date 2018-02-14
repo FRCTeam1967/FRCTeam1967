@@ -16,13 +16,20 @@
 #define DIAMETER 6
 #define CIRCUMFERENCE_INCHES DIAMETER*M_PI
 
+double lEncoderCount;
+double rEncoderCount;
+double lEncoderDistance;
+double rEncoderDistance;
+double testEncoderCount;
+double testEncoderDistance;
 
-
-DriveSegment::DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance, double speed) {
+//DriveSegment::DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, Encoder*testEncoder, int inchDistance, double speed) {
+DriveSegment::DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed) {
 	distance = inchDistance;
 	chassis = drive;
-	_leftEncoder = leftEncoder;
-	_rightEncoder = rightEncoder;
+	//_leftEncoder = leftEncoder;
+	//_rightEncoder = rightEncoder;
+	_encoder=testEncoder;
 	_speed = speed;
 	// TODO Auto-generated constructor stub
 
@@ -33,11 +40,22 @@ DriveSegment::~DriveSegment() {
 }
 
 bool DriveSegment::JobDone(){
-	double lEncoderCount = _leftEncoder->GetQuadraturePosition();
-	double rEncoderCount = _rightEncoder->GetQuadraturePosition();
-	double lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
-	double rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
+	/*lEncoderCount = -_leftEncoder->GetQuadraturePosition();
+	rEncoderCount = _rightEncoder->GetQuadraturePosition();
+	lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
+	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
+	printf("Left Encoder dist %f \n", lEncoderDistance);
+	printf("Right Encoder dist %f \n", rEncoderDistance);
 	if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
+		printf("job done \n");
+		return true;
+	}*/
+	testEncoderCount=-_encoder->Get();
+	testEncoderDistance=(testEncoderCount*MEASURED_DIST_PER_PULSE);
+	SmartDashboard::PutNumber("Encoder Count", testEncoderCount);
+	SmartDashboard::PutNumber("Encoder Distance", testEncoderDistance);
+	if(testEncoderDistance>=distance){
+		printf("job done \n");
 		return true;
 	}
 	return false;
@@ -48,8 +66,9 @@ void DriveSegment::RunAction(){
 }
 
 void DriveSegment::Start(){
-	_leftEncoder->SetQuadraturePosition(0, 10);
-	_rightEncoder->SetQuadraturePosition(0, 10);
+	//_leftEncoder->SetQuadraturePosition(0, 10);
+	//_rightEncoder->SetQuadraturePosition(0, 10);
+	_encoder->Reset();
 }
 
 void DriveSegment::End(){

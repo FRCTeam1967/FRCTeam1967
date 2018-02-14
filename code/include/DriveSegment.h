@@ -13,7 +13,8 @@
 
 class DriveSegment : public JankyAutoEntry{
 public:
-	DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance, double speed);
+	//DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, Encoder*testEncoder, int inchDistance, double speed);
+	DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed);
 	virtual ~DriveSegment();
 
 protected:
@@ -50,6 +51,7 @@ private:
 	RobotDrive*chassis;
 	SensorCollection*_leftEncoder;
 	SensorCollection*_rightEncoder;
+	Encoder*_encoder;
 	int distance;
 	double _speed;
 };

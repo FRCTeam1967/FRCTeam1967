@@ -13,7 +13,8 @@
 
 class JankyAutoSequencer:public JankyStateMachine {
 public:
-	JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder);
+	//JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder);
+	JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder);
 	virtual ~JankyAutoSequencer();
 	enum StateValue {
 		/*Rest,

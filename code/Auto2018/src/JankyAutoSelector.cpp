@@ -128,7 +128,7 @@ int JankyAutoSelector::GetAutoMode(char switchPos){
 	printf("selected position: %p \n", (void*)selectedPosition);
 	printf("selected action: %p \n", (void*)selectedAction);
 
-	if(&defaultAuto==action.GetSelected()){
+	if(&defaultAuto==selectedAction){
 		printf("default auto \n");
 		autoMode = DEFAULT_MODE;
 	}
@@ -156,7 +156,7 @@ int JankyAutoSelector::GetAutoMode(char switchPos){
 			autoMode = L_OPPOSITE_SWITCH;
 		}
 	}
-	else if(&middle==selectedPosition){
+	else if(((&middle==selectedPosition)&&(&eitherSwitch==selectedAction))||((&middle==selectedPosition)&&(&crossLine==selectedAction))||((&middle==selectedPosition)&&(&sameSwitch==selectedAction))){
 		printf("middle start + either switch \n");
 		if(switchPos == 'L'){
 			autoMode = M_LEFT_SWITCH;
