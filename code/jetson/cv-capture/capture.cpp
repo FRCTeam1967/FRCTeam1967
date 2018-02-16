@@ -6,7 +6,10 @@
 #include <opencv2/opencv.hpp>
 #include <math.h>
 #include <cstdlib>
+//#include <ntcore/src/networktables/NetworkTable.h>
+//#include "/home/nvidia/FRCTeam1967/code/jetson/ntcore/include/ntcore.h"
 //#include <cscore>
+#include <networktables/NetworkTable.h>
 
 using namespace std;
 using namespace cv;
@@ -25,6 +28,13 @@ int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 int main()
 {
+	NetworkTable::SetTeam(1967);
+	NetworkTable::SetClientMode();
+	NetworkTable::Initialize();
+	shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
+	
+	vTable->PutString("hello", "hi");
+	//nt::StartClient("172.16.0.111",1000);
 	cout << "set fmt before cap(1)" << endl;
     	system("v4l2-ctl -d /dev/video1 --verbose --set-fmt-video=width=1280,height=720,pixelformat=1");
 	system("v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
@@ -139,6 +149,7 @@ int main()
 			//float verticalDistanceToTape = (T_INCHES_HEIGHT * fovHeight) / (2 * rectHeight * tan(MEASURED_VERT_FOV));
 			float verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
 			cout << "Vertical distance to tape: " << verticalDistanceToTape << endl;
+			vTable->PutNumber("distance to tape", verticalDistanceToTape);
 		}
 		else {
 			widthThreshold = DEFAULT_WIDTH_THRESHOLD;
@@ -167,7 +178,9 @@ int main()
 			float horizDistanceToTapeRight = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
 			cout << "Horizontal right distance to tape: " << horizDistanceToTapeRight << endl;
 
-			cout << "Horizontal distance average: " << (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2 << endl;
+			float avgDistToTape = (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2;
+			cout << "Horizontal distance average: " << avgDistToTape << endl;
+			vTable->PutNumber("distance to tape", avgDistToTape);
 		}
 	}
 
