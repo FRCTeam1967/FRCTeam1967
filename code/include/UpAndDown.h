@@ -26,6 +26,8 @@ public:
 	void RLMotorReverse();
 	void RLMotorStop();
 
+	bool GetIfMechIsRunning();
+
 protected:
 
 	int GetBottomLimSwitch();

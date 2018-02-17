@@ -1,11 +1,14 @@
 #include "WPILib.h"
 #include "ctre/Phoenix.h"
+#include "jankyTask.h"
 
 #ifndef INANDOUT_H_
 #define INANDOUT_H_
 
-class InAndOut {
+class InAndOut: public JankyTask {
 public:
+	virtual void Run();
+
 	double desiredDistanceToMove = 0.0;
 	double amountToMoveClaw = 0.0;
 
@@ -27,6 +30,8 @@ public:
 	void MotorClawIntoRobot(); //Make the claw mechanism extend backward into the robot
 	void MotorClawStop(); //Stop the claw mechanism
 	void MotorClawStopWithLimSwitches();
+	void MotorClawMoveInAndOut();
+	void MoveClawDownInAuto();
 
 	int GetLimSwitchOutside(); //Get the value of the limit switch for when the claw goes outside the robot(true/false)
 	int GetLimSwitchInside(); //Get the value of the limit switch for when the claw goes inside the robot(true/false)
@@ -45,6 +50,7 @@ private:
 	double clawEncoderDistance = 0;
 	bool clawGoingForward = false;
 	bool clawGoingBackward = false;
+	bool needsToPutDownClaw = true;
 
 	WPI_TalonSRX*motorRoll;
 	Solenoid*pistonDoorRight;
