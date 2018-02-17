@@ -137,6 +137,8 @@ public:
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		upDown->Start();
+		inOut -> Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -158,7 +160,6 @@ public:
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-		upDown->Start();
 	}
 
 	void TeleopPeriodic() {
@@ -177,19 +178,16 @@ public:
 		bool buttonLB = gameJoystick -> GetButtonLB();
 		float leftValue = gameJoystick -> GetLeftYAxis();
 		float rightValue = gameJoystick -> GetRightYAxis();
-		//bool buttonBack = gameJoystick ->GetButtonBack();
-		//bool buttonStart = gameJoystick -> GetButtonStart();
+		bool buttonX = gameJoystick -> GetButtonX();
+		bool buttonY = gameJoystick -> GetButtonY();
+		bool buttonA = gameJoystick -> GetButtonA();
+		bool buttonB = gameJoystick -> GetButtonB();
+		bool buttonRT = gameJoystick -> GetRightThrottle();
 
 		//Put claw mechanism up/down based on what limit switches are pressed
 		if (buttonRB) {
-			if (inOut -> GetLimSwitchInside()) {
-				inOut -> MotorClawOutOfRobot();
-			}
-			else if (inOut -> GetLimSwitchInside() == false){
-				inOut -> MotorClawIntoRobot();
-			}
+			inOut->MotorClawMoveInAndOut();
 		}
-		inOut -> MotorClawStopWithLimSwitches();
 
 		// Open/Close the claw's "doors" with pistons
 		if (buttonLB && lbHasNotBeenPressed == true){
@@ -213,9 +211,6 @@ public:
 		else if (leftValue < -0.2) {
 			inOut -> MotorRollReverse();
 		}
-		else {
-			inOut -> MotorRollStop();
-		}
 
 		//Make the claw mechanism go forward or backward manually --> use this for small movements
 		if (rightValue > 0.2) {
@@ -224,32 +219,6 @@ public:
 		else if (rightValue <-0.2) {
 			inOut -> MotorClawOutOfRobot();
 		}
-		else {
-			inOut -> MotorClawStop();
-		}
-
-		// Unused
-		/*
-		//Move claw mechanism with encoders
-		if (buttonBack) {
-			inOut -> OutsideDistance();
-		}
-		else if (buttonStart) {
-			inOut -> InsideDistance();
-		}
-
-		inOut -> MoveClawMechanism();
-		 */
-
-		//assign button variables to the corresponding buttons on the joystick
-		bool buttonX = gameJoystick -> GetButtonX();
-		bool buttonY = gameJoystick -> GetButtonY();
-		bool buttonA = gameJoystick -> GetButtonA();
-		bool buttonB = gameJoystick -> GetButtonB();
-		bool buttonRT = gameJoystick -> GetRightThrottle();
-
-		//  For testing mechanism
-		//	float leftValue = gameJoystick -> GetLeftYAxis();
 
 		//have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
@@ -270,6 +239,7 @@ public:
 
 		//For testing up/down mechanism
 		/*
+		float leftValue = gameJoystick -> GetLeftYAxis();
 		if (leftValue > 0.2) {
 			upDown ->RLMotorForward();
 		}
@@ -279,6 +249,18 @@ public:
 		else {
 			upDown->RLMotorStop();
 		}
+		 */
+
+		// Unused
+		/*
+		//Move claw mechanism with encoders
+		if (buttonBack) {
+			inOut -> OutsideDistance();
+		}
+		else if (buttonStart) {
+			inOut -> InsideDistance();
+		}
+		inOut -> MoveClawMechanism();
 		 */
 	}
 

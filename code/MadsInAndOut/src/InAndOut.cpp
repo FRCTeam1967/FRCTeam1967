@@ -2,6 +2,7 @@
 #include "ctre/Phoenix.h"
 #include "InAndOut.h"
 #include "math.h"
+#include "jankyTask.h"
 
 //Motor speeds
 #define MOTOR_CLAW_F_SPEED 0.5
@@ -138,6 +139,32 @@ double InAndOut::GetEncoderDistance() {
 	clawEncoderCount = motorClaw->GetSensorCollection().GetQuadraturePosition();
 	clawEncoderDistance = (clawEncoderCount/CLAW_PULSES_PER_REVOLUTION)*CLAW_CIRCUMFERENCE;
 	return clawEncoderDistance;
+}
+
+void InAndOut::MotorClawMoveInAndOut() {
+	if (GetLimSwitchInside()) {
+		MotorClawOutOfRobot();
+	}
+	else if (GetLimSwitchInside() == false){
+		MotorClawIntoRobot();
+	}
+}
+
+void InAndOut::MoveClawDownInAuto(){
+	MotorClawOutOfRobot();
+	clawGoingForward = true;
+	if (GetLimSwitchOutside() == 1) {
+		MotorClawStop();
+		needsToPutDownClaw = false;
+		clawGoingForward = false;
+	}
+}
+
+void InAndOut::Run() {
+	if (needsToPutDownClaw) {
+		MoveClawDownInAuto();
+	}
+	MotorClawStopWithLimSwitches();
 }
 
 //UNUSED

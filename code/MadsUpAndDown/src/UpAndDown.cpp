@@ -81,7 +81,7 @@ void UpAndDown::EmergencyStopMechanism(){
 		//		ResetEncoder();
 		bottomLimSwitchHasNotBeenPressed = false;
 	}
-	else if (!GetBottomLimSwitch()==0) {
+	else if (GetBottomLimSwitch()==0) {
 		bottomLimSwitchHasNotBeenPressed = true;
 	}
 
@@ -134,7 +134,7 @@ void UpAndDown::SmartDashboardComments() {
 
 void UpAndDown::PutMechanismDown() {
 	RLMotorReverse();
-	if (GetBottomLimSwitch()) {
+	if (GetBottomLimSwitch() == 1) {
 		RLMotorStop();
 		needsToPutDownMechanism = false;
 		bottomLimSwitchHasNotBeenPressed = false;
@@ -171,6 +171,10 @@ double UpAndDown::GetGameMotorEncoderDistance() {
 	lmotorEncoderCount = lMotor->GetSensorCollection().GetQuadraturePosition();
 	lmotorEncoderDistance = (lmotorEncoderCount/UD_PULSES_PER_REVOLUTION)*UD_CIRCUMFERENCE;
 	return lmotorEncoderDistance;
+}
+
+bool UpAndDown::GetIfMechIsRunning(){
+	return isMechanismRunning;
 }
 
 //UNUSED
