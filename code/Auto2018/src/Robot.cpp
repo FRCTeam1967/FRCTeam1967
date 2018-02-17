@@ -146,7 +146,16 @@ public:
 		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
 		std::cout << gameData;
 		//switchPos = gameData[0];
-		switchPos = 'L'; //CHANGE IN FINAL CODE
+		if(gameData.empty()){
+			//not connected to FMS
+			//switchPos = 'E';  //for at competition
+			switchPos = 'L'; //value for testing purposes
+			printf("Overriding gameData because no valid FMS data \n");
+		}
+		else{
+			switchPos = gameData[0];
+		}
+
 		autonomousTimer.Reset();
 		autonomousTimer.Start();
 

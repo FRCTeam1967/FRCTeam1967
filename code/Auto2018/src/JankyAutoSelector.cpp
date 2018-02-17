@@ -127,8 +127,11 @@ int JankyAutoSelector::GetAutoMode(char switchPos){
 
 	printf("selected position: %p \n", (void*)selectedPosition);
 	printf("selected action: %p \n", (void*)selectedAction);
-
-	if(&defaultAuto==selectedAction){
+	if(switchPos == 'E'){
+		printf("default auto \n");
+		autoMode = DEFAULT_MODE;
+	}
+	else if(&defaultAuto==selectedAction){
 		printf("default auto \n");
 		autoMode = DEFAULT_MODE;
 	}
