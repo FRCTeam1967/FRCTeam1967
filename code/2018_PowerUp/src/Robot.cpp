@@ -137,6 +137,8 @@ public:
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		inOut->StartUpInit();
+		upDown->StartUpInit();
 		upDown->Start();
 		inOut -> Start();
 	}
@@ -185,8 +187,12 @@ public:
 		bool buttonRT = gameJoystick -> GetRightThrottle();
 
 		//Put claw mechanism up/down based on what limit switches are pressed
-		if (buttonRB) {
+		if (buttonRB && rbHasNotBeenPressed == true) {
 			inOut->MotorClawMoveInAndOut();
+			rbHasNotBeenPressed = false;
+		}
+		else if (!buttonRB && !rbHasNotBeenPressed){
+			rbHasNotBeenPressed = true;
 		}
 
 		// Open/Close the claw's "doors" with pistons
@@ -210,6 +216,9 @@ public:
 		}
 		else if (leftValue < -0.2) {
 			inOut -> MotorRollReverse();
+		}
+		else {
+			inOut -> MotorRollStop();
 		}
 
 		//Make the claw mechanism go forward or backward manually --> use this for small movements

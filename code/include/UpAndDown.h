@@ -22,11 +22,9 @@ public:
 
 	void SmartDashboardComments();
 
-	void RLMotorForward();
-	void RLMotorReverse();
-	void RLMotorStop();
-
 	bool GetIfMechIsRunning();
+
+	void StartUpInit();
 
 protected:
 
@@ -34,6 +32,10 @@ protected:
 	int GetTopLimSwitch();
 
 	double GetGameMotorEncoderDistance();
+
+	void RLMotorForward();
+	void RLMotorReverse();
+	void RLMotorStop();
 
 	//  Unused
 	//	double GetEncoderDistance();
@@ -44,15 +46,15 @@ private:
 
 	void PutMechanismDown();
 
-	bool isMechanismRunning = false;
-	double desiredHeight = 0.0;
-	double amountToMove = 0.0;
+	bool isMechanismRunning;
+	double desiredHeight;
+	double amountToMove;
 
-	bool reachedMaxHeight = false;
-	bool reachedMinHeight = true;
-	bool needsToPutDownMechanism = true;
-	bool bottomLimSwitchHasNotBeenPressed = true;
-	bool topLimSwitchHasNotBeenPressed = true;
+	bool reachedMaxHeight;
+	bool reachedMinHeight;
+	bool needsToPutDownMechanism;
+	bool bottomLimSwitchHasNotBeenPressed;
+	bool topLimSwitchHasNotBeenPressed;
 
 	double lmotorEncoderCount;
 	double lmotorEncoderDistance;

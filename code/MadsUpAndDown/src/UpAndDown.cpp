@@ -14,13 +14,22 @@
 #define UD_CIRCUMFERENCE 0.399 * M_PI
 #define UD_DISTANCE_PER_PULSE UD_CIRCUMFERENCE/UD_PULSES_PER_REVOLUTION
 
-//Up down hysteresis values
-#define UD_HYSTERESIS_POS 1
-#define UD_HYSTERESIS_NEG -1
+//Up down hysteresis values (1&-1 are good values for 1/2 speed motors under no load)
+#define UD_HYSTERESIS_POS 1.0
+#define UD_HYSTERESIS_NEG -1.0
+
+//Field Element Heights
+#define SWITCH_HEIGHT 19.0
+#define SCALE_LOW_HEIGHT 48.0
+#define SCALE_MED_HEIGHT 60.0
+#define SCALE_HIGH_HEIGHT 72.0
+#define REG_HEIGHT 0.0
 
 UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2) {
 	lMotor = new WPI_TalonSRX(lMotorChannel);
 	rMotor = new WPI_TalonSRX(rMotorChannel);
+
+	//ToDo: Set l&r motors to brake mode
 
 	lMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 	lMotor -> SetSelectedSensorPosition(0, 0, 10);
@@ -96,27 +105,27 @@ void UpAndDown::EmergencyStopMechanism(){
 }
 
 void UpAndDown::SwitchHeight() {
-	desiredHeight = 19;
+	desiredHeight = SWITCH_HEIGHT;
 	isMechanismRunning = true;
 }
 
 void UpAndDown::ScaleLowHeight() {
-	desiredHeight = 48.0;
+	desiredHeight = SCALE_LOW_HEIGHT;
 	isMechanismRunning = true;
 }
 
 void UpAndDown::ScaleMedHeight() {
-	desiredHeight = 60.0;
+	desiredHeight = SCALE_MED_HEIGHT;
 	isMechanismRunning = true;
 }
 
 void UpAndDown::ScaleHight() {
-	desiredHeight = 72.0;
+	desiredHeight = SCALE_HIGH_HEIGHT;
 	isMechanismRunning = true;
 }
 
 void UpAndDown::RegularHeight() {
-	desiredHeight = 0.0;
+	desiredHeight = REG_HEIGHT;
 	isMechanismRunning = true;
 }
 
@@ -146,23 +155,25 @@ void UpAndDown::Run() {
 	if (needsToPutDownMechanism) {
 		PutMechanismDown();
 	}
+	else {
+		//Display SmartDashboard Comments on the driver station
+		SmartDashboardComments();
 
-	SmartDashboardComments(); //Display SmartDashboard Comments on the driver station
+		EmergencyStopMechanism();
 
-	EmergencyStopMechanism();
+		if (isMechanismRunning) {
+			amountToMove = desiredHeight - GetGameMotorEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
 
-	if (isMechanismRunning) {
-		amountToMove = desiredHeight - GetGameMotorEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
-
-		if (amountToMove > UD_HYSTERESIS_POS) {
-			RLMotorForward();
-		}
-		else if (amountToMove < UD_HYSTERESIS_NEG) {
-			RLMotorReverse();
-		}
-		else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
-			RLMotorStop();
-			isMechanismRunning = false;
+			if (amountToMove > UD_HYSTERESIS_POS) {
+				RLMotorForward();
+			}
+			else if (amountToMove < UD_HYSTERESIS_NEG) {
+				RLMotorReverse();
+			}
+			else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
+				RLMotorStop();
+				isMechanismRunning = false;
+			}
 		}
 	}
 }
@@ -175,6 +186,18 @@ double UpAndDown::GetGameMotorEncoderDistance() {
 
 bool UpAndDown::GetIfMechIsRunning(){
 	return isMechanismRunning;
+}
+
+void UpAndDown::StartUpInit() {
+	isMechanismRunning = false;
+	desiredHeight = 0.0;
+	amountToMove = 0.0;
+
+	reachedMaxHeight = false;
+	reachedMinHeight = true;
+	needsToPutDownMechanism = true;
+	bottomLimSwitchHasNotBeenPressed = true;
+	topLimSwitchHasNotBeenPressed = true;
 }
 
 //UNUSED

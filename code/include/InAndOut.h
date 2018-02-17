@@ -25,7 +25,6 @@ public:
 	void  OutsideDistance();
 	void InsideDistance();
 
-	void MoveClawMechanism();
 	void MotorClawOutOfRobot(); //Make the claw mechanism extend forward out of the robot
 	void MotorClawIntoRobot(); //Make the claw mechanism extend backward into the robot
 	void MotorClawStop(); //Stop the claw mechanism
@@ -38,19 +37,24 @@ public:
 
 	double GetEncoderDistance();
 
+	void StartUpInit();
+	bool GetClawPosition();
+
 	//UNUSED
 	//	void ClawDown();
 	//	void ClawUp();
 	//	double GetClawEncoderDistance();
 	//	void ResetClawEncoder();
 	//	double GetClawEncoderDistancePerPulse();
+	//  void MoveClawMechanism();
 
 private:
-	double clawEncoderCount = 0;
-	double clawEncoderDistance = 0;
-	bool clawGoingForward = false;
-	bool clawGoingBackward = false;
-	bool needsToPutDownClaw = true;
+	double clawEncoderCount;
+	double clawEncoderDistance;
+	bool clawGoingForward;
+	bool clawGoingBackward;
+	bool needsToPutDownClaw;
+	bool clawPositionIsOut; //true = forward & false = backward
 
 	WPI_TalonSRX*motorRoll;
 	Solenoid*pistonDoorRight;

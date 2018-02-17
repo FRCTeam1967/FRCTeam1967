@@ -85,6 +85,7 @@ void InAndOut::InsideDistance() {
 	desiredDistanceToMove = 0.0;
 }
 
+/*
 void InAndOut::MoveClawMechanism() {
 	amountToMoveClaw = desiredDistanceToMove - GetEncoderDistance();
 
@@ -97,8 +98,8 @@ void InAndOut::MoveClawMechanism() {
 	else if ((amountToMoveClaw < IO_HYSTERESIS_POS) && (amountToMoveClaw > IO_HYSTERESIS_NEG)) {
 		MotorClawStop();
 	}
-
 }
+*/
 
 int InAndOut::GetLimSwitchInside(){
 	//	return limSwitchInside->Get(); //get value (true/false) of limit switch
@@ -112,26 +113,30 @@ int InAndOut::GetLimSwitchOutside(){
 
 void InAndOut::MotorClawStop() {
 	motorClaw -> Set(MOTOR_STOP_SPEED); //Stop the motors on the claw mechanism
+	clawGoingForward = false;
+	clawGoingBackward = false;
 }
 
 void InAndOut::MotorClawOutOfRobot(){
 	motorClaw->Set(MOTOR_CLAW_F_SPEED); ///Spin the motors on the claw mechanism forward, making the claw go out of the robot
 	clawGoingForward = true;
+	clawGoingBackward = false;
+	clawPositionIsOut = true;
 }
 
 void InAndOut::MotorClawIntoRobot(){
 	motorClaw->Set(MOTOR_CLAW_R_SPEED); //Spin the motors on the claw mechanism backward, making the claw go out of the robot
 	clawGoingBackward = true;
+	clawGoingForward = false;
+	clawPositionIsOut = false;
 }
 
 void InAndOut::MotorClawStopWithLimSwitches(){
 	if ((GetLimSwitchOutside()==1) && clawGoingForward) {
 		MotorClawStop();
-		clawGoingForward = false;
 	}
 	else if ((GetLimSwitchInside()==1) && clawGoingBackward) {
 		MotorClawStop();
-		clawGoingBackward = false;
 	}
 }
 
@@ -141,29 +146,42 @@ double InAndOut::GetEncoderDistance() {
 	return clawEncoderDistance;
 }
 
+bool InAndOut::GetClawPosition() {
+	return clawPositionIsOut;
+}
+
 void InAndOut::MotorClawMoveInAndOut() {
-	if (GetLimSwitchInside()) {
+	if (clawPositionIsOut) {
 		MotorClawOutOfRobot();
 	}
-	else if (GetLimSwitchInside() == false){
+	else if (clawPositionIsOut == false){
 		MotorClawIntoRobot();
 	}
 }
 
 void InAndOut::MoveClawDownInAuto(){
 	MotorClawOutOfRobot();
-	clawGoingForward = true;
 	if (GetLimSwitchOutside() == 1) {
 		MotorClawStop();
 		needsToPutDownClaw = false;
-		clawGoingForward = false;
 	}
 }
 
+void InAndOut::StartUpInit() {
+	clawEncoderCount = 0;
+	clawEncoderDistance = 0;
+	clawGoingForward = false;
+	clawGoingBackward = false;
+	needsToPutDownClaw = true;
+}
+
 void InAndOut::Run() {
+	//Put the claw mechanism down once during auto
 	if (needsToPutDownClaw) {
 		MoveClawDownInAuto();
 	}
+
+	//Emergency stop the claw depending on what limit switches are pressed
 	MotorClawStopWithLimSwitches();
 }
 
