@@ -22,9 +22,9 @@
 #include "jankyTask.h"
 
 //chassis channels
-#define FRONT_LEFT_MOTOR_CHANNEL 1
+#define FRONT_LEFT_MOTOR_CHANNEL 3
 #define REAR_LEFT_MOTOR_CHANNEL 2
-#define FRONT_RIGHT_MOTOR_CHANNEL 3
+#define FRONT_RIGHT_MOTOR_CHANNEL 5
 #define REAR_RIGHT_MOTOR_CHANNEL 4
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6
@@ -36,22 +36,22 @@
 #define JOYSTICK_CHANNEL 0
 #define GC_XBOX_CHANNEL 1
 
-//Add channel numbers later (THESE ARE NOT ACCURATE)
-#define MOTOR_CLAW_CHANNEL 6
+//In and out channels
+#define MOTOR_CLAW_CHANNEL 8 //change
 #define PISTON_DOOR_LEFT_CHANNEL 0
 #define PISTON_DOOR_RIGHT_CHANNEL 1
-#define LIM_SWITCH_INSIDE_CHANNEL 1
-#define LIM_SWITCH_OUTSIDE_CHANNEL 2
-#define MOTOR_ROLL_CHANNEL 6
+#define LIM_SWITCH_INSIDE_CHANNEL 0
+#define LIM_SWITCH_OUTSIDE_CHANNEL 1
+#define MOTOR_ROLL_CHANNEL 7 //change
 #define CLAW_ENCODER_CHANNEL_1 4
 #define CLAW_ENCODER_CHANNEL_2 5
 //#define PISTON_IN_OUT_1_CHANNEL 2
 //#define PISTON_IN_OUT_2_CHANNEL 3
 
-//These are NOT ACCURATE for the competition robot
+//Up and down channels
 #define L_MOTOR_CHANNEL 6
-#define R_MOTOR_CHANNEL 3
-#define BOTTOM_LIM_SWITCH_CHANNEL 1
+#define R_MOTOR_CHANNEL 1
+#define BOTTOM_LIM_SWITCH_CHANNEL 3
 #define TOP_LIM_SWITCH_CHANNEL 2
 #define GAME_MOTOR_ENCODER_CHANNEL_1 4
 #define GAME_MOTOR_ENCODER_CHANNEL_2 5
@@ -137,10 +137,10 @@ public:
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-		inOut->StartUpInit();
-		upDown->StartUpInit();
-		upDown->Start();
-		inOut -> Start();
+//		inOut->StartUpInit();
+//		upDown->StartUpInit();
+//		upDown->Start();
+//		inOut -> Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -162,6 +162,11 @@ public:
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+
+		inOut->StartUpInit();
+		upDown->StartUpInit();
+		upDown->Start();
+		inOut -> Start();
 	}
 
 	void TeleopPeriodic() {
