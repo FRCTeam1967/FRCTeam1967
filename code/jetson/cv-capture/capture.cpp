@@ -6,6 +6,8 @@
 #include <opencv2/opencv.hpp>
 #include <math.h>
 #include <cstdlib>
+#include <stdio.h>
+#include <ctype.h>
 //#include <ntcore/src/networktables/NetworkTable.h>
 //#include "/home/nvidia/FRCTeam1967/code/jetson/ntcore/include/ntcore.h"
 //#include <cscore>
@@ -14,43 +16,104 @@
 using namespace std;
 using namespace cv;
 
+const float ROBOT_OFFSET = 16; //inches
+const double PI_CONST = 3.141592653589793238462643383279;
 const int MIN_AREA =500; //pixels
 const float T_INCHES_HEIGHT = 16;
 const float T_INCHES_WIDTH = 2;
 const float T_INCHES_LEFT_WIDTH = 6;
+const float T_INCHES_BOTH_WIDTH = 8;
 const int FOV_PIXELS_HEIGHT = 480;
 const int FOV_PIXELS_WIDTH = 640;
-const float theta = 68.5 * 3.141592653589793238462643383279 / 360; //degrees
-const float MEASURED_HORIZ_FOV = 51.80498 * 3.141592653589793238462643383279 / 360;
-const float MEASURED_VERT_FOV = 38.3557 * 3.141592653589793238462643383279 / 360;
-#define DEFAULT_WIDTH_THRESHOLD 44
+const float theta = 68.5 * PI_CONST / 360; //degrees
+const float MEASURED_HORIZ_FOV = 51.80498 * PI_CONST / 360;
+const float MEASURED_VERT_FOV = 38.3557 * PI_CONST / 360;
+const int DEFAULT_WIDTH_THRESHOLD = 44;
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
+
+double hue[] = {50,81};
+double sat[] = {163,255};
+double val[] = {72,144};
+
+void changeKey(double hsv[], char key, bool plus) 
+{
+	int bluh = 0;
+
+	if (isupper(key))
+		bluh = 1;
+
+	if(plus == true)
+		hsv[bluh]++;
+	else
+		hsv[bluh]--;
+}
+
+void callibrateHSV(char key) 
+{
+	static bool plus;
+	
+	switch (key)
+	{
+		case '+':
+			plus=true;
+			break;
+		case '-':
+			plus=false;
+			break;
+		case 'h':
+		case 'H':
+			changeKey(hue, key, plus);
+			break;
+		case 's':
+		case 'S':
+			changeKey(sat, key, plus);
+			break;
+		case 'v':
+		case 'V':
+			changeKey(val, key, plus);
+			break;
+		case 'r':
+			hue[0] = 50;
+			hue[1] = 81;
+			sat[0] = 163;
+			sat[1] = 255;
+			val[0] = 72;
+			val[1] = 144;
+			break;
+	}
+
+	cout << "hue: [" << hue[0] << ", " << hue[1] << "]" << endl;
+	cout << "sat: [" << sat[0] << ", " << sat[1] << "]"<< endl;
+	cout << "val: [" << val[0] << ", " << val[1] << "]" << endl;
+}
+
+float findAverage(float distances, float average[8])
+{
+	int m;
+	float sum;
+
+	for (m=0; m<8; m++)
+	{
+		sum+=average[m];
+	}
+
+	return sum/8.0;
+}
 
 int main()
 {
+	// Network tables send data to the roboRIO
 	NetworkTable::SetTeam(1967);
 	NetworkTable::SetClientMode();
 	NetworkTable::Initialize();
 	shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 	
 	vTable->PutString("hello", "hi");
-	//nt::StartClient("172.16.0.111",1000);
-	cout << "set fmt before cap(1)" << endl;
-    	system("v4l2-ctl -d /dev/video1 --verbose --set-fmt-video=width=1280,height=720,pixelformat=1");
-	system("v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
-	cout << "get fmt before cap(1)" << endl;
-	system("v4l2-ctl -d /dev/video1 --get-fmt-video");
-	cout << "calling cap(1)" << endl;
-        VideoCapture cap(1);
-	system("v4l2-ctl -d /dev/video1 --verbose --set-fmt-video=width=1280,height=720,pixelformat=BGR3");
-	system("v4l2-ctl -d /dev/video1 --get-fmt-video");
 
-	cout << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
-	cout << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
-	cap.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
-	cap.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
-	cout << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
-	cout << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+	system("v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
+
+        VideoCapture cap(1);
+ 
     if (!cap.isOpened())
 	{
             cerr << "Failed to open USB camera" << endl;
@@ -61,27 +124,38 @@ int main()
     float frames = 0;
 	vector<Point> maxContour;
 	vector<vector<Point>> contours;
+	int counter=0;
 
-	double hue[] = {62,73};
-	double sat[] = {174,255};
-	double val[] = {64,126};
 
      for(;;)
      {
 	Mat gray, frame, green, outline;
-//	cout << "height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
-//	cout << "width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+	//cout << "height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+	//cout << "width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
         cap >> frame;
-	imwrite("/home/nvidia/master-ocv/cv-capture/TapeWindow.jpg", frame);
 	// convert from brg to hsv
 	cvtColor(frame, green, COLOR_BGR2HSV);
-	inRange(green,Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green); // filter green tape
-	GaussianBlur(green, outline, Size(9, 9), 2, 2); // blurs image
-	findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0)); // finds contourss
+	// filter green taperobot distance: 16.6748
+
+	inRange(green,Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green);
+	// blurs image
+	GaussianBlur(green, outline, Size(9, 9), 2, 2);
+	// finds contours
+	findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
 	vector<vector<Point>> contours_poly(contours.size());
 	vector<Rect> boundRect(contours.size());
-	int largestContour = 0;
-	int largestContour2 = 0;
+	int largestContour = -1;
+	int largestContour2 = -1;
+
+     	char key = waitKey(1);
+
+        if (key == ' ')
+            	break;
+
+        //key = waitKey(1);
+
+	callibrateHSV(key);
+
 
 	// loops through each contour - does more processing if contour area is greater than MIN_AREA
 	for(int c = 0; c < contours.size(); c++) {
@@ -95,7 +169,7 @@ int main()
 		Scalar color = Scalar((rand()%255)+1, (rand()%255)+1, (rand()%255)+1);
 		drawContours(frame, contours, c, color, 4);
 
-		// finds polygons
+		// finds polygons and draws bounding rectangles
 		approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
 		for (int i=0; i<contours_poly[c].size(); i++)
 		{
@@ -108,98 +182,140 @@ int main()
 		boundRect[c] = boundingRect(Mat(contours_poly[c]));
 		rectangle(frame, boundRect[c].tl(), boundRect[c].br(), color);
 
+#if 0
+		if(c == 0) {
+			largestContour = c;
+			largestContour2 = c;
+		}
+		else 
+#endif
+		if (largestContour == -1) {
+			largestContour = c;
+			continue;
+		}
+
+		if (largestContour2 == -1)
+			largestContour2 = c;
+
+		// we have 2 contours to check 
 		if(contourArea(contours[c]) > contourArea(contours[largestContour]))
 		{
+			int temp = largestContour;
 			largestContour = c;
+			largestContour2 = temp;
 		}
-		else if (contourArea(contours[c]) > contourArea(contours[largestContour2])) {
+		else if (contourArea(contours[c]) > contourArea(contours[largestContour2])) 
+		{
 			largestContour2 = c;
 		}
 	}
-		
-	if (contours_poly.size() > 0) {
-		cout<<"area of largest contour: - "<<contourArea(contours[largestContour])<<endl;
-		cout<<contours_poly[largestContour]<<endl;
-		cout<<"Largest rectangle height: "<<boundRect[largestContour].height <<endl;
 
-		// parabolic formula distance
+	counter++;
+	cout<<counter<<endl;
+
+	// finds distance only if tape is detected	
+	if (contours_poly.size() > 0) 
+	{
+		// initializes variables
+		float finalDistInInches;
 		int rectHeight = boundRect[largestContour].height;
 		int rectWidth = boundRect[largestContour].width;
-		cout << "rect height: " << rectHeight << endl;
-		cout << "rect width: " << rectWidth << endl;
+		float average[8];
 
 		Rect largestRect = boundRect[largestContour];
 		Rect largestRect2 = boundRect[largestContour2];
 		float leftCornerDist = abs(largestRect.tl().x - largestRect2.tl().x);
 		float rightCornerDist = abs(largestRect.br().x - largestRect2.br().x);
 
+		// distinguishes left and right tape
+		Rect leftRect = largestRect, rightRect = largestRect2;
+		if (largestRect.tl().x > largestRect2.tl().x)
+		{
+			leftRect=largestRect2;
+			rightRect=largestRect;
+		}
+
+		cout << "rectWidth: " << rectWidth << endl;
+		cout << "widthThreshold: " << widthThreshold << endl;
+
+		// checks if tape's height is cut off
 		if(rectWidth < widthThreshold) {
+			// uses tape height to find distance
 			widthThreshold = DEFAULT_WIDTH_THRESHOLD + 5;
-			cout<<"frame width: "<<frame.size().width<<endl;
-			cout<<"frame height: "<<frame.size().height<<endl;
 			float fovHeight = FOV_PIXELS_HEIGHT * T_INCHES_HEIGHT / rectHeight;
-			cout<<"Field of view height: "<<fovHeight<<endl;
 			float fovWidth = fovHeight * frame.size().width / frame.size().height;
-			cout<<"Field of view width: "<<fovWidth<<endl;
 			float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
-			cout<<"Field of view diagonal: "<<fovDiagonal<<endl;
-			float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
-			//float distanceToTape = fovDiagonal / (2 * tan(theta));
-			cout<<"Diagonal distance to tape: "<<distanceToTape<<endl;
-			//float verticalDistanceToTape = (T_INCHES_HEIGHT * fovHeight) / (2 * rectHeight * tan(MEASURED_VERT_FOV));
+			//float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
 			float verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
-			cout << "Vertical distance to tape: " << verticalDistanceToTape << endl;
-			vTable->PutNumber("distance to tape", verticalDistanceToTape);
+			finalDistInInches = verticalDistanceToTape;
+			//cout << "height" << endl;
+
+			for (int i=0; i<8; i++)
+			{
+				average[i] = verticalDistanceToTape;
+			}
+
+			if(counter==8)
+			{
+				cout <<"Distance test: "<<findAverage(verticalDistanceToTape, average)<<endl;
+				counter=0;
+			}
 		}
 		else {
+			// uses tape width to find distance
 			widthThreshold = DEFAULT_WIDTH_THRESHOLD;
-			cout<<"frame width: "<<frame.size().width<<endl;
-			cout<<"frame height: "<<frame.size().height<<endl;
 			float fovWidth = FOV_PIXELS_WIDTH * T_INCHES_WIDTH / rectWidth;
-			cout<<"Field of view width: "<< fovWidth <<endl;
 			float fovHeight = fovWidth * frame.size().height / frame.size().width;
-			cout<<"Field of view height: "<<fovHeight<<endl;
 			float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
-			cout<<"Field of view diagonal: "<<fovDiagonal<<endl;
 			float distanceToTape = fovDiagonal / (2 * tan(theta / 1.4));
-			cout<<"Distance to tape: "<<distanceToTape<<endl;
 
-			float horizDistanceToTape = (T_INCHES_WIDTH * fovWidth) / (2 * rectWidth * tan(MEASURED_HORIZ_FOV));
-			//float horizDistanceToTape = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
-			cout << "Horizontal distance to tape: " << horizDistanceToTape << endl;
-			
+			// getting pixel width using top left corners of both tapes 
 			fovWidth = FOV_PIXELS_WIDTH * T_INCHES_LEFT_WIDTH / leftCornerDist;
-			//float horizDistanceToTapeLeft = (T_INCHES_LEFT_WIDTH * fovWidth) / (2 * rectHeight * tan(MEASURED_HORIZ_FOV));
 			float horizDistanceToTapeLeft = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
-			cout << "Horizontal left distance to tape: " << horizDistanceToTapeLeft << endl;
 
+
+			// getting pixel width using bottom right corners of both tapes
 			fovWidth = FOV_PIXELS_WIDTH * T_INCHES_LEFT_WIDTH / rightCornerDist;
-			//float horizDistanceToTapeLeft = (T_INCHES_LEFT_WIDTH * fovWidth) / (2 * rectHeight * tan(MEASURED_HORIZ_FOV));
 			float horizDistanceToTapeRight = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
-			cout << "Horizontal right distance to tape: " << horizDistanceToTapeRight << endl;
 
+			// averaging out left and right distances to be more accurate
 			float avgDistToTape = (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2;
-			cout << "Horizontal distance average: " << avgDistToTape << endl;
-			vTable->PutNumber("distance to tape", avgDistToTape);
-		}
-	}
+			finalDistInInches = avgDistToTape;
 
+			for (int i=0; i<8; i++)
+			{
+				average[i] = distanceToTape;
+			}
+
+			if (counter==8)
+			{
+				cout <<"Distance test: "<<findAverage(distanceToTape, average)<<endl;
+				counter=0;
+			}
+
+			cout << "width" << endl;
+		}
+
+		float robotDistance = finalDistInInches - ROBOT_OFFSET;
+
+		// printing out distance
+		//cout << "distance to tape: " << finalDistInInches << endl;
+		//cout << "robot distance: " << robotDistance << endl;
+		vTable->PutNumber("distance to tape", finalDistInInches);
+		vTable->PutNumber("robot distance", robotDistance);
+
+		float lengthWidth = leftRect.tl().x + rightRect.tl().x + rightRect.width;
+		float tapeCenter = lengthWidth/2;
+		float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
+		//cout<<"Horizontal offset: "<<localOffset<<endl;
+		float offsetInches = localOffset * T_INCHES_BOTH_WIDTH / lengthWidth;
+	}
 
 
 	circle(frame, Point(0, 0), 3, Scalar(255, 0, 0), 10);
 	imshow("camera feed", frame);
         imshow("filtered green", green);
-	//imshow("blurred image", outline);
 
-#if 1
-        // char c = waitKey(30);
-        char c = waitKey(1);
-
-        if (c == ' ')
-            break;
-#else
-        char c = waitKey(1);
-#endif
         frames++;
     }
 
@@ -211,9 +327,5 @@ int main()
 
     cout << "msec_duration: " << msec_duration.count() << endl;
     cout << "frames: " << frames << " FPS: " << fps << endl;
-
-	for (int i=0; i< contours.size(); i++)
-	{
-		cout << "contour: " << i << ":"<<contours[i]<<endl;
-	}
 }
+			
