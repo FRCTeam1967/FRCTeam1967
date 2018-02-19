@@ -4,10 +4,10 @@
 #include "math.h"
 
 //Motor speeds
-#define R_MOTOR_F_SPEED 0.5
-#define L_MOTOR_F_SPEED -0.5
-#define R_MOTOR_R_SPEED -0.5
-#define L_MOTOR_R_SPEED 0.5
+#define R_MOTOR_F_SPEED 0.7
+#define L_MOTOR_F_SPEED 0.7
+#define R_MOTOR_R_SPEED -0.7
+#define L_MOTOR_R_SPEED -0.7
 
 //For distance per pulse in up/down mechanism's encoder
 #define UD_PULSES_PER_REVOLUTION 4096
@@ -25,7 +25,7 @@
 #define SCALE_HIGH_HEIGHT 72.0
 #define REG_HEIGHT 0.0
 
-UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2) {
+UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel) {
 	lMotor = new WPI_TalonSRX(lMotorChannel);
 	rMotor = new WPI_TalonSRX(rMotorChannel);
 

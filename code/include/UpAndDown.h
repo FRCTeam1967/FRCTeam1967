@@ -7,7 +7,7 @@
 
 class UpAndDown : public JankyTask {
 public:
-	UpAndDown(int lMotorChannel, int rMotorChannel, int gameMotorEncoderChannel1, int gameMotorEncoderChannel2);
+	UpAndDown(int lMotorChannel, int rMotorChannel);
 	virtual ~UpAndDown();
 
 	virtual void Run();
@@ -26,16 +26,16 @@ public:
 
 	void StartUpInit();
 
+	void RLMotorForward();
+	void RLMotorReverse();
+	void RLMotorStop();
+
 protected:
 
 	int GetBottomLimSwitch();
 	int GetTopLimSwitch();
 
 	double GetGameMotorEncoderDistance();
-
-	void RLMotorForward();
-	void RLMotorReverse();
-	void RLMotorStop();
 
 	//  Unused
 	//	double GetEncoderDistance();

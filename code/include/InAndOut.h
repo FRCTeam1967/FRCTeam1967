@@ -9,9 +9,6 @@ class InAndOut: public JankyTask {
 public:
 	virtual void Run();
 
-	double desiredDistanceToMove = 0.0;
-	double amountToMoveClaw = 0.0;
-
 	InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int motorRollChannel, int motorClawChannel);
 	virtual ~InAndOut();
 
@@ -35,7 +32,7 @@ public:
 	int GetLimSwitchOutside(); //Get the value of the limit switch for when the claw goes outside the robot(true/false)
 	int GetLimSwitchInside(); //Get the value of the limit switch for when the claw goes inside the robot(true/false)
 
-	double GetEncoderDistance();
+	double GetEncoderCount();
 
 	void StartUpInit();
 	bool GetClawPosition();
@@ -46,7 +43,7 @@ public:
 	//	double GetClawEncoderDistance();
 	//	void ResetClawEncoder();
 	//	double GetClawEncoderDistancePerPulse();
-	//  void MoveClawMechanism();
+//	  void MoveClawMechanism();
 
 private:
 	double clawEncoderCount;
@@ -55,6 +52,8 @@ private:
 	bool clawGoingBackward;
 	bool needsToPutDownClaw;
 	bool clawPositionIsOut; //true = forward & false = backward
+	double desiredDistanceToMove;
+	double amountToMoveClaw;
 
 	WPI_TalonSRX*motorRoll;
 	Solenoid*pistonDoorRight;

@@ -37,29 +37,29 @@
 #define GC_XBOX_CHANNEL 1
 
 //In and out channels
-#define MOTOR_CLAW_CHANNEL 8 //change
+#define MOTOR_CLAW_CHANNEL 7
 #define PISTON_DOOR_LEFT_CHANNEL 0
 #define PISTON_DOOR_RIGHT_CHANNEL 1
-#define LIM_SWITCH_INSIDE_CHANNEL 0
-#define LIM_SWITCH_OUTSIDE_CHANNEL 1
-#define MOTOR_ROLL_CHANNEL 7 //change
-#define CLAW_ENCODER_CHANNEL_1 4
-#define CLAW_ENCODER_CHANNEL_2 5
+#define MOTOR_ROLL_CHANNEL 8
+//#define CLAW_ENCODER_CHANNEL_1 4
+//#define CLAW_ENCODER_CHANNEL_2 5
 //#define PISTON_IN_OUT_1_CHANNEL 2
 //#define PISTON_IN_OUT_2_CHANNEL 3
+//#define LIM_SWITCH_INSIDE_CHANNEL 0
+//#define LIM_SWITCH_OUTSIDE_CHANNEL 1
 
 //Up and down channels
 #define L_MOTOR_CHANNEL 6
 #define R_MOTOR_CHANNEL 1
-#define BOTTOM_LIM_SWITCH_CHANNEL 3
-#define TOP_LIM_SWITCH_CHANNEL 2
-#define GAME_MOTOR_ENCODER_CHANNEL_1 4
-#define GAME_MOTOR_ENCODER_CHANNEL_2 5
+//#define BOTTOM_LIM_SWITCH_CHANNEL 3
+//#define TOP_LIM_SWITCH_CHANNEL 2
+//#define GAME_MOTOR_ENCODER_CHANNEL_1 4
+//#define GAME_MOTOR_ENCODER_CHANNEL_2 5
 
 class Robot : public frc::IterativeRobot {
-	//WPI_TalonSRX*flmotor;
+	WPI_TalonSRX*flmotor;
 	WPI_TalonSRX*rlmotor;
-	//WPI_TalonSRX*frmotor;
+	WPI_TalonSRX*frmotor;
 	WPI_TalonSRX*rrmotor;
 	frc::RobotDrive*drive;
 	jankyXboxJoystick*xbox;
@@ -78,9 +78,9 @@ class Robot : public frc::IterativeRobot {
 
 public:
 	Robot(){
-		//flmotor=NULL;
+		flmotor=NULL;
 		rlmotor=NULL;
-		//frmotor=NULL;
+		frmotor=NULL;
 		rrmotor=NULL;
 		drive=NULL;
 		xbox=NULL;
@@ -92,9 +92,9 @@ public:
 		upDown = NULL;
 	}
 	~Robot(){
-		//delete flmotor;
+		delete flmotor;
 		delete rlmotor;
-		//delete frmotor;
+		delete frmotor;
 		delete rrmotor;
 		delete drive;
 		delete xbox;
@@ -107,27 +107,27 @@ public:
 	}
 
 	void RobotInit() {
-		//flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
+		flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
 		rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
-		//frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
+		frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 		rlmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		rrmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-		drive = new frc::RobotDrive(rlmotor, rrmotor); //change for all 4 motors
+		drive = new frc::RobotDrive(flmotor, frmotor, rlmotor, rrmotor); //change for all 4 motors
 		xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		drive->SetSafetyEnabled(false);
 		//chassis = new AutoPIDDrive(drive);
 		//PID = new PIDController(kP, kI, kD, gyro, chassis);
-		//flmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
-		//frmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
+		flmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
+		frmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rlmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rrmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		//CONFIGURE RAMPING FOR TWO OTHER MOTORS THAT ELEC ADDS
 		lw = LiveWindow::GetInstance();
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
 		inOut = new InAndOut(PISTON_DOOR_LEFT_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, MOTOR_ROLL_CHANNEL, MOTOR_CLAW_CHANNEL);
-		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, GAME_MOTOR_ENCODER_CHANNEL_1, GAME_MOTOR_ENCODER_CHANNEL_2);
+		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL);
 		gyro->Calibrate(); //make sure robot is left unmoved for ~10 seconds during calibration
 	}
 
@@ -137,10 +137,12 @@ public:
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-//		inOut->StartUpInit();
-//		upDown->StartUpInit();
-//		upDown->Start();
-//		inOut -> Start();
+
+		//Game components
+		inOut->StartUpInit();
+		upDown->StartUpInit();
+		upDown->Start();
+		inOut -> Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -163,13 +165,15 @@ public:
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
-		inOut->StartUpInit();
-		upDown->StartUpInit();
-		upDown->Start();
-		inOut -> Start();
+		//  Game Components
+		//	inOut->StartUpInit();
+		//	upDown->StartUpInit();
+		//	upDown->Start();
+		//	inOut -> Start();
 	}
 
 	void TeleopPeriodic() {
+//Driving
 		drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
 		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
 		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
@@ -179,8 +183,8 @@ public:
 		SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
 		SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
 		SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
-
-		// Define all of the buttons/throttles on the joystick
+//Game Components
+		// Define all of the buttons/throttles on the game controller
 		bool buttonRB = gameJoystick -> GetButtonRB();
 		bool buttonLB = gameJoystick -> GetButtonLB();
 		float leftValue = gameJoystick -> GetLeftYAxis();
@@ -217,10 +221,10 @@ public:
 
 		//Make the rollers go forward and backward:
 		if (leftValue > 0.2) {
-			inOut -> MotorRollForward();
+			inOut -> MotorRollReverse();
 		}
 		else if (leftValue < -0.2) {
-			inOut -> MotorRollReverse();
+			inOut -> MotorRollForward();
 		}
 		else {
 			inOut -> MotorRollStop();
@@ -263,18 +267,6 @@ public:
 		else {
 			upDown->RLMotorStop();
 		}
-		 */
-
-		// Unused
-		/*
-		//Move claw mechanism with encoders
-		if (buttonBack) {
-			inOut -> OutsideDistance();
-		}
-		else if (buttonStart) {
-			inOut -> InsideDistance();
-		}
-		inOut -> MoveClawMechanism();
 		 */
 	}
 
