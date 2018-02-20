@@ -11,10 +11,10 @@
 #include "JankyAutoEntry.h"
 #include "ctre/Phoenix.h"
 
-class DriveSegment : public JankyAutoEntry{
+class DriveSegment : public JankyAutoEntry, public frc::PIDOutput{
 public:
-	//DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, Encoder*testEncoder, int inchDistance, double speed);
-	DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed);
+	DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance, double speed, double p, double i, double d);
+	//DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed);
 	virtual ~DriveSegment();
 
 protected:
@@ -48,12 +48,18 @@ protected:
 	void End();
 
 private:
+	double kP;
+	double kI;
+	double kD;
+	frc::ADXRS450_Gyro*_gyro;
+	PIDController*pid;
 	RobotDrive*chassis;
 	SensorCollection*_leftEncoder;
 	SensorCollection*_rightEncoder;
 	Encoder*_encoder;
 	int distance;
 	double _speed;
+	void PIDWrite(double output);
 };
 
 #endif /* DRIVESEGMENT_H_ */

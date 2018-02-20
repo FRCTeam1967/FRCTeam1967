@@ -25,9 +25,13 @@
 #define TURN_SPEED 0.4
 #define DRIVE_SPEED 0.4
 float aMode;
-float kP = 0.05;
-float kI = 0.0;
-float kD = 0.06;
+float turn_kP = 0.05;
+float turn_kI = 0.0;
+float turn_kD = 0.06;
+
+float drive_kP = 0.03;
+float drive_kI = 0.0;
+float drive_kD = 0.0;
 int c;
 
 TurnSegment*turnLeft90;
@@ -41,8 +45,8 @@ DriveSegment*drive120Inches;
 DriveSegment*drive144Inches;
 DriveSegment*drive162Inches;
 
-//JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder) {
-JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder) {
+JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder) {
+//JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder) {
 	SetMachineName("JankyAutoSequencer");
 	SetName(Rest, "Rest");
 	SetName(TurnLeft90, "Turn Left 90 Degrees");
@@ -58,22 +62,22 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	SetName(ReleaseCube, "Release cube onto the switch");
 	SetName(Stop, "End of Sequence");
 
-	turnLeft90 = new TurnSegment(gyro, drive, -90.0, TURN_SPEED, kP, kI, kD);
-	turnRight90 = new TurnSegment(gyro, drive, 90.0, TURN_SPEED, kP, kI, kD);
-	turnLeft45 = new TurnSegment(gyro, drive, -45.0, TURN_SPEED, kP, kI, kD);
-	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, kP, kI, kD);
-	drive6Inches = new DriveSegment(drive, encoder, 6, DRIVE_SPEED);
+	turnLeft90 = new TurnSegment(gyro, drive, -90.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	turnRight90 = new TurnSegment(gyro, drive, 90.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	turnLeft45 = new TurnSegment(gyro, drive, -45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	/*drive6Inches = new DriveSegment(drive, encoder, 6, DRIVE_SPEED);
 	drive60Inches = new DriveSegment(drive, encoder, 60, DRIVE_SPEED);
 	drive72Inches = new DriveSegment(drive, encoder, 72, DRIVE_SPEED);
 	drive120Inches = new DriveSegment(drive, encoder, 120, DRIVE_SPEED);
 	drive144Inches = new DriveSegment(drive, encoder, 144, DRIVE_SPEED);
-	drive162Inches = new DriveSegment(drive, encoder, 162, DRIVE_SPEED);
-	/*drive6Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 6, DRIVE_SPEED);
-	drive60Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 60, DRIVE_SPEED);
-	drive72Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 72, DRIVE_SPEED);
-	drive120Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 120, DRIVE_SPEED);
-	drive144Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 144, DRIVE_SPEED);
-	drive162Inches = new DriveSegment(drive, leftEncoder, rightEncoder, 162, DRIVE_SPEED);*/
+	drive162Inches = new DriveSegment(drive, encoder, 162, DRIVE_SPEED);*/
+	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 6, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive60Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 60, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 72, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive120Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 120, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 144, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 162, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	c = 0;
 	aMode = DEFAULT_MODE;
 	gyro->Calibrate();
@@ -120,7 +124,9 @@ void JankyAutoSequencer::StateEngine(int curState)
 	switch(curState){
 		case Rest:
 			if(aMode==DONE){
-				printf("SEQUENCE DONE!!! \n");
+				for(int i = 0; i<1; i++){
+					printf("SEQUENCE DONE!!! \n");
+				}
 			}
 			else if(aMode==L_CROSS_AUTOLINE){
 				NewState(TurnLeft45, "Left Cross Auto Line selected");

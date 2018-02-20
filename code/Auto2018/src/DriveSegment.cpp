@@ -4,7 +4,7 @@
  *  Created on: Feb 8, 2018
  *      Author: AnishaKabir
  */
-
+#include "WPILib.h"
 #include "DriveSegment.h"
 #include "JankyAutoEntry.h"
 #include "ctre/Phoenix.h"
@@ -23,24 +23,30 @@ double rEncoderDistance;
 double testEncoderCount;
 double testEncoderDistance;
 
-//DriveSegment::DriveSegment(RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, Encoder*testEncoder, int inchDistance, double speed) {
-DriveSegment::DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed) {
+DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance, double speed, double p, double i, double d) {
+//DriveSegment::DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed) {
 	distance = inchDistance;
 	chassis = drive;
-	//_leftEncoder = leftEncoder;
-	//_rightEncoder = rightEncoder;
-	_encoder=testEncoder;
+	_leftEncoder = leftEncoder;
+	_rightEncoder = rightEncoder;
+	//_encoder=testEncoder;
 	_speed = speed;
+	_gyro=gyro;
+	kP = p;
+	kI = i;
+	kD = d;
+	pid = new PIDController(kP,kI,kD,_gyro,this);
 	// TODO Auto-generated constructor stub
 
 }
 
 DriveSegment::~DriveSegment() {
 	// TODO Auto-generated destructor stub
+	delete pid;
 }
 
 bool DriveSegment::JobDone(){
-	/*lEncoderCount = -_leftEncoder->GetQuadraturePosition();
+	lEncoderCount = -_leftEncoder->GetQuadraturePosition();
 	rEncoderCount = _rightEncoder->GetQuadraturePosition();
 	lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
@@ -49,28 +55,39 @@ bool DriveSegment::JobDone(){
 	if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
 		printf("job done \n");
 		return true;
-	}*/
-	testEncoderCount=-_encoder->Get();
+	}
+	/*testEncoderCount=-_encoder->Get();
 	testEncoderDistance=(testEncoderCount*MEASURED_DIST_PER_PULSE);
 	SmartDashboard::PutNumber("Encoder Count", testEncoderCount);
+	//printf("Test Encoder Count %f \n", testEncoderCount);
 	SmartDashboard::PutNumber("Encoder Distance", testEncoderDistance);
 	if(testEncoderDistance>=distance){
 		printf("job done \n");
 		return true;
-	}
+	}*/
 	return false;
 }
 
 void DriveSegment::RunAction(){
-	chassis->TankDrive(_speed, _speed);
+	//chassis->TankDrive(_speed, _speed);
 }
 
 void DriveSegment::Start(){
-	//_leftEncoder->SetQuadraturePosition(0, 10);
-	//_rightEncoder->SetQuadraturePosition(0, 10);
-	_encoder->Reset();
+	_leftEncoder->SetQuadraturePosition(0, 10);
+	_rightEncoder->SetQuadraturePosition(0, 10);
+	_gyro->Reset();
+	pid->SetInputRange(-180.0, 180.0);
+	pid->SetOutputRange(-1.0, 1.0);
+	pid->SetSetpoint(0.0);
+	pid->Enable();
+	//_encoder->Reset();
 }
 
 void DriveSegment::End(){
-	chassis->TankDrive(0.0, 0.0);
+	pid->Disable();
+}
+
+void DriveSegment::PIDWrite(double output)
+{
+	chassis->Drive(_speed, output);
 }

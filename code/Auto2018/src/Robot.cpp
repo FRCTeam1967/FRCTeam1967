@@ -59,14 +59,15 @@ class Robot : public frc::IterativeRobot {
 	frc::RobotDrive*drive;
 	jankyXboxJoystick*xbox;
 	frc::ADXRS450_Gyro*gyro;
-	frc::Encoder*encoder;
+	//frc::Encoder*encoder;
 	AutoPIDDrive*chassis;
 	//frc::PIDController*PID;
 	frc::Preferences*preferences;
 	//WPI_TalonSRX*testmotor;
 	JankyAutoSequencer*sequencer;
+	LiveWindow*lw;
 	//SensorCollection*leftEncoder;
-	///SensorCollection*rightEncoder;
+	//SensorCollection*rightEncoder;
 	int delayTime = 0;
 	int automode = DEFAULT_MODE;
 	char switchPos;
@@ -84,7 +85,7 @@ public:
 		drive=NULL;
 		xbox=NULL;
 		gyro=NULL;
-		encoder=NULL;
+		//encoder=NULL;
 		chassis=NULL;
 		//PID=NULL;
 		//testmotor=NULL;
@@ -101,7 +102,7 @@ public:
 		delete drive;
 		delete xbox;
 		delete gyro;
-		delete encoder;
+		//delete encoder;
 		delete chassis;
 		//delete PID;
 		//delete testmotor;
@@ -119,9 +120,10 @@ public:
 		drive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor);
 		xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
-		encoder = new Encoder(ENCODER_A_CHANNEL, ENCODER_B_CHANNEL);
+		//encoder = new Encoder(ENCODER_A_CHANNEL, ENCODER_B_CHANNEL);
 		//chassis = new AutoPIDDrive(drive);
 		preferences=Preferences::GetInstance();
+		lw = LiveWindow::GetInstance();
 		//testmotor=new WPI_TalonSRX(TEST_MOTOR_CHANNEL);
 		drive->SetSafetyEnabled(false);
 		//preferences->PutFloat("pValue", 0.04);
@@ -134,7 +136,7 @@ public:
 		//PID = new PIDController(kP, kI, kD, gyro, chassis);
 		//leftEncoder = &(rlmotor->GetSensorCollection());
 		//rightEncoder = &(rrmotor->GetSensorCollection());
-		sequencer = new JankyAutoSequencer(drive, gyro, encoder);
+		sequencer = new JankyAutoSequencer(drive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()));
 		selector->Init();
 		//make sure robot is left unmoved for ~10 seconds during calibration
 		//encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
@@ -149,7 +151,7 @@ public:
 		if(gameData.empty()){
 			//not connected to FMS
 			//switchPos = 'E';  //for at competition
-			switchPos = 'L'; //value for testing purposes
+			switchPos = 'R'; //value for testing purposes
 			printf("Overriding gameData because no valid FMS data \n");
 		}
 		else{
@@ -164,8 +166,8 @@ public:
 		selector->PrintValues();
 		//gyro->Reset();
 		//encoder->Reset();
-		//rlmotor->SetSelectedSensorPosition(0, 0, 10);
-		//rrmotor->SetSelectedSensorPosition(0, 0, 10);
+		rlmotor->SetSelectedSensorPosition(0, 0, 10);
+		rrmotor->SetSelectedSensorPosition(0, 0, 10);
 		//leftEncoder->SetQuadraturePosition(0, 10);
 		//rightEncoder->SetQuadraturePosition(0, 10);
 		//PID->SetInputRange(-180.0, 180.0);
@@ -173,42 +175,42 @@ public:
 	}
 
 	void AutonomousPeriodic() {
-		SmartDashboard::PutNumber("Encoder Count", encoder->Get());
+		//SmartDashboard::PutNumber("Encoder Count", encoder->Get());
 		double autoTime=autonomousTimer.Get();
 		if  (automode == DEFAULT_MODE) {
-			printf ("default\n");
+			//printf ("default\n");
 		}
 		else if(automode == L_CROSS_AUTOLINE && autoTime>delayTime){
-			printf("starting left and crossing auto line \n");
+			//printf("starting left and crossing auto line \n");
 			sequencer->SetMode(L_CROSS_AUTOLINE);
 
 		}
 		else if(automode == L_SAME_SWITCH && autoTime>delayTime){
-			printf("starting left and loading cube onto switch on left side \n");
+			//printf("starting left and loading cube onto switch on left side \n");
 			sequencer->SetMode(L_SAME_SWITCH);
 		}
 		else if(automode == L_OPPOSITE_SWITCH && autoTime>delayTime){
-			printf("starting left and loading cube onto switch on right side \n");
+			//printf("starting left and loading cube onto switch on right side \n");
 			sequencer->SetMode(L_OPPOSITE_SWITCH);
 		}
 		else if(automode == M_LEFT_SWITCH && autoTime>delayTime){
-			printf("starting middle and loading cube onto left switch \n");
+			//printf("starting middle and loading cube onto left switch \n");
 			sequencer->SetMode(M_LEFT_SWITCH);
 		}
 		else if(automode == M_RIGHT_SWITCH && autoTime>delayTime){
-			printf("starting middle and loading cube onto right switch \n");
+			//printf("starting middle and loading cube onto right switch \n");
 			sequencer->SetMode(M_RIGHT_SWITCH);
 		}
 		else if(automode == R_CROSS_AUTOLINE && autoTime>delayTime){
-			printf("starting right and crossing auto line \n");
+			//printf("starting right and crossing auto line \n");
 			sequencer->SetMode(R_CROSS_AUTOLINE);
 		}
 		else if(automode == R_SAME_SWITCH && autoTime>delayTime){
-			printf("starting right and loading cube onto switch on right side \n");
+			//printf("starting right and loading cube onto switch on right side \n");
 			sequencer->SetMode(R_SAME_SWITCH);
 		}
 		else if(automode == R_OPPOSITE_SWITCH && autoTime>delayTime){
-			printf("starting right and loading cube onto switch on left side \n");
+			//printf("starting right and loading cube onto switch on left side \n");
 			sequencer->SetMode(R_OPPOSITE_SWITCH);
 		}
 	}
@@ -233,7 +235,9 @@ public:
 		SmartDashboard::PutNumber("Test Encoder Distance", encoderDistance);*/
 	}
 
-	void TestPeriodic() {}
+	void TestPeriodic() {
+		lw->Run();
+	}
 
 private:
 };
