@@ -49,6 +49,7 @@ public:
 	};
 	//void RunLeftCrossAutoLine();
 	void SetMode(int mode);
+	void EndSequence();
 	void StateEngine(int curState);
 };
 

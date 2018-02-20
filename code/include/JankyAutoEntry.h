@@ -28,6 +28,7 @@ public:
 
 	virtual bool JobDone() = 0;
 	virtual void RunAction() = 0;
+	void Abort();
 
 
 protected:

@@ -119,6 +119,20 @@ void JankyAutoSequencer::SetMode(int mode){ //call set mode in autoPeriodic
 	}
 }
 
+void JankyAutoSequencer::EndSequence(){
+	turnLeft90->Abort();
+	turnRight90->Abort();
+	turnLeft45->Abort();
+	turnRight45->Abort();
+	drive6Inches->Abort();
+	drive60Inches->Abort();
+	drive72Inches->Abort();
+	drive120Inches->Abort();
+	drive144Inches->Abort();
+	drive162Inches->Abort();
+	Terminate();
+}
+
 void JankyAutoSequencer::StateEngine(int curState)
 {
 	switch(curState){

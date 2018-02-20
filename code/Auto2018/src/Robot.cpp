@@ -216,6 +216,7 @@ public:
 	}
 
 	void TeleopInit() {
+		sequencer->EndSequence();
 		gyro->Reset();
 		//UNCOMMENT FOR ACTUAL ROBOT
 		/*rlmotor->SetSelectedSensorPosition(0, 0, 10);

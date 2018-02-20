@@ -32,3 +32,7 @@ bool JankyAutoEntry::IsComplete(){
 	}
 	return false;
 }
+
+void JankyAutoEntry::Abort(){
+	End();
+}
