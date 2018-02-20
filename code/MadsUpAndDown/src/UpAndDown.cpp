@@ -2,6 +2,7 @@
 #include "ctre/Phoenix.h"
 #include "UpAndDown.h"
 #include "math.h"
+#include "Constants.h"
 
 //Motor speeds
 #define R_MOTOR_F_SPEED 0.7
@@ -10,12 +11,14 @@
 #define L_MOTOR_R_SPEED -0.5
 
 //For distance per pulse in up/down mechanism's encoder
-#define UD_PULSES_PER_REVOLUTION 49152
-//#define GEAR_RATIO 12
-#define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain //1.8125 * M_PI
-#define THIRD_STAGE_PRESENT 1
-//#define UD_DISTANCE_PER_PULSE UD_CIRCUMFERENCE/PULSES_PER_SPROCKET
+#define UD_PULSES_PER_REVOLUTION 4096
+#define GEAR_RATIO 12
+#define SPROCKET_TEETH 22
+#define SPROCKET_INCHES_PER_TOOTH 0.25
 
+#define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain
+//1.8125 * M_PI
+#define THIRD_STAGE_PRESENT 1
 
 //Up down hysteresis values (1&-1 are good values for 1/2 speed motors under no load)
 #define UD_HYSTERESIS_POS 1.0
@@ -31,6 +34,7 @@
 UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel) {
 	lMotor = new WPI_TalonSRX(lMotorChannel);
 	rMotor = new WPI_TalonSRX(rMotorChannel);
+	rMotor->Set(ControlMode::Follower, lMotorChannel);
 
 	//ToDo: Set l&r motors to brake mode
 
@@ -38,8 +42,9 @@ UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel) {
 	lMotor -> SetSelectedSensorPosition(0, 0, 10);
 	lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 
-//	lMotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
-//	lMotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+
+	//	lMotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+	//	lMotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
 
 	//  UNUSED
 	//	rMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
@@ -63,17 +68,17 @@ UpAndDown::~UpAndDown() {
 
 void UpAndDown::RLMotorForward() {
 	lMotor->Set(L_MOTOR_F_SPEED);
-	rMotor->Set(R_MOTOR_F_SPEED);
+	//	rMotor->Set(R_MOTOR_F_SPEED);
 }
 
 void UpAndDown::RLMotorReverse() {
 	lMotor->Set(L_MOTOR_R_SPEED);
-	rMotor->Set(R_MOTOR_R_SPEED);
+	//	rMotor->Set(R_MOTOR_R_SPEED);
 }
 
 void UpAndDown::RLMotorStop() {
 	lMotor->Set(0.0);
-	rMotor->Set(0.0);
+	//	rMotor->Set(0.0);
 }
 
 int UpAndDown::GetBottomLimSwitch() {
@@ -154,40 +159,17 @@ void UpAndDown::PutMechanismDown() {
 	}
 }
 
-void UpAndDown::Run() {
-//	if (needsToPutDownMechanism) {
-//		PutMechanismDown();
-//	}
-//	else {
-		//Display SmartDashboard Comments on the driver station
-		SmartDashboardComments();
-
-		EmergencyStopMechanism();
-
-//		if (isMechanismRunning) {
-			amountToMove = desiredHeight - (GetGameMotorEncoderDistance()*-1); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
-
-			if (amountToMove > UD_HYSTERESIS_POS) {
-//				RLMotorForward();
-				RLMotorReverse();
-			}
-			else if (amountToMove < UD_HYSTERESIS_NEG) {
-//				RLMotorReverse();
-				RLMotorForward();
-
-			}
-			else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
-				RLMotorStop();
-				isMechanismRunning = false;
-			}
-//		}
-//	}
-}
-
 double UpAndDown::GetGameMotorEncoderDistance() {
 	lmotorEncoderCount = lMotor->GetSensorCollection().GetQuadraturePosition();
 	lmotorEncoderDistance = ((lmotorEncoderCount/UD_PULSES_PER_REVOLUTION)*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
 	return lmotorEncoderDistance;
+}
+
+double UpAndDown::GetEncoderDistanceInPulses(double desiredHeight) {
+	sprocketRevolutions = (SPROCKET_TEETH*SPROCKET_INCHES_PER_TOOTH) * desiredHeight;
+	encoderRevolutions = (sprocketRevolutions * GEAR_RATIO);
+	encoderDistanceInPulses = (encoderRevolutions * UD_PULSES_PER_REVOLUTION);
+	return encoderDistanceInPulses;
 }
 
 bool UpAndDown::GetIfMechIsRunning(){
@@ -204,6 +186,69 @@ void UpAndDown::StartUpInit() {
 	needsToPutDownMechanism = true;
 	bottomLimSwitchHasNotBeenPressed = true;
 	topLimSwitchHasNotBeenPressed = true;
+}
+
+void UpAndDown::PIDSetup() {
+	int absolutePosition = lMotor->GetSelectedSensorPosition(0); /* mask out the bottom12 bits, we don't care about the wrap arounds */
+	/* use the low level API to set the quad encoder signal */
+	lMotor->SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx,
+			kTimeoutMs);
+
+	/* choose the sensor and sensor direction */
+	lMotor->ConfigSelectedFeedbackSensor(
+			FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx,
+			kTimeoutMs);
+	lMotor->SetSensorPhase(true);
+
+	/* set the peak and nominal outputs, 12V means full */
+	lMotor->ConfigNominalOutputForward(0, kTimeoutMs);
+	lMotor->ConfigNominalOutputReverse(0, kTimeoutMs);
+	lMotor->ConfigPeakOutputForward(1, kTimeoutMs);
+	lMotor->ConfigPeakOutputReverse(-1, kTimeoutMs);
+
+	/* set closed loop gains in slot0 */
+	lMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
+	lMotor->Config_kP(kPIDLoopIdx, 0.1, kTimeoutMs);
+	lMotor->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+	lMotor->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+}
+
+void UpAndDown::Run() {
+	if (needsToPutDownMechanism) {
+		PutMechanismDown();
+	}
+	else {
+		//Display SmartDashboard Comments on the driver station
+		SmartDashboardComments();
+
+		//Emergency stop the mechanism with the limit switches
+		EmergencyStopMechanism();
+
+		//Move up&down mechanism with PID
+		lMotor->Set(ControlMode::Position, GetEncoderDistanceInPulses(desiredHeight));
+
+		/*
+	//		if (isMechanismRunning) {
+	amountToMove = desiredHeight - (GetGameMotorEncoderDistance()*-1); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+
+	if (amountToMove > UD_HYSTERESIS_POS) {
+		//				RLMotorForward();
+		RLMotorReverse();
+	}
+	else if (amountToMove < UD_HYSTERESIS_NEG) {
+		//				RLMotorReverse();
+		RLMotorForward();
+
+	}
+	else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
+		RLMotorStop();
+		isMechanismRunning = false;
+	}
+		 */
+
+		//		}
+		//	}
+	}
 }
 
 //UNUSED

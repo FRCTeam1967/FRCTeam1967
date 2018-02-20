@@ -47,6 +47,8 @@
 //#define PISTON_IN_OUT_2_CHANNEL 3
 //#define LIM_SWITCH_INSIDE_CHANNEL 0
 //#define LIM_SWITCH_OUTSIDE_CHANNEL 1
+#define AMNT_TO_MOVE_CLAW 4096/4
+
 
 //Up and down channels
 #define L_MOTOR_CHANNEL 6
@@ -74,6 +76,9 @@ class Robot : public frc::IterativeRobot {
 	bool lbHasNotBeenPressed = true;
 	bool rbHasNotBeenPressed = true;
 	bool toggleDoor = true;
+	bool _lastButton1 = false;
+	double targetPositionRotations;
+	std::string _sb;
 
 
 public:
@@ -166,10 +171,10 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		//  Game Components
-		//			inOut->StartUpInit();
+		//	inOut->StartUpInit();
 		upDown->StartUpInit();
 		upDown->Start();
-		//			inOut -> Start();
+		//	inOut -> Start();
 	}
 
 	void TeleopPeriodic() {
@@ -197,7 +202,7 @@ public:
 
 		//Put claw mechanism up/down based on what limit switches are pressed
 		if (buttonRB && rbHasNotBeenPressed == true) {
-			inOut->MotorClawMoveInAndOut();
+			inOut->GetDesiredDistance();
 			rbHasNotBeenPressed = false;
 		}
 		else if (!buttonRB && !rbHasNotBeenPressed){
@@ -220,15 +225,15 @@ public:
 		}
 
 		//Make the rollers go forward and backward:
-		//		if (leftValue > 0.2) {
-		//			inOut -> MotorRollReverse();
-		//		}
-		//		else if (leftValue < -0.2) {
-		//			inOut -> MotorRollForward();
-		//		}
-		//		else {
-		//			inOut -> MotorRollStop();
-		//		}
+		if (leftValue > 0.2) {
+			inOut -> MotorRollReverse();
+		}
+		else if (leftValue < -0.2) {
+			inOut -> MotorRollForward();
+		}
+		else {
+			inOut -> MotorRollStop();
+		}
 
 		//		have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
@@ -247,7 +252,6 @@ public:
 			upDown -> RegularHeight();
 		}
 
-		//
 		//		SmartDashboard::PutNumber("joystick value", rightValue);
 		//
 		//		if (rightValue > 0.2) {

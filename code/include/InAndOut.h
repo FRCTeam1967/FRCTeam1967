@@ -26,7 +26,7 @@ public:
 	void MotorClawIntoRobot(); //Make the claw mechanism extend backward into the robot
 	void MotorClawStop(); //Stop the claw mechanism
 	void MotorClawStopWithLimSwitches();
-	void MotorClawMoveInAndOut();
+	double GetDesiredDistance();
 	void MoveClawDownInAuto();
 
 	int GetLimSwitchOutside(); //Get the value of the limit switch for when the claw goes outside the robot(true/false)
@@ -36,6 +36,9 @@ public:
 
 	void StartUpInit();
 	bool GetClawPosition();
+
+	//PID
+	void PIDSetup();
 
 	//UNUSED
 	//	void ClawDown();

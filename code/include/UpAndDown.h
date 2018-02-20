@@ -30,6 +30,11 @@ public:
 	void RLMotorReverse();
 	void RLMotorStop();
 
+	//PID
+	void PIDSetup();
+
+	double GetEncoderDistanceInPulses(double desiredHeight);
+
 protected:
 
 	int GetBottomLimSwitch();
@@ -58,6 +63,9 @@ private:
 
 	double lmotorEncoderCount;
 	double lmotorEncoderDistance;
+	double encoderDistanceInPulses;
+	double sprocketRevolutions;
+	double encoderRevolutions;
 
 	WPI_TalonSRX*lMotor;
 	WPI_TalonSRX*rMotor;
