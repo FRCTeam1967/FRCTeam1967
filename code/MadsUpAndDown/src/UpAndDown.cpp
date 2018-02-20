@@ -6,13 +6,16 @@
 //Motor speeds
 #define R_MOTOR_F_SPEED 0.7
 #define L_MOTOR_F_SPEED 0.7
-#define R_MOTOR_R_SPEED -0.7
-#define L_MOTOR_R_SPEED -0.7
+#define R_MOTOR_R_SPEED -0.5
+#define L_MOTOR_R_SPEED -0.5
 
 //For distance per pulse in up/down mechanism's encoder
-#define UD_PULSES_PER_REVOLUTION 4096
-#define UD_CIRCUMFERENCE 0.399 * M_PI
-#define UD_DISTANCE_PER_PULSE UD_CIRCUMFERENCE/UD_PULSES_PER_REVOLUTION
+#define UD_PULSES_PER_REVOLUTION 49152
+//#define GEAR_RATIO 12
+#define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain //1.8125 * M_PI
+#define THIRD_STAGE_PRESENT 1
+//#define UD_DISTANCE_PER_PULSE UD_CIRCUMFERENCE/PULSES_PER_SPROCKET
+
 
 //Up down hysteresis values (1&-1 are good values for 1/2 speed motors under no load)
 #define UD_HYSTERESIS_POS 1.0
@@ -20,9 +23,9 @@
 
 //Field Element Heights
 #define SWITCH_HEIGHT 19.0
-#define SCALE_LOW_HEIGHT 48.0
-#define SCALE_MED_HEIGHT 60.0
-#define SCALE_HIGH_HEIGHT 72.0
+#define SCALE_LOW_HEIGHT 6.0
+#define SCALE_MED_HEIGHT 8.0
+#define SCALE_HIGH_HEIGHT 10.0
 #define REG_HEIGHT 0.0
 
 UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel) {
@@ -35,8 +38,8 @@ UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel) {
 	lMotor -> SetSelectedSensorPosition(0, 0, 10);
 	lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 
-	lMotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
-	lMotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+//	lMotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+//	lMotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
 
 	//  UNUSED
 	//	rMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
@@ -152,35 +155,38 @@ void UpAndDown::PutMechanismDown() {
 }
 
 void UpAndDown::Run() {
-	if (needsToPutDownMechanism) {
-		PutMechanismDown();
-	}
-	else {
+//	if (needsToPutDownMechanism) {
+//		PutMechanismDown();
+//	}
+//	else {
 		//Display SmartDashboard Comments on the driver station
 		SmartDashboardComments();
 
 		EmergencyStopMechanism();
 
-		if (isMechanismRunning) {
-			amountToMove = desiredHeight - GetGameMotorEncoderDistance(); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+//		if (isMechanismRunning) {
+			amountToMove = desiredHeight - (GetGameMotorEncoderDistance()*-1); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
 
 			if (amountToMove > UD_HYSTERESIS_POS) {
-				RLMotorForward();
+//				RLMotorForward();
+				RLMotorReverse();
 			}
 			else if (amountToMove < UD_HYSTERESIS_NEG) {
-				RLMotorReverse();
+//				RLMotorReverse();
+				RLMotorForward();
+
 			}
 			else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
 				RLMotorStop();
 				isMechanismRunning = false;
 			}
-		}
-	}
+//		}
+//	}
 }
 
 double UpAndDown::GetGameMotorEncoderDistance() {
 	lmotorEncoderCount = lMotor->GetSensorCollection().GetQuadraturePosition();
-	lmotorEncoderDistance = (lmotorEncoderCount/UD_PULSES_PER_REVOLUTION)*UD_CIRCUMFERENCE;
+	lmotorEncoderDistance = ((lmotorEncoderCount/UD_PULSES_PER_REVOLUTION)*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
 	return lmotorEncoderDistance;
 }
 

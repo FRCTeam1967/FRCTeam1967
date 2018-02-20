@@ -120,9 +120,11 @@ void InAndOut::MotorClawIntoRobot(){
 void InAndOut::MotorClawStopWithLimSwitches(){
 	if ((GetLimSwitchOutside()==1) && clawGoingForward) {
 		MotorClawStop();
+		SmartDashboard::PutString("stopped?", "yes");
 	}
 	else if ((GetLimSwitchInside()==1) && clawGoingBackward) {
 		MotorClawStop();
+		SmartDashboard::PutString("stopped?", "yes");
 	}
 }
 
@@ -145,11 +147,8 @@ void InAndOut::MotorClawMoveInAndOut() {
 }
 
 void InAndOut::MoveClawDownInAuto(){
-	MotorClawOutOfRobot();
-	if (GetLimSwitchOutside() == 1) {
-		MotorClawStop();
-		needsToPutDownClaw = false;
-	}
+	desiredDistanceToMove = FORWARD_NUMBER_OF_PULSES;
+	needsToPutDownClaw = false;
 }
 
 void InAndOut::StartUpInit() {
@@ -171,7 +170,7 @@ void InAndOut::Run() {
 	//  Emergency stop the claw depending on what limit switches are pressed
 	MotorClawStopWithLimSwitches();
 
-	//  Moving the claw mechanism with encoders
+	//	Moving the claw mechanism with encoders
 	amountToMoveClaw = desiredDistanceToMove - GetEncoderCount();
 
 	if (amountToMoveClaw > IO_HYSTERESIS_POS) {
@@ -184,6 +183,8 @@ void InAndOut::Run() {
 		MotorClawStop();
 	}
 }
+
+
 
 //UNUSED
 /*

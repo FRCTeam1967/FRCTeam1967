@@ -113,7 +113,7 @@ public:
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 		rlmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		rrmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-		drive = new frc::RobotDrive(flmotor, frmotor, rlmotor, rrmotor); //change for all 4 motors
+		drive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor); //change for all 4 motors
 		xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		drive->SetSafetyEnabled(false);
@@ -139,10 +139,10 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		//Game components
-		inOut->StartUpInit();
-		upDown->StartUpInit();
-		upDown->Start();
-		inOut -> Start();
+		//		inOut->StartUpInit();
+		//		upDown->StartUpInit();
+		//		upDown->Start();
+		//		inOut -> Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -166,14 +166,14 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		//  Game Components
-		//	inOut->StartUpInit();
-		//	upDown->StartUpInit();
-		//	upDown->Start();
-		//	inOut -> Start();
+		//			inOut->StartUpInit();
+		upDown->StartUpInit();
+		upDown->Start();
+		//			inOut -> Start();
 	}
 
 	void TeleopPeriodic() {
-//Driving
+		//Driving
 		drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
 		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
 		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
@@ -183,7 +183,7 @@ public:
 		SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
 		SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
 		SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
-//Game Components
+		//Game Components
 		// Define all of the buttons/throttles on the game controller
 		bool buttonRB = gameJoystick -> GetButtonRB();
 		bool buttonLB = gameJoystick -> GetButtonLB();
@@ -220,25 +220,17 @@ public:
 		}
 
 		//Make the rollers go forward and backward:
-		if (leftValue > 0.2) {
-			inOut -> MotorRollReverse();
-		}
-		else if (leftValue < -0.2) {
-			inOut -> MotorRollForward();
-		}
-		else {
-			inOut -> MotorRollStop();
-		}
+		//		if (leftValue > 0.2) {
+		//			inOut -> MotorRollReverse();
+		//		}
+		//		else if (leftValue < -0.2) {
+		//			inOut -> MotorRollForward();
+		//		}
+		//		else {
+		//			inOut -> MotorRollStop();
+		//		}
 
-		//Make the claw mechanism go forward or backward manually --> use this for small movements
-		if (rightValue > 0.2) {
-			inOut -> MotorClawIntoRobot();
-		}
-		else if (rightValue <-0.2) {
-			inOut -> MotorClawOutOfRobot();
-		}
-
-		//have mechanism go up to different heights based on what button is pressed
+		//		have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
 			upDown -> SwitchHeight();
 		}
@@ -255,19 +247,37 @@ public:
 			upDown -> RegularHeight();
 		}
 
-		//For testing up/down mechanism
-		/*
-		float leftValue = gameJoystick -> GetLeftYAxis();
-		if (leftValue > 0.2) {
-			upDown ->RLMotorForward();
-		}
-		else if (leftValue < -0.2) {
-			upDown ->RLMotorReverse();
-		}
-		else {
-			upDown->RLMotorStop();
-		}
-		 */
+		//
+		//		SmartDashboard::PutNumber("joystick value", rightValue);
+		//
+		//		if (rightValue > 0.2) {
+		//			//			upDown ->RLMotorForward();
+		//			inOut -> MotorClawIntoRobot();
+		//			SmartDashboard::PutString("Direction", "forward");
+		//			SmartDashboard::PutString("stopped?", "no");
+		//		}
+		//		else if (rightValue < -0.2) {
+		//			//			upDown ->RLMotorReverse();
+		//			inOut -> MotorClawOutOfRobot();
+		//			SmartDashboard::PutString("Direction", "reverse");
+		//			SmartDashboard::PutString("stopped?", "no");
+		//		}
+		//		else {
+		//			//			upDown->RLMotorStop();
+		//			inOut -> MotorClawStop();
+		//			SmartDashboard::PutString("Direction", "stop");
+		//			SmartDashboard::PutString("stopped?", "yes");
+		//		}
+
+		//		if (leftValue > 0.2) {
+		//			upDown ->RLMotorForward();
+		//		}
+		//		else if (leftValue < -0.2) {
+		//			upDown ->RLMotorReverse();
+		//		}
+		//		else {
+		//			upDown->RLMotorStop();
+		//		}
 	}
 
 	void TestPeriodic() {
