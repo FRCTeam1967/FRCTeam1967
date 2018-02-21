@@ -113,7 +113,7 @@ public:
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 		rlmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		rrmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-		drive = new frc::RobotDrive(flmotor, frmotor, rlmotor, rrmotor); //change for all 4 motors
+		drive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor); //change for all 4 motors
 		xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		drive->SetSafetyEnabled(false);
@@ -146,7 +146,6 @@ public:
 	}
 
 	void AutonomousPeriodic() {
-		drive->TankDrive(0.4, 0.4);
 		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
 		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
 		double rightEncoderCount= rrmotor->GetSensorCollection().GetQuadraturePosition();
