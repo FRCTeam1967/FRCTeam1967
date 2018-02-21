@@ -7,6 +7,7 @@
 #include "WPILib.h"
 #include "jankyStateMachine.h"
 #include "ctre/Phoenix.h"
+#include "JankyAutoEntry.h"
 
 #ifndef SRC_JANKYAUTOSEQUENCER_H_
 #define SRC_JANKYAUTOSEQUENCER_H_
@@ -16,6 +17,7 @@ public:
 	JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder);
 	//JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder);
 	virtual ~JankyAutoSequencer();
+	void SetName(int state, const char* name, JankyAutoEntry*entry);
 	enum StateValue {
 		/*Rest,
 		DrivingSwitchEdge,
@@ -48,6 +50,7 @@ public:
 		Stop
 	};
 	//void RunLeftCrossAutoLine();
+	JankyAutoEntry* entries[MAX_NAMES];
 	void SetMode(int mode);
 	void EndSequence();
 	void StateEngine(int curState);

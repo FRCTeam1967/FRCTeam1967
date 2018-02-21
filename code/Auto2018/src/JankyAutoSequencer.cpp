@@ -9,6 +9,9 @@
 #include "DriveSegment.h"
 #include "TurnSegment.h"
 #include "ctre/Phoenix.h"
+#include "jankyStateMachine.h"
+
+#define MAX_NAMES 32
 
 //auto modes
 #define DEFAULT_MODE 1
@@ -47,37 +50,35 @@ DriveSegment*drive162Inches;
 
 JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder) {
 //JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder) {
-	SetMachineName("JankyAutoSequencer");
-	SetName(Rest, "Rest");
-	SetName(TurnLeft90, "Turn Left 90 Degrees");
-	SetName(TurnRight90, "Turn Right 90 Degrees");
-	SetName(TurnLeft45, "Turn Left 45 Degrees");
-	SetName(TurnRight45, "Turn Right 45 Degrees");
-	SetName(Drive6Inches, "Drive straight 6 inches");
-	SetName(Drive60Inches, "Drive straight 60 inches");
-	SetName(Drive72Inches, "Drive straight 72 inches");
-	SetName(Drive120Inches, "Drive straight 120 inches");
-	SetName(Drive144Inches, "Drive straight 144 inches");
-	SetName(Drive162Inches, "Drive straight 162 inches");
-	SetName(ReleaseCube, "Release cube onto the switch");
-	SetName(Stop, "End of Sequence");
-
+	for(int i = 0; i<MAX_NAMES; i++){
+		entries[i]=NULL;
+	}
 	turnLeft90 = new TurnSegment(gyro, drive, -90.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight90 = new TurnSegment(gyro, drive, 90.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnLeft45 = new TurnSegment(gyro, drive, -45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
-	/*drive6Inches = new DriveSegment(drive, encoder, 6, DRIVE_SPEED);
-	drive60Inches = new DriveSegment(drive, encoder, 60, DRIVE_SPEED);
-	drive72Inches = new DriveSegment(drive, encoder, 72, DRIVE_SPEED);
-	drive120Inches = new DriveSegment(drive, encoder, 120, DRIVE_SPEED);
-	drive144Inches = new DriveSegment(drive, encoder, 144, DRIVE_SPEED);
-	drive162Inches = new DriveSegment(drive, encoder, 162, DRIVE_SPEED);*/
 	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 6, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive60Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 60, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 72, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive120Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 120, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 144, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, 162, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+
+	SetMachineName("JankyAutoSequencer");
+	JankyStateMachine::SetName(Rest, "Rest");
+	SetName(TurnLeft90, "Turn Left 90 Degrees", turnLeft90);
+	SetName(TurnRight90, "Turn Right 90 Degrees", turnRight90);
+	SetName(TurnLeft45, "Turn Left 45 Degrees", turnLeft45);
+	SetName(TurnRight45, "Turn Right 45 Degrees", turnRight45);
+	SetName(Drive6Inches, "Drive straight 6 inches", drive6Inches);
+	SetName(Drive60Inches, "Drive straight 60 inches", drive60Inches);
+	SetName(Drive72Inches, "Drive straight 72 inches", drive72Inches);
+	SetName(Drive120Inches, "Drive straight 120 inches", drive120Inches);
+	SetName(Drive144Inches, "Drive straight 144 inches", drive144Inches);
+	SetName(Drive162Inches, "Drive straight 162 inches", drive162Inches);
+	JankyStateMachine::SetName(ReleaseCube, "Release cube onto the switch");
+	JankyStateMachine::SetName(Stop, "End of Sequence");
+
 	c = 0;
 	aMode = DEFAULT_MODE;
 	gyro->Calibrate();
@@ -113,6 +114,11 @@ JankyAutoSequencer::~JankyAutoSequencer() {
 	delete drive162Inches;
 }
 
+void JankyAutoSequencer::SetName(int state, const char* name, JankyAutoEntry*entry){
+	JankyStateMachine::SetName(state, name);
+	entries[state]=entry;
+}
+
 void JankyAutoSequencer::SetMode(int mode){ //call set mode in autoPeriodic
 	if(aMode!=DONE){
 		aMode=mode;
@@ -120,16 +126,10 @@ void JankyAutoSequencer::SetMode(int mode){ //call set mode in autoPeriodic
 }
 
 void JankyAutoSequencer::EndSequence(){
-	turnLeft90->Abort();
-	turnRight90->Abort();
-	turnLeft45->Abort();
-	turnRight45->Abort();
-	drive6Inches->Abort();
-	drive60Inches->Abort();
-	drive72Inches->Abort();
-	drive120Inches->Abort();
-	drive144Inches->Abort();
-	drive162Inches->Abort();
+	if(entries[GetCurrentState()]){
+		entries[GetCurrentState()]->Abort();
+		printf("Aborted Entry: %s \n", names[GetCurrentState()]);
+	}
 	Terminate();
 }
 

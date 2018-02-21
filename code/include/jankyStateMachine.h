@@ -22,14 +22,16 @@ public:
 	virtual void StateEngine(int curState) = 0;
 	int GetCurrentState();
 	void NewState(int newState, const char*reason);
-	void SetName(int state, const char* name);
+	virtual void SetName(int state, const char* name);
 	void SetMachineName(const char* machine);
 
 	//Member Variables
 private:	
 	int currentState;
-	char names[MAX_NAMES][MAX_NAME_LENGTH];
 	char machineName [MAX_NAME_LENGTH];
+
+protected:
+	char names[MAX_NAMES][MAX_NAME_LENGTH];
 };
 
 #endif

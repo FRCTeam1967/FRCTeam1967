@@ -32,10 +32,10 @@ using namespace std;
 #define R_SAME_SWITCH 8
 #define R_OPPOSITE_SWITCH 9
 
-//chassis channels
-#define FRONT_LEFT_MOTOR_CHANNEL 1
+//chassis channels (for real robot)
+#define FRONT_LEFT_MOTOR_CHANNEL 3
 #define REAR_LEFT_MOTOR_CHANNEL 2
-#define FRONT_RIGHT_MOTOR_CHANNEL 3
+#define FRONT_RIGHT_MOTOR_CHANNEL 5
 #define REAR_RIGHT_MOTOR_CHANNEL 4
 #define TEST_MOTOR_CHANNEL 6
 #define ENCODER_A_CHANNEL 2
@@ -118,6 +118,7 @@ public:
 		frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 		drive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor);
+
 		xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		//encoder = new Encoder(ENCODER_A_CHANNEL, ENCODER_B_CHANNEL);
