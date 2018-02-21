@@ -38,8 +38,8 @@
 
 //In and out channels
 #define MOTOR_CLAW_CHANNEL 7
-#define PISTON_DOOR_LEFT_CHANNEL 0
-#define PISTON_DOOR_RIGHT_CHANNEL 1
+#define PISTON_DOOR_LEFT_CHANNEL 4
+#define PISTON_DOOR_RIGHT_CHANNEL 4
 #define MOTOR_ROLL_CHANNEL 8
 //#define CLAW_ENCODER_CHANNEL_1 4
 //#define CLAW_ENCODER_CHANNEL_2 5
@@ -128,6 +128,7 @@ public:
 		frmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rlmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rrmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
+
 		//CONFIGURE RAMPING FOR TWO OTHER MOTORS THAT ELEC ADDS
 		lw = LiveWindow::GetInstance();
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
@@ -144,10 +145,12 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		//Game components
-		//		inOut->StartUpInit();
-		//		upDown->StartUpInit();
-		//		upDown->Start();
-		//		inOut -> Start();
+		//inOut->StartUpInit();
+		//inOut->PIDSetup();
+		//inOut -> Start();
+		//upDown->StartUpInit();
+		//upDown->PIDSetup();
+		//upDown->Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -171,10 +174,12 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		//  Game Components
-		//	inOut->StartUpInit();
+		inOut->StartUpInit();
+		//inOut->PIDSetup();
+		//		inOut -> Start();
 		upDown->StartUpInit();
+		//upDown->PIDSetup();
 		upDown->Start();
-		//	inOut -> Start();
 	}
 
 	void TeleopPeriodic() {
@@ -201,13 +206,13 @@ public:
 		bool buttonRT = gameJoystick -> GetRightThrottle();
 
 		//Put claw mechanism up/down based on what limit switches are pressed
-		if (buttonRB && rbHasNotBeenPressed == true) {
-			inOut->GetDesiredDistance();
-			rbHasNotBeenPressed = false;
-		}
-		else if (!buttonRB && !rbHasNotBeenPressed){
-			rbHasNotBeenPressed = true;
-		}
+		//if (buttonRB && rbHasNotBeenPressed == true) {
+		//	inOut->GetDesiredDistance();
+		//	rbHasNotBeenPressed = false;
+		//}
+		//else if (!buttonRB && !rbHasNotBeenPressed){
+		//	rbHasNotBeenPressed = true;
+		//}
 
 		// Open/Close the claw's "doors" with pistons
 		if (buttonLB && lbHasNotBeenPressed == true){
@@ -235,7 +240,7 @@ public:
 			inOut -> MotorRollStop();
 		}
 
-		//		have mechanism go up to different heights based on what button is pressed
+		//Have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
 			upDown -> SwitchHeight();
 		}
@@ -252,36 +257,16 @@ public:
 			upDown -> RegularHeight();
 		}
 
-		//		SmartDashboard::PutNumber("joystick value", rightValue);
-		//
-		//		if (rightValue > 0.2) {
-		//			//			upDown ->RLMotorForward();
-		//			inOut -> MotorClawIntoRobot();
-		//			SmartDashboard::PutString("Direction", "forward");
-		//			SmartDashboard::PutString("stopped?", "no");
-		//		}
-		//		else if (rightValue < -0.2) {
-		//			//			upDown ->RLMotorReverse();
-		//			inOut -> MotorClawOutOfRobot();
-		//			SmartDashboard::PutString("Direction", "reverse");
-		//			SmartDashboard::PutString("stopped?", "no");
-		//		}
-		//		else {
-		//			//			upDown->RLMotorStop();
-		//			inOut -> MotorClawStop();
-		//			SmartDashboard::PutString("Direction", "stop");
-		//			SmartDashboard::PutString("stopped?", "yes");
-		//		}
-
-		//		if (leftValue > 0.2) {
-		//			upDown ->RLMotorForward();
-		//		}
-		//		else if (leftValue < -0.2) {
-		//			upDown ->RLMotorReverse();
-		//		}
-		//		else {
-		//			upDown->RLMotorStop();
-		//		}
+		//Move motor claw manually
+		if (rightValue > 0.2) {
+			inOut -> MotorClawIntoRobot();
+		}
+		else if (rightValue < -0.2) {
+			inOut -> MotorClawOutOfRobot();
+		}
+		else {
+			inOut -> MotorClawStop();
+		}
 	}
 
 	void TestPeriodic() {

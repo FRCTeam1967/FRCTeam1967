@@ -5,8 +5,8 @@
 #include "Constants.h"
 
 //Motor speeds
-#define R_MOTOR_F_SPEED 0.7
-#define L_MOTOR_F_SPEED 0.7
+#define R_MOTOR_F_SPEED 0.5
+#define L_MOTOR_F_SPEED 0.5
 #define R_MOTOR_R_SPEED -0.5
 #define L_MOTOR_R_SPEED -0.5
 
@@ -18,18 +18,23 @@
 
 #define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain
 //1.8125 * M_PI
-#define THIRD_STAGE_PRESENT 1
+#define THIRD_STAGE_PRESENT 2
 
 //Up down hysteresis values (1&-1 are good values for 1/2 speed motors under no load)
-#define UD_HYSTERESIS_POS 1.0
-#define UD_HYSTERESIS_NEG -1.0
+#define UD_HYSTERESIS_POS 0.5
+#define UD_HYSTERESIS_NEG -0.5
 
 //Field Element Heights
 #define SWITCH_HEIGHT 19.0
-#define SCALE_LOW_HEIGHT 6.0
-#define SCALE_MED_HEIGHT 8.0
-#define SCALE_HIGH_HEIGHT 10.0
+#define SCALE_LOW_HEIGHT 48.0
+#define SCALE_MED_HEIGHT 60.0
+#define SCALE_HIGH_HEIGHT 70.0
 #define REG_HEIGHT 0.0
+
+//PID
+#define P_VAL 0.5
+#define I_VAL 0.0
+#define D_VAL 0.0
 
 UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel) {
 	lMotor = new WPI_TalonSRX(lMotorChannel);
@@ -84,6 +89,7 @@ void UpAndDown::RLMotorStop() {
 int UpAndDown::GetBottomLimSwitch() {
 	//	return bottomLimSwitch -> Get();
 	return lMotor->GetSensorCollection().IsFwdLimitSwitchClosed();
+	lMotor->GetSensorCollection().SetQuadraturePosition(0,10);
 }
 
 int UpAndDown::GetTopLimSwitch() {
@@ -144,6 +150,11 @@ void UpAndDown::SmartDashboardComments() {
 	SmartDashboard::PutBoolean("Limit switch bottom value", GetBottomLimSwitch());
 	SmartDashboard::PutNumber("Encoder Dist:" ,GetGameMotorEncoderDistance());
 
+	//  PID
+	//	SmartDashboard::PutNumber("Error", lMotor->GetClosedLoopError(kPIDLoopIdx));
+	//	SmartDashboard::PutNumber("DesiredHeight: ", GetEncoderDistanceInPulses(desiredHeight));
+	//	SmartDashboard::PutNumber("Current Height: " , lMotor->GetSensorCollection().GetQuadraturePosition());
+
 	//  UNUSED
 	//	SmartDashboard::PutNumber("Distance Per Pulse", GetEncoderDistancePerPulse());
 	//	SmartDashboard::PutNumber("Game Component Encoder: ", GetEncoderDistance());
@@ -161,7 +172,7 @@ void UpAndDown::PutMechanismDown() {
 
 double UpAndDown::GetGameMotorEncoderDistance() {
 	lmotorEncoderCount = lMotor->GetSensorCollection().GetQuadraturePosition();
-	lmotorEncoderDistance = ((lmotorEncoderCount/UD_PULSES_PER_REVOLUTION)*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
+	lmotorEncoderDistance = ((lmotorEncoderCount/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
 	return lmotorEncoderDistance;
 }
 
@@ -177,6 +188,7 @@ bool UpAndDown::GetIfMechIsRunning(){
 }
 
 void UpAndDown::StartUpInit() {
+	lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 	isMechanismRunning = false;
 	desiredHeight = 0.0;
 	amountToMove = 0.0;
@@ -198,7 +210,7 @@ void UpAndDown::PIDSetup() {
 	lMotor->ConfigSelectedFeedbackSensor(
 			FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx,
 			kTimeoutMs);
-	lMotor->SetSensorPhase(true);
+	lMotor->SetSensorPhase(false);
 
 	/* set the peak and nominal outputs, 12V means full */
 	lMotor->ConfigNominalOutputForward(0, kTimeoutMs);
@@ -208,35 +220,39 @@ void UpAndDown::PIDSetup() {
 
 	/* set closed loop gains in slot0 */
 	lMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
-	lMotor->Config_kP(kPIDLoopIdx, 0.1, kTimeoutMs);
-	lMotor->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-	lMotor->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+	lMotor->Config_kP(kPIDLoopIdx, P_VAL, kTimeoutMs);
+	lMotor->Config_kI(kPIDLoopIdx, I_VAL, kTimeoutMs);
+	lMotor->Config_kD(kPIDLoopIdx, D_VAL, kTimeoutMs);
 }
 
 void UpAndDown::Run() {
-	if (needsToPutDownMechanism) {
-		PutMechanismDown();
-	}
-	else {
-		//Display SmartDashboard Comments on the driver station
-		SmartDashboardComments();
+	//	if (needsToPutDownMechanism) {
+	//		PutMechanismDown();
+	//	}
+	//	else {
 
-		//Emergency stop the mechanism with the limit switches
-		EmergencyStopMechanism();
+	//Display SmartDashboard Comments on the driver station
+	SmartDashboardComments();
 
-		//Move up&down mechanism with PID
-		lMotor->Set(ControlMode::Position, GetEncoderDistanceInPulses(desiredHeight));
+	//Emergency stop the mechanism with the limit switches
+	EmergencyStopMechanism();
 
-		/*
-	//		if (isMechanismRunning) {
+	//Print-f statements for PID
+	//	printf("Error %d \n", lMotor->GetClosedLoopError(kPIDLoopIdx));
+	//	printf("DesiredHeight %f \n", GetEncoderDistanceInPulses(desiredHeight));
+	//	printf("Current Height: %d \n" , lMotor->GetSensorCollection().GetQuadraturePosition());
+
+	//	if (isMechanismRunning) {
+
+	//	lMotor->Set(ControlMode::Position, GetEncoderDistanceInPulses(desiredHeight));
+	//	isMechanismRunning = false;
+
 	amountToMove = desiredHeight - (GetGameMotorEncoderDistance()*-1); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
 
 	if (amountToMove > UD_HYSTERESIS_POS) {
-		//				RLMotorForward();
 		RLMotorReverse();
 	}
 	else if (amountToMove < UD_HYSTERESIS_NEG) {
-		//				RLMotorReverse();
 		RLMotorForward();
 
 	}
@@ -244,12 +260,11 @@ void UpAndDown::Run() {
 		RLMotorStop();
 		isMechanismRunning = false;
 	}
-		 */
 
-		//		}
-		//	}
-	}
 }
+//}
+//}
+//}
 
 //UNUSED
 /*
