@@ -32,6 +32,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/include</locationURI>
 		</link>
 		<link>
+			<name>include/Constants.h</name>
+			<type>1</type>
+			<locationURI>PARENT-3-PROJECT_LOC/Phoenix-Examples-Languages/C++/MotionProfile/src/Constants.h</locationURI>
+		</link>
+		<link>
 			<name>src/InAndOut.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/MadsInAndOut/src/InAndOut.cpp</locationURI>

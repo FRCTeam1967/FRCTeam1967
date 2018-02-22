@@ -38,8 +38,8 @@
 
 //In and out channels
 #define MOTOR_CLAW_CHANNEL 7
-#define PISTON_DOOR_LEFT_CHANNEL 0
-#define PISTON_DOOR_RIGHT_CHANNEL 1
+#define PISTON_DOOR_LEFT_CHANNEL 4
+#define PISTON_DOOR_RIGHT_CHANNEL 4
 #define MOTOR_ROLL_CHANNEL 8
 //#define CLAW_ENCODER_CHANNEL_1 4
 //#define CLAW_ENCODER_CHANNEL_2 5
@@ -47,6 +47,8 @@
 //#define PISTON_IN_OUT_2_CHANNEL 3
 //#define LIM_SWITCH_INSIDE_CHANNEL 0
 //#define LIM_SWITCH_OUTSIDE_CHANNEL 1
+#define AMNT_TO_MOVE_CLAW 4096/4
+
 
 //Up and down channels
 #define L_MOTOR_CHANNEL 6
@@ -74,6 +76,9 @@ class Robot : public frc::IterativeRobot {
 	bool lbHasNotBeenPressed = true;
 	bool rbHasNotBeenPressed = true;
 	bool toggleDoor = true;
+	bool _lastButton1 = false;
+	double targetPositionRotations;
+	std::string _sb;
 
 
 public:
@@ -123,6 +128,7 @@ public:
 		frmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rlmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rrmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
+
 		//CONFIGURE RAMPING FOR TWO OTHER MOTORS THAT ELEC ADDS
 		lw = LiveWindow::GetInstance();
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
@@ -139,10 +145,12 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		//Game components
-		inOut->StartUpInit();
-		upDown->StartUpInit();
-		upDown->Start();
-		inOut -> Start();
+		//inOut->StartUpInit();
+		//inOut->PIDSetup();
+		//inOut -> Start();
+		//upDown->StartUpInit();
+		//upDown->PIDSetup();
+		//upDown->Start();
 	}
 
 	void AutonomousPeriodic() {
@@ -165,14 +173,16 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		//  Game Components
-		//	inOut->StartUpInit();
-		//	upDown->StartUpInit();
-		//	upDown->Start();
-		//	inOut -> Start();
+		inOut->StartUpInit();
+		//inOut->PIDSetup();
+		//		inOut -> Start();
+		upDown->StartUpInit();
+		//upDown->PIDSetup();
+		upDown->Start();
 	}
 
 	void TeleopPeriodic() {
-//Driving
+		//Driving
 		drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
 		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
 		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
@@ -182,7 +192,7 @@ public:
 		SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
 		SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
 		SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
-//Game Components
+		//Game Components
 		// Define all of the buttons/throttles on the game controller
 		bool buttonRB = gameJoystick -> GetButtonRB();
 		bool buttonLB = gameJoystick -> GetButtonLB();
@@ -195,13 +205,13 @@ public:
 		bool buttonRT = gameJoystick -> GetRightThrottle();
 
 		//Put claw mechanism up/down based on what limit switches are pressed
-		if (buttonRB && rbHasNotBeenPressed == true) {
-			inOut->MotorClawMoveInAndOut();
-			rbHasNotBeenPressed = false;
-		}
-		else if (!buttonRB && !rbHasNotBeenPressed){
-			rbHasNotBeenPressed = true;
-		}
+		//if (buttonRB && rbHasNotBeenPressed == true) {
+		//	inOut->GetDesiredDistance();
+		//	rbHasNotBeenPressed = false;
+		//}
+		//else if (!buttonRB && !rbHasNotBeenPressed){
+		//	rbHasNotBeenPressed = true;
+		//}
 
 		// Open/Close the claw's "doors" with pistons
 		if (buttonLB && lbHasNotBeenPressed == true){
@@ -229,15 +239,7 @@ public:
 			inOut -> MotorRollStop();
 		}
 
-		//Make the claw mechanism go forward or backward manually --> use this for small movements
-		if (rightValue > 0.2) {
-			inOut -> MotorClawIntoRobot();
-		}
-		else if (rightValue <-0.2) {
-			inOut -> MotorClawOutOfRobot();
-		}
-
-		//have mechanism go up to different heights based on what button is pressed
+		//Have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
 			upDown -> SwitchHeight();
 		}
@@ -254,19 +256,16 @@ public:
 			upDown -> RegularHeight();
 		}
 
-		//For testing up/down mechanism
-		/*
-		float leftValue = gameJoystick -> GetLeftYAxis();
-		if (leftValue > 0.2) {
-			upDown ->RLMotorForward();
+		//Move motor claw manually
+		if (rightValue > 0.2) {
+			inOut -> MotorClawIntoRobot();
 		}
-		else if (leftValue < -0.2) {
-			upDown ->RLMotorReverse();
+		else if (rightValue < -0.2) {
+			inOut -> MotorClawOutOfRobot();
 		}
 		else {
-			upDown->RLMotorStop();
+			inOut -> MotorClawStop();
 		}
-		 */
 	}
 
 	void TestPeriodic() {

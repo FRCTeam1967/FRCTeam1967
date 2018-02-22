@@ -3,28 +3,29 @@
 #include "InAndOut.h"
 #include "math.h"
 #include "jankyTask.h"
+#include "Constants.h"
 
 //Motor speeds
-#define MOTOR_CLAW_F_SPEED 0.5
-#define MOTOR_CLAW_R_SPEED -0.5
-#define MOTOR_ROLL_F_SPEED 0.5
-#define MOTOR_ROLL_R_SPEED -0.5
+#define MOTOR_CLAW_F_SPEED 0.4
+#define MOTOR_CLAW_R_SPEED -0.4
+#define MOTOR_ROLL_F_SPEED 0.7
+#define MOTOR_ROLL_R_SPEED -0.7
 #define MOTOR_STOP_SPEED 0.0
 
 //Encoder pulses
 #define CLAW_PULSES_PER_REVOLUTION 4096
 
 //Values to move motor w/ encoder
-#define FORWARD_NUMBER_OF_PULSES 1024
-#define BACKWARD_NUMBER_OF_PULSES -1024
+#define FORWARD_NUMBER_OF_PULSES 750
+#define BACKWARD_NUMBER_OF_PULSES -750
 
 //Hysteresis for in/out mechanism
 #define IO_HYSTERESIS_POS 10
 #define IO_HYSTERESIS_NEG -10
 
 InAndOut::InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int motorRollChannel, int motorClawChannel){
-	pistonDoorLeft = new Solenoid(9, pistonDoorLeftChannel);
-	pistonDoorRight = new Solenoid(9, pistonDoorRightChannel);
+	pistonDoorLeft = new Solenoid(10, pistonDoorLeftChannel);
+	pistonDoorRight = new Solenoid(10, pistonDoorRightChannel);
 
 	motorRoll = new WPI_TalonSRX(motorRollChannel);
 
@@ -33,8 +34,8 @@ InAndOut::InAndOut(int pistonDoorLeftChannel, int pistonDoorRightChannel, int mo
 	motorClaw -> SetSelectedSensorPosition(0, 0, 10);
 	motorClaw -> GetSensorCollection().SetQuadraturePosition(0,10);
 
-	motorClaw->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 7, 0);
-	motorClaw->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 7, 0);
+	//	motorClaw->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 7, 0);
+	//	motorClaw->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 7, 0);
 
 
 	//UNUSED
@@ -135,24 +136,23 @@ bool InAndOut::GetClawPosition() {
 	return clawPositionIsOut;
 }
 
-void InAndOut::MotorClawMoveInAndOut() {
+double InAndOut::GetDesiredDistance() {
 	if (clawPositionIsOut) {
-		desiredDistanceToMove = FORWARD_NUMBER_OF_PULSES;
-	}
-	else if (clawPositionIsOut == false){
 		desiredDistanceToMove = BACKWARD_NUMBER_OF_PULSES;
 	}
+	else if (clawPositionIsOut == false){
+		desiredDistanceToMove = FORWARD_NUMBER_OF_PULSES;
+	}
+	return desiredDistanceToMove;
 }
 
 void InAndOut::MoveClawDownInAuto(){
-	MotorClawOutOfRobot();
-	if (GetLimSwitchOutside() == 1) {
-		MotorClawStop();
-		needsToPutDownClaw = false;
-	}
+	desiredDistanceToMove = FORWARD_NUMBER_OF_PULSES;
+	needsToPutDownClaw = false;
 }
 
 void InAndOut::StartUpInit() {
+	motorClaw -> GetSensorCollection().SetQuadraturePosition(0,10);
 	clawEncoderCount = 0.0;
 	clawEncoderDistance = 0.0;
 	desiredDistanceToMove = 0.0;
@@ -160,25 +160,57 @@ void InAndOut::StartUpInit() {
 	clawGoingForward = false;
 	clawGoingBackward = false;
 	needsToPutDownClaw = true;
+	clawPositionIsOut = true;
+}
+
+void InAndOut::PIDSetup() {
+	int absolutePositionClaw = motorClaw->GetSelectedSensorPosition(0); /* mask out the bottom12 bits, we don't care about the wrap arounds */
+	/* use the low level API to set the quad encoder signal */
+	motorClaw->SetSelectedSensorPosition(absolutePositionClaw, kPIDLoopIdx,
+			kTimeoutMs);
+
+	/* choose the sensor and sensor direction */
+	motorClaw->ConfigSelectedFeedbackSensor(
+			FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx,
+			kTimeoutMs);
+	motorClaw->SetSensorPhase(true);
+
+	/* set the peak and nominal outputs, 12V means full */
+	motorClaw->ConfigNominalOutputForward(0, kTimeoutMs);
+	motorClaw->ConfigNominalOutputReverse(0, kTimeoutMs);
+	motorClaw->ConfigPeakOutputForward(1, kTimeoutMs);
+	motorClaw->ConfigPeakOutputReverse(-1, kTimeoutMs);
+
+	/* set closed loop gains in slot0 */
+	motorClaw->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
+	motorClaw->Config_kP(kPIDLoopIdx, 0.1, kTimeoutMs);
+	motorClaw->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+	motorClaw->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
 }
 
 void InAndOut::Run() {
 	//	Put the claw mechanism down once during auto
-	if (needsToPutDownClaw) {
-		MoveClawDownInAuto();
-	}
+	//	if (needsToPutDownClaw) {
+	//			MoveClawDownInAuto();
+	//	}
 
 	//  Emergency stop the claw depending on what limit switches are pressed
 	MotorClawStopWithLimSwitches();
 
-	//  Moving the claw mechanism with encoders
-	amountToMoveClaw = desiredDistanceToMove - GetEncoderCount();
+	//Move motor claw with PID
+	//	motorClaw->Set(ControlMode::Position, GetDesiredDistance());
 
+	//	Moving the claw mechanism with encoders
+	amountToMoveClaw = desiredDistanceToMove - (GetEncoderCount()*-1);
+	SmartDashboard::PutNumber("InOut Encoder" , GetEncoderCount());
 	if (amountToMoveClaw > IO_HYSTERESIS_POS) {
-		MotorClawOutOfRobot();
+		//	MotorClawOutOfRobot();
+		MotorClawIntoRobot();
 	}
 	else if (amountToMoveClaw < IO_HYSTERESIS_NEG) {
-		MotorClawIntoRobot();
+		//	MotorClawIntoRobot();
+		MotorClawOutOfRobot();
+
 	}
 	else if ((amountToMoveClaw < IO_HYSTERESIS_POS) && (amountToMoveClaw > IO_HYSTERESIS_NEG)) {
 		MotorClawStop();
