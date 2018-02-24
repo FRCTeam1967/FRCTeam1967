@@ -58,6 +58,9 @@
 //#define GAME_MOTOR_ENCODER_CHANNEL_1 4
 //#define GAME_MOTOR_ENCODER_CHANNEL_2 5
 
+#define X_RES 1000
+#define Y_RES 1000
+
 class Robot : public frc::IterativeRobot {
 	WPI_TalonSRX*flmotor;
 	WPI_TalonSRX*rlmotor;
@@ -77,8 +80,10 @@ class Robot : public frc::IterativeRobot {
 	bool rbHasNotBeenPressed = true;
 	bool toggleDoor = true;
 	bool _lastButton1 = false;
+	bool togglePivot = true;
 	double targetPositionRotations;
 	std::string _sb;
+	cs::UsbCamera*driveTeamCamera;
 
 
 public:
@@ -135,6 +140,12 @@ public:
 		inOut = new InAndOut(PISTON_DOOR_LEFT_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, MOTOR_ROLL_CHANNEL, MOTOR_CLAW_CHANNEL);
 		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL);
 		gyro->Calibrate(); //make sure robot is left unmoved for ~10 seconds during calibration
+		driveTeamCamera = new cs::UsbCamera;
+		CameraServer::GetInstance()->StartAutomaticCapture(0);
+		driveTeamCamera->SetFPS(15);
+		driveTeamCamera->SetResolution(X_RES, Y_RES);
+//		CameraServer::GetInstance()->GetVideo();
+		CameraServer::GetInstance()->PutVideo("DriveTeamCam", 640, 480);
 	}
 
 	void AutonomousInit() override {
@@ -203,6 +214,7 @@ public:
 		bool buttonA = gameJoystick -> GetButtonA();
 		bool buttonB = gameJoystick -> GetButtonB();
 		bool buttonRT = gameJoystick -> GetRightThrottle();
+		bool buttonLT = gameJoystick -> GetLeftThrottle();
 
 		//Put claw mechanism up/down based on what limit switches are pressed
 		//if (buttonRB && rbHasNotBeenPressed == true) {
@@ -229,15 +241,31 @@ public:
 		}
 
 		//Make the rollers go forward and backward:
-		if (leftValue > 0.2) {
-			inOut -> MotorRollReverse();
+		//		if (leftValue > 0.2) {
+		//			inOut -> MotorRollReverse();
+		//		}
+		//		else if (leftValue < -0.2) {
+		//			inOut -> MotorRollForward();
+		//		}
+		//		else {
+		//			inOut -> MotorRollStop();
+		//		}
+
+		if (buttonRB && rbHasNotBeenPressed == true){
+			if (togglePivot) {
+				inOut -> MotorRollReverse();
+			}
+			else {
+				inOut -> MotorRollForward();
+			}
+			togglePivot = !togglePivot;
+			rbHasNotBeenPressed = false;
 		}
-		else if (leftValue < -0.2) {
-			inOut -> MotorRollForward();
-		}
-		else {
+		else if (!buttonRB && !rbHasNotBeenPressed) {
 			inOut -> MotorRollStop();
+			rbHasNotBeenPressed = true;
 		}
+
 
 		//Have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
@@ -255,6 +283,8 @@ public:
 		else if (buttonRT) {
 			upDown -> RegularHeight();
 		}
+
+
 
 		//Move motor claw manually
 		if (rightValue > 0.2) {

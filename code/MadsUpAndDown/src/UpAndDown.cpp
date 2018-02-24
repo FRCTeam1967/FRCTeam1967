@@ -25,10 +25,10 @@
 #define UD_HYSTERESIS_NEG -0.5
 
 //Field Element Heights
-#define SWITCH_HEIGHT 19.0
-#define SCALE_LOW_HEIGHT 48.0
-#define SCALE_MED_HEIGHT 60.0
-#define SCALE_HIGH_HEIGHT 70.0
+#define SWITCH_HEIGHT 18.0
+#define SCALE_LOW_HEIGHT 47.0
+#define SCALE_MED_HEIGHT 59.0
+#define SCALE_HIGH_HEIGHT 71.0
 #define REG_HEIGHT 0.0
 
 //PID
@@ -243,7 +243,6 @@ void UpAndDown::Run() {
 	//	printf("Current Height: %d \n" , lMotor->GetSensorCollection().GetQuadraturePosition());
 
 	//	if (isMechanismRunning) {
-
 	//	lMotor->Set(ControlMode::Position, GetEncoderDistanceInPulses(desiredHeight));
 	//	isMechanismRunning = false;
 
@@ -260,7 +259,6 @@ void UpAndDown::Run() {
 		RLMotorStop();
 		isMechanismRunning = false;
 	}
-
 }
 //}
 //}

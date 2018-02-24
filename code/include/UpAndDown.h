@@ -13,6 +13,7 @@ public:
 	virtual void Run();
 
 	void SwitchHeight();
+	void InBetweenSwitchAndScale();
 	void ScaleLowHeight();
 	void ScaleMedHeight();
 	void ScaleHight();
