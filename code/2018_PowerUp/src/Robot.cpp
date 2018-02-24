@@ -20,6 +20,7 @@
 #include "InAndOut.h"
 #include <UpAndDown.h>
 #include "jankyTask.h"
+#include "jankyDrivestick.h"
 
 //chassis channels
 #define FRONT_LEFT_MOTOR_CHANNEL 3
@@ -33,8 +34,9 @@
 #define RAMPING_TIME 0.5
 
 //joystick channels
-#define JOYSTICK_CHANNEL 0
-#define GC_XBOX_CHANNEL 1
+#define LEFT_JOYSTICK_CHANNEL 0
+#define RIGHT_JOYSTICK_CHANNEL 1
+#define GC_XBOX_CHANNEL 2
 
 //In and out channels
 #define MOTOR_CLAW_CHANNEL 7
@@ -67,7 +69,9 @@ class Robot : public frc::IterativeRobot {
 	WPI_TalonSRX*frmotor;
 	WPI_TalonSRX*rrmotor;
 	frc::RobotDrive*drive;
-	jankyXboxJoystick*xbox;
+	//jankyXboxJoystick*xbox;
+	jankyDrivestick*left;
+	jankyDrivestick*right;
 	frc::ADXRS450_Gyro*gyro;
 	AutoPIDDrive*chassis;
 	frc::Timer autonomousTimer;
@@ -93,7 +97,9 @@ public:
 		frmotor=NULL;
 		rrmotor=NULL;
 		drive=NULL;
-		xbox=NULL;
+		//xbox=NULL;
+		left=NULL;
+		right=NULL;
 		gyro=NULL;
 		chassis=NULL;
 		encoder=NULL;
@@ -107,7 +113,9 @@ public:
 		delete frmotor;
 		delete rrmotor;
 		delete drive;
-		delete xbox;
+		//delete xbox;
+		delete left;
+		delete right;
 		delete gyro;
 		delete chassis;
 		delete encoder;
@@ -124,7 +132,9 @@ public:
 		rlmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		rrmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		drive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor); //change for all 4 motors
-		xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
+		//xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
+		left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
+		right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		drive->SetSafetyEnabled(false);
 		//chassis = new AutoPIDDrive(drive);
@@ -194,7 +204,8 @@ public:
 
 	void TeleopPeriodic() {
 		//Driving
-		drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
+		drive->TankDrive(-left->GetY(), -right->GetY());
+		//drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
 		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
 		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
 		double rightEncoderCount= rrmotor->GetSensorCollection().GetQuadraturePosition();
