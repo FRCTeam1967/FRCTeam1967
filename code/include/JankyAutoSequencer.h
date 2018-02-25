@@ -14,7 +14,7 @@
 
 class JankyAutoSequencer:public JankyStateMachine {
 public:
-	JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder);
+	JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor);
 	//JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder);
 	virtual ~JankyAutoSequencer();
 	void SetName(int state, const char* name, JankyAutoEntry*entry);

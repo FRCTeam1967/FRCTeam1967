@@ -22,8 +22,8 @@ JankyAutoEntry::~JankyAutoEntry() {
 bool JankyAutoEntry::IsComplete(){
 	if(!active){
 		active = true;
-		RunAction();
 		Start();
+		RunAction();
 	}
 	if(JobDone()){
 		active = false;

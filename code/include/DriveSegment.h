@@ -13,7 +13,7 @@
 
 class DriveSegment : public JankyAutoEntry, public frc::PIDOutput{
 public:
-	DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance, double speed, double p, double i, double d);
+	DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, int inchDistance, double speed, double p, double i, double d);
 	//DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed);
 	virtual ~DriveSegment();
 
@@ -56,6 +56,8 @@ private:
 	RobotDrive*chassis;
 	SensorCollection*_leftEncoder;
 	SensorCollection*_rightEncoder;
+	WPI_TalonSRX*_leftmotor;
+	WPI_TalonSRX*_rightmotor;
 	Encoder*_encoder;
 	int distance;
 	double _speed;

@@ -7,6 +7,7 @@
  */
 
 #include <TurnSegment.h>
+#include "WPILib.h"
 
 
 TurnSegment::TurnSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*chassis, double degreeOfTurn, double speed, double p, double i, double d) {

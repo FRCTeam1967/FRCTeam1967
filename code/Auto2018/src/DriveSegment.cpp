@@ -23,12 +23,14 @@ double rEncoderDistance;
 double testEncoderCount;
 double testEncoderDistance;
 
-DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, int inchDistance, double speed, double p, double i, double d) {
+DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, int inchDistance, double speed, double p, double i, double d) {
 //DriveSegment::DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed) {
 	distance = inchDistance;
 	chassis = drive;
 	_leftEncoder = leftEncoder;
 	_rightEncoder = rightEncoder;
+	_leftmotor = leftmotor;
+	_rightmotor = rightmotor;
 	//_encoder=testEncoder;
 	_speed = speed;
 	_gyro=gyro;
@@ -75,6 +77,8 @@ void DriveSegment::RunAction(){
 void DriveSegment::Start(){
 	_leftEncoder->SetQuadraturePosition(0, 10);
 	_rightEncoder->SetQuadraturePosition(0, 10);
+	_leftmotor->SetSelectedSensorPosition(0, 0, 10);
+	_rightmotor->SetSelectedSensorPosition(0, 0, 10);
 	_gyro->Reset();
 	pid->SetInputRange(-180.0, 180.0);
 	pid->SetOutputRange(-1.0, 1.0);
@@ -85,6 +89,7 @@ void DriveSegment::Start(){
 
 void DriveSegment::End(){
 	pid->Disable();
+	chassis->TankDrive(0.0, 0.0);
 }
 
 void DriveSegment::PIDWrite(double output)

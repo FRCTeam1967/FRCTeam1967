@@ -42,6 +42,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/MadsUpAndDown/src/UpAndDown.cpp</locationURI>
 		</link>
 		<link>
+			<name>src/jankyDrivestick.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyDrivestick.cpp</locationURI>
+		</link>
+		<link>
 			<name>src/jankyStateMachine.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyStateMachine.cpp</locationURI>

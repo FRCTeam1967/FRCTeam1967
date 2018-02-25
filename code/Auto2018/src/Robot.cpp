@@ -19,6 +19,7 @@
 #include <SmartDashboard/SmartDashboard.h>
 #include "DriveSegment.h"
 #include "JankyAutoSequencer.h"
+#include "jankyDrivestick.h"
 using namespace std;
 
 //auto modes
@@ -47,7 +48,8 @@ using namespace std;
 #define DRIVE_TIME 1.2
 
 //joystick channels
-#define JOYSTICK_CHANNEL 0
+#define LEFT_JOYSTICK_CHANNEL 0
+#define RIGHT_JOYSTICK_CHANNEL 1
 
 class Robot : public frc::IterativeRobot {
 	JankyAutoSelector*selector;
@@ -57,6 +59,8 @@ class Robot : public frc::IterativeRobot {
 	WPI_TalonSRX*frmotor;
 	WPI_TalonSRX*rrmotor;
 	frc::RobotDrive*drive;
+	jankyDrivestick*left;
+	jankyDrivestick*right;
 	jankyXboxJoystick*xbox;
 	frc::ADXRS450_Gyro*gyro;
 	//frc::Encoder*encoder;
@@ -84,6 +88,8 @@ public:
 		rrmotor=NULL;
 		drive=NULL;
 		xbox=NULL;
+		left=NULL;
+		right=NULL;
 		gyro=NULL;
 		//encoder=NULL;
 		chassis=NULL;
@@ -101,6 +107,8 @@ public:
 		delete rrmotor;
 		delete drive;
 		delete xbox;
+		delete left;
+		delete right;
 		delete gyro;
 		//delete encoder;
 		delete chassis;
@@ -118,8 +126,9 @@ public:
 		frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 		drive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor);
-
-		xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
+		left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
+		right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
+		//xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		//encoder = new Encoder(ENCODER_A_CHANNEL, ENCODER_B_CHANNEL);
 		//chassis = new AutoPIDDrive(drive);
@@ -137,7 +146,7 @@ public:
 		//PID = new PIDController(kP, kI, kD, gyro, chassis);
 		//leftEncoder = &(rlmotor->GetSensorCollection());
 		//rightEncoder = &(rrmotor->GetSensorCollection());
-		sequencer = new JankyAutoSequencer(drive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()));
+		sequencer = new JankyAutoSequencer(drive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor);
 		selector->Init();
 		//make sure robot is left unmoved for ~10 seconds during calibration
 		//encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
@@ -227,8 +236,8 @@ public:
 	}
 
 	void TeleopPeriodic() {
-		//testmotor->Set(0.35);
-		drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
+		//Driving
+		drive->TankDrive(-left->GetY(), -right->GetY());
 		//SmartDashboard::PutNumber("Encoder Count", encoder->Get());
 		//SmartDashboard::PutNumber("Encoder Distance", (encoder->Get()*MEASURED_DIST_PER_PULSE));
 		/*float encoderCount = testmotor->GetSensorCollection().GetQuadraturePosition();
