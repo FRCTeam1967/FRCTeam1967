@@ -68,7 +68,10 @@ class Robot : public frc::IterativeRobot {
 	WPI_TalonSRX*rlmotor;
 	WPI_TalonSRX*frmotor;
 	WPI_TalonSRX*rrmotor;
-	frc::RobotDrive*drive;
+	//frc::RobotDrive*drive;
+	frc::SpeedControllerGroup*leftDrive;
+	frc::SpeedControllerGroup*rightDrive;
+	frc::DifferentialDrive*drive;
 	//jankyXboxJoystick*xbox;
 	jankyDrivestick*left;
 	jankyDrivestick*right;
@@ -96,10 +99,10 @@ public:
 		rlmotor=NULL;
 		frmotor=NULL;
 		rrmotor=NULL;
-		drive=NULL;
 		//xbox=NULL;
 		left=NULL;
 		right=NULL;
+		drive=NULL;
 		gyro=NULL;
 		chassis=NULL;
 		encoder=NULL;
@@ -112,10 +115,10 @@ public:
 		delete rlmotor;
 		delete frmotor;
 		delete rrmotor;
-		delete drive;
 		//delete xbox;
 		delete left;
 		delete right;
+		delete drive;
 		delete gyro;
 		delete chassis;
 		delete encoder;
@@ -131,7 +134,9 @@ public:
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 		rlmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		rrmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-		drive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor); //change for all 4 motors
+		leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
+		rightDrive = new frc::SpeedControllerGroup(*frmotor, *rrmotor);
+		drive = new DifferentialDrive(*leftDrive, *rightDrive);
 		//xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 		left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
 		right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
