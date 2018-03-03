@@ -159,7 +159,7 @@ public:
 		CameraServer::GetInstance()->StartAutomaticCapture(0);
 		driveTeamCamera->SetFPS(15);
 		driveTeamCamera->SetResolution(X_RES, Y_RES);
-//		CameraServer::GetInstance()->GetVideo();
+		//		CameraServer::GetInstance()->GetVideo();
 		CameraServer::GetInstance()->PutVideo("DriveTeamCam", 640, 480);
 	}
 
@@ -231,20 +231,14 @@ public:
 		bool buttonB = gameJoystick -> GetButtonB();
 		bool buttonRT = gameJoystick -> GetRightThrottle();
 		bool buttonLT = gameJoystick -> GetLeftThrottle();
-
-		//Put claw mechanism up/down based on what limit switches are pressed
-		//if (buttonRB && rbHasNotBeenPressed == true) {
-		//	inOut->GetDesiredDistance();
-		//	rbHasNotBeenPressed = false;
-		//}
-		//else if (!buttonRB && !rbHasNotBeenPressed){
-		//	rbHasNotBeenPressed = true;
-		//}
+		bool buttonLeft = gameJoystick->GetButtonBack();
+		bool buttonRight = gameJoystick->GetButtonStart();
 
 		// Open/Close the claw's "doors" with pistons
 		if (buttonLB && lbHasNotBeenPressed == true){
 			if (toggleDoor) {
 				inOut->PistonDoorOpen();
+				//				inOut -> MotorRollForward();
 			}
 			else {
 				inOut->PistonDoorClose();
@@ -257,31 +251,15 @@ public:
 		}
 
 		//Make the rollers go forward and backward:
-		//		if (leftValue > 0.2) {
-		//			inOut -> MotorRollReverse();
-		//		}
-		//		else if (leftValue < -0.2) {
-		//			inOut -> MotorRollForward();
-		//		}
-		//		else {
-		//			inOut -> MotorRollStop();
-		//		}
-
-		if (buttonRB && rbHasNotBeenPressed == true){
-			if (togglePivot) {
-				inOut -> MotorRollReverse();
-			}
-			else {
-				inOut -> MotorRollForward();
-			}
-			togglePivot = !togglePivot;
-			rbHasNotBeenPressed = false;
+		if (leftValue > 0.2) {
+			inOut -> MotorRollReverse();
 		}
-		else if (!buttonRB && !rbHasNotBeenPressed) {
+		else if (leftValue < -0.2) {
+			inOut -> MotorRollForward();
+		}
+		else {
 			inOut -> MotorRollStop();
-			rbHasNotBeenPressed = true;
 		}
-
 
 		//Have mechanism go up to different heights based on what button is pressed
 		if (buttonX) {
@@ -299,8 +277,21 @@ public:
 		else if (buttonRT) {
 			upDown -> RegularHeight();
 		}
+		else if (buttonRB) {
+			upDown ->InBetweenSwitchAndScale();
+		}
 
-
+		if (upDown->isMechanismRunning == false) {
+			if (buttonLeft) {
+				upDown->RLMotorReverse();
+			}
+			else if (buttonRight) {
+				upDown->RLMotorForward();
+			}
+			else {
+				upDown->RLMotorStop();
+			}
+		}
 
 		//Move motor claw manually
 		if (rightValue > 0.2) {
@@ -312,6 +303,32 @@ public:
 		else {
 			inOut -> MotorClawStop();
 		}
+		//UNUSED
+		/*
+		//Put claw mechanism up/down based on what limit switches are pressed
+		if (buttonRB && rbHasNotBeenPressed == true) {
+			inOut->GetDesiredDistance();
+			rbHasNotBeenPressed = false;
+		}
+		else if (!buttonRB && !rbHasNotBeenPressed){
+			rbHasNotBeenPressed = true;
+		}
+
+				if (buttonRB && rbHasNotBeenPressed == true){
+					if (togglePivot) {
+						inOut -> MotorRollStop();
+					}
+					else {
+						inOut -> MotorRollReverse();
+					}
+					togglePivot = !togglePivot;
+					rbHasNotBeenPressed = false;
+				}
+				else if (!buttonRB && !rbHasNotBeenPressed) {
+		//			inOut -> MotorRollStop();
+					rbHasNotBeenPressed = true;
+				}
+		 */
 	}
 
 	void TestPeriodic() {

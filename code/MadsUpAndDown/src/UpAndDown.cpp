@@ -25,10 +25,11 @@
 #define UD_HYSTERESIS_NEG -0.5
 
 //Field Element Heights
-#define SWITCH_HEIGHT 18.0
-#define SCALE_LOW_HEIGHT 47.0
-#define SCALE_MED_HEIGHT 59.0
-#define SCALE_HIGH_HEIGHT 71.0
+#define SWITCH_HEIGHT 20.5
+#define IN_BETWEEN_HEIGHT 18.0
+#define SCALE_LOW_HEIGHT 46.5
+#define SCALE_MED_HEIGHT 58.5
+#define SCALE_HIGH_HEIGHT 70.5
 #define REG_HEIGHT 0.0
 
 //PID
@@ -116,6 +117,10 @@ void UpAndDown::EmergencyStopMechanism(){
 	else if (GetTopLimSwitch()==0) {
 		topLimSwitchHasNotBeenPressed = true;
 	}
+}
+void UpAndDown::InBetweenSwitchAndScale() {
+	desiredHeight = IN_BETWEEN_HEIGHT;
+	isMechanismRunning = true;
 }
 
 void UpAndDown::SwitchHeight() {
@@ -247,20 +252,20 @@ void UpAndDown::Run() {
 	//	isMechanismRunning = false;
 
 	amountToMove = desiredHeight - (GetGameMotorEncoderDistance()*-1); //This finds how far (forward or backward) the motor will have to turn in order to get to a certain height
+	if (isMechanismRunning) {
+		if (amountToMove > UD_HYSTERESIS_POS) {
+			RLMotorReverse();
+		}
+		else if (amountToMove < UD_HYSTERESIS_NEG) {
+			RLMotorForward();
 
-	if (amountToMove > UD_HYSTERESIS_POS) {
-		RLMotorReverse();
-	}
-	else if (amountToMove < UD_HYSTERESIS_NEG) {
-		RLMotorForward();
-
-	}
-	else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
-		RLMotorStop();
-		isMechanismRunning = false;
+		}
+		else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
+			RLMotorStop();
+			isMechanismRunning = false;
+		}
 	}
 }
-//}
 //}
 //}
 
