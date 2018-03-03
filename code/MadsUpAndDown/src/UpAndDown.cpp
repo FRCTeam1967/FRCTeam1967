@@ -25,7 +25,7 @@
 #define UD_HYSTERESIS_NEG -0.5
 
 //Field Element Heights
-#define SWITCH_HEIGHT 18.0
+#define SWITCH_HEIGHT 26.0
 #define SCALE_LOW_HEIGHT 47.0
 #define SCALE_MED_HEIGHT 59.0
 #define SCALE_HIGH_HEIGHT 71.0

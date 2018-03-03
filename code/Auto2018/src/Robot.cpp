@@ -51,6 +51,24 @@ using namespace std;
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
 
+//In and out channels
+#define MOTOR_CLAW_CHANNEL 7
+#define PISTON_DOOR_LEFT_CHANNEL 4
+#define PISTON_DOOR_RIGHT_CHANNEL 4
+#define MOTOR_ROLL_CHANNEL 8
+//#define CLAW_ENCODER_CHANNEL_1 4
+//#define CLAW_ENCODER_CHANNEL_2 5
+//#define PISTON_IN_OUT_1_CHANNEL 2
+//#define PISTON_IN_OUT_2_CHANNEL 3
+//#define LIM_SWITCH_INSIDE_CHANNEL 0
+//#define LIM_SWITCH_OUTSIDE_CHANNEL 1
+#define AMNT_TO_MOVE_CLAW 4096/4
+
+
+//Up and down channels
+#define L_MOTOR_CHANNEL 6
+#define R_MOTOR_CHANNEL 1
+
 class Robot : public frc::IterativeRobot {
 	JankyAutoSelector*selector;
 	frc::Timer autonomousTimer;
@@ -72,6 +90,8 @@ class Robot : public frc::IterativeRobot {
 	LiveWindow*lw;
 	//SensorCollection*leftEncoder;
 	//SensorCollection*rightEncoder;
+	InAndOut*inOut;
+	UpAndDown*upDown;
 	int delayTime = 0;
 	int automode = DEFAULT_MODE;
 	char switchPos;
@@ -98,6 +118,8 @@ public:
 		sequencer=NULL;
 		//leftEncoder=NULL;
 		//rightEncoder=NULL;
+		inOut = NULL;
+		upDown = NULL;
 	}
 	~Robot(){
 		delete selector;
@@ -117,6 +139,8 @@ public:
 		delete sequencer;
 		//delete leftEncoder;
 		//delete rightEncoder;
+		delete inOut;
+		delete upDown;
 	}
 
 	void RobotInit() {
@@ -142,12 +166,22 @@ public:
 		//kP = preferences->GetFloat("pValue", 0.0);
 		//kI = preferences->GetFloat("iValue", 0.0);
 		//kD = preferences->GetFloat("dValue", 0.0);
+		inOut = new InAndOut(PISTON_DOOR_LEFT_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, MOTOR_ROLL_CHANNEL, MOTOR_CLAW_CHANNEL);
+		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL);
 
 		//PID = new PIDController(kP, kI, kD, gyro, chassis);
 		//leftEncoder = &(rlmotor->GetSensorCollection());
 		//rightEncoder = &(rrmotor->GetSensorCollection());
-		sequencer = new JankyAutoSequencer(drive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor);
+		sequencer = new JankyAutoSequencer(drive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
 		selector->Init();
+
+		//  Game Components
+		inOut->StartUpInit();
+		//inOut->PIDSetup();
+		//		inOut -> Start();
+		upDown->StartUpInit();
+		//upDown->PIDSetup();
+		upDown->Start();
 		//make sure robot is left unmoved for ~10 seconds during calibration
 		//encoder->SetDistancePerPulse(DISTANCE_PER_PULSE);
 	}
@@ -161,7 +195,7 @@ public:
 		if(gameData.empty()){
 			//not connected to FMS
 			//switchPos = 'E';  //for at competition
-			switchPos = 'R'; //value for testing purposes
+			switchPos = 'L'; //value for testing purposes
 			printf("Overriding gameData because no valid FMS data \n");
 		}
 		else{
@@ -178,6 +212,7 @@ public:
 		//encoder->Reset();
 		rlmotor->SetSelectedSensorPosition(0, 0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
+
 		//leftEncoder->SetQuadraturePosition(0, 10);
 		//rightEncoder->SetQuadraturePosition(0, 10);
 		//PID->SetInputRange(-180.0, 180.0);

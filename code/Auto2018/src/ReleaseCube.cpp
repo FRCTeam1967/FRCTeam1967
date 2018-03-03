@@ -7,60 +7,32 @@
  */
 
 #include <ReleaseCube.h>
-#include"InAndOut.h"
-#include "UpAndDown.h"
 
-ReleaseCube::ReleaseCube(InAndOut*inAndOut,UpAndDown*upAndDown, char height) {
+#include "WPILib.h"
+
+//timings not accurate to be tested
+#define ROLL_OUT_TIME 2
+
+Timer*intimer;
+double timeToGoUp;
+
+ReleaseCube::ReleaseCube(RobotDrive*drive, InAndOut*inAndOut,UpAndDown*upAndDown, char height) {
 	// TODO Auto-generated constructor stub
+	chassis=drive;
 	IAO = inAndOut;
 	UAD = upAndDown;
 	_height=height;
+	intimer=new Timer();
 }
 
 ReleaseCube::~ReleaseCube() {
 	// TODO Auto-generated destructor stub
-
-}
-
-void ReleaseCube::Start()
-{
-	upDone = false;
-	downDone = false;
-	IAO->MotorClawOutOfRobot();
-	UAD->Start();
-	if(_height=='l')
-	{
-		UAD->ScaleLowHeight();
-	}
-	if(_height=='m')
-	{
-		UAD->ScaleMedHeight();
-	}
-	if(_height=='h')
-	{
-		UAD->ScaleHight();
-	}
-	//ask maddie to write return method
-
-}
-void ReleaseCube::End()
-{
-
+	delete intimer;
 }
 
 bool ReleaseCube::JobDone()
 {
-	if(!UAD->GetIfMechIsRunning())
-	{
-		upDone = true;
-	}
-	if(upDone)
-	{
-		UAD->RegularHeight();
-		if(!UAD->GetIfMechIsRunning())
-			{
-				downDone = true;
-			}
+	if(intimer->Get()>ROLL_OUT_TIME){
 		return true;
 	}
 	return false;
@@ -71,3 +43,15 @@ void ReleaseCube::RunAction()
 
 }
 
+void ReleaseCube::Start()
+{
+	intimer->Start();
+	IAO->MotorRollForward();
+}
+
+void ReleaseCube::End()
+{
+	IAO->MotorRollStop();
+	intimer->Stop();
+	intimer->Reset();
+}

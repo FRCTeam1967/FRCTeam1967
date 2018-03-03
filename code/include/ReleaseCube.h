@@ -8,7 +8,8 @@
 
 #ifndef SRC_RELEASECUBE_H_
 #define SRC_RELEASECUBE_H_
-
+#include "WPILib.h"
+#include "ctre/Phoenix.h"
 #include "JankyAutoEntry.h"
 #include "InAndOut.h"
 #include "UpAndDown.h"
@@ -16,7 +17,7 @@
 
 class ReleaseCube : public JankyAutoEntry{
 public:
-	ReleaseCube(InAndOut*INO,UpAndDown*UAD, char height);
+	ReleaseCube(RobotDrive*drive, InAndOut*INO,UpAndDown*UAD, char height);
 	virtual ~ReleaseCube();
 
 protected:
@@ -52,11 +53,11 @@ protected:
 	void End();
 
 private:
+	bool startDriving;
 	char _height;
 	InAndOut*IAO;
 	UpAndDown*UAD;
-	bool upDone;
-	bool downDone;
+	RobotDrive*chassis;
 };
 
 #endif /* SRC_RELEASECUBE_H_ */
