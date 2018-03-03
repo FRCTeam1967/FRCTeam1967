@@ -7,6 +7,7 @@
 
 class UpAndDown : public JankyTask {
 public:
+	bool isMechanismRunning;
 	UpAndDown(int lMotorChannel, int rMotorChannel);
 	virtual ~UpAndDown();
 
@@ -52,7 +53,7 @@ private:
 
 	void PutMechanismDown();
 
-	bool isMechanismRunning;
+
 	double desiredHeight;
 	double amountToMove;
 
