@@ -35,13 +35,13 @@ public:
 	void PIDSetup();
 
 	double GetEncoderDistanceInPulses(double desiredHeight);
+	double GetGameMotorEncoderDistance();
 
 protected:
 
 	int GetBottomLimSwitch();
 	int GetTopLimSwitch();
 
-	double GetGameMotorEncoderDistance();
 
 	//  Unused
 	//	double GetEncoderDistance();
