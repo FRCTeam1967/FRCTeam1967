@@ -37,9 +37,44 @@
 			<locationURI>PARENT-3-PROJECT_LOC/Phoenix-Examples-Languages/C++/MotionProfile/src/Constants.h</locationURI>
 		</link>
 		<link>
+			<name>src/CubeUp.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/CubeUp.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/DriveSegment.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/DriveSegment.cpp</locationURI>
+		</link>
+		<link>
 			<name>src/InAndOut.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/MadsInAndOut/src/InAndOut.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/JankyAutoEntry.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/JankyAutoEntry.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/JankyAutoSelector.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/JankyAutoSelector.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/JankyAutoSequencer.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/JankyAutoSequencer.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/ReleaseCube.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/ReleaseCube.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/TurnSegment.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/TurnSegment.cpp</locationURI>
 		</link>
 		<link>
 			<name>src/UpAndDown.cpp</name>
@@ -50,6 +85,11 @@
 			<name>src/jankyDrivestick.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyDrivestick.cpp</locationURI>
+		</link>
+		<link>
+			<name>src/jankyStateMachine.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyStateMachine.cpp</locationURI>
 		</link>
 		<link>
 			<name>src/jankyTask.cpp</name>

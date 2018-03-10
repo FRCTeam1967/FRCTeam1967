@@ -52,9 +52,10 @@ bool DriveSegment::JobDone(){
 	rEncoderCount = _rightEncoder->GetQuadraturePosition();
 	lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
-	printf("Left Encoder dist %f \n", lEncoderDistance);
-	printf("Right Encoder dist %f \n", rEncoderDistance);
-	if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
+	//remove in final code:
+	//printf("Left Encoder dist %f \n", lEncoderDistance);
+	//printf("Right Encoder dist %f \n", rEncoderDistance);
+	if((lEncoderDistance>=distance)||(rEncoderDistance>=distance)){
 		printf("job done \n");
 		return true;
 	}
@@ -95,4 +96,5 @@ void DriveSegment::End(){
 void DriveSegment::PIDWrite(double output)
 {
 	chassis->Drive(_speed, output);
+	//chassis->CurvatureDrive(_speed, output, true); //IF CHANGING TO ARCADE DRIVE REMEMBER THAT NEGATIVE NUMBERS MEAN FORWARD
 }
