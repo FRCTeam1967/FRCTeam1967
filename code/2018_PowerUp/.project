@@ -82,6 +82,11 @@
 			<locationURI>PARENT-1-PROJECT_LOC/MadsUpAndDown/src/UpAndDown.cpp</locationURI>
 		</link>
 		<link>
+			<name>src/VisionSegment.cpp</name>
+			<type>1</type>
+			<locationURI>PARENT-1-PROJECT_LOC/Auto2018/src/VisionSegment.cpp</locationURI>
+		</link>
+		<link>
 			<name>src/jankyDrivestick.cpp</name>
 			<type>1</type>
 			<locationURI>PARENT-1-PROJECT_LOC/classes/jankyDrivestick.cpp</locationURI>
