@@ -51,6 +51,7 @@ public:
 		Drive162Inches,
 		CubeUp,
 		ReleaseCube,
+		VisionSegment,
 		Stop
 	};
 	//void RunLeftCrossAutoLine();
