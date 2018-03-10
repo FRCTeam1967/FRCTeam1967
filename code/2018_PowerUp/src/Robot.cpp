@@ -126,6 +126,7 @@ public:
 		left=NULL;
 		right=NULL;
 		drive=NULL;
+		autoDrive=NULL;
 		gyro=NULL;
 		gameJoystick = NULL;
 		inOut = NULL;
@@ -141,6 +142,7 @@ public:
 		delete left;
 		delete right;
 		delete drive;
+		delete autoDrive;
 		delete gyro;
 		delete gameJoystick;
 		delete inOut;
@@ -178,7 +180,7 @@ public:
 		driveTeamCamera->SetResolution(X_RES, Y_RES);
 		//		CameraServer::GetInstance()->GetVideo();
 		CameraServer::GetInstance()->PutVideo("DriveTeamCam", 640, 480);
-
+		scaleFactor=1.0;
 		//Prepare for auto
 		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
 		selector->Init();
@@ -227,7 +229,6 @@ public:
 		else if(automode == L_CROSS_AUTOLINE && autoTime>delayTime){
 			//printf("starting left and crossing auto line \n");
 			sequencer->SetMode(L_CROSS_AUTOLINE);
-
 		}
 		else if(automode == L_SAME_SWITCH && autoTime>delayTime){
 			//printf("starting left and loading cube onto switch on left side \n");
@@ -272,17 +273,22 @@ public:
 		//Driving
 		//NEED TO TEST
 		upDownEncoderDistance=upDown->GetGameMotorEncoderDistance();
+		SmartDashboard::PutNumber("Up&Down Encoder Distance", upDownEncoderDistance);
 
-		if(upDownEncoderDistance<28){
+		if(upDownEncoderDistance<18){
 			scaleFactor = 1.0;
 		}
+		else if(upDownEncoderDistance<35){
+			scaleFactor = 0.75;
+		}
 		else if(upDownEncoderDistance<50){
-			scaleFactor = 0.65;
+			scaleFactor = 0.5;
 		}
 		else if(upDownEncoderDistance<75){
-			scaleFactor = 0.4;
+			scaleFactor = 0.25;
 		}
 
+		SmartDashboard::PutNumber("Scale Factor", scaleFactor);
 		drive->TankDrive(-left->GetY()*scaleFactor, -right->GetY()*scaleFactor);
 
 		//drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());

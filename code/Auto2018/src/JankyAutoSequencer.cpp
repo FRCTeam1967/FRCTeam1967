@@ -14,6 +14,7 @@
 #include"InAndOut.h"
 #include "UpAndDown.h"
 #include "CubeUp.h"
+#include "VisionSegment.h"
 
 #define MAX_NAMES 32
 
@@ -53,7 +54,7 @@ DriveSegment*drive144Inches;
 DriveSegment*drive162Inches;
 CubeUp*cubeUp;
 ReleaseCube*releaseCube;
-
+VisionSegment*visionSegment;
 
 JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, InAndOut*inAndOut, UpAndDown*upAndDown) {
 //JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder) {
@@ -72,6 +73,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 162, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	cubeUp = new ::CubeUp(inAndOut, upAndDown, 'l');
 	releaseCube = new ::ReleaseCube(drive, inAndOut, upAndDown, 'l');
+	visionSegment = new ::VisionSegment(drive, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 
 	SetMachineName("JankyAutoSequencer");
 	JankyStateMachine::SetName(Rest, "Rest");
@@ -87,6 +89,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	SetName(Drive162Inches, "Drive straight 162 inches", drive162Inches);
 	SetName(CubeUp, "Lift cube to desired height", cubeUp);
 	SetName(ReleaseCube, "Release cube onto the switch", releaseCube);
+	SetName(VisionSegment, "Drive to the switch with vision", visionSegment);
 	JankyStateMachine::SetName(Stop, "End of Sequence");
 
 	c = 0;
@@ -125,6 +128,7 @@ JankyAutoSequencer::~JankyAutoSequencer() {
 	delete drive162Inches;
 	delete cubeUp;
 	delete releaseCube;
+	delete visionSegment;
 }
 
 void JankyAutoSequencer::SetName(int state, const char* name, JankyAutoEntry*entry){
@@ -296,8 +300,10 @@ void JankyAutoSequencer::StateEngine(int curState)
 				}
 			}
 			break;
-		case Drive72Inches:
-			if(drive72Inches->IsComplete()){
+		//case Drive72Inches:
+		case VisionSegment:
+			//if(drive72Inches->IsComplete()){
+			if(visionSegment->IsComplete()){
 				if(aMode==M_LEFT_SWITCH){
 					NewState(ReleaseCube, "Done driving to left switch front");
 				}
