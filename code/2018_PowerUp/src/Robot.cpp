@@ -21,12 +21,27 @@
 #include <UpAndDown.h>
 #include "jankyTask.h"
 #include "jankyDrivestick.h"
+#include "JankyAutoSequencer.h"
+#include "JankyAutoSelector.h"
+
+//auto modes
+#define DEFAULT_MODE 1
+#define L_CROSS_AUTOLINE 2
+#define L_SAME_SWITCH 3
+#define L_OPPOSITE_SWITCH 4
+#define M_LEFT_SWITCH 5
+#define M_RIGHT_SWITCH 6
+#define R_CROSS_AUTOLINE 7
+#define R_SAME_SWITCH 8
+#define R_OPPOSITE_SWITCH 9
 
 //chassis channels
 #define FRONT_LEFT_MOTOR_CHANNEL 3
 #define REAR_LEFT_MOTOR_CHANNEL 2
 #define FRONT_RIGHT_MOTOR_CHANNEL 5
 #define REAR_RIGHT_MOTOR_CHANNEL 4
+#define ENCODER_A_CHANNEL 2
+#define ENCODER_B_CHANNEL 3
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6
 #define CIRCUMFERENCE DIAMETER*M_PI
@@ -64,25 +79,25 @@
 #define Y_RES 1000
 
 class Robot : public frc::IterativeRobot {
+	JankyAutoSelector*selector;
+	JankyAutoSequencer*sequencer;
+	frc::Timer autonomousTimer;
 	WPI_TalonSRX*flmotor;
 	WPI_TalonSRX*rlmotor;
 	WPI_TalonSRX*frmotor;
 	WPI_TalonSRX*rrmotor;
-	//frc::RobotDrive*drive;
+	frc::RobotDrive*autoDrive;
 	frc::SpeedControllerGroup*leftDrive;
 	frc::SpeedControllerGroup*rightDrive;
 	frc::DifferentialDrive*drive;
-	//jankyXboxJoystick*xbox;
 	jankyDrivestick*left;
 	jankyDrivestick*right;
 	frc::ADXRS450_Gyro*gyro;
-	AutoPIDDrive*chassis;
-	frc::Timer autonomousTimer;
-	Encoder*encoder;
 	jankyXboxJoystick*gameJoystick;
 	InAndOut*inOut;
 	UpAndDown*upDown;
 	LiveWindow*lw;
+	//GC
 	bool lbHasNotBeenPressed = true;
 	bool rbHasNotBeenPressed = true;
 	bool toggleDoor = true;
@@ -91,43 +106,49 @@ class Robot : public frc::IterativeRobot {
 	double targetPositionRotations;
 	std::string _sb;
 	cs::UsbCamera*driveTeamCamera;
-
+	//Auto
+	int delayTime = 0;
+	int automode = DEFAULT_MODE;
+	char switchPos;
+	//Driving
+	double scaleFactor;
+	int upDownEncoderDistance;
+	int maxEncoderDistance;
 
 public:
 	Robot(){
+		selector=NULL;
+		sequencer=NULL;
 		flmotor=NULL;
 		rlmotor=NULL;
 		frmotor=NULL;
 		rrmotor=NULL;
-		//xbox=NULL;
 		left=NULL;
 		right=NULL;
 		drive=NULL;
 		gyro=NULL;
-		chassis=NULL;
-		encoder=NULL;
 		gameJoystick = NULL;
 		inOut = NULL;
 		upDown = NULL;
 	}
 	~Robot(){
+		delete selector;
+		delete sequencer;
 		delete flmotor;
 		delete rlmotor;
 		delete frmotor;
 		delete rrmotor;
-		//delete xbox;
 		delete left;
 		delete right;
 		delete drive;
 		delete gyro;
-		delete chassis;
-		delete encoder;
 		delete gameJoystick;
 		delete inOut;
 		delete upDown;
 	}
 
 	void RobotInit() {
+		selector = new JankyAutoSelector();
 		flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
 		rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
 		frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
@@ -136,80 +157,134 @@ public:
 		rrmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
 		rightDrive = new frc::SpeedControllerGroup(*frmotor, *rrmotor);
-		drive = new DifferentialDrive(*leftDrive, *rightDrive);
-		//xbox = new jankyXboxJoystick(JOYSTICK_CHANNEL);
+		autoDrive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor);
+		drive = new frc::DifferentialDrive(*leftDrive, *rightDrive);
 		left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
 		right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
-		gyro = new ADXRS450_Gyro(SPI::Port::kOnboardCS0);
+		gyro = new frc::ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		drive->SetSafetyEnabled(false);
-		//chassis = new AutoPIDDrive(drive);
-		//PID = new PIDController(kP, kI, kD, gyro, chassis);
 		flmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		frmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rlmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rrmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 
-		//CONFIGURE RAMPING FOR TWO OTHER MOTORS THAT ELEC ADDS
 		lw = LiveWindow::GetInstance();
 		gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
 		inOut = new InAndOut(PISTON_DOOR_LEFT_CHANNEL, PISTON_DOOR_RIGHT_CHANNEL, MOTOR_ROLL_CHANNEL, MOTOR_CLAW_CHANNEL);
 		upDown = new UpAndDown(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL);
-		gyro->Calibrate(); //make sure robot is left unmoved for ~10 seconds during calibration
 		driveTeamCamera = new cs::UsbCamera;
 		CameraServer::GetInstance()->StartAutomaticCapture(0);
 		driveTeamCamera->SetFPS(15);
 		driveTeamCamera->SetResolution(X_RES, Y_RES);
 		//		CameraServer::GetInstance()->GetVideo();
 		CameraServer::GetInstance()->PutVideo("DriveTeamCam", 640, 480);
-	}
 
-	void AutonomousInit() override {
-		gyro->Reset();
-		rlmotor->SetSelectedSensorPosition(0, 0, 10);
-		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-		rrmotor->SetSelectedSensorPosition(0, 0, 10);
-		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		//Prepare for auto
+		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
+		selector->Init();
 
-		//Game components
-		//inOut->StartUpInit();
-		//inOut->PIDSetup();
-		//inOut -> Start();
-		//upDown->StartUpInit();
-		//upDown->PIDSetup();
-		//upDown->Start();
-	}
-
-	void AutonomousPeriodic() {
-		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
-		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
-		double rightEncoderCount= rrmotor->GetSensorCollection().GetQuadraturePosition();
-		double rightEncoderDistance = (rightEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
-		SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
-		SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
-		SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
-		SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
-
-	}
-
-	void TeleopInit() {
-		gyro->Reset();
-		rlmotor->SetSelectedSensorPosition(0, 0, 10);
-		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-		rrmotor->SetSelectedSensorPosition(0, 0, 10);
-		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-
-		//  Game Components
 		inOut->StartUpInit();
 		//inOut->PIDSetup();
-		//		inOut -> Start();
+		//inOut -> Start();
 		upDown->StartUpInit();
 		//upDown->PIDSetup();
 		upDown->Start();
 	}
 
+	void AutonomousInit() override {
+		//retrieving switch info from FMS
+		std::string gameData;
+		gameData = frc::DriverStation::GetInstance().GetGameSpecificMessage();
+		std::cout << gameData;
+		if(gameData.empty()){
+			//not connected to FMS
+			//switchPos = 'E';  //for at competition
+			switchPos = 'L'; //value for testing purposes
+			printf("Overriding gameData because no valid FMS data \n");
+		}
+		else{
+			switchPos = gameData[0];
+		}
+
+		autonomousTimer.Reset();
+		autonomousTimer.Start();
+		gyro->Reset();
+		rlmotor->SetSelectedSensorPosition(0, 0, 10);
+		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		rrmotor->SetSelectedSensorPosition(0, 0, 10);
+		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+
+		delayTime = selector->GetDelayTime();
+		automode=selector->GetAutoMode(switchPos);
+		selector->PrintValues();
+	}
+
+	void AutonomousPeriodic() {
+		double autoTime=autonomousTimer.Get();
+		if  (automode == DEFAULT_MODE) {
+			//printf ("default\n");
+		}
+		else if(automode == L_CROSS_AUTOLINE && autoTime>delayTime){
+			//printf("starting left and crossing auto line \n");
+			sequencer->SetMode(L_CROSS_AUTOLINE);
+
+		}
+		else if(automode == L_SAME_SWITCH && autoTime>delayTime){
+			//printf("starting left and loading cube onto switch on left side \n");
+			sequencer->SetMode(L_SAME_SWITCH);
+		}
+		else if(automode == L_OPPOSITE_SWITCH && autoTime>delayTime){
+			//printf("starting left and loading cube onto switch on right side \n");
+			sequencer->SetMode(L_OPPOSITE_SWITCH);
+		}
+		else if(automode == M_LEFT_SWITCH && autoTime>delayTime){
+			//printf("starting middle and loading cube onto left switch \n");
+			sequencer->SetMode(M_LEFT_SWITCH);
+		}
+		else if(automode == M_RIGHT_SWITCH && autoTime>delayTime){
+			//printf("starting middle and loading cube onto right switch \n");
+			sequencer->SetMode(M_RIGHT_SWITCH);
+		}
+		else if(automode == R_CROSS_AUTOLINE && autoTime>delayTime){
+			//printf("starting right and crossing auto line \n");
+			sequencer->SetMode(R_CROSS_AUTOLINE);
+		}
+		else if(automode == R_SAME_SWITCH && autoTime>delayTime){
+			//printf("starting right and loading cube onto switch on right side \n");
+			sequencer->SetMode(R_SAME_SWITCH);
+		}
+		else if(automode == R_OPPOSITE_SWITCH && autoTime>delayTime){
+			//printf("starting right and loading cube onto switch on left side \n");
+			sequencer->SetMode(R_OPPOSITE_SWITCH);
+		}
+	}
+
+	void TeleopInit() {
+		sequencer->EndSequence();
+		gyro->Reset();
+		rlmotor->SetSelectedSensorPosition(0, 0, 10);
+		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		rrmotor->SetSelectedSensorPosition(0, 0, 10);
+		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+	}
+
 	void TeleopPeriodic() {
 		//Driving
-		drive->TankDrive(-left->GetY(), -right->GetY());
+		//NEED TO TEST
+		upDownEncoderDistance=upDown->GetGameMotorEncoderDistance();
+
+		if(upDownEncoderDistance<28){
+			scaleFactor = 1.0;
+		}
+		else if(upDownEncoderDistance<50){
+			scaleFactor = 0.65;
+		}
+		else if(upDownEncoderDistance<75){
+			scaleFactor = 0.4;
+		}
+
+		drive->TankDrive(-left->GetY()*scaleFactor, -right->GetY()*scaleFactor);
+
 		//drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
 		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
 		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
