@@ -26,7 +26,7 @@
 
 //Field Element Heights
 
-#define SWITCH_HEIGHT 20.5
+#define SWITCH_HEIGHT 26.5
 #define IN_BETWEEN_HEIGHT 18.0
 #define SCALE_LOW_HEIGHT 46.5
 #define SCALE_MED_HEIGHT 58.5

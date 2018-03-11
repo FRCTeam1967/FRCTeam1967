@@ -272,7 +272,7 @@ public:
 	void TeleopPeriodic() {
 		//Driving
 		//NEED TO TEST
-		upDownEncoderDistance=upDown->GetGameMotorEncoderDistance();
+		/*upDownEncoderDistance=upDown->GetGameMotorEncoderDistance();
 		SmartDashboard::PutNumber("Up&Down Encoder Distance", upDownEncoderDistance);
 
 		if(upDownEncoderDistance<18){
@@ -286,10 +286,10 @@ public:
 		}
 		else if(upDownEncoderDistance<75){
 			scaleFactor = 0.25;
-		}
+		}*/
 
 		SmartDashboard::PutNumber("Scale Factor", scaleFactor);
-		drive->TankDrive(-left->GetY()*scaleFactor, -right->GetY()*scaleFactor);
+		autoDrive->TankDrive(-left->GetY()*scaleFactor, -right->GetY()*scaleFactor);
 
 		//drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
 		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());

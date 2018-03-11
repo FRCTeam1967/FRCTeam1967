@@ -70,7 +70,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 72, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive120Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 120, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 144, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 162, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 140, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	cubeUp = new ::CubeUp(inAndOut, upAndDown, 'l');
 	releaseCube = new ::ReleaseCube(drive, inAndOut, upAndDown, 'l');
 	visionSegment = new ::VisionSegment(drive, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);

@@ -11,10 +11,11 @@
 #include "JankyAutoEntry.h"
 #include <math.h>
 
+#define SCALE_FACTOR 1.25
 #define MEASURED_DIST_PER_PULSE 0.0912
 #define ENCODER_UNITS_PER_ROTATION 4096
-#define DIAMETER 6
-#define CIRCUMFERENCE_INCHES DIAMETER*M_PI
+#define DIAMETER 6.25
+#define CIRCUMFERENCE_INCHES DIAMETER*M_PI*SCALE_FACTOR
 
 double lEncoderCount;
 double rEncoderCount;
@@ -53,8 +54,8 @@ bool DriveSegment::JobDone(){
 	lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	//remove in final code:
-	//printf("Left Encoder dist %f \n", lEncoderDistance);
-	//printf("Right Encoder dist %f \n", rEncoderDistance);
+	printf("Left Encoder count %f \n", lEncoderCount);
+	printf("Right Encoder count %f \n", rEncoderCount);
 	if((lEncoderDistance>=distance)||(rEncoderDistance>=distance)){
 		printf("job done \n");
 		return true;
@@ -80,6 +81,8 @@ void DriveSegment::Start(){
 	_rightEncoder->SetQuadraturePosition(0, 10);
 	_leftmotor->SetSelectedSensorPosition(0, 0, 10);
 	_rightmotor->SetSelectedSensorPosition(0, 0, 10);
+	//_leftEncoder->GetQuadraturePosition()=0;
+	// _rightEncoder->GetQuadraturePosition()=0;
 	_gyro->Reset();
 	pid->SetInputRange(-180.0, 180.0);
 	pid->SetOutputRange(-1.0, 1.0);
