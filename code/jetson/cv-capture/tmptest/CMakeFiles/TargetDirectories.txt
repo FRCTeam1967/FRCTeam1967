@@ -1,0 +1,3 @@
+/home/nvidia/FRCTeam1967/code/jetson/cv-capture/tmptest/CMakeFiles/edit_cache.dir
+/home/nvidia/FRCTeam1967/code/jetson/cv-capture/tmptest/CMakeFiles/rebuild_cache.dir
+/home/nvidia/FRCTeam1967/code/jetson/cv-capture/tmptest/CMakeFiles/cv_capture.dir

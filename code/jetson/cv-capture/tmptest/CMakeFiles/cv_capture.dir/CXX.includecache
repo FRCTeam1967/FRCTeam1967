@@ -1,0 +1,26 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/nvidia/FRCTeam1967/code/jetson/cv-capture/tmptest/capture.cpp
+chrono
+-
+iostream
+-
+opencv2/imgproc/imgproc.hpp
+-
+opencv2/highgui/highgui.hpp
+-
+opencv2/photo/photo.hpp
+-
+opencv2/opencv.hpp
+-
+math.h
+-
+cstdlib
+-
+
