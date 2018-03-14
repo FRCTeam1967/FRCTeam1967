@@ -56,7 +56,7 @@ bool DriveSegment::JobDone(){
 	//remove in final code:
 	printf("Left Encoder count %f \n", lEncoderCount);
 	printf("Right Encoder count %f \n", rEncoderCount);
-	if((lEncoderDistance>=distance)||(rEncoderDistance>=distance)){
+	if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
 		printf("job done \n");
 		return true;
 	}
@@ -81,8 +81,6 @@ void DriveSegment::Start(){
 	_rightEncoder->SetQuadraturePosition(0, 10);
 	_leftmotor->SetSelectedSensorPosition(0, 0, 10);
 	_rightmotor->SetSelectedSensorPosition(0, 0, 10);
-	//_leftEncoder->GetQuadraturePosition()=0;
-	// _rightEncoder->GetQuadraturePosition()=0;
 	_gyro->Reset();
 	pid->SetInputRange(-180.0, 180.0);
 	pid->SetOutputRange(-1.0, 1.0);
