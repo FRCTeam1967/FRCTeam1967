@@ -34,6 +34,8 @@
 #define R_CROSS_AUTOLINE 7
 #define R_SAME_SWITCH 8
 #define R_OPPOSITE_SWITCH 9
+#define L_SAME_SCALE 10
+#define R_SAME_SCALE 11
 
 //chassis channels
 #define FRONT_LEFT_MOTOR_CHANNEL 3
@@ -110,6 +112,7 @@ class Robot : public frc::IterativeRobot {
 	int delayTime = 0;
 	int automode = DEFAULT_MODE;
 	char switchPos;
+	char scalePos;
 	//Driving
 	double scaleFactor;
 	int upDownEncoderDistance;
@@ -201,11 +204,14 @@ public:
 		if(gameData.empty()){
 			//not connected to FMS
 			//switchPos = 'E';  //for at competition
+			//scalePos = 'E';  //for at competition
 			switchPos = 'L'; //value for testing purposes
+			scalePos = 'L'; //value for testing purposes
 			printf("Overriding gameData because no valid FMS data \n");
 		}
 		else{
 			switchPos = gameData[0];
+			scalePos = gameData[1];
 		}
 
 		autonomousTimer.Reset();
@@ -217,7 +223,7 @@ public:
 		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		delayTime = selector->GetDelayTime();
-		automode=selector->GetAutoMode(switchPos);
+		automode=selector->GetAutoMode(switchPos, scalePos);
 		selector->PrintValues();
 	}
 
@@ -258,6 +264,12 @@ public:
 			//printf("starting right and loading cube onto switch on left side \n");
 			sequencer->SetMode(R_OPPOSITE_SWITCH);
 		}
+		else if(automode == L_SAME_SCALE && autoTime>delayTime){
+			sequencer->SetMode(L_SAME_SCALE);
+		}
+		else if(automode == R_SAME_SCALE && autoTime>delayTime){
+			sequencer->SetMode(R_SAME_SCALE);
+		}
 	}
 
 	void TeleopInit() {
@@ -272,7 +284,7 @@ public:
 	void TeleopPeriodic() {
 		//Driving
 		//NEED TO TEST
-		/*upDownEncoderDistance=upDown->GetGameMotorEncoderDistance();
+		upDownEncoderDistance=-upDown->GetGameMotorEncoderDistance();
 		SmartDashboard::PutNumber("Up&Down Encoder Distance", upDownEncoderDistance);
 
 		if(upDownEncoderDistance<18){
@@ -282,11 +294,11 @@ public:
 			scaleFactor = 0.75;
 		}
 		else if(upDownEncoderDistance<50){
-			scaleFactor = 0.5;
+			scaleFactor = 0.6;
 		}
 		else if(upDownEncoderDistance<75){
-			scaleFactor = 0.25;
-		}*/
+			scaleFactor = 0.45;
+		}
 
 		SmartDashboard::PutNumber("Scale Factor", scaleFactor);
 		autoDrive->TankDrive(-left->GetY()*scaleFactor, -right->GetY()*scaleFactor);

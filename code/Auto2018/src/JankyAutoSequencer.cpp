@@ -28,7 +28,9 @@
 #define R_CROSS_AUTOLINE 7
 #define R_SAME_SWITCH 8
 #define R_OPPOSITE_SWITCH 9
-#define DONE 10
+#define L_SAME_SCALE 10
+#define R_SAME_SCALE 11
+#define DONE 12
 
 #define TURN_SPEED 0.4
 #define DRIVE_SPEED 0.4
@@ -47,12 +49,15 @@ TurnSegment*turnRight90;
 TurnSegment*turnLeft45;
 TurnSegment*turnRight45;
 DriveSegment*drive6Inches;
+DriveSegment*drive10Inches;
 DriveSegment*drive60Inches;
 DriveSegment*drive72Inches;
 DriveSegment*drive120Inches;
 DriveSegment*drive144Inches;
 DriveSegment*drive162Inches;
+DriveSegment*drive260Inches;
 CubeUp*cubeUp;
+CubeUp*cubeUpScale;
 ReleaseCube*releaseCube;
 VisionSegment*visionSegment;
 
@@ -65,13 +70,16 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	turnRight90 = new TurnSegment(gyro, drive, 90.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnLeft45 = new TurnSegment(gyro, drive, -45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
-	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 6, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 0, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 10, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive60Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 60, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 72, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive120Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 120, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 144, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 140, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 260, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	cubeUp = new ::CubeUp(inAndOut, upAndDown, 'l');
+	cubeUpScale = new ::CubeUp(inAndOut, upAndDown, 'm');
 	releaseCube = new ::ReleaseCube(drive, inAndOut, upAndDown, 'l');
 	visionSegment = new ::VisionSegment(drive, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 
@@ -82,12 +90,15 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	SetName(TurnLeft45, "Turn Left 45 Degrees", turnLeft45);
 	SetName(TurnRight45, "Turn Right 45 Degrees", turnRight45);
 	SetName(Drive6Inches, "Drive straight 6 inches", drive6Inches);
+	SetName(Drive10Inches, "Drive straight 10 inches", drive10Inches);
 	SetName(Drive60Inches, "Drive straight 60 inches", drive60Inches);
 	SetName(Drive72Inches, "Drive straight 72 inches", drive72Inches);
 	SetName(Drive120Inches, "Drive straight 120 inches", drive120Inches);
 	SetName(Drive144Inches, "Drive straight 144 inches", drive144Inches);
 	SetName(Drive162Inches, "Drive straight 162 inches", drive162Inches);
-	SetName(CubeUp, "Lift cube to desired height", cubeUp);
+	SetName(Drive260Inches, "Drive straight 260 inches", drive260Inches);
+	SetName(CubeUp, "Lift cube to switch height", cubeUp);
+	SetName(CubeUpScale, "Lift cube to scale height", cubeUpScale);
 	SetName(ReleaseCube, "Release cube onto the switch", releaseCube);
 	SetName(VisionSegment, "Drive to the switch with vision", visionSegment);
 	JankyStateMachine::SetName(Stop, "End of Sequence");
@@ -121,12 +132,15 @@ JankyAutoSequencer::~JankyAutoSequencer() {
 	delete turnLeft45;
 	delete turnRight45;
 	delete drive6Inches;
+	delete drive10Inches;
 	delete drive60Inches;
 	delete drive72Inches;
 	delete drive120Inches;
 	delete drive144Inches;
 	delete drive162Inches;
+	delete drive260Inches;
 	delete cubeUp;
+	delete cubeUpScale;
 	delete releaseCube;
 	delete visionSegment;
 }
@@ -184,6 +198,12 @@ void JankyAutoSequencer::StateEngine(int curState)
 			else if(aMode==R_OPPOSITE_SWITCH){
 				NewState(CubeUp, "Lift cube to switch level");
 			}
+			else if(aMode==L_SAME_SCALE){
+				NewState(Drive260Inches, "Left Same Scale Selected");
+			}
+			else if(aMode==R_SAME_SCALE){
+				NewState(Drive260Inches, "Right Same Scale Selected");
+			}
 			break;
 		case CubeUp:
 			if(cubeUp->IsComplete()){
@@ -205,6 +225,11 @@ void JankyAutoSequencer::StateEngine(int curState)
 				else if(aMode==R_OPPOSITE_SWITCH){
 					NewState(Drive60Inches, "Right to Left Switch selected");
 				}
+			}
+			break;
+		case CubeUpScale:
+			if(cubeUpScale->IsComplete()){
+				NewState(Drive10Inches, "Done lifting cube to scale height");
 			}
 			break;
 		case TurnLeft90:
@@ -252,7 +277,9 @@ void JankyAutoSequencer::StateEngine(int curState)
 				else if(aMode==R_CROSS_AUTOLINE){
 					NewState(Drive120Inches, "Done Turning Left 45 Degrees at Right Field Edge");
 				}
-
+				else if(aMode==R_SAME_SCALE){
+					NewState(CubeUpScale, "Need to bring cube to right height");
+				}
 			}
 			break;
 		case TurnRight45:
@@ -263,11 +290,19 @@ void JankyAutoSequencer::StateEngine(int curState)
 				else if(aMode==L_CROSS_AUTOLINE){
 					NewState(Drive120Inches, "Done Turning Right 45 Degrees at Left Field Edge");
 				}
+				else if(aMode==L_SAME_SCALE){
+					NewState(CubeUpScale, "Need to bring cube to right height");
+				}
 			}
 			break;
 		case Drive6Inches:
 			if(drive6Inches->IsComplete()){
 				NewState(ReleaseCube, "Aligned with switch edge");
+			}
+			break;
+		case Drive10Inches:
+			if(drive10Inches->IsComplete()){
+				NewState(ReleaseCube, "Aligned with scale edge");
 			}
 			break;
 		case Drive60Inches:
@@ -300,10 +335,10 @@ void JankyAutoSequencer::StateEngine(int curState)
 				}
 			}
 			break;
-		//case Drive72Inches:
-		case VisionSegment:
-			//if(drive72Inches->IsComplete()){
-			if(visionSegment->IsComplete()){
+		case Drive72Inches:
+		//case VisionSegment:
+			if(drive72Inches->IsComplete()){
+			//if(visionSegment->IsComplete()){
 				if(aMode==M_LEFT_SWITCH){
 					NewState(ReleaseCube, "Done driving to left switch front");
 				}
@@ -345,6 +380,16 @@ void JankyAutoSequencer::StateEngine(int curState)
 				}
 				else if(aMode==R_SAME_SWITCH){
 					NewState(TurnLeft90, "Done Driving to Right Switch Edge");
+				}
+			}
+			break;
+		case Drive260Inches:
+			if(drive260Inches->IsComplete()){
+				if(aMode==L_SAME_SCALE){
+					NewState(TurnRight45, "Done Driving to Left Scale Edge");
+				}
+				else if(aMode==R_SAME_SCALE){
+					NewState(TurnLeft45, "Done Driving to Right Scale Edge");
 				}
 			}
 			break;

@@ -15,7 +15,7 @@ public:
 	void Init();
 	void PrintValues();
 	int GetDelayTime();
-	int GetAutoMode(char switchPos);
+	int GetAutoMode(char switchPos, char scalePos);
 };
 
 #endif /* JANKYAUTOSELECTOR_H_ */

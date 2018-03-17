@@ -21,7 +21,7 @@
 #define CROSS_AUTO_LINE 2
 #define SAME_SIDE_SWITCH 3
 #define EITHER_SWITCH 4
-#define SAME 5
+#define SAME_SIDE_SCALE 5
 
 //auto modes
 #define DEFAULT_MODE 1
@@ -33,6 +33,8 @@
 #define R_CROSS_AUTOLINE 7
 #define R_SAME_SWITCH 8
 #define R_OPPOSITE_SWITCH 9
+#define L_SAME_SCALE 10
+#define R_SAME_SCALE 11
 
 int delayTime = 0;
 
@@ -48,7 +50,7 @@ int defaultAuto = DEFAULT;
 int crossLine = CROSS_AUTO_LINE;
 int sameSwitch = SAME_SIDE_SWITCH;
 int eitherSwitch = EITHER_SWITCH;
-int same = SAME;
+int sameScale = SAME_SIDE_SCALE;
 
 frc::SendableChooser<int*>position;
 frc::SendableChooser<int*>delay;
@@ -81,6 +83,7 @@ void JankyAutoSelector::Init(){
 	action.AddObject("Cross Auto Line", &crossLine);
 	action.AddObject("Our Side Switch", &sameSwitch);
 	action.AddObject("Either Switch", &eitherSwitch);
+	action.AddObject("Our Side Scale", &sameScale);
 	SmartDashboard::PutData("Action", &action);
 
 }
@@ -119,21 +122,42 @@ void JankyAutoSelector::PrintValues(){
 	printf("crossLine: %p \n", (void*)crossLine);
 	printf("sameSwitch: %p \n", (void*)sameSwitch);
 	printf("eitherSwitch: %p \n", (void*)eitherSwitch);
+	printf("sameScale: %p \n", (void*)sameScale);
 }
 
-int JankyAutoSelector::GetAutoMode(char switchPos){
+int JankyAutoSelector::GetAutoMode(char switchPos, char scalePos){
 	int* selectedPosition = position.GetSelected();
 	int* selectedAction = action.GetSelected();
 
 	printf("selected position: %p \n", (void*)selectedPosition);
 	printf("selected action: %p \n", (void*)selectedAction);
-	if(switchPos == 'E'){
+	if((switchPos == 'E')&&(scalePos == 'E')){
 		printf("default auto \n");
 		autoMode = DEFAULT_MODE;
 	}
 	else if(&defaultAuto==selectedAction){
 		printf("default auto \n");
 		autoMode = DEFAULT_MODE;
+	}
+	else if((&left==selectedPosition)&&(&sameScale==selectedAction)){
+		if(scalePos == 'L'){
+			printf("left start + same side scale \n");
+			autoMode = L_SAME_SCALE;
+		}
+		else{
+			printf("left start + auto line \n");
+			autoMode = L_CROSS_AUTOLINE;
+		}
+	}
+	else if((&right==selectedPosition)&&(&sameScale==selectedAction)){
+		if(scalePos == 'R'){
+			printf("right start + same side scale \n");
+			autoMode = R_SAME_SCALE;
+		}
+		else{
+			printf("right start + auto line \n");
+			autoMode = R_CROSS_AUTOLINE;
+		}
 	}
 	else if((&left==selectedPosition)&&(&crossLine==selectedAction)){
 		printf("left start + auto line \n");
