@@ -9,7 +9,7 @@
 #include "WPILib.h"
 #include "JankyAutoEntry.h"
 
-#define DISTANCE_TO_STOP_DRIVING 2 //need to change
+#define DISTANCE_TO_STOP_DRIVING 16 //need to change
 
 VisionSegment::VisionSegment(RobotDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
@@ -71,7 +71,7 @@ void VisionSegment::End(){
 }
 
 double VisionSegment::PIDGet(){
-	distance=SmartDashboard::GetNumber("distance to tape", 0);
+	distance=SmartDashboard::GetNumber("averaged distance to tape", 0); //make sure these are the right names for what vision is sending to the dashboard
 	horizontalOffset=SmartDashboard::GetNumber("horizontal offset", 0);
 	return horizontalOffset;
 }

@@ -22,6 +22,7 @@
 #define SAME_SIDE_SWITCH 3
 #define EITHER_SWITCH 4
 #define SAME_SIDE_SCALE 5
+#define EITHER_SCALE 6
 
 //auto modes
 #define DEFAULT_MODE 1
@@ -35,6 +36,8 @@
 #define R_OPPOSITE_SWITCH 9
 #define L_SAME_SCALE 10
 #define R_SAME_SCALE 11
+#define L_OPPOSITE_SCALE 12
+#define R_OPPOSITE_SCALE 13
 
 int delayTime = 0;
 
@@ -51,6 +54,7 @@ int crossLine = CROSS_AUTO_LINE;
 int sameSwitch = SAME_SIDE_SWITCH;
 int eitherSwitch = EITHER_SWITCH;
 int sameScale = SAME_SIDE_SCALE;
+int eitherScale = EITHER_SCALE;
 
 frc::SendableChooser<int*>position;
 frc::SendableChooser<int*>delay;

@@ -15,7 +15,6 @@ JankyAutoEntry::JankyAutoEntry() {
 }
 
 JankyAutoEntry::~JankyAutoEntry() {
-	// TODO Auto-generated destructor stub
 
 }
 
