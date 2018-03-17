@@ -17,7 +17,6 @@ using namespace std;
 using namespace cv;
 
 const float ROBOT_OFFSET = 19; //inches
-const double PI_CONST = 3.141592653589793238462643383279;
 const int MIN_AREA =500; //pixels
 const float T_INCHES_HEIGHT = 16;
 const float T_INCHES_WIDTH = 2;
@@ -25,10 +24,11 @@ const float T_INCHES_LEFT_WIDTH = 6;
 const float T_INCHES_BOTH_WIDTH = 8;
 const int FOV_PIXELS_HEIGHT = 480;
 const int FOV_PIXELS_WIDTH = 640;
-const float theta = 68.5 * PI_CONST / 360; //degrees
-const float MEASURED_HORIZ_FOV = 51.80498 * PI_CONST / 360;
-const float MEASURED_VERT_FOV = 38.3557 * PI_CONST / 360;
+const float theta = 68.5 * M_PI / 360; //degrees
+const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
+const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
+const int NO_VALUE_TIME = 2; // seconds
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 double hue[] = {50,81};
@@ -129,13 +129,23 @@ int main()
 	vector<vector<Point>> contours;
 	int counter=0;
 	float average[8];
+    float lastAverage = 0;
+    
+    // calibration variable
+    bool calibrateHSVOn = false;
+    
+    // clock variables
+    auto valueStart = chrono::high_resolution_clock::now();
+    double duration = 0;
 
 	for(;;)
 	{
+ //       cout << "duration: " << duration << endl;
+ //       cout << "last average: " << lastAverage << endl;
 		Mat gray, frame, green, outline;
 		//cout << "height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
 		//cout << "width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
-        	cap >> frame;
+        cap >> frame;
 		// convert from brg to hsv
 		cvtColor(frame, green, COLOR_BGR2HSV);
 		// filter green taperobot distance: 16.6748
@@ -147,15 +157,26 @@ int main()
 		findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
 		vector<vector<Point>> contours_poly(contours.size());
 		vector<Rect> boundRect(contours.size());
+        bool hasTwoRects = false;
 		int largestContour = -1;
 		int largestContour2 = -1;
 
-     		char key = waitKey(1);
+        char key = waitKey(1);
 
 		if (key == ' ')
             		break;
-
-		callibrateHSV(key);
+        // turn on hsv calibration if c is pressed
+        else if (key == 'c') {
+            calibrateHSVOn = true;
+        }
+        // turn off hsv callibration if x is pressed
+        else if (key == 'x') {
+            calibrateHSVOn = false;
+        }
+        
+        if (calibrateHSVOn) {
+            callibrateHSV(key);
+        }
 
 
 		// loops through each contour - does more processing if contour area is greater than MIN_AREA
@@ -184,6 +205,7 @@ int main()
 			boundRect[c] = boundingRect(Mat(contours_poly[c]));
 			rectangle(frame, boundRect[c].tl(), boundRect[c].br(), color);
 
+            // finds largest and second largest contours
 			if (largestContour == -1)
 			{
 				largestContour = c;
@@ -204,13 +226,15 @@ int main()
 			{
 				largestContour2 = c;
 			}
+            hasTwoRects = true;
 		}
 
-	
-
-		// finds distance only if tape is detected	
-		if (contours_poly.size() > 0) 
+		// finds distance only if 2 pieces of tape are detected
+		if (hasTwoRects)
 		{
+            // resets timer because calculating distance to tape again
+            duration = 0;
+            
 			// initializes variables
 			float finalDistInInches;
 			int rectHeight = boundRect[largestContour].height;
@@ -235,11 +259,7 @@ int main()
 			float tapeCenter = leftRect.tl().x + lengthWidth/2;
 			float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
 			float offsetInches = localOffset * pixelsToInches;
-			cout<<"Horizontal offset: "<<offsetInches<<endl;
 
-			
-			cout << "rectWidth: " << rectWidth << endl;
-			cout << "lengthWidth: " << lengthWidth << endl;
 			//cout << "widthThreshold: " << widthThreshold << endl;
 			
 			// checks if tape's height is cut off
@@ -280,25 +300,61 @@ int main()
 		
 			float robotDistance = finalDistInInches - ROBOT_OFFSET;
 
-			// printing out distance
-			cout << "distance to tape: " << finalDistInInches << endl;
-			cout << "robot distance: " << robotDistance << endl;
+
+			
+			// sends distance and offset to robot
+			vTable->PutNumber("horizontal offset", offsetInches);
 			vTable->PutNumber("distance to tape", finalDistInInches);
 			vTable->PutNumber("robot distance", robotDistance);
 
 			average[counter] = finalDistInInches;
-			cout<<"counter: "<<counter<<", value: "<<average[counter]<<endl;
+
 			counter++;
 
 			if(counter==8)
 			{
-				// cout <<"Average: "<<findAverage(average)<<endl;
+                lastAverage = findAverage(average);
+ //               cout << "averaged distance to tape: " << lastAverage << endl;
+				vTable->PutNumber("averaged distance to tape", lastAverage);
 				counter=0;
+                
 			}
 
+            // printing out values
+//            cout<< "Horizontal offset: "<<offsetInches<<endl;
+//            cout << "rectWidth: " << rectWidth << endl;
+//            cout << "lengthWidth: " << lengthWidth << endl;
+//            cout << "distance to tape: " << finalDistInInches << endl;
+//            cout << "robot distance: " << robotDistance << endl;
+//            cout<<"average counter: "<<counter<<", average value: "<<average[counter]<<endl;
 			cout<<" "<<endl;
 		}
-
+        // if not calculating distance to tape
+        else {
+            // start the clock if not started
+            if (duration == 0) {
+                auto valueStart = chrono::high_resolution_clock::now();
+                duration = .001;
+            }
+            else {
+                // calculate duration
+                auto valueEnd = chrono::high_resolution_clock::now();
+                auto valueDuration = chrono::duration_cast<chrono::milliseconds>(valueEnd - valueStart);
+                duration = valueDuration.count() * 1000;
+                
+                // send -1 to distance if time not calculating new values is more than 2 seconds
+                if (duration >= NO_VALUE_TIME) {
+                    vTable->PutNumber("distance to tape", -1);
+//                   cout << "averaged distance to tape: -1 " << endl;
+                    vTable->PutNumber("averaged distance to tape", -1);
+                }
+                else {
+//                    cout << "averaged distance to tape: " << lastAverage << endl;
+                    vTable->PutNumber("averaged distance to tape", lastAverage);
+                }
+            }
+        }
+        
 		circle(frame, Point(0, 0), 3, Scalar(255, 0, 0), 10);
 		imshow("camera feed", frame);
 		imshow("filtered green", green);
