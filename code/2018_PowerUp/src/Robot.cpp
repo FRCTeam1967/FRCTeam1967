@@ -36,6 +36,8 @@
 #define R_OPPOSITE_SWITCH 9
 #define L_SAME_SCALE 10
 #define R_SAME_SCALE 11
+#define L_OPPOSITE_SCALE 12
+#define R_OPPOSITE_SCALE 13
 
 //chassis channels
 #define FRONT_LEFT_MOTOR_CHANNEL 3
@@ -269,6 +271,12 @@ public:
 		}
 		else if(automode == R_SAME_SCALE && autoTime>delayTime){
 			sequencer->SetMode(R_SAME_SCALE);
+		}
+		else if(automode == L_OPPOSITE_SCALE && autoTime>delayTime){
+			sequencer->SetMode(L_OPPOSITE_SCALE);
+		}
+		else if(automode == R_OPPOSITE_SCALE && autoTime>delayTime){
+			sequencer->SetMode(R_OPPOSITE_SCALE);
 		}
 	}
 

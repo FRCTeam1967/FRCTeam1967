@@ -45,11 +45,14 @@ public:
 		TurnRight45,
 		Drive6Inches,
 		Drive10Inches,
+		Drive40Inches, //driving to scale plate from mid scale/switch area -->turn 45 --> cubeupscale --> drive10in --> releasecube :)
 		Drive60Inches,
 		Drive72Inches,
 		Drive120Inches,
 		Drive144Inches,
 		Drive162Inches,
+		Drive210Inches, //driving to area between switch and scale to turn
+		Drive240Inches, //driving in between scale and switch to get to opposite side scale plate
 		Drive260Inches,
 		CubeUp,
 		CubeUpScale,

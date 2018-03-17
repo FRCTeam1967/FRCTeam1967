@@ -88,6 +88,7 @@ void JankyAutoSelector::Init(){
 	action.AddObject("Our Side Switch", &sameSwitch);
 	action.AddObject("Either Switch", &eitherSwitch);
 	action.AddObject("Our Side Scale", &sameScale);
+	action.AddObject("Either Scale", &eitherScale);
 	SmartDashboard::PutData("Action", &action);
 
 }
@@ -127,6 +128,7 @@ void JankyAutoSelector::PrintValues(){
 	printf("sameSwitch: %p \n", (void*)sameSwitch);
 	printf("eitherSwitch: %p \n", (void*)eitherSwitch);
 	printf("sameScale: %p \n", (void*)sameScale);
+	printf("eitherScale: %p \n", (void*)eitherScale);
 }
 
 int JankyAutoSelector::GetAutoMode(char switchPos, char scalePos){
@@ -161,6 +163,26 @@ int JankyAutoSelector::GetAutoMode(char switchPos, char scalePos){
 		else{
 			printf("right start + auto line \n");
 			autoMode = R_CROSS_AUTOLINE;
+		}
+	}
+	else if((&left==selectedPosition)&&(&eitherScale==selectedAction)){
+		if(scalePos == 'L'){
+			printf("left start + same side scale \n");
+			autoMode = L_SAME_SCALE;
+		}
+		else{
+			printf("left start + opposite scale \n");
+			autoMode = L_OPPOSITE_SCALE;
+		}
+	}
+	else if((&right==selectedPosition)&&(&eitherScale==selectedAction)){
+		if(scalePos == 'R'){
+			printf("right start + same side scale \n");
+			autoMode = R_SAME_SCALE;
+		}
+		else{
+			printf("right start + opposite scale \n");
+			autoMode = R_OPPOSITE_SCALE;
 		}
 	}
 	else if((&left==selectedPosition)&&(&crossLine==selectedAction)){

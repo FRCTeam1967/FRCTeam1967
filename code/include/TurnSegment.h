@@ -53,6 +53,7 @@ protected:
 	void End();
 
 private:
+	Timer*turnTimer;
 	PIDController*pid;
 	frc::ADXRS450_Gyro*_gyro;
 	RobotDrive*drive;
