@@ -28,7 +28,7 @@ const float theta = 68.5 * M_PI / 360; //degrees
 const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
 const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
-const int NO_VALUE_TIME = 2; // seconds
+const int NO_VALUE_TIME = 3; // seconds
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 double hue[] = {50,81};
