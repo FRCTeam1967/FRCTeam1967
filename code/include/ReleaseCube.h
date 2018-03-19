@@ -54,6 +54,7 @@ protected:
 
 private:
 	bool startDriving;
+	bool timerHasStarted;
 	char _height;
 	InAndOut*IAO;
 	UpAndDown*UAD;

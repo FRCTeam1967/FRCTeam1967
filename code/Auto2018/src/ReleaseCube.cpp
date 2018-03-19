@@ -32,7 +32,12 @@ ReleaseCube::~ReleaseCube() {
 
 bool ReleaseCube::JobDone()
 {
-	if(intimer->Get()>ROLL_OUT_TIME){
+	if(!UAD->GetIfMechIsRunning() && !timerHasStarted){ //to be tested
+		intimer->Start();
+		IAO->MotorRollForward();
+		timerHasStarted = true;
+	}
+	if((intimer->Get()>ROLL_OUT_TIME)){
 		return true;
 	}
 	return false;
@@ -45,8 +50,9 @@ void ReleaseCube::RunAction()
 
 void ReleaseCube::Start()
 {
-	intimer->Start();
-	IAO->MotorRollForward();
+	timerHasStarted = false;
+	//intimer->Start();
+	//IAO->MotorRollForward();
 }
 
 void ReleaseCube::End()
@@ -54,4 +60,5 @@ void ReleaseCube::End()
 	IAO->MotorRollStop();
 	intimer->Stop();
 	intimer->Reset();
+	timerHasStarted = false;
 }

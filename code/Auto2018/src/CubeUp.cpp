@@ -32,7 +32,7 @@ bool CubeUp::JobDone(){
 	/*if(uptimer->Get()>ARM_DOWN_TIME){
 		IAO->MotorClawStop();
 	}*/
-	if(!UAD->GetIfMechIsRunning()){ //means up and down has stopped moving up
+	if(UAD->GetIfMechIsRunning()){
 		return true;
 	}
 	return false;

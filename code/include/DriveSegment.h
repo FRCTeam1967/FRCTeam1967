@@ -51,6 +51,8 @@ private:
 	double kP;
 	double kI;
 	double kD;
+	bool encoderReset;
+	Timer*encoderTimer;
 	frc::ADXRS450_Gyro*_gyro;
 	PIDController*pid;
 	RobotDrive*chassis;

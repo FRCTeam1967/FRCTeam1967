@@ -39,6 +39,7 @@ DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorColl
 	kI = i;
 	kD = d;
 	pid = new PIDController(kP,kI,kD,_gyro,this);
+	encoderTimer = new Timer();
 	// TODO Auto-generated constructor stub
 
 }
@@ -46,6 +47,7 @@ DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorColl
 DriveSegment::~DriveSegment() {
 	// TODO Auto-generated destructor stub
 	delete pid;
+	delete encoderTimer;
 }
 
 bool DriveSegment::JobDone(){
@@ -56,9 +58,15 @@ bool DriveSegment::JobDone(){
 	//remove in final code:
 	printf("Left Encoder count %f \n", lEncoderCount);
 	printf("Right Encoder count %f \n", rEncoderCount);
-	if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
-		printf("job done \n");
-		return true;
+	if(encoderTimer->Get()>=0.15){
+		encoderReset = true;
+	}
+	if(encoderReset){
+		if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
+			printf("job done \n");
+			encoderReset = false;
+			return true;
+		}
 	}
 	/*testEncoderCount=-_encoder->Get();
 	testEncoderDistance=(testEncoderCount*MEASURED_DIST_PER_PULSE);
@@ -77,21 +85,28 @@ void DriveSegment::RunAction(){
 }
 
 void DriveSegment::Start(){
+	int leftError;
 	_leftEncoder->SetQuadraturePosition(0, 10);
 	_rightEncoder->SetQuadraturePosition(0, 10);
-	_leftmotor->SetSelectedSensorPosition(0, 0, 10);
+	leftError=_leftmotor->SetSelectedSensorPosition(0, 0, 10);
+	printf("Encoder error %ld \n", leftError);
 	_rightmotor->SetSelectedSensorPosition(0, 0, 10);
 	_gyro->Reset();
 	pid->SetInputRange(-180.0, 180.0);
 	pid->SetOutputRange(-1.0, 1.0);
 	pid->SetSetpoint(0.0);
 	pid->Enable();
+	encoderReset = false;
+	encoderTimer->Start();
 	//_encoder->Reset();
 }
 
 void DriveSegment::End(){
 	pid->Disable();
 	chassis->TankDrive(0.0, 0.0);
+	encoderReset = false;
+	encoderTimer->Stop();
+	encoderTimer->Reset();
 }
 
 void DriveSegment::PIDWrite(double output)

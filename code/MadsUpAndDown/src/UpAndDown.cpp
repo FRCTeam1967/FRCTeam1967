@@ -5,10 +5,10 @@
 #include "Constants.h"
 
 //Motor speeds
-#define R_MOTOR_F_SPEED 0.5
-#define L_MOTOR_F_SPEED 0.5
-#define R_MOTOR_R_SPEED -0.5
-#define L_MOTOR_R_SPEED -0.5
+#define R_MOTOR_F_SPEED 0.7
+#define L_MOTOR_F_SPEED 0.7
+#define R_MOTOR_R_SPEED -0.7
+#define L_MOTOR_R_SPEED -0.7
 
 //For distance per pulse in up/down mechanism's encoder
 #define UD_PULSES_PER_REVOLUTION 4096
@@ -26,7 +26,7 @@
 
 //Field Element Heights
 
-#define SWITCH_HEIGHT 26.5
+#define SWITCH_HEIGHT 30
 #define IN_BETWEEN_HEIGHT 18.0
 #define SCALE_LOW_HEIGHT 46.5
 #define SCALE_MED_HEIGHT 58.5
