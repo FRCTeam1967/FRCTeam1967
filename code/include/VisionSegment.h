@@ -20,6 +20,7 @@ public:
 	double _speed;
 	RobotDrive*chassis;
 	PIDController*pid;
+	Timer*visionTimer;
 	double kP;
 	double kI;
 	double kD;

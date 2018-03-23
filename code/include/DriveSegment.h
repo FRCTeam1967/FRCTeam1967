@@ -51,6 +51,7 @@ private:
 	double kP;
 	double kI;
 	double kD;
+	double maxTime;
 	bool encoderReset;
 	Timer*encoderTimer;
 	frc::ADXRS450_Gyro*_gyro;

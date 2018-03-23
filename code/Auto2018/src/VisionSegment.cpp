@@ -9,18 +9,21 @@
 #include "WPILib.h"
 #include "JankyAutoEntry.h"
 
-#define DISTANCE_TO_STOP_DRIVING 16 //need to change
+#define START_TIME 1
+#define DISTANCE_TO_STOP_DRIVING 14 //need to change
 
 VisionSegment::VisionSegment(RobotDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
 	chassis=drive;
 	_speed=speed;
 	pid = new PIDController(kP,kI,kD,this,this);
+	visionTimer = new Timer();
 }
 
 VisionSegment::~VisionSegment() {
 	// TODO Auto-generated destructor stub
 	delete pid;
+	delete visionTimer;
 }
 
 void VisionSegment::Start(){
@@ -29,6 +32,7 @@ void VisionSegment::Start(){
 	pid->SetOutputRange(-1.0, 1.0);
 	pid->SetSetpoint(0.0);
 	pid->Enable();
+	visionTimer->Start();
 }
 
 bool VisionSegment::JobDone(){
@@ -48,17 +52,22 @@ bool VisionSegment::JobDone(){
 	}*/
 
 	//Handle Bad Data
-	if(distance<=0){ //0 is default value when vision doesn't send data
-		badDataCounter++;
-	}
-	if(badDataCounter==5){
-		return true;
-	}
+	if(visionTimer->Get()>=START_TIME){
+		printf("distance %f \n", distance);
+		if(distance==-100 || distance==-1){ //0 is default value when vision doesn't send data
+			badDataCounter++;
+			printf("Bad Data Count: %d \n", badDataCounter);
+		}
+		if(badDataCounter==5){
+			return true;
+		}
 
-	if(distance<DISTANCE_TO_STOP_DRIVING){
-		return true;
+		if(distance<DISTANCE_TO_STOP_DRIVING && distance>0){
+			return true;
+		}
 	}
 	return false;
+
 }
 
 void VisionSegment::RunAction(){
@@ -68,11 +77,13 @@ void VisionSegment::RunAction(){
 void VisionSegment::End(){
 	pid->Disable();
 	chassis->TankDrive(0.0, 0.0);
+	visionTimer->Stop();
+	visionTimer->Reset();
 }
 
 double VisionSegment::PIDGet(){
-	distance=SmartDashboard::GetNumber("averaged distance to tape", 0); //make sure these are the right names for what vision is sending to the dashboard
-	horizontalOffset=SmartDashboard::GetNumber("horizontal offset", 0);
+	distance=SmartDashboard::GetNumber("averaged distance to tape", -100); //make sure these are the right names for what vision is sending to the dashboard
+	horizontalOffset=SmartDashboard::GetNumber("horizontal offset", -100);
 	return horizontalOffset;
 }
 

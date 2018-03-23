@@ -93,7 +93,7 @@ class Robot : public frc::IterativeRobot {
 	frc::RobotDrive*autoDrive;
 	frc::SpeedControllerGroup*leftDrive;
 	frc::SpeedControllerGroup*rightDrive;
-	frc::DifferentialDrive*drive;
+	//frc::DifferentialDrive*drive;
 	jankyDrivestick*left;
 	jankyDrivestick*right;
 	frc::ADXRS450_Gyro*gyro;
@@ -130,7 +130,7 @@ public:
 		rrmotor=NULL;
 		left=NULL;
 		right=NULL;
-		drive=NULL;
+		//drive=NULL;
 		autoDrive=NULL;
 		gyro=NULL;
 		gameJoystick = NULL;
@@ -146,7 +146,7 @@ public:
 		delete rrmotor;
 		delete left;
 		delete right;
-		delete drive;
+		//delete drive;
 		delete autoDrive;
 		delete gyro;
 		delete gameJoystick;
@@ -165,11 +165,12 @@ public:
 		leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
 		rightDrive = new frc::SpeedControllerGroup(*frmotor, *rrmotor);
 		autoDrive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor);
-		drive = new frc::DifferentialDrive(*leftDrive, *rightDrive);
+		//drive = new frc::DifferentialDrive(*leftDrive, *rightDrive);
 		left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
 		right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
 		gyro = new frc::ADXRS450_Gyro(SPI::Port::kOnboardCS0);
-		drive->SetSafetyEnabled(false);
+		autoDrive->SetSafetyEnabled(false);
+		//drive->SetSafetyEnabled(false);
 		flmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		frmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rlmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
@@ -207,13 +208,15 @@ public:
 			//not connected to FMS
 			//switchPos = 'E';  //for at competition
 			//scalePos = 'E';  //for at competition
-			switchPos = 'L'; //value for testing purposes
-			scalePos = 'L'; //value for testing purposes
+			switchPos = 'R'; //value for testing purposes
+			scalePos = 'R'; //value for testing purposes
 			printf("Overriding gameData because no valid FMS data \n");
 		}
 		else{
 			switchPos = gameData[0];
 			scalePos = gameData[1];
+			printf("Switch Position: %d \n", switchPos);
+			printf("Scale Position %d \n", scalePos);
 		}
 
 		autonomousTimer.Reset();

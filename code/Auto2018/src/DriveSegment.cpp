@@ -41,7 +41,6 @@ DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorColl
 	pid = new PIDController(kP,kI,kD,_gyro,this);
 	encoderTimer = new Timer();
 	// TODO Auto-generated constructor stub
-
 }
 
 DriveSegment::~DriveSegment() {
@@ -68,6 +67,9 @@ bool DriveSegment::JobDone(){
 			return true;
 		}
 	}
+	if(encoderTimer->Get()>=maxTime){
+		return true;
+	}
 	/*testEncoderCount=-_encoder->Get();
 	testEncoderDistance=(testEncoderCount*MEASURED_DIST_PER_PULSE);
 	SmartDashboard::PutNumber("Encoder Count", testEncoderCount);
@@ -85,12 +87,14 @@ void DriveSegment::RunAction(){
 }
 
 void DriveSegment::Start(){
-	int leftError;
+	//int leftError;
+	//maybe it's taking so long bc its being double reset?
 	_leftEncoder->SetQuadraturePosition(0, 10);
 	_rightEncoder->SetQuadraturePosition(0, 10);
-	leftError=_leftmotor->SetSelectedSensorPosition(0, 0, 10);
-	printf("Encoder error %ld \n", leftError);
-	_rightmotor->SetSelectedSensorPosition(0, 0, 10);
+	//leftError=_leftmotor->SetSelectedSensorPosition(0, 0, 10);
+	//printf("Encoder error %ld \n", leftError);
+	//_leftmotor->SetSelectedSensorPosition(0, 0, 10);
+	//_rightmotor->SetSelectedSensorPosition(0, 0, 10);
 	_gyro->Reset();
 	pid->SetInputRange(-180.0, 180.0);
 	pid->SetOutputRange(-1.0, 1.0);
@@ -98,6 +102,7 @@ void DriveSegment::Start(){
 	pid->Enable();
 	encoderReset = false;
 	encoderTimer->Start();
+	maxTime = distance/28.0;
 	//_encoder->Reset();
 }
 
@@ -105,6 +110,7 @@ void DriveSegment::End(){
 	pid->Disable();
 	chassis->TankDrive(0.0, 0.0);
 	encoderReset = false;
+	printf("drive time: %f \n", encoderTimer->Get());
 	encoderTimer->Stop();
 	encoderTimer->Reset();
 }
