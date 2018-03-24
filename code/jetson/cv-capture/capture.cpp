@@ -31,9 +31,9 @@ const int DEFAULT_WIDTH_THRESHOLD = 100; // number of pixels from left edge to r
 const int NO_VALUE_TIME = 3; // seconds
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
-double hue[] = {50,81};
-double sat[] = {163,255};
-double val[] = {34,185};
+double hue[] = {60,101};
+double sat[] = {170,255};
+double val[] = {39,255};
 
 void changeKey(double hsv[], char key, bool plus) 
 {
@@ -120,9 +120,9 @@ int main(int argc, char** argv)
 		argPassed = true;
 	}
 	
-	system("v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
+	system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
 
-    VideoCapture cap(1);
+    VideoCapture cap(0);
  
 	if (!cap.isOpened())
 	{
@@ -327,10 +327,12 @@ int main(int argc, char** argv)
 			if(counter==8)
 			{
                 lastAverage = findAverage(average);
- //               cout << "averaged distance to tape: " << lastAverage << endl;
 				vTable->PutNumber("averaged distance to tape", lastAverage);
 				counter=0;
                 
+                cout << "averaged distance to tape: " << lastAverage << endl;
+                cout << "Horizontal offset: " << offsetInches << endl;
+                cout << " " << endl;
 			}
 
             // printing out values
@@ -338,9 +340,9 @@ int main(int argc, char** argv)
 //            cout << "rectWidth: " << rectWidth << endl;
 //            cout << "lengthWidth: " << lengthWidth << endl;
 //            cout << "distance to tape: " << finalDistInInches << endl;
-            cout << "robot distance: " << robotDistance << endl;
+//            cout << "robot distance: " << robotDistance << endl;
 //            cout<<"average counter: "<<counter<<", average value: "<<average[counter]<<endl;
-			cout<<" "<<endl;
+//			cout<<" "<<endl;
 		}
         // if not calculating distance to tape
         else {
@@ -358,11 +360,11 @@ int main(int argc, char** argv)
                 // send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME) {
                     vTable->PutNumber("distance to tape", -1);
-//                   cout << "averaged distance to tape: -1 " << endl;
+                    cout << "averaged distance to tape: -1 " << endl;
                     vTable->PutNumber("averaged distance to tape", -1);
                 }
                 else {
-//                    cout << "averaged distance to tape: " << lastAverage << endl;
+                    cout << "averaged distance to tape: " << lastAverage << endl;
                     vTable->PutNumber("averaged distance to tape", lastAverage);
                 }
             }
