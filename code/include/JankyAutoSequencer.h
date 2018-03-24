@@ -43,6 +43,8 @@ public:
 		TurnRight90,
 		TurnLeft45,
 		TurnRight45,
+		TurnLeft30,
+		TurnRight30,
 		Drive6Inches,
 		Drive10Inches,
 		Drive40Inches, //driving to scale plate from mid scale/switch area -->turn 45 --> cubeupscale --> drive10in --> releasecube :)

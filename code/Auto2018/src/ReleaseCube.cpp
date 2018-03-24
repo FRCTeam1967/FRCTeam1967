@@ -35,6 +35,7 @@ bool ReleaseCube::JobDone()
 	if(!UAD->GetIfMechIsRunning() && !timerHasStarted){ //to be tested
 		intimer->Start();
 		IAO->MotorRollForward();
+		IAO->PistonDoorClose(); //flipflopped
 		timerHasStarted = true;
 	}
 	if((intimer->Get()>ROLL_OUT_TIME)){

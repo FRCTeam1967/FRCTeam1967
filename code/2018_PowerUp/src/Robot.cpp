@@ -209,7 +209,7 @@ public:
 			//switchPos = 'E';  //for at competition
 			//scalePos = 'E';  //for at competition
 			switchPos = 'R'; //value for testing purposes
-			scalePos = 'R'; //value for testing purposes
+			scalePos = 'L'; //value for testing purposes
 			printf("Overriding gameData because no valid FMS data \n");
 		}
 		else{
@@ -302,13 +302,13 @@ public:
 			scaleFactor = 1.0;
 		}
 		else if(upDownEncoderDistance<35){
-			scaleFactor = 0.75;
+			scaleFactor = 1.0;
 		}
 		else if(upDownEncoderDistance<50){
-			scaleFactor = 0.6;
+			scaleFactor = 0.85;
 		}
 		else if(upDownEncoderDistance<75){
-			scaleFactor = 0.45;
+			scaleFactor = 0.7;
 		}
 
 		SmartDashboard::PutNumber("Scale Factor", scaleFactor);

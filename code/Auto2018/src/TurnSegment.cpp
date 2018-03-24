@@ -70,6 +70,7 @@ void TurnSegment::RunAction()
 void TurnSegment::End()
 {
 	pid->Disable();
+	drive->TankDrive(0.0, 0.0);
 	turnTimer->Stop();
 	turnTimer->Reset();
 }
