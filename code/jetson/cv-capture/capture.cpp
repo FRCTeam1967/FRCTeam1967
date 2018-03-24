@@ -103,7 +103,7 @@ float findAverage(float average[])
 	return sum/8.0;
 }
 
-int main()
+int main(int argc, char** argv)
 {
 	// Network tables send data to the roboRIO
 	NetworkTable::SetTeam(1967);
@@ -111,8 +111,15 @@ int main()
 	NetworkTable::Initialize();
 	shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 	
-	vTable->PutString("hello", "hi");
-
+	// checks if argument passed
+	bool argPassed = false;
+	
+	if (argc != 1)
+	{
+		// There are arguments being passed in
+		argPassed = true;
+	}
+	
 	system("v4l2-ctl -d /dev/video1 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
 
     VideoCapture cap(1);
@@ -190,20 +197,26 @@ int main()
 			}
 			// draws contours of random colors
 			Scalar color = Scalar((rand()%255)+1, (rand()%255)+1, (rand()%255)+1);
-			drawContours(frame, contours, c, color, 4);
+			if (argPassed) {
+				drawContours(frame, contours, c, color, 4);
+			}
 
 			// finds polygons and draws bounding rectangles
 			approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
 			for (int i=0; i<contours_poly[c].size(); i++)
 			{
-				Scalar red = Scalar(255, 0, 0);
-				circle(frame, contours_poly[c][i], 3, red, 10);
-				Point p = contours_poly[c][i];
-				putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
+				if (argPassed) {
+					Scalar red = Scalar(255, 0, 0);
+					circle(frame, contours_poly[c][i], 3, red, 10);
+					Point p = contours_poly[c][i];
+					putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
+				}
 			}
 
 			boundRect[c] = boundingRect(Mat(contours_poly[c]));
-			rectangle(frame, boundRect[c].tl(), boundRect[c].br(), color);
+			if (argPassed) {
+				rectangle(frame, boundRect[c].tl(), boundRect[c].br(), color);
+			}
 
             // finds largest and second largest contours
 			if (largestContour == -1)
@@ -325,7 +338,7 @@ int main()
 //            cout << "rectWidth: " << rectWidth << endl;
 //            cout << "lengthWidth: " << lengthWidth << endl;
 //            cout << "distance to tape: " << finalDistInInches << endl;
-//            cout << "robot distance: " << robotDistance << endl;
+            cout << "robot distance: " << robotDistance << endl;
 //            cout<<"average counter: "<<counter<<", average value: "<<average[counter]<<endl;
 			cout<<" "<<endl;
 		}
@@ -355,11 +368,20 @@ int main()
             }
         }
         
-		circle(frame, Point(0, 0), 3, Scalar(255, 0, 0), 10);
-		imshow("camera feed", frame);
-		imshow("filtered green", green);
+        if (argPassed) {
+			circle(frame, Point(0, 0), 3, Scalar(255, 0, 0), 10);
+			imshow("camera feed", frame);
+			imshow("filtered green", green);
+		}
 
 		frames++;
+		
+			auto end = chrono::high_resolution_clock::now();
+	auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
+	float fps = (frames / msec_duration.count()) * 1000;
+
+	cout << "msec_duration: " << msec_duration.count() << endl;
+	cout << "frames: " << frames << " FPS: " << fps << endl;
 	}
 
 	cap.release();
