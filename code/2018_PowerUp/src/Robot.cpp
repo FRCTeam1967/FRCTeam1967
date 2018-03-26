@@ -339,20 +339,13 @@ public:
 		bool buttonRight = gameJoystick->GetButtonStart();
 
 		// Open/Close the claw's "doors" with pistons
-		if (buttonLB && lbHasNotBeenPressed == true){
-			if (toggleDoor) {
-				inOut->PistonDoorOpen();
-				//				inOut -> MotorRollForward();
-			}
-			else {
-				inOut->PistonDoorClose();
-			}
-			toggleDoor = !toggleDoor;
-			lbHasNotBeenPressed = false;
+		if (buttonLB ){
+			inOut->PistonDoorOpen();
 		}
-		else if (!buttonLB && !lbHasNotBeenPressed) {
-			lbHasNotBeenPressed = true;
+		if (buttonLT){
+			inOut->PistonDoorClose();
 		}
+
 
 		//Make the rollers go forward and backward:
 		if (leftValue > 0.2) {
@@ -399,10 +392,10 @@ public:
 
 		//Move motor claw manually
 		if (rightValue > 0.2) {
-			inOut -> MotorClawIntoRobot();
+			inOut -> MotorClawOutOfRobot();
 		}
 		else if (rightValue < -0.2) {
-			inOut -> MotorClawOutOfRobot();
+			inOut -> MotorClawIntoRobot();
 		}
 		else {
 			inOut -> MotorClawStop();

@@ -7,8 +7,8 @@
 //Motor speeds
 #define R_MOTOR_F_SPEED 0.7
 #define L_MOTOR_F_SPEED 0.7
-#define R_MOTOR_R_SPEED -0.7
-#define L_MOTOR_R_SPEED -0.7
+#define R_MOTOR_R_SPEED -0.9
+#define L_MOTOR_R_SPEED -0.9
 
 //For distance per pulse in up/down mechanism's encoder
 #define UD_PULSES_PER_REVOLUTION 4096
@@ -25,9 +25,8 @@
 #define UD_HYSTERESIS_NEG -0.5
 
 //Field Element Heights
-
 #define SWITCH_HEIGHT 30
-#define IN_BETWEEN_HEIGHT 18.0
+#define IN_BETWEEN_HEIGHT 13.0
 #define SCALE_LOW_HEIGHT 46.5
 #define SCALE_MED_HEIGHT 58.5
 #define SCALE_HIGH_HEIGHT 70.5

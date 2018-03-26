@@ -6,9 +6,9 @@
 #include "Constants.h"
 
 //Motor speeds
-#define MOTOR_CLAW_F_SPEED 0.65
+#define MOTOR_CLAW_F_SPEED 0.8
 
-#define MOTOR_CLAW_R_SPEED -0.4
+#define MOTOR_CLAW_R_SPEED -0.8
 #define MOTOR_ROLL_F_SPEED 1.0
 #define MOTOR_ROLL_R_SPEED -1.0
 #define MOTOR_STOP_SPEED 0.0
