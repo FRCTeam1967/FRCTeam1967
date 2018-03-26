@@ -10,7 +10,9 @@
 #include "JankyAutoEntry.h"
 
 #define START_TIME 1
-#define DISTANCE_TO_STOP_DRIVING 14 //need to change
+#define DISTANCE_TO_STOP_DRIVING 23 //need to change
+#define VISION_DISTANCE "averaged distance to tape"
+#define VISION_OFFSET "horizontal offset"
 
 VisionSegment::VisionSegment(RobotDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
@@ -28,6 +30,7 @@ VisionSegment::~VisionSegment() {
 
 void VisionSegment::Start(){
 	badDataCounter=0;
+	SmartDashboard::PutNumber(VISION_DISTANCE, -100);
 	pid->SetInputRange(-100, 100); //not sure what this should be talk to vision
 	pid->SetOutputRange(-1.0, 1.0);
 	pid->SetSetpoint(0.0);
@@ -54,6 +57,7 @@ bool VisionSegment::JobDone(){
 	//Handle Bad Data
 	if(visionTimer->Get()>=START_TIME){
 		printf("distance %f \n", distance);
+		printf("vision speed %f \n", _speed);
 		if(distance==-100 || distance==-1){ //0 is default value when vision doesn't send data
 			badDataCounter++;
 			printf("Bad Data Count: %d \n", badDataCounter);
@@ -82,8 +86,8 @@ void VisionSegment::End(){
 }
 
 double VisionSegment::PIDGet(){
-	distance=SmartDashboard::GetNumber("averaged distance to tape", -100); //make sure these are the right names for what vision is sending to the dashboard
-	horizontalOffset=SmartDashboard::GetNumber("horizontal offset", -100);
+	distance=SmartDashboard::GetNumber(VISION_DISTANCE, -100); //make sure these are the right names for what vision is sending to the dashboard
+	horizontalOffset=SmartDashboard::GetNumber(VISION_OFFSET, -100);
 	return horizontalOffset;
 }
 

@@ -55,8 +55,7 @@ bool DriveSegment::JobDone(){
 	lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	//remove in final code:
-	printf("Left Encoder count %f \n", lEncoderCount);
-	printf("Right Encoder count %f \n", rEncoderCount);
+	printf("Left Encoder count %f Right Encoder count %f \n", lEncoderCount, rEncoderCount);
 	if(encoderTimer->Get()>=0.15){
 		encoderReset = true;
 	}
@@ -68,6 +67,7 @@ bool DriveSegment::JobDone(){
 		}
 	}
 	if(encoderTimer->Get()>=maxTime){
+		printf("drive segment exited due to timeout \n");
 		return true;
 	}
 	/*testEncoderCount=-_encoder->Get();
