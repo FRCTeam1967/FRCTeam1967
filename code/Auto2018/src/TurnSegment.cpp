@@ -25,6 +25,7 @@ TurnSegment::TurnSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*chassis, double deg
 
 TurnSegment::~TurnSegment() {
 	// TODO Auto-generated destructor stub
+	pid->Disable();
 	delete pid;
 	delete turnTimer;
 }

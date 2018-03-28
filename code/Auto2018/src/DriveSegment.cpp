@@ -45,6 +45,7 @@ DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorColl
 
 DriveSegment::~DriveSegment() {
 	// TODO Auto-generated destructor stub
+	pid->Disable();
 	delete pid;
 	delete encoderTimer;
 }
@@ -55,15 +56,24 @@ bool DriveSegment::JobDone(){
 	lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	//remove in final code:
-	printf("Left Encoder count %f Right Encoder count %f \n", lEncoderCount, rEncoderCount);
+	//printf("Left Encoder count %f Right Encoder count %f \n", lEncoderCount, rEncoderCount);
 	if(encoderTimer->Get()>=0.15){
 		encoderReset = true;
 	}
 	if(encoderReset){
-		if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
-			printf("job done \n");
-			encoderReset = false;
-			return true;
+		if(distance>=0){
+			if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
+				printf("job done \n");
+				encoderReset = false;
+				return true;
+			}
+		}
+		else{
+			if((lEncoderDistance<=distance)&&(rEncoderDistance<=distance)){
+				printf("job done \n");
+				encoderReset = false;
+				return true;
+			}
 		}
 	}
 	if(encoderTimer->Get()>=maxTime){
@@ -102,7 +112,12 @@ void DriveSegment::Start(){
 	pid->Enable();
 	encoderReset = false;
 	encoderTimer->Start();
-	maxTime = distance/28.0;
+	if(distance>=0){
+		maxTime = distance/30.0;
+	}
+	else{
+		maxTime = -distance/30.0;
+	}
 	//_encoder->Reset();
 }
 

@@ -35,8 +35,9 @@
 #define DONE 14
 
 #define VISION_DRIVE_SPEED 0.4
-#define TURN_SPEED 0.4
-#define DRIVE_SPEED 0.5
+#define TURN_SPEED 0.45
+#define DRIVE_SPEED 0.55
+#define DRIVE_BACK_SPEED -0.55
 float aMode;
 float turn_kP = 0.05;
 float turn_kI = 0.0;
@@ -68,6 +69,7 @@ CubeUp*cubeUp;
 CubeUp*cubeUpScale;
 ReleaseCube*releaseCube;
 VisionSegment*visionSegment;
+DriveSegment*driveBack10Inches;
 
 JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, InAndOut*inAndOut, UpAndDown*upAndDown) {
 //JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro, Encoder*encoder) {
@@ -94,7 +96,8 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	cubeUp = new ::CubeUp(inAndOut, upAndDown, 'l');
 	cubeUpScale = new ::CubeUp(inAndOut, upAndDown, 'h');
 	releaseCube = new ::ReleaseCube(drive, inAndOut, upAndDown, 'l');
-	visionSegment = new ::VisionSegment(drive, VISION_DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	visionSegment = new ::VisionSegment(drive, VISION_DRIVE_SPEED, drive_kP, drive_kI, drive_kD); //might need negative p, i, d since backwards
+	driveBack10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, -25, DRIVE_BACK_SPEED, drive_kP, drive_kI, drive_kD);
 
 	SetMachineName("JankyAutoSequencer");
 	JankyStateMachine::SetName(Rest, "Rest");
@@ -119,6 +122,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	SetName(CubeUpScale, "Lift cube to scale height", cubeUpScale);
 	SetName(ReleaseCube, "Release cube onto the switch", releaseCube);
 	SetName(VisionSegment, "Drive to the switch with vision", visionSegment);
+	SetName(DriveBack10Inches, "Drive back 10 inches", driveBack10Inches);
 	JankyStateMachine::SetName(Stop, "End of Sequence");
 
 	c = 0;
@@ -145,6 +149,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 
 JankyAutoSequencer::~JankyAutoSequencer() {
 	// TODO Auto-generated destructor stub
+	Terminate();
 	delete turnLeft90;
 	delete turnRight90;
 	delete turnLeft45;
@@ -166,6 +171,7 @@ JankyAutoSequencer::~JankyAutoSequencer() {
 	delete cubeUpScale;
 	delete releaseCube;
 	delete visionSegment;
+	delete driveBack10Inches;
 }
 
 void JankyAutoSequencer::SetName(int state, const char* name, JankyAutoEntry*entry){
@@ -180,11 +186,13 @@ void JankyAutoSequencer::SetMode(int mode){ //call set mode in autoPeriodic
 }
 
 void JankyAutoSequencer::EndSequence(){
+	printf("Current Entry: %s \n", names[GetCurrentState()]);
+	SmartDashboard::PutString("Current Entry", names[GetCurrentState()]);
 	if(entries[GetCurrentState()]){
 		entries[GetCurrentState()]->Abort();
 		printf("Aborted Entry: %s \n", names[GetCurrentState()]);
 	}
-	Terminate();
+	Pause();
 }
 
 void JankyAutoSequencer::StateEngine(int curState)
@@ -489,6 +497,16 @@ void JankyAutoSequencer::StateEngine(int curState)
 			break;
 		case ReleaseCube:
 			if(releaseCube->IsComplete()){
+				if(aMode==L_SAME_SCALE||aMode==R_SAME_SCALE||aMode==L_OPPOSITE_SCALE||aMode==R_OPPOSITE_SCALE){
+					NewState(DriveBack10Inches, "Get away from the scale after loading");
+				}
+				else{
+					NewState(Stop, "Done releasing cube on switch");
+				}
+			}
+			break;
+		case DriveBack10Inches: //TEST THS
+			if(driveBack10Inches->IsComplete()){
 				NewState(Stop, "Done releasing cube on switch");
 			}
 			break;

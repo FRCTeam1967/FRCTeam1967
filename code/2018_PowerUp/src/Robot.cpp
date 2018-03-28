@@ -139,7 +139,7 @@ public:
 	}
 	~Robot(){
 		delete selector;
-		delete sequencer;
+		//delete sequencer;
 		delete flmotor;
 		delete rlmotor;
 		delete frmotor;
@@ -188,7 +188,7 @@ public:
 		CameraServer::GetInstance()->PutVideo("DriveTeamCam", 640, 480);
 		scaleFactor=1.0;
 		//Prepare for auto
-		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
+		//sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
 		selector->Init();
 
 		inOut->StartUpInit();
@@ -218,6 +218,12 @@ public:
 			printf("Switch Position: %d \n", switchPos);
 			printf("Scale Position %d \n", scalePos);
 		}
+
+		if(sequencer){
+			delete sequencer;
+			sequencer = NULL;
+		}
+		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
 
 		autonomousTimer.Reset();
 		autonomousTimer.Start();
@@ -284,7 +290,12 @@ public:
 	}
 
 	void TeleopInit() {
-		sequencer->EndSequence();
+		if(sequencer){
+			sequencer->EndSequence();
+			delete sequencer;
+			sequencer=NULL;
+		}
+
 		gyro->Reset();
 		rlmotor->SetSelectedSensorPosition(0, 0, 10);
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
