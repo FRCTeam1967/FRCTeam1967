@@ -53,6 +53,8 @@ private:
 	double kD;
 	double maxTime;
 	bool encoderReset;
+	double leftDist;
+	double rightDist;
 	Timer*encoderTimer;
 	frc::ADXRS450_Gyro*_gyro;
 	PIDController*pid;

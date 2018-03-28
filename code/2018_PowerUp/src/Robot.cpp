@@ -197,6 +197,11 @@ public:
 		upDown->StartUpInit();
 		//upDown->PIDSetup();
 		upDown->Start();
+
+		rlmotor->SetSelectedSensorPosition(0, 0, 10);
+		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		rrmotor->SetSelectedSensorPosition(0, 0, 10);
+		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 	}
 
 	void AutonomousInit() override {

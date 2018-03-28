@@ -57,25 +57,25 @@ bool DriveSegment::JobDone(){
 	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	//remove in final code:
 	//printf("Left Encoder count %f Right Encoder count %f \n", lEncoderCount, rEncoderCount);
-	if(encoderTimer->Get()>=0.15){
+	/*if(encoderTimer->Get()>=0.15){
 		encoderReset = true;
 	}
-	if(encoderReset){
+	if(encoderReset){*/
 		if(distance>=0){
-			if((lEncoderDistance>=distance)&&(rEncoderDistance>=distance)){
+			if(((lEncoderDistance-leftDist)>=distance)&&((rEncoderDistance-rightDist)>=distance)){
 				printf("job done \n");
 				encoderReset = false;
 				return true;
 			}
 		}
 		else{
-			if((lEncoderDistance<=distance)&&(rEncoderDistance<=distance)){
+			if(((lEncoderDistance-leftDist)<=distance)&&((rEncoderDistance-rightDist)<=distance)){
 				printf("job done \n");
 				encoderReset = false;
 				return true;
 			}
 		}
-	}
+	//}
 	if(encoderTimer->Get()>=maxTime){
 		printf("drive segment exited due to timeout \n");
 		return true;
@@ -99,8 +99,8 @@ void DriveSegment::RunAction(){
 void DriveSegment::Start(){
 	//int leftError;
 	//maybe it's taking so long bc its being double reset?
-	_leftEncoder->SetQuadraturePosition(0, 10);
-	_rightEncoder->SetQuadraturePosition(0, 10);
+	//_leftEncoder->SetQuadraturePosition(0, 10);
+	//_rightEncoder->SetQuadraturePosition(0, 10);
 	//leftError=_leftmotor->SetSelectedSensorPosition(0, 0, 10);
 	//printf("Encoder error %ld \n", leftError);
 	//_leftmotor->SetSelectedSensorPosition(0, 0, 10);
@@ -118,6 +118,8 @@ void DriveSegment::Start(){
 	else{
 		maxTime = -distance/30.0;
 	}
+	leftDist=(-_leftEncoder->GetQuadraturePosition()/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
+	rightDist=(-_rightEncoder->GetQuadraturePosition()/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	//_encoder->Reset();
 }
 
