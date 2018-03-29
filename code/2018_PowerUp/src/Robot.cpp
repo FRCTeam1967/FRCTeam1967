@@ -79,8 +79,8 @@
 //#define GAME_MOTOR_ENCODER_CHANNEL_1 4
 //#define GAME_MOTOR_ENCODER_CHANNEL_2 5
 
-#define X_RES 1000
-#define Y_RES 1000
+#define X_RES 320
+#define Y_RES 240
 
 class Robot : public frc::IterativeRobot {
 	JankyAutoSelector*selector;
@@ -160,8 +160,8 @@ public:
 		rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
 		frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
-		rlmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-		rrmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+		flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
 		rightDrive = new frc::SpeedControllerGroup(*frmotor, *rrmotor);
 		autoDrive = new frc::RobotDrive(flmotor, rlmotor, frmotor, rrmotor);
@@ -189,6 +189,7 @@ public:
 		scaleFactor=1.0;
 		//Prepare for auto
 		//sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
+		//sequencer = new JankyAutoSequencer(autoDrive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
 		selector->Init();
 
 		inOut->StartUpInit();
@@ -228,15 +229,15 @@ public:
 			delete sequencer;
 			sequencer = NULL;
 		}
-		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
+		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
 
 		autonomousTimer.Reset();
 		autonomousTimer.Start();
 		gyro->Reset();
-		rlmotor->SetSelectedSensorPosition(0, 0, 10);
-		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-		rrmotor->SetSelectedSensorPosition(0, 0, 10);
-		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		flmotor->SetSelectedSensorPosition(0, 0, 10);
+		flmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		frmotor->SetSelectedSensorPosition(0, 0, 10);
+		frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
 		delayTime = selector->GetDelayTime();
 		automode=selector->GetAutoMode(switchPos, scalePos);
@@ -302,10 +303,10 @@ public:
 		}
 
 		gyro->Reset();
-		rlmotor->SetSelectedSensorPosition(0, 0, 10);
-		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-		rrmotor->SetSelectedSensorPosition(0, 0, 10);
-		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		flmotor->SetSelectedSensorPosition(0, 0, 10);
+		flmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		frmotor->SetSelectedSensorPosition(0, 0, 10);
+		frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 	}
 
 	void TeleopPeriodic() {
@@ -331,14 +332,17 @@ public:
 		autoDrive->TankDrive(-left->GetY()*scaleFactor, -right->GetY()*scaleFactor);
 
 		//drive->TankDrive(-xbox->GetLeftYAxis(), -xbox->GetRightYAxis());
-		double leftEncoderCount= -(rlmotor->GetSensorCollection().GetQuadraturePosition());
+		double leftEncoderCount= -(flmotor->GetSensorCollection().GetQuadraturePosition());
 		double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
-		double rightEncoderCount= rrmotor->GetSensorCollection().GetQuadraturePosition();
+		double rightEncoderCount= frmotor->GetSensorCollection().GetQuadraturePosition();
 		double rightEncoderDistance = (rightEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
 		SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
 		SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
 		SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
 		SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
+		SmartDashboard::PutNumber("Gyro val", gyro->GetAngle());
+		//printf("leftEncoderCount %f", leftEncoderCount);
+		//printf("rightEncoderCount %f", rightEncoderCount);
 		//Game Components
 		// Define all of the buttons/throttles on the game controller
 		bool buttonRB = gameJoystick -> GetButtonRB();
