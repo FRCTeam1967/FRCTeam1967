@@ -189,7 +189,7 @@ public:
 		scaleFactor=1.0;
 		//Prepare for auto
 		//sequencer = new JankyAutoSequencer(autoDrive, gyro, &(rlmotor->GetSensorCollection()), &(rrmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
-		//sequencer = new JankyAutoSequencer(autoDrive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
+		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
 		selector->Init();
 
 		inOut->StartUpInit();
@@ -198,11 +198,12 @@ public:
 		upDown->StartUpInit();
 		//upDown->PIDSetup();
 		upDown->Start();
-
-		rlmotor->SetSelectedSensorPosition(0, 0, 10);
+		gyro->Calibrate();
+		printf("done w/ robotinit \n");
+		/*rlmotor->SetSelectedSensorPosition(0, 0, 10);
 		rlmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		rrmotor->SetSelectedSensorPosition(0, 0, 10);
-		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		rrmotor->GetSensorCollection().SetQuadraturePosition(0, 10);*/
 	}
 
 	void AutonomousInit() override {
@@ -214,7 +215,7 @@ public:
 			//not connected to FMS
 			//switchPos = 'E';  //for at competition
 			//scalePos = 'E';  //for at competition
-			switchPos = 'R'; //value for testing purposes
+			switchPos = 'L'; //value for testing purposes
 			scalePos = 'L'; //value for testing purposes
 			printf("Overriding gameData because no valid FMS data \n");
 		}
@@ -225,11 +226,16 @@ public:
 			printf("Scale Position %d \n", scalePos);
 		}
 
-		if(sequencer){
+		/*if(sequencer){
 			delete sequencer;
 			sequencer = NULL;
 		}
-		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);
+		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);*/
+
+		delayTime = selector->GetDelayTime();
+		automode=selector->GetAutoMode(switchPos, scalePos);
+
+		selector->PrintValues();
 
 		autonomousTimer.Reset();
 		autonomousTimer.Start();
@@ -239,9 +245,7 @@ public:
 		frmotor->SetSelectedSensorPosition(0, 0, 10);
 		frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 
-		delayTime = selector->GetDelayTime();
-		automode=selector->GetAutoMode(switchPos, scalePos);
-		selector->PrintValues();
+
 	}
 
 	void AutonomousPeriodic() {
@@ -296,11 +300,11 @@ public:
 	}
 
 	void TeleopInit() {
-		if(sequencer){
+		/*if(sequencer){
 			sequencer->EndSequence();
 			delete sequencer;
 			sequencer=NULL;
-		}
+		}*/
 
 		gyro->Reset();
 		flmotor->SetSelectedSensorPosition(0, 0, 10);
@@ -326,6 +330,9 @@ public:
 		}
 		else if(upDownEncoderDistance<75){
 			scaleFactor = 0.7;
+		}
+		else{
+			scaleFactor = 1.0;
 		}
 
 		SmartDashboard::PutNumber("Scale Factor", scaleFactor);
@@ -398,17 +405,17 @@ public:
 			upDown ->InBetweenSwitchAndScale();
 		}
 
-		if (upDown->isMechanismRunning == false) {
 			if (buttonLeft) {
 				upDown->RLMotorReverse();
+				upDown->isMechanismRunning = false;
 			}
 			else if (buttonRight) {
 				upDown->RLMotorForward();
+				upDown->isMechanismRunning = false;
 			}
 			else {
 				upDown->RLMotorStop();
 			}
-		}
 
 		//Move motor claw manually
 		if (rightValue > 0.2) {
