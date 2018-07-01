@@ -6,7 +6,7 @@
  */
 
 #include <CubeUp.h>
-#define ARM_DOWN_TIME 1
+#define ARM_DOWN_TIME 0.4
 
 Timer*uptimer;
 CubeUp::CubeUp(InAndOut*inAndOut,UpAndDown*upAndDown, char height) {
@@ -29,15 +29,20 @@ void CubeUp::Start(){
 }
 
 bool CubeUp::JobDone(){
-	/*if(uptimer->Get()>ARM_DOWN_TIME){
+
+	/*if(uptimer->Get()>0.25){
 		IAO->MotorClawStop();
 	}*/
 	if(_height=='l'){
-		if(UAD->GetIfMechIsRunning()){
+		if(UAD->GetIfMechIsRunning()&&uptimer->Get()>=ARM_DOWN_TIME){
+			IAO->MotorClawStop();
 			return true;
 		}
 	}
 	else if(_height=='h'){
+		if(uptimer->Get()>ARM_DOWN_TIME){
+			IAO->MotorClawStop();
+		}
 		if(!UAD->GetIfMechIsRunning()){
 			return true;
 		}
@@ -64,4 +69,5 @@ void CubeUp::End(){
 	//IAO->MotorClawStop();
 	uptimer->Stop();
 	uptimer->Reset();
+	IAO->MotorClawStop();
 }

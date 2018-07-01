@@ -134,11 +134,13 @@ void JankyAutoSelector::PrintValues(){
 int JankyAutoSelector::GetAutoMode(char switchPos, char scalePos){
 	int* selectedPosition = position.GetSelected();
 	int* selectedAction = action.GetSelected();
+	int* selectedDelay = delay.GetSelected();
 
-	printf("selected position: %p \n", (void*)selectedPosition);
-	printf("selected action: %p \n", (void*)selectedAction);
+	printf("selected position: %d \n", *selectedPosition);
+	printf("selected action: %d \n", *selectedAction);
+	printf("selected delay: %d \n", *selectedDelay);
 	if((switchPos == 'E')&&(scalePos == 'E')){
-		printf("default auto \n");
+		printf("default auto bc no valid data \n");
 		autoMode = DEFAULT_MODE;
 	}
 	else if(&defaultAuto==selectedAction){
@@ -151,7 +153,7 @@ int JankyAutoSelector::GetAutoMode(char switchPos, char scalePos){
 			autoMode = L_SAME_SCALE;
 		}
 		else{
-			printf("left start + auto line \n");
+			printf("left start + auto line bc scale is R \n");
 			autoMode = L_CROSS_AUTOLINE;
 		}
 	}
@@ -195,7 +197,7 @@ int JankyAutoSelector::GetAutoMode(char switchPos, char scalePos){
 			autoMode = L_SAME_SWITCH;
 		}
 		else{
-			printf("left start + auto line \n");
+			printf("left start + auto line bc switch is R \n");
 			autoMode = L_CROSS_AUTOLINE;
 		}
 	}

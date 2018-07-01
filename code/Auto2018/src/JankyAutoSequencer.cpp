@@ -36,7 +36,7 @@
 
 #define VISION_DRIVE_SPEED 0.4
 #define TURN_SPEED 0.45
-#define DRIVE_SPEED 0.55
+#define DRIVE_SPEED 0.65
 #define DRIVE_BACK_SPEED -0.55
 float aMode;
 float turn_kP = 0.05;
@@ -84,17 +84,17 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	turnLeft30 = new TurnSegment(gyro, drive, -32.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight30 = new TurnSegment(gyro, drive, 32.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 4, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 22, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 47, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive40Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 2, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive50Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 40, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive60Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 45, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 36, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive60Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 48, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 40, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive120Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 160, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 180, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 150, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 185, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 158, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive210Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 235, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive240Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 238, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 236, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive240Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 268, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 258, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	cubeUp = new ::CubeUp(inAndOut, upAndDown, 'l');
 	cubeUpScale = new ::CubeUp(inAndOut, upAndDown, 'h');
 	releaseCube = new ::ReleaseCube(drive, inAndOut, upAndDown, 'l');
@@ -124,14 +124,14 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	SetName(CubeUp, "Lift cube to switch height", cubeUp);
 	SetName(CubeUpScale, "Lift cube to scale height", cubeUpScale);
 	SetName(ReleaseCube, "Release cube onto the switch", releaseCube);
-	SetName(VisionSegment, "Drive to the switch with vision", visionSegment);
+	SetName(VisionSegment, "Drive to switch with vision", visionSegment);
 	SetName(DriveBack10Inches, "Drive back 10 inches", driveBack10Inches);
 	JankyStateMachine::SetName(Stop, "End of Sequence");
 
 	c = 0;
 	done = false;
 	aMode = DEFAULT_MODE;
-	gyro->Calibrate();
+	//gyro->Calibrate();
 	Start(); //most important part!!
 	/*SetName(DrivingSwitchEdge, "Drive Straight 162 inches");
 	SetName(TurningToRightSwitchEdge, "Turn left 90 degrees and drive forward 6 inches");

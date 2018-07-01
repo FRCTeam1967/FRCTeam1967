@@ -48,6 +48,7 @@ public:
 		Drive6Inches,
 		Drive10Inches,
 		Drive40Inches, //driving to scale plate from mid scale/switch area -->turn 45 --> cubeupscale --> drive10in --> releasecube :)
+		Drive50Inches,
 		Drive60Inches,
 		Drive72Inches,
 		Drive120Inches,
