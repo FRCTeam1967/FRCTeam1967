@@ -35,9 +35,10 @@
 #define DONE 14
 
 #define VISION_DRIVE_SPEED 0.4
-#define TURN_SPEED 0.45
-#define DRIVE_SPEED 0.65
-#define DRIVE_BACK_SPEED -0.55
+#define TURN_SPEED 0.4
+#define DRIVE_SPEED 0.4
+#define FAST_DRIVE_SPEED 0.7
+#define DRIVE_BACK_SPEED -0.4
 float aMode;
 float turn_kP = 0.05;
 float turn_kI = 0.0;
@@ -83,15 +84,15 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnLeft30 = new TurnSegment(gyro, drive, -32.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight30 = new TurnSegment(gyro, drive, 32.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
-	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 4, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 38, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 47, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive40Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 2, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive50Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 40, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive50Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 70, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive60Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 48, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 40, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 84, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive120Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 160, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 185, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 158, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 200, FAST_DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 163, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive210Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 235, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive240Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 268, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 258, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
