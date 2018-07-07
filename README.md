@@ -1,7 +1,5 @@
 # FRC Team 1967: The Janksters
 
-![Team 1967 Logo](http://t1967.ndsj.org/wp-content/uploads/2015/06/Copy-of-DowntownSJ_Panorama.png "Team 1967 Logo")
-
 We are an all girls robotics team located in San Jose, California, and participate in FIRST (For Inspiration and Recognition in Science and Technology) Robotics Competition. Our code is written in C++, using WPI Lib, OpenCV, and other code libraries. If you would like to learn more about our team, you can visit us at our [website](http://team1967.ndsj.org).
 
 ## Prerequesites
