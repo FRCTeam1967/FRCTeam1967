@@ -1,25 +1,27 @@
 # FRC Team 1967: The Janksters
-> **Note**: This readme is not complete yet.
 
-We are an all girls robotics team located in San Jose, California, and participate in FIRST (For Inspiration and Recognition in Science and Technology) Robotics Competition. Our code is written in C++, using WPI Lib, OpenCV, and other code libraries.
+![Team 1967 Logo](http://t1967.ndsj.org/wp-content/uploads/2015/06/Copy-of-DowntownSJ_Panorama.png "Team 1967 Logo")
+
+We are an all girls robotics team located in San Jose, California, and participate in FIRST (For Inspiration and Recognition in Science and Technology) Robotics Competition. Our code is written in C++, using WPI Lib, OpenCV, and other code libraries. If you would like to learn more about our team, you can visit us at our [website](http://team1967.ndsj.org).
 
 ## Prerequesites
 
-Before you download our repository and use our code, make sure you have completed all of our prerequisites. Follow the instructions below to complete them.
+Before you download this repository and use our code, make sure you have completed all of our prerequisites. Follow the instructions below to complete them.
 
 ### Installing Java SE
 
-1. Go to http://www.oracle.com/technetwork/java/javase/downloads/index.html 
-2. Click install under JDK. This should take you to a page called Java SE Development Kit 9 Downloads
-3. Accept the License Agreement, and then download it for Mac or Windows depending on your device
-4. Follow instructions for installation when prompted
+1. Go to [this](http://www.oracle.com/technetwork/java/javase/downloads/index.html) website
+2. Under the SDK section, click install
+    * This should take you to a page called Java SE Development Kit 9 Downloads
+3. Accept the License Agreement, and then download it for Mac or Windows, depending on your device
+4. Follow the instructions for installation when prompted
 
 ### Installing Eclipse
 
-When creating and modifying our code, our team uses Eclipse Mars as an IDE. To install Eclipse, follow these steps.
+When creating and modifying our code, our team uses Eclipse Mars as an IDE. To install Eclipse, follow the steps below.
 > **Note**: Please make sure you install Eclipse Mars.
 
-1. Go to https://eclipse.org/mars/
+1. Go to [this](https://eclipse.org/mars/) website
 2. Click Download
 3. Select Eclipse for C/C++
 4. Follow the installation instructions when prompted
@@ -37,16 +39,16 @@ Follow the [instructions](https://wpilib.screenstepslive.com/s/4485/m/13810/l/14
 Follow the [instructions](https://wpilib.screenstepslive.com/s/4485/m/13810/l/145002-installing-eclipse-c-java#Installing-the-development-plugins---Option-1:-Onl) below to install the FRC development plugins in Eclipse.
 
 1. Open Eclipse
-2. Choose “Help” (on the top bar)
-3. Click “Install New Software” (near the bottom)
-4. Click “Add” (on the top right)
-5. Name: FRC Plugins
-6. Location: http://first.wpi.edu/FRC/roborio/release/eclipse/ 
+2. In the top bar, select the Help menu
+3. Click “Install New Software,” which is located near the bottom of the menu
+4. Click “Add”
+5. Type in the name: FRC Plugins
+6. The location should be: http://first.wpi.edu/FRC/roborio/release/eclipse/ 
 7. Click “OK”
 8. Click the arrow to expand the WPILib Robot Development menu
 9. Only select Robot C++ Development
-10. Click next, next, accept, and Finish
-11. Click “OK” on the warning
+10. Click next, next, accept, and finish
+11. Click “OK” when prompted with a warning
 12. Restart Eclipse when prompted
 
 ### Installing CAN Talon SRX Software
@@ -72,30 +74,59 @@ To download our code repository, run the following command in your terminal shel
 
     $ git clone --recursive https://github.com/FRCTeam1967/FRCTeam1967.git
 
-If you are using SourceTree, follow these instructions:
+Many members of our team like to use SourceTree to manage their code. If you are using SourceTree, follow these instructions:
 
-TODO
+### Downloading SourceTree
 
-## 2018 Overview
+Follow the steps below to download SourceTree.
 
-Our code for FIRST PowerUp, in 2018, is intended to be paired with their most recent robot, Lola. TODO
+1. Go to [this](https://www.sourcetreeapp.com/) website.
+2. Click the green download button
+3. Create an Atlassian account
+4. Follow the instructions given to create it
+5. Go back to SourceTree, and login with your Atlassian account
+6. Click the Github icon, enter your GitHub information, and sign in
+
+### Cloning our repository into SourceTree
+
+1. Open SourceTree
+2. Next to the searchbar that says "filter repositories," drop down the tab that says "New"
+3. Select Clone from URL
+4. Enter [this](https://github.com/FRCTeam1967/FRCTeam1967.git) source URL
+5. Select the destination path and name the repository
+6. Press clone
+
+## 2018 Code Overview
+
+Our code for FIRST PowerUp, in 2018, is intended to be paired with their most recent robot, Lola. The objective of this robot was to pick up yellow Power Cubes and put them onto a low switch or a high scale. If you are interested, you can watch [this](https://www.youtube.com/watch?v=HZbdwYiCY74) video, which will explain the game.
+
+Below, you can find an overview of Lola's code.
 
 ### Chassis
 
-TODO
+* The chassis on Lola is driven by four motors, with two on each side.
+    * We have programmed two Logitech joysticks for the driver to controll the chassis, with each controlling one side of the robot.
+    * Because our robot can extend up to 7 feet, we have built an anti-tipping algorithm into our code. 
 
 ### Game Components
 
-TODO
+* Lola has two main game components mechanisms.
+    * The first mechanism is a claw that can open and close using pneumatic pistons. The claw can pivot in and out of the robot using a motor. It also has rollers, which can help bring a cube in and out of the claw quickly. 
+    * The second mechanism is an elevator, which is driven by two motors. We use magnetic encoders to determine the height of the mechanism, how far it needs to move, and in what direction it should move. 
+    * The game component code runs in a separate task from the other code, allowing it to run quickly and efficiently.
+    * In order to manipulate Lola's mechanisms, we have programmed an Xbox 360 controller.
 
 ### Vision
 
-TODO
+* Our team uses a Jetson TX1 to process our vision software. 
+    * Using the Microsoft Lifecam HD-3000, we are able to see retroreflective tape from across the field. Using this camera stream, we use OpenCV to isolate the tape, detect how far the robot is from it, and use this information to drive towards the tape. Then, using our distance calculation, we stop the robot when it is close enough to the tape.
 
 ### Autonomous
 
-TODO
+* Our team created 11 different autonomous modes. 
+    * We are able to choose an autonomous mode to fit our needs, depending on where Lola starts out on the field at the beginning of the match.
+    * We have integrated vision into our autonomous code, which allows our robot to be more precise with its movements.
 
 ## Licence
 
-Our has an open soure license. If you have any questions or concerns regarding licensing, please contect the team at team1967@ndsj.org.
+Our team has an open soure license. If you have any questions or concerns regarding licensing, please contect the team at team1967@ndsj.org.
