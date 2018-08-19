@@ -4,7 +4,7 @@ We are an all girls robotics team located in San Jose, California, and participa
 
 ## Setting up the repository
 
-To download our code repository, run the following command in your terminal shell:
+If you would like to download our code repository using the command line, run the following command in your terminal shell. Otherwise, ignore this command and follow the instructions to use SourceTree.
 
     $ git clone --recursive https://github.com/FRCTeam1967/FRCTeam1967.git
 
