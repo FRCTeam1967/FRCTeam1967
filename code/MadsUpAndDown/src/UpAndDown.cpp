@@ -37,6 +37,8 @@
 #define I_VAL 0.0
 #define D_VAL 0.0
 
+bool done = false;
+
 UpAndDown::UpAndDown(int lMotorChannel, int rMotorChannel) {
 	lMotor = new WPI_TalonSRX(lMotorChannel);
 	rMotor = new WPI_TalonSRX(rMotorChannel);
@@ -240,7 +242,7 @@ void UpAndDown::Run() {
 	SmartDashboardComments();
 
 	//Emergency stop the mechanism with the limit switches
-	EmergencyStopMechanism();
+	//EmergencyStopMechanism();
 
 	//Print-f statements for PID
 	//	printf("Error %d \n", lMotor->GetClosedLoopError(kPIDLoopIdx));
@@ -263,6 +265,10 @@ void UpAndDown::Run() {
 		else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)) {
 			RLMotorStop();
 			isMechanismRunning = false;
+			if(!done){
+				printf("DONE LIFTING CUBE TO DESIRED HEIGHT \n");
+				done=true;
+			}
 		}
 	}
 }

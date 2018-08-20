@@ -15,6 +15,7 @@ CubeUp::CubeUp(InAndOut*inAndOut,UpAndDown*upAndDown, char height) {
 	UAD = upAndDown;
 	_height = height;
 	uptimer = new Timer();
+	uptimer->Reset();
 }
 
 CubeUp::~CubeUp() {

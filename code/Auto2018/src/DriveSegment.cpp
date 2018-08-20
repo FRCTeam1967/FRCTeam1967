@@ -113,10 +113,10 @@ void DriveSegment::Start(){
 	encoderReset = false;
 	encoderTimer->Start();
 	if(distance>=0){
-		maxTime = distance/30.0;
+		maxTime = distance/25.0;
 	}
 	else{
-		maxTime = -distance/30.0;
+		maxTime = -distance/25.0;
 	}
 	leftDist=(-_leftEncoder->GetQuadraturePosition()/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rightDist=(-_rightEncoder->GetQuadraturePosition()/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;

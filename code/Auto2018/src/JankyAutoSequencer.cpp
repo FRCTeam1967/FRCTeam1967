@@ -59,6 +59,7 @@ DriveSegment*drive6Inches;
 DriveSegment*drive10Inches;
 DriveSegment*drive40Inches;
 DriveSegment*drive50Inches;
+DriveSegment*drive52Inches;
 DriveSegment*drive60Inches;
 DriveSegment*drive72Inches;
 DriveSegment*drive120Inches;
@@ -82,20 +83,21 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	turnRight90 = new TurnSegment(gyro, drive, 90.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnLeft45 = new TurnSegment(gyro, drive, -45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
-	turnLeft30 = new TurnSegment(gyro, drive, -32.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
-	turnRight30 = new TurnSegment(gyro, drive, 32.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	turnLeft30 = new TurnSegment(gyro, drive, -25.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	turnRight30 = new TurnSegment(gyro, drive, 25.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 38, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 47, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive40Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 2, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive50Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 70, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive50Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 62, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive52Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 69, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive60Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 48, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive72Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 84, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive120Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 160, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 200, FAST_DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive144Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 194, FAST_DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 163, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive210Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 235, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive210Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 227, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive240Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 268, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 258, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 248, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	cubeUp = new ::CubeUp(inAndOut, upAndDown, 'l');
 	cubeUpScale = new ::CubeUp(inAndOut, upAndDown, 'h');
 	releaseCube = new ::ReleaseCube(drive, inAndOut, upAndDown, 'l');
@@ -114,6 +116,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	SetName(Drive10Inches, "Drive straight 10 inches", drive10Inches);
 	SetName(Drive40Inches, "Drive straight 40 inches", drive40Inches);
 	SetName(Drive50Inches, "Drive straight 50 inches", drive50Inches);
+	SetName(Drive52Inches, "Drive straight 52 inches", drive50Inches);
 	SetName(Drive60Inches, "Drive straight 60 inches", drive60Inches);
 	SetName(Drive72Inches, "Drive straight 72 inches", drive72Inches);
 	SetName(Drive120Inches, "Drive straight 120 inches", drive120Inches);
@@ -164,6 +167,7 @@ JankyAutoSequencer::~JankyAutoSequencer() {
 	delete drive10Inches;
 	delete drive40Inches;
 	delete drive50Inches;
+	delete drive52Inches;
 	delete drive60Inches;
 	delete drive72Inches;
 	delete drive120Inches;
@@ -279,7 +283,7 @@ void JankyAutoSequencer::StateEngine(int curState)
 		case TurnLeft90:
 			if(turnLeft90->IsComplete()){
 				if(aMode==M_LEFT_SWITCH){
-					NewState(Drive50Inches, "Done turning left 90 degrees to drive to left switch");
+					NewState(Drive52Inches, "Done turning left 90 degrees to drive to left switch");
 				}
 				else if(aMode==M_RIGHT_SWITCH){
 					NewState(Drive72Inches, "Done turning left 90 degrees to align to right switch front");
@@ -394,11 +398,15 @@ void JankyAutoSequencer::StateEngine(int curState)
 			break;
 		case Drive50Inches:
 			if(drive50Inches->IsComplete()){
+				if(aMode==M_RIGHT_SWITCH){
+					NewState(TurnLeft90, "Done aligning to left switch");
+				}
+			}
+			break;
+		case Drive52Inches:
+			if(drive52Inches->IsComplete()){
 				if(aMode==M_LEFT_SWITCH){
 					NewState(TurnRight90, "Done aligning to left switch");
-				}
-				else if(aMode==M_RIGHT_SWITCH){
-					NewState(TurnLeft90, "Done aligning to left switch");
 				}
 			}
 			break;

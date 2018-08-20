@@ -231,6 +231,7 @@ public:
 			sequencer = NULL;
 		}
 		sequencer = new JankyAutoSequencer(autoDrive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), rlmotor, rrmotor, inOut, upDown);*/
+		upDown->StartUpInit();
 
 		delayTime = selector->GetDelayTime();
 		automode=selector->GetAutoMode(switchPos, scalePos);
