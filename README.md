@@ -2,15 +2,43 @@
 
 We are an all girls robotics team located in San Jose, California, and participate in FIRST (For Inspiration and Recognition in Science and Technology) Robotics Competition. Our code is written in C++, using WPI Lib, OpenCV, and other code libraries. If you would like to learn more about our team, you can visit us at our [website](http://team1967.ndsj.org).
 
-## Prerequesites
+## Setting up the repository
 
-Before you download this repository and use our code, make sure you have completed all of our prerequisites. Follow the instructions below to complete them.
+If you would like to download our code repository using the command line, run the following command in your terminal shell. Otherwise, ignore this command and follow the instructions to use SourceTree.
+
+    $ git clone --recursive https://github.com/FRCTeam1967/FRCTeam1967.git
+
+Many members of our team like to use SourceTree to manage their code. If you are using SourceTree, follow these instructions:
+
+### Downloading SourceTree
+
+Follow the steps below to download SourceTree.
+
+1. Go to [this](https://www.sourcetreeapp.com/) website.
+2. Click the green download button
+3. Create an Atlassian account
+4. Follow the instructions given to create it
+5. Go back to SourceTree, and login with your Atlassian account
+6. Click the Github icon, enter your GitHub information, and sign in
+
+### Cloning our repository into SourceTree
+
+1. Open SourceTree
+2. Next to the searchbar that says "filter repositories," drop down the tab that says "New"
+3. Select Clone from URL
+4. Enter [this](https://github.com/FRCTeam1967/FRCTeam1967.git) source URL
+5. Select the destination path and name the repository
+6. Press clone
+
+## Installations
+
+Before you use our code, make sure you have completed all of these installations. Follow the instructions below to complete them.
 
 ### Installing Java SE
 
 1. Go to [this](http://www.oracle.com/technetwork/java/javase/downloads/index.html) website
-2. Under the SDK section, click install
-    * This should take you to a page called Java SE Development Kit 9 Downloads
+2. Under the JDK section, click install
+    * This should take you to a page called Java SE Development Kit 10 Downloads
 3. Accept the License Agreement, and then download it for Mac or Windows, depending on your device
 4. Follow the instructions for installation when prompted
 
@@ -65,34 +93,6 @@ Follow the [instructions](https://wpilib.screenstepslive.com/s/4485/m/13810/l/14
 6. Name this cpp folder “cpp-[date]” (ex. cpp-Nov9)
 7. Drag the cpp folder you just downloaded (inside the into the “user” folder of your Finder
 8. Restart Eclipse after
-
-## Setting up the repository
-
-To download our code repository, run the following command in your terminal shell:
-
-    $ git clone --recursive https://github.com/FRCTeam1967/FRCTeam1967.git
-
-Many members of our team like to use SourceTree to manage their code. If you are using SourceTree, follow these instructions:
-
-### Downloading SourceTree
-
-Follow the steps below to download SourceTree.
-
-1. Go to [this](https://www.sourcetreeapp.com/) website.
-2. Click the green download button
-3. Create an Atlassian account
-4. Follow the instructions given to create it
-5. Go back to SourceTree, and login with your Atlassian account
-6. Click the Github icon, enter your GitHub information, and sign in
-
-### Cloning our repository into SourceTree
-
-1. Open SourceTree
-2. Next to the searchbar that says "filter repositories," drop down the tab that says "New"
-3. Select Clone from URL
-4. Enter [this](https://github.com/FRCTeam1967/FRCTeam1967.git) source URL
-5. Select the destination path and name the repository
-6. Press clone
 
 ## 2018 Code Overview
 
