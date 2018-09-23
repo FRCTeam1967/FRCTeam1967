@@ -27,7 +27,7 @@
 //#define SCALE_FACTOR 1.25
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6.25
-#define CIRCUMFERENCE_INCHES DIAMETER*M_PI//*SCALE_FACTOR
+#define CIRCUMFERENCE_INCHES (DIAMETER*M_PI) //*SCALE_FACTOR
 #define DRIVE_PID_TIMER 1
 
 class Robot : public frc::IterativeRobot {
@@ -40,12 +40,12 @@ class Robot : public frc::IterativeRobot {
 	frc::Timer autonomousTimer;
 	frc::RobotDrive*drive;
 
-	int inchDistance;
+	double lEncoderCount;
+	double rEncoderCount;
+	double inchDistance;
 	int target;
 	bool distReached = false;
 	bool timerDone = false;
-	double lEncoderCount;
-	double rEncoderCount;
 
 public:
 	Robot(){
@@ -74,22 +74,31 @@ public:
 		rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
 		driveStick = new jankyXboxJoystick(JOYSTICK_CHANNEL);
 
+
+		frmotor->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
+		flmotor->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, 10);
+
+		flmotor->SetSelectedSensorPosition(0, 0, 10);
+		flmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		frmotor->SetSelectedSensorPosition(0, 0, 10);
+		frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+
 		frmotor->SetInverted(true);
 		rrmotor->SetInverted(true);
 
-		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 10);
+		frmotor->SetSensorPhase(true);
 
 		frmotor->SetSelectedSensorPosition(0, 0, 10);
 
-		frmotor->ConfigPeakOutputForward(0.4, 10); //configure back to max before teleop
-		frmotor->ConfigPeakOutputReverse(-0.4, 10);
 		frmotor->ConfigNominalOutputForward(0, 10);
 		frmotor->ConfigNominalOutputReverse(0, 10);
+		frmotor->ConfigPeakOutputForward(0.4, 10); //configure back to max before teleop
+		frmotor->ConfigPeakOutputReverse(-0.4, 10);
 
-		frmotor->Config_kP(0, 0.06, 10);
+		frmotor->Config_kF(0, 0.0, 10);
+		frmotor->Config_kP(0, 0.1, 10);
 		frmotor->Config_kI(0, 0.0, 10);
 		frmotor->Config_kD(0, 0.0, 10);
-		frmotor->Config_kF(0, 0.0, 10);
 	}
 
 	void AutonomousInit() override {
@@ -101,13 +110,17 @@ public:
 
 		//startRightEncoderCount=frmotor->GetSensorCollection().GetQuadraturePosition();
 
-		inchDistance=80;
+		inchDistance=40.0;
 		target = (inchDistance/CIRCUMFERENCE_INCHES)*ENCODER_UNITS_PER_ROTATION; //converting inches to encoder counts
 		//printf("Left Encoder distance %f Right Encoder distance %f \n", (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES, (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES);
-
+		printf("target %d /n", target);
+		flmotor->SetSelectedSensorPosition(0, 0, 10);
+		flmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		frmotor->SetSelectedSensorPosition(0, 0, 10);
+		frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
 		flmotor->Set(ControlMode::Follower, 5); //5 for id of motor to follow
-		rrmotor->Set(ControlMode::Follower, 5);
-		rlmotor->Set(ControlMode::Follower, 5);
+		//rrmotor->Set(ControlMode::Follower, 5);
+		//rlmotor->Set(ControlMode::Follower, 5);
 		frmotor->Set(ControlMode::Position, target);
 	}
 
@@ -115,14 +128,16 @@ public:
 		lEncoderCount = -flmotor->GetSensorCollection().GetQuadraturePosition();
 		rEncoderCount = frmotor->GetSensorCollection().GetQuadraturePosition();
 
+		//printf("Left Encoder %f Right Encoder %f \n", lEncoderCount, rEncoderCount);
+
 		//printf("FL Motor Output %f \n", flmotor->Get());
 		//printf("FR Motor Output %f \n", frmotor->Get());
 		//printf("RL Motor Output %f \n", rlmotor->Get());
 		//printf("RR Motor Output %f \n", rrmotor->Get());
 
 
-		if(!distReached){
-			//printf("Left Encoder distance %f Right Encoder distance %f \n", (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES, (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES);
+		/*if(!distReached){
+			printf("Left Encoder distance %f Right Encoder distance %f \n", (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES, (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES);
 		}
 		if(rEncoderCount>=target && !distReached){
 			autonomousTimer.Start(); //timer for pid to stabilize once it reaches target
@@ -135,7 +150,11 @@ public:
 			flmotor->Set(ControlMode::PercentOutput, 0);
 			rrmotor->Set(ControlMode::PercentOutput, 0);
 			rlmotor->Set(ControlMode::PercentOutput, 0);
-		}
+		}*/
+
+
+		//printf("encoder distance %f", ((rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES));
+
 	}
 
 	void TeleopInit() {
@@ -155,11 +174,21 @@ public:
 		frmotor->ConfigNominalOutputForward(0, 10);
 		frmotor->ConfigNominalOutputReverse(0, 10);
 
+		flmotor->SetSelectedSensorPosition(0, 0, 10);
+		flmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+		frmotor->SetSelectedSensorPosition(0, 0, 10);
+		frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+
 		drive->SetSafetyEnabled(false);
 	}
 
 	void TeleopPeriodic() {
 		drive->TankDrive(-driveStick->GetLeftYAxis(), driveStick->GetRightYAxis());
+
+		lEncoderCount = -flmotor->GetSensorCollection().GetQuadraturePosition();
+		rEncoderCount = frmotor->GetSensorCollection().GetQuadraturePosition();
+
+		printf("Left Encoder %f Right Encoder %f \n", lEncoderCount, rEncoderCount);
 	}
 
 	void TestPeriodic() {}
