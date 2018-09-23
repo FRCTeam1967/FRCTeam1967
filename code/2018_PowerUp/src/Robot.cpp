@@ -171,6 +171,7 @@ public:
 		gyro = new frc::ADXRS450_Gyro(SPI::Port::kOnboardCS0);
 		autoDrive->SetSafetyEnabled(false);
 		//drive->SetSafetyEnabled(false);
+
 		flmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		frmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);
 		rlmotor->ConfigOpenloopRamp(RAMPING_TIME, 0);

@@ -15,7 +15,7 @@
 #define MEASURED_DIST_PER_PULSE 0.0912
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6.25
-#define CIRCUMFERENCE_INCHES DIAMETER*M_PI*SCALE_FACTOR
+#define CIRCUMFERENCE_INCHES (DIAMETER*M_PI*SCALE_FACTOR)
 
 double lEncoderCount;
 double rEncoderCount;
@@ -105,6 +105,9 @@ void DriveSegment::Start(){
 	//printf("Encoder error %ld \n", leftError);
 	//_leftmotor->SetSelectedSensorPosition(0, 0, 10);
 	//_rightmotor->SetSelectedSensorPosition(0, 0, 10);
+	_leftmotor->SetInverted(true); //univert for turn segments? or when the program ends?
+	_rightmotor->SetInverted(true);
+
 	_gyro->Reset();
 	pid->SetInputRange(-180.0, 180.0);
 	pid->SetOutputRange(-1.0, 1.0);
@@ -112,12 +115,9 @@ void DriveSegment::Start(){
 	pid->Enable();
 	encoderReset = false;
 	encoderTimer->Start();
-	if(distance>=0){
-		maxTime = distance/25.0;
-	}
-	else{
-		maxTime = -distance/25.0;
-	}
+
+	maxTime = abs(distance/25.0);
+
 	leftDist=(-_leftEncoder->GetQuadraturePosition()/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rightDist=(-_rightEncoder->GetQuadraturePosition()/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	//_encoder->Reset();
@@ -130,6 +130,9 @@ void DriveSegment::End(){
 	printf("drive time: %f \n", encoderTimer->Get());
 	encoderTimer->Stop();
 	encoderTimer->Reset();
+
+	_leftmotor->SetInverted(false);
+	_rightmotor->SetInverted(false);
 }
 
 void DriveSegment::PIDWrite(double output)
