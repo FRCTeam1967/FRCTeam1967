@@ -196,6 +196,7 @@ bool UpAndDown::GetIfMechIsRunning(){
 
 void UpAndDown::StartUpInit() {
 	lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+	lMotor -> SetSelectedSensorPosition(0, 0, 10);
 	isMechanismRunning = false;
 	desiredHeight = 0.0;
 	amountToMove = 0.0;

@@ -24,9 +24,11 @@ CubeUp::~CubeUp() {
 }
 
 void CubeUp::Start(){
+	//UAD->StartUpInit();
 	uptimer->Start();
 	IAO->MotorClawIntoRobot(); //causes it to go in cuz arm encoders don't work
 	UAD->Start();
+
 }
 
 bool CubeUp::JobDone(){
@@ -35,7 +37,10 @@ bool CubeUp::JobDone(){
 		IAO->MotorClawStop();
 	}*/
 	if(_height=='l'){
-		if(UAD->GetIfMechIsRunning()&&uptimer->Get()>=ARM_DOWN_TIME){
+		if(!UAD->GetIfMechIsRunning()){
+			UAD->SwitchHeight();
+		}
+		else if(UAD->GetIfMechIsRunning()&&(uptimer->Get()>=ARM_DOWN_TIME)){
 			IAO->MotorClawStop();
 			return true;
 		}
