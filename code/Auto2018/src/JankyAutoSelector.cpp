@@ -88,7 +88,7 @@ void JankyAutoSelector::Init(){
 	action.AddObject("Our Side Switch", &sameSwitch);
 	action.AddObject("Either Switch", &eitherSwitch);
 	action.AddObject("Our Side Scale", &sameScale);
-	action.AddObject("Either Scale", &eitherScale);
+	//action.AddObject("Either Scale", &eitherScale); //removing because this is not ready yet
 	SmartDashboard::PutData("Action", &action);
 
 }

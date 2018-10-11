@@ -86,7 +86,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	turnLeft30 = new TurnSegment(gyro, drive, -25.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight30 = new TurnSegment(gyro, drive, 25.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 38, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
-	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 47, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 20, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive40Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 2, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive50Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 62, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
 	drive52Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 69, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
@@ -276,9 +276,15 @@ void JankyAutoSequencer::StateEngine(int curState)
 			}
 			break;
 		case CubeUpScale:
-			if(cubeUpScale->IsComplete()){
-				NewState(Drive10Inches, "Done lifting cube to scale height");
+			if(aMode==L_SAME_SCALE){
+				NewState(TurnRight30, "Done Driving to Left Scale Edge");
 			}
+			else if(aMode==R_SAME_SCALE){
+				NewState(TurnLeft30, "Done Driving to Right Scale Edge");
+			}
+			/*if(cubeUpScale->IsComplete()){
+				NewState(Drive10Inches, "Done lifting cube to scale height");
+			}*/
 			break;
 		case TurnLeft90:
 			if(turnLeft90->IsComplete()){
@@ -368,12 +374,14 @@ void JankyAutoSequencer::StateEngine(int curState)
 			break;
 		case TurnLeft30:
 			if(turnLeft30->IsComplete()){
-				NewState(CubeUpScale, "Need to bring cube to right height");
+				NewState(Drive10Inches, "Done lifting cube to scale height");
+				//NewState(CubeUpScale, "Need to bring cube to right height");
 			}
 			break;
 		case TurnRight30:
 			if(turnRight30->IsComplete()){
-				NewState(CubeUpScale, "Need to bring cube to right height");
+				NewState(Drive10Inches, "Done lifting cube to scale height");
+				//NewState(CubeUpScale, "Need to bring cube to right height");
 			}
 			break;
 		case Drive6Inches:
@@ -508,12 +516,13 @@ void JankyAutoSequencer::StateEngine(int curState)
 			break;
 		case Drive260Inches:
 			if(drive260Inches->IsComplete()){
-				if(aMode==L_SAME_SCALE){
+				NewState(CubeUpScale, "Need to bring cube to right height");
+				/*if(aMode==L_SAME_SCALE){
 					NewState(TurnRight30, "Done Driving to Left Scale Edge");
 				}
 				else if(aMode==R_SAME_SCALE){
 					NewState(TurnLeft30, "Done Driving to Right Scale Edge");
-				}
+				}*/
 			}
 			break;
 		case ReleaseCube:
