@@ -276,11 +276,13 @@ void JankyAutoSequencer::StateEngine(int curState)
 			}
 			break;
 		case CubeUpScale:
-			if(aMode==L_SAME_SCALE){
-				NewState(TurnRight30, "Done Driving to Left Scale Edge");
-			}
-			else if(aMode==R_SAME_SCALE){
-				NewState(TurnLeft30, "Done Driving to Right Scale Edge");
+			if(cubeUpScale->IsComplete()){
+				if(aMode==L_SAME_SCALE){
+					NewState(TurnRight30, "Done Driving to Left Scale Edge");
+				}
+				else if(aMode==R_SAME_SCALE){
+					NewState(TurnLeft30, "Done Driving to Right Scale Edge");
+				}
 			}
 			/*if(cubeUpScale->IsComplete()){
 				NewState(Drive10Inches, "Done lifting cube to scale height");
