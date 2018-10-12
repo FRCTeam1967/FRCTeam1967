@@ -239,10 +239,12 @@ void JankyAutoSequencer::StateEngine(int curState)
 				NewState(CubeUp, "Lift cube to switch level");
 			}
 			else if(aMode==L_SAME_SCALE){
-				NewState(Drive260Inches, "Left Same Scale Selected");
+				NewState(CubeUpScale, "Lift cube to scale level");
+				//NewState(Drive260Inches, "Left Same Scale Selected");
 			}
 			else if(aMode==R_SAME_SCALE){
-				NewState(Drive260Inches, "Right Same Scale Selected");
+				NewState(CubeUpScale, "Lift cube to scale level");
+				//NewState(Drive260Inches, "Right Same Scale Selected");
 			}
 			else if(aMode==L_OPPOSITE_SCALE){
 				NewState(Drive210Inches, "Left opposite scale Selected");
@@ -277,13 +279,15 @@ void JankyAutoSequencer::StateEngine(int curState)
 			break;
 		case CubeUpScale:
 			if(cubeUpScale->IsComplete()){
-				if(aMode==L_SAME_SCALE){
+				NewState(Drive260Inches, "Same Scale Selected");
+			}
+				/*if(aMode==L_SAME_SCALE){
 					NewState(TurnRight30, "Done Driving to Left Scale Edge");
 				}
 				else if(aMode==R_SAME_SCALE){
 					NewState(TurnLeft30, "Done Driving to Right Scale Edge");
 				}
-			}
+			}*/
 			/*if(cubeUpScale->IsComplete()){
 				NewState(Drive10Inches, "Done lifting cube to scale height");
 			}*/
@@ -518,7 +522,13 @@ void JankyAutoSequencer::StateEngine(int curState)
 			break;
 		case Drive260Inches:
 			if(drive260Inches->IsComplete()){
-				NewState(CubeUpScale, "Need to bring cube to right height");
+				if(aMode==L_SAME_SCALE){
+					NewState(TurnRight30, "Done Driving to Left Scale Edge");
+				}
+				else if(aMode==R_SAME_SCALE){
+					NewState(TurnLeft30, "Done Driving to Right Scale Edge");
+				}
+				//NewState(CubeUpScale, "Need to bring cube to right height");
 				/*if(aMode==L_SAME_SCALE){
 					NewState(TurnRight30, "Done Driving to Left Scale Edge");
 				}

@@ -46,12 +46,19 @@ bool CubeUp::JobDone(){
 		}
 	}
 	else if(_height=='h'){
-		if(uptimer->Get()>ARM_DOWN_TIME){
+		if(!UAD->GetIfMechIsRunning()){
+			UAD->ScaleHight();
+		}
+		else if(UAD->GetIfMechIsRunning()&&(uptimer->Get()>=ARM_DOWN_TIME)){
+			IAO->MotorClawStop();
+			return true;
+		}
+		/*if(uptimer->Get()>ARM_DOWN_TIME){
 			IAO->MotorClawStop();
 		}
 		if(!UAD->GetIfMechIsRunning()){
 			return true;
-		}
+		}*/
 	}
 	return false;
 }
