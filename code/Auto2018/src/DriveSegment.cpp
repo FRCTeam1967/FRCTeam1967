@@ -10,12 +10,16 @@
 #include "ctre/Phoenix.h"
 #include "JankyAutoEntry.h"
 #include <math.h>
+#include"InAndOut.h"
 
 #define SCALE_FACTOR 1.25
 #define MEASURED_DIST_PER_PULSE 0.0912
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6.25
 #define CIRCUMFERENCE_INCHES DIAMETER*M_PI*SCALE_FACTOR
+#define DISTANCE_TO_RAISE_ARM 10
+#define DISTANCE_TO_LOWER_ARM 15 //distance when robot arm will be above scale
+#define ARM_DOWN_TIME 0.3
 
 double lEncoderCount;
 double rEncoderCount;
@@ -24,7 +28,10 @@ double rEncoderDistance;
 double testEncoderCount;
 double testEncoderDistance;
 
-DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, int inchDistance, double speed, double p, double i, double d) {
+bool armUp;
+bool timerStart;
+
+DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, int inchDistance, double speed, double p, double i, double d, InAndOut*inAndOut) {
 //DriveSegment::DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed) {
 	distance = inchDistance;
 	chassis = drive;
@@ -40,6 +47,10 @@ DriveSegment::DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorColl
 	kD = d;
 	pid = new PIDController(kP,kI,kD,_gyro,this);
 	encoderTimer = new Timer();
+	armTimer = new Timer();
+	inOut = inAndOut;
+	armUp=true;
+	timerStart=false;
 	// TODO Auto-generated constructor stub
 }
 
@@ -76,6 +87,36 @@ bool DriveSegment::JobDone(){
 			}
 		}
 	//}
+
+	//make sure distance matches the one in Drive10Inches
+	// this should pulse the arm to stay at an angle halfway (i hope)
+	if(distance==20){ //only for drive10Inches
+		if(((lEncoderDistance-leftDist)>=DISTANCE_TO_LOWER_ARM)&&((rEncoderDistance-rightDist)>=DISTANCE_TO_LOWER_ARM)&&armUp){
+			inOut->MotorClawIntoRobot();
+			if(!timerStart){
+				armTimer->Start();
+				timerStart=true;
+			}
+		}
+		else if(((lEncoderDistance-leftDist)>=DISTANCE_TO_RAISE_ARM)&&((rEncoderDistance-rightDist)>=DISTANCE_TO_RAISE_ARM)&&armUp){
+			inOut->MotorClawOutOfRobot();
+		}
+
+		if(armTimer->Get()>ARM_DOWN_TIME){
+			inOut->MotorClawStop();
+			armUp = false;
+		}
+		//first pulse needs to be longer than later pulses
+		/*if(armTimer->Get()<=0.4){
+			inOut->MotorClawOutOfRobot(); //make it pukse for longer
+		}
+		if(armTimer->Get()>=0.8){ //break for 0.6 seconds
+			inOut -> MotorClawStop();
+			armTimer->Reset();
+			armTimer->Start();
+		}*/
+	}
+
 	if(encoderTimer->Get()>=maxTime){
 		printf("drive segment exited due to timeout \n");
 		return true;
@@ -112,6 +153,7 @@ void DriveSegment::Start(){
 	pid->Enable();
 	encoderReset = false;
 	encoderTimer->Start();
+	//armTimer->Start();
 	if(distance>=0){
 		maxTime = distance/25.0;
 	}
@@ -128,8 +170,11 @@ void DriveSegment::End(){
 	chassis->TankDrive(0.0, 0.0);
 	encoderReset = false;
 	printf("drive time: %f \n", encoderTimer->Get());
+	inOut -> MotorClawStop();
 	encoderTimer->Stop();
 	encoderTimer->Reset();
+	armTimer->Stop();
+	armTimer->Reset();
 }
 
 void DriveSegment::PIDWrite(double output)

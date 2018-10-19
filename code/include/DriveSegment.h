@@ -10,10 +10,11 @@
 #define DRIVESEGMENT_H_
 #include "JankyAutoEntry.h"
 #include "ctre/Phoenix.h"
+#include"InAndOut.h"
 
 class DriveSegment : public JankyAutoEntry, public frc::PIDOutput{
 public:
-	DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, int inchDistance, double speed, double p, double i, double d);
+	DriveSegment(frc::ADXRS450_Gyro*gyro, RobotDrive*drive, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor, int inchDistance, double speed, double p, double i, double d, InAndOut*inAndOut);
 	//DriveSegment(RobotDrive*drive, Encoder*testEncoder, int inchDistance, double speed);
 	virtual ~DriveSegment();
 
@@ -56,6 +57,7 @@ private:
 	double leftDist;
 	double rightDist;
 	Timer*encoderTimer;
+	Timer*armTimer;
 	frc::ADXRS450_Gyro*_gyro;
 	PIDController*pid;
 	RobotDrive*chassis;
@@ -64,6 +66,7 @@ private:
 	WPI_TalonSRX*_leftmotor;
 	WPI_TalonSRX*_rightmotor;
 	Encoder*_encoder;
+	InAndOut*inOut;
 	int distance;
 	double _speed;
 	void PIDWrite(double output);
