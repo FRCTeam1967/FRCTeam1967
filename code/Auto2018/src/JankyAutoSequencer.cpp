@@ -37,8 +37,10 @@
 #define VISION_DRIVE_SPEED 0.4
 #define TURN_SPEED 0.4
 #define DRIVE_SPEED 0.5
-#define FAST_DRIVE_SPEED 0.65
+#define FAST_DRIVE_SPEED 0.7
+#define SCALE_DRIVE_SPEED 0.6
 #define DRIVE_BACK_SPEED -0.4
+
 float aMode;
 float turn_kP = 0.05;
 float turn_kI = 0.0;
@@ -83,10 +85,10 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	turnRight90 = new TurnSegment(gyro, drive, 90.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnLeft45 = new TurnSegment(gyro, drive, -45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	turnRight45 = new TurnSegment(gyro, drive, 45.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
-	turnLeft30 = new TurnSegment(gyro, drive, -25.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
-	turnRight30 = new TurnSegment(gyro, drive, 25.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	turnLeft30 = new TurnSegment(gyro, drive, -30.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
+	turnRight30 = new TurnSegment(gyro, drive, 30.0, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 	drive6Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 38, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
-	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 20, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
+	drive10Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 50, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
 	drive40Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 2, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
 	drive50Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 62, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
 	drive52Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 69, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
@@ -97,7 +99,7 @@ JankyAutoSequencer::JankyAutoSequencer(RobotDrive*drive, frc::ADXRS450_Gyro*gyro
 	drive162Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 163, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
 	drive210Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 227, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
 	drive240Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 268, DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
-	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 248, FAST_DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
+	drive260Inches = new DriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 260, SCALE_DRIVE_SPEED, drive_kP, drive_kI, drive_kD, inAndOut);
 	cubeUp = new ::CubeUp(inAndOut, upAndDown, 'l');
 	cubeUpScale = new ::CubeUp(inAndOut, upAndDown, 'h');
 	releaseCube = new ::ReleaseCube(drive, inAndOut, upAndDown, 'l');

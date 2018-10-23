@@ -17,8 +17,8 @@
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6.25
 #define CIRCUMFERENCE_INCHES DIAMETER*M_PI*SCALE_FACTOR
-#define DISTANCE_TO_RAISE_ARM 10
-#define DISTANCE_TO_LOWER_ARM 15 //distance when robot arm will be above scale
+#define DISTANCE_TO_RAISE_ARM 0
+#define DISTANCE_TO_LOWER_ARM 40 //distance when robot arm will be above scale
 #define ARM_DOWN_TIME 0.3
 
 double lEncoderCount;
@@ -90,7 +90,7 @@ bool DriveSegment::JobDone(){
 
 	//make sure distance matches the one in Drive10Inches
 	// this should pulse the arm to stay at an angle halfway (i hope)
-	if(distance==20){ //only for drive10Inches
+	if(distance==50){ //only for drive10Inches
 		if(((lEncoderDistance-leftDist)>=DISTANCE_TO_LOWER_ARM)&&((rEncoderDistance-rightDist)>=DISTANCE_TO_LOWER_ARM)&&armUp){
 			inOut->MotorClawIntoRobot();
 			if(!timerStart){
@@ -102,7 +102,7 @@ bool DriveSegment::JobDone(){
 			inOut->MotorClawOutOfRobot();
 		}
 
-		if(armTimer->Get()>ARM_DOWN_TIME){
+		if(armTimer->Get()>ARM_DOWN_TIME&&armUp){
 			inOut->MotorClawStop();
 			armUp = false;
 		}
