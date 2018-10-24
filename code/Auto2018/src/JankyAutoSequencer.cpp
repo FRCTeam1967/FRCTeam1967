@@ -38,7 +38,7 @@
 #define TURN_SPEED 0.4
 #define DRIVE_SPEED 0.5
 #define FAST_DRIVE_SPEED 0.7
-#define SCALE_DRIVE_SPEED 0.6
+#define SCALE_DRIVE_SPEED 0.5
 #define DRIVE_BACK_SPEED -0.4
 
 float aMode;
