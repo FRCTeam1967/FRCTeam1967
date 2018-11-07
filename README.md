@@ -36,9 +36,9 @@ Before you use our code, make sure you have completed all of these installations
 
 ### Installing Java SE
 
-1. Go to [this](http://www.oracle.com/technetwork/java/javase/downloads/index.html) website
+1. Go to [this](https://www.oracle.com/technetwork/java/javase/downloads/jdk8-downloads-2133151.html) website
 2. Under the JDK section, click install
-    * This should take you to a page called Java SE Development Kit 10 Downloads
+    * This should take you to a page called Java SE Development Kit 8 Downloads
 3. Accept the License Agreement, and then download it for Mac or Windows, depending on your device
 4. Follow the instructions for installation when prompted
 
