@@ -1,0 +1,21 @@
+{
+  "java.configuration.updateBuildConfiguration": "disabled",
+  "java.import.gradle.enabled": false,
+  "files.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/CVS": true,
+    "**/.DS_Store": true,
+    "bin/": true,
+    ".classpath": true,
+    ".project": true
+  },
+  "wpilib.online": true,
+  "files.associations": {
+    "iostream": "cpp",
+    "*.inc": "cpp"
+  },
+  "C_Cpp.intelliSenseEngineFallback": "Enabled",
+  "C_Cpp.errorSquiggles": "Enabled"
+}
