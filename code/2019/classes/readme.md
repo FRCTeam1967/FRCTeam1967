@@ -1,0 +1,1 @@
+This classes folder is intended to hold all implementation files (.cpp) for the current season/year which are common.
