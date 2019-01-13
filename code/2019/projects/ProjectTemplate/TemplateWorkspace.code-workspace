@@ -4,13 +4,13 @@
 			"path": "."
 		},
 		{
-			"path": "/Users/maddie/FRCTeam1967/code/jankyLib"
+			"path": "../../../jankyLib"
 		},
 		{
-			"path": "/Users/maddie/FRCTeam1967/code/2019/classes"
+			"path": "../../classes"
 		},
 		{
-			"path": "/Users/maddie/FRCTeam1967/code/2019/include"
+			"path": "../../include"
 		}
 	],
 	"settings": {
