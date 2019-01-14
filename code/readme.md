@@ -1,6 +1,6 @@
 # How to Create & Organize Your Project
 
-## Copy WPILib Project Template
+## How to Make A Project: WPILib Project Template
 
 Please follow these instructions, outlining how to copy the WPILib Project Template.
 
@@ -8,7 +8,7 @@ Please follow these instructions, outlining how to copy the WPILib Project Templ
 * Duplicate `Project Template`.
 * Rename this copy to your project name.
 
-## Open & Compile Project
+### Open & Compile Project
 
 Please follow these instructions, outlining how to open and compile your new project.
 
@@ -19,9 +19,45 @@ Please follow these instructions, outlining how to open and compile your new pro
     * Way 2 - Right click on build.gradle, and select `WPILib: Build Robot Code`.
 * When prompted which project you would like to build, select your project. Hopefully, your code will compile, and you will see `Build Successful` in your terminal.
 
-## Where to Put .h & .cpp Files
+### Where to Put .h & .cpp Files
 
 This year, we have reorganized our folder structure. Now, you **must** make sure your project include files are in the `~/FRCTeam1967/code/2019/include` folder, and your source files are in the `~/FRCTeam1967/code/2019/classes` folder. If you are making a project that can be reused, such as jankyXboxJoystick, put your include files in the `~/FRCTeam1967/code/jankyLib/include` folder, and put your source files in the `~/FRCTeam1967/code/jankyLib/classes` folder.
+
+## How to Make A Project From Scratch
+
+Please follow these instructions, outlining how to make a WPILib project from scratch:
+
+* Press `Cmd + Shift + P`, and select `WPILib: Create New Project`.
+* When prompted, select the project type to be: Template, cpp, Timed Robot.
+* Enter your project name
+* Enter your team number (1967)
+* Press generate project
+
+### Workspace Setup
+
+Once you have created the project, open the project in VS Code. Then, follow these instructions to set up your workspace.
+
+* Drag `~/FRCTeam1967/code/2019/classes`, `~/FRCTeam1967/code/2019/include`, and  `~/FRCTeam1967/code/jankyLib/` to the sidebar in VS Code, where you see your workspace. 
+* Go to `File`, and select `Save Workspace As ...`.
+* Name your workspace, and select the save location to be your project folder.
+* Open your workspace, and then open the `projectName.code-workspace` file. Edit all of the folder paths to be relative, rather than hardcoded. This will ensure that if someone else uses your workspace, everything will work correctly.
+* Save this file.
+* Now, you can reopen this workspace whenever you would like to use it, enabling you to see your project's code, as well as the includes and classes in one workspace.
+
+### Build.gradle Setup
+
+Once you have created the project and set up the workspace, please follow these instructions to set up your `build.gradle` file.
+
+* Open the build.gradle file in your project.
+* When scrolling down the file, you should find the sources.cpp section around line 54. Underneath `srcDir 'src/main/cpp'`, and above `include '**/*.cpp', '**/*.cc'`, add these two lines:
+    * `srcDir '../../classes'`
+    * `srcDir '../../../jankyLib/classes'`
+* Below this, in the exported headers section, under `srcDir 'src/main/include'`, and above `if (includeSrcInIncludeRoot) {`, add these two lines:
+    * `srcDir '../../include'`
+    * `srcDir '../../../jankyLib/include'`
+
+* These steps should make sure that all of your header and source files are found by the compiler.
+* Save the `build.gradle` file, and build your project.
 
 ## Common Include Problems
 
@@ -36,4 +72,4 @@ If you are getting this error, follow the instructions below:
 
 ### Cannot find include path
 
-If your project cannot find an include path, go into the build.gradle file, and make sure the include paths are pointing to the correct directories. Also, make sure your .h and .cpp files are in the correct folder. If you need help, ask a mentor or student.
+If your project cannot find an include path, go into the build.gradle file, and make sure the include paths are pointing to the correct directories. Also, make sure your `.h` and `.cpp` files are in the correct folder. If you need help, ask a mentor or student.
