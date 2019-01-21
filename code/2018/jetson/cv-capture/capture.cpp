@@ -16,12 +16,12 @@
 using namespace std;
 using namespace cv;
 
-const float ROBOT_OFFSET = 19; //inches
+const float ROBOT_OFFSET = 13.5; //inches
 const int MIN_AREA =500; //pixels
-const float T_INCHES_HEIGHT = 16;
+const float T_INCHES_HEIGHT = 5.5;
 const float T_INCHES_WIDTH = 2;
-const float T_INCHES_LEFT_WIDTH = 6;
-const float T_INCHES_BOTH_WIDTH = 8;
+const float T_INCHES_LEFT_WIDTH = 11.25;
+const float T_INCHES_BOTH_WIDTH = 14.5;
 const int FOV_PIXELS_HEIGHT = 480;
 const int FOV_PIXELS_WIDTH = 640;
 const float theta = 68.5 * M_PI / 360; //degrees
@@ -31,9 +31,9 @@ const int DEFAULT_WIDTH_THRESHOLD = 100; // number of pixels from left edge to r
 const int NO_VALUE_TIME = 3; // seconds
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
-double hue[] = {60,101};
-double sat[] = {170,255};
-double val[] = {39,255};
+double hue[] = {62,79};
+double sat[] = {149,255};
+double val[] = {73,236};
 
 void changeKey(double hsv[], char key, bool plus) 
 {
@@ -112,7 +112,7 @@ int main(int argc, char** argv)
 	shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 	
 	// checks if argument passed
-	bool argPassed = false;
+	bool argPassed = true;
 	
 	if (argc != 1)
 	{
@@ -217,6 +217,8 @@ int main(int argc, char** argv)
 			if (argPassed) {
 				rectangle(frame, boundRect[c].tl(), boundRect[c].br(), color);
 			}
+			
+             //cout << "contours: " << maxContour << endl;
 
             // finds largest and second largest contours
 			if (largestContour == -1)
@@ -251,7 +253,9 @@ int main(int argc, char** argv)
 			// initializes variables
 			float finalDistInInches;
 			int rectHeight = boundRect[largestContour].height;
+			//cout << "height: " << rectHeight << endl;
 			int rectWidth = boundRect[largestContour].width;
+			//cout << "width: " << rectWidth << endl;
 
 			Rect largestRect = boundRect[largestContour];
 			Rect largestRect2 = boundRect[largestContour2];
@@ -272,6 +276,7 @@ int main(int argc, char** argv)
 			float tapeCenter = leftRect.tl().x + lengthWidth/2;
 			float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
 			float offsetInches = localOffset * pixelsToInches;
+			cout << "offset: " << offsetInches << endl;
 
 			//cout << "widthThreshold: " << widthThreshold << endl;
 			
@@ -312,6 +317,7 @@ int main(int argc, char** argv)
 			}
 		
 			float robotDistance = finalDistInInches - ROBOT_OFFSET;
+			cout << "Final Dist Inches: " << finalDistInInches << endl;
 
 
 			
@@ -330,9 +336,9 @@ int main(int argc, char** argv)
 				vTable->PutNumber("averaged distance to tape", lastAverage);
 				counter=0;
                 
-                cout << "averaged distance to tape: " << lastAverage << endl;
-                cout << "Horizontal offset: " << offsetInches << endl;
-                cout << " " << endl;
+                //cout << "averaged distance to tape: " << lastAverage << endl;
+                //cout << "Horizontal offset: " << offsetInches << endl;
+                //cout << " " << endl;
 			}
 
             // printing out values
@@ -382,8 +388,8 @@ int main(int argc, char** argv)
 	auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 	float fps = (frames / msec_duration.count()) * 1000;
 
-	cout << "msec_duration: " << msec_duration.count() << endl;
-	cout << "frames: " << frames << " FPS: " << fps << endl;
+	//cout << "msec_duration: " << msec_duration.count() << endl;
+	//cout << "frames: " << frames << " FPS: " << fps << endl;
 	}
 
 	cap.release();
@@ -392,7 +398,7 @@ int main(int argc, char** argv)
 	auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 	float fps = (frames / msec_duration.count()) * 1000;
 
-	cout << "msec_duration: " << msec_duration.count() << endl;
-	cout << "frames: " << frames << " FPS: " << fps << endl;
+	//cout << "msec_duration: " << msec_duration.count() << endl;
+	//cout << "frames: " << frames << " FPS: " << fps << endl;
 }
 			
