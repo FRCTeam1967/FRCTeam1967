@@ -6,6 +6,9 @@
 #include <jankyXboxJoystick.h>
 #include "HatchIntake.h"
 
+#define LEFTPISTON 4
+#define RIGHTPISTON 4
+
 using namespace std;
 using namespace frc;
 
@@ -29,8 +32,9 @@ class Robot : public frc::TimedRobot {
   
   virtual void RobotInit() override
   {
-    hatch = new HatchIntake(4, 4);
+    hatch = new HatchIntake(LEFTPISTON, RIGHTPISTON);
     joystick = new jankyXboxJoystick(2);
+    hatch->Start();
   }
 
   virtual void AutonomousInit() override
@@ -50,10 +54,10 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
-    bool buttonB = joystick -> GetButtonB();
-    if (buttonB)
+    if (joystick -> GetButtonB())
     {
-      hatch->PickUp();
+      printf("button pressed \n");
+      hatch->Go();
     }
   }
 
