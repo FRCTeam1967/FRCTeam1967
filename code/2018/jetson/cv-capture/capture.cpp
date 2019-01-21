@@ -36,6 +36,7 @@ const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
 const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
 const int NO_VALUE_TIME = 3; // Seconds
+const bool DEBUG_MODE = true; // Flag for whether to print out values & messages (true = prints & false = no prints)
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
@@ -91,11 +92,13 @@ void callibrateHSV(char key)
 			val[1] = 144;
 			break;
 	}
-
-	// Print out the HSV values
-	cout << "hue: [" << hue[0] << ", " << hue[1] << "]" << endl;
-	cout << "sat: [" << sat[0] << ", " << sat[1] << "]"<< endl;
-	cout << "val: [" << val[0] << ", " << val[1] << "]" << endl;
+	if(DEBUG_MODE)
+	{
+		// Print out the HSV values
+		cout << "hue: [" << hue[0] << ", " << hue[1] << "]" << endl;
+		cout << "sat: [" << sat[0] << ", " << sat[1] << "]"<< endl;
+		cout << "val: [" << val[0] << ", " << val[1] << "]" << endl;
+	}
 }
 
 float findAverage(float average[])
@@ -160,11 +163,19 @@ int main(int argc, char** argv)
 
 	for(;;)
 	{
-        //cout << "duration: " << duration << endl;
-        //cout << "last average: " << lastAverage << endl;
+		if(DEBUG_MODE)
+		{
+			// Print out the duration & last avg
+			cout << "duration: " << duration << endl;
+        	cout << "last average: " << lastAverage << endl;
+		}
 		Mat gray, frame, green, outline;
-		//cout << "height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
-		//cout << "width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+		if(DEBUG_MODE)
+		{
+			// Print out the height & width
+			cout << "height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
+			cout << "width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+		}
         cap >> frame;
 
 		// Convert from brg to hsv
@@ -235,8 +246,11 @@ int main(int argc, char** argv)
 			if (argPassed) {
 				rectangle(frame, boundRect[c].tl(), boundRect[c].br(), color);
 			}
-			
-             //cout << "contours: " << maxContour << endl;
+			if(DEBUG_MODE)
+			{
+				// Print out the contours
+				cout << "contours: " << maxContour << endl;
+			}
 
             // Finds largest and second largest contours
 			if (largestContour == -1)
@@ -273,9 +287,12 @@ int main(int argc, char** argv)
 			int rectHeight = boundRect[largestContour].height;
 			int rectWidth = boundRect[largestContour].width;
 
-			// Print out the height and width (in pixels)
-			//cout << "height: " << rectHeight << endl;
-			//cout << "width: " << rectWidth << endl;
+			if(DEBUG_MODE)
+			{
+				// Print out the height and width (in pixels)
+				cout << "height: " << rectHeight << endl;
+				cout << "width: " << rectWidth << endl;
+			}
 
 			Rect largestRect = boundRect[largestContour];
 			Rect largestRect2 = boundRect[largestContour2];
@@ -296,10 +313,13 @@ int main(int argc, char** argv)
 			float tapeCenter = leftRect.tl().x + lengthWidth/2;
 			float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
 			float offsetInches = localOffset * pixelsToInches;
-			cout << "offset: " << offsetInches << endl;
+			if(DEBUG_MODE)
+			{
+				// Print out offset & widthThreshold
+				cout << "offset: " << offsetInches << endl;
+				cout << "widthThreshold: " << widthThreshold << endl;
+			}
 
-			//cout << "widthThreshold: " << widthThreshold << endl;
-			
 			// Checks if tape's height is cut off
 			if(lengthWidth < widthThreshold)
 			{
@@ -311,7 +331,10 @@ int main(int argc, char** argv)
 				//float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
 				float verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
 				finalDistInInches = verticalDistanceToTape;
-				//cout << "height" << endl;
+				if(DEBUG_MODE)
+				{
+					cout << "height" << endl;
+				}
 
 			}
 			else {
@@ -336,9 +359,13 @@ int main(int argc, char** argv)
 				finalDistInInches = avgDistToTape;
 			}
 		
-			// Find how far tape is from edge of robot & print out
+			// Find how far tape is from edge of robot
 			float robotDistance = finalDistInInches - ROBOT_OFFSET;
-			cout << "Final Dist Inches: " << finalDistInInches << endl;
+			if(DEBUG_MODE)
+			{
+				// Print out distance from edge of robot to tape
+				cout << "Final Dist Inches: " << finalDistInInches << endl;
+			}
 
 
 			
@@ -357,20 +384,25 @@ int main(int argc, char** argv)
 				vTable->PutNumber("averaged distance to tape", lastAverage);
 				counter=0;
                 
-				// Print out avg distance to tape & offset
-                //cout << "averaged distance to tape: " << lastAverage << endl;
-                //cout << "Horizontal offset: " << offsetInches << endl;
-                //cout << " " << endl;
+				if(DEBUG_MODE)
+				{
+					// Print out avg distance to tape & offset
+					cout << "averaged distance to tape: " << lastAverage << endl;
+					cout << "Horizontal offset: " << offsetInches << endl;
+					cout << " " << endl;
+				}
 			}
-
-            // Printing out values
-			//cout<< "Horizontal offset: "<<offsetInches<<endl;
-			//cout << "rectWidth: " << rectWidth << endl;
-			//cout << "lengthWidth: " << lengthWidth << endl;
-			//cout << "distance to tape: " << finalDistInInches << endl;
-			//cout << "robot distance: " << robotDistance << endl;
-			//cout<<"average counter: "<<counter<<", average value: "<<average[counter]<<endl;
-			//cout<<" "<<endl;
+			if(DEBUG_MODE)
+			{
+				// Printing out values
+				cout<< "Horizontal offset: "<<offsetInches<<endl;
+				cout << "rectWidth: " << rectWidth << endl;
+				cout << "lengthWidth: " << lengthWidth << endl;
+				cout << "distance to tape: " << finalDistInInches << endl;
+				cout << "robot distance: " << robotDistance << endl;
+				cout<<"average counter: "<<counter<<", average value: "<<average[counter]<<endl;
+				cout<<" "<<endl;
+			}
 		}
         // If not calculating distance to tape
         else {
@@ -388,11 +420,17 @@ int main(int argc, char** argv)
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME) {
                     vTable->PutNumber("distance to tape", -1);
-                    cout << "averaged distance to tape: -1 " << endl;
+                    if(DEBUG_MODE)
+					{
+						cout << "averaged distance to tape: -1 " << endl;
+					}
                     vTable->PutNumber("averaged distance to tape", -1);
                 }
                 else {
-                    cout << "averaged distance to tape: " << lastAverage << endl;
+					if(DEBUG_MODE)
+					{
+						cout << "averaged distance to tape: " << lastAverage << endl;
+					}
                     vTable->PutNumber("averaged distance to tape", lastAverage);
                 }
             }
@@ -411,9 +449,13 @@ int main(int argc, char** argv)
 		auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 		float fps = (frames / msec_duration.count()) * 1000;
 
-		// Print out how long the cam feed has been running & the camera FPS
-		//cout << "msec_duration: " << msec_duration.count() << endl;
-		//cout << "frames: " << frames << " FPS: " << fps << endl;
+		if(DEBUG_MODE)
+		{
+			// Print out how long the cam feed has been running & the camera FPS
+			cout << "msec_duration: " << msec_duration.count() << endl;
+			cout << "frames: " << frames << " FPS: " << fps << endl;
+		}
+		
 	}
 
 	cap.release();
@@ -423,8 +465,12 @@ int main(int argc, char** argv)
 	auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
 	float fps = (frames / msec_duration.count()) * 1000;
 	
-	// Print out how long the cam feed has been running & the camera FPS
-	//cout << "msec_duration: " << msec_duration.count() << endl;
-	//cout << "frames: " << frames << " FPS: " << fps << endl;
+	if(DEBUG_MODE)
+	{
+		// Print out how long the cam feed has been running & the camera FPS
+		cout << "msec_duration: " << msec_duration.count() << endl;
+		cout << "frames: " << frames << " FPS: " << fps << endl;
+	}
+	
 }
 			
