@@ -2,13 +2,19 @@
 #include "ctre/Phoenix.h"
 #include "HatchIntake.h"
 #include <frc/Solenoid.h>
+#include "jankyTask.h"
 
 using namespace frc;
 
 HatchIntake::HatchIntake(int pistonLeftChannel, int pistonRightChannel)
 {
-    pistonLeft = new Solenoid(10, pistonLeftChannel);
-    pistonRight = new Solenoid(10, pistonRightChannel);
+    actuating = false;
+    fullActuationTime = 1;
+    fullCycleTime = 2;
+    cycleTimer.Reset();
+
+    pistonLeft = new frc::Solenoid(10, pistonLeftChannel);
+    pistonRight = new frc::Solenoid(10, pistonRightChannel);
 }
 
 HatchIntake::~HatchIntake()
@@ -17,11 +23,34 @@ HatchIntake::~HatchIntake()
     delete pistonRight;
 }
 
-void HatchIntake::PickUp()
+void HatchIntake::Go()
 {
-    pistonLeft->Set(true);
-    pistonRight->Set(true);
-    Wait(1);
-    pistonLeft->Set(false);
-    pistonRight->Set(false);
+    if (actuating == false)
+    {
+        actuating = true;
+
+        cycleTimer.Reset();
+        cycleTimer.Start();
+    }
+}
+
+void HatchIntake::Run()
+{
+   if (actuating == true)
+    {
+        if (cycleTimer.Get() < fullActuationTime)
+        {
+            pistonLeft->Set(true);
+            pistonRight->Set(true);
+        }
+
+        else
+        {
+            pistonLeft->Set(false);
+            pistonRight->Set(false);
+            cycleTimer.Stop();
+            cycleTimer.Reset();
+            actuating = false;
+        }
+    }
 }
