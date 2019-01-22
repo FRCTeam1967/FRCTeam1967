@@ -29,6 +29,8 @@ public:
 
     void StateEngine(int curState);
     void StartSequence();
+    void Cancel();
 
     bool isIdle;
+    bool isCancelled;
 };
