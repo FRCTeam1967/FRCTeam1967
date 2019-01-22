@@ -36,7 +36,8 @@ const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
 const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
 const int NO_VALUE_TIME = 3; // Seconds
-const bool DEBUG_MODE = true; // Flag for whether to print out values & messages (true = prints & false = no prints)
+const bool DEBUG_MODE = false; // Flag for whether to print out values & messages (true = prints & false = no prints)
+const int IMPELEMENT = 1000;
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
@@ -251,6 +252,42 @@ int main(int argc, char** argv)
 				// Print out the contours
 				cout << "contours: " << maxContour << endl;
 			}
+			
+			//Sort through contours & create a new sorted list
+			int element = 0;
+			int index;
+			int lowestValue;
+			vector<vector<Point>> contourCopy(contours.size());
+			vector<vector<Point>> sortedContours(contours.size());
+			contourCopy = contours_poly;
+			
+			for (int a = 0; a < contourCopy.size(); a++)
+			{
+				lowestValue = 641;
+				for (int b = 0; b < contourCopy.size(); b++)
+				{
+					if(contourCopy[b].size() == 0)
+					{
+						continue;
+					}
+					//cout << "CONTOUR COPY: " << (contourCopy[b][0]).x << endl;
+					if((lowestValue > (contourCopy[b][0]).x) && ((contourCopy[b][0]).x != 1000))
+					{
+						lowestValue = (contourCopy[b][0]).x;
+						index = b;
+					}
+				}
+				if(lowestValue < 641)
+				{
+					sortedContours[element] = contourCopy[index];
+					cout << "SORTED CONTOURS: " << sortedContours[element] << endl;
+					element++;
+					(contourCopy[index][0]).x = IMPELEMENT;
+					//cout << "contourCopy: " << contourCopy[a] << endl;
+				}
+			}
+			cout << "next one " << endl;
+			
 
             // Finds largest and second largest contours
 			if (largestContour == -1)
@@ -357,10 +394,15 @@ int main(int argc, char** argv)
 				// Averaging out left and right distances to be more accurate
 				float avgDistToTape = (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2;
 				finalDistInInches = avgDistToTape;
+				
+				//float angle = atan((fovWidth/(2*finalDistInInches)));
+				//cout << "ANGLE: " << angle << endl;
+			
 			}
 		
 			// Find how far tape is from edge of robot
 			float robotDistance = finalDistInInches - ROBOT_OFFSET;
+			
 			if(DEBUG_MODE)
 			{
 				// Print out distance from edge of robot to tape
