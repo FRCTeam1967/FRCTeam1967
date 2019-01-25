@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "/Users/maddie/FRCTeam1967/code/jankyLib"
+		},
+		{
+			"path": "/Users/maddie/FRCTeam1967/code/2019/classes"
+		},
+		{
+			"path": "/Users/maddie/FRCTeam1967/code/2019/include"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "disabled",
+		"java.import.gradle.enabled": false
+	}
+}
