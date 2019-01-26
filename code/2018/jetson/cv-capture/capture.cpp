@@ -35,8 +35,10 @@ const float theta = 68.5 * M_PI / 360; // Degrees
 const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
 const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
+const int RIGHT = 1;
+const int LEFT = 0;
 const int NO_VALUE_TIME = 3; // Seconds
-const bool DEBUG_MODE = false; // Flag for whether to print out values & messages (true = prints & false = no prints)
+const bool DEBUG_MODE = true; // Flag for whether to print out values & messages (true = prints & false = no prints)
 const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with sorting algorithm)
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
@@ -361,9 +363,9 @@ int main(int argc, char** argv)
 				slope = findSlope(maxy.x, maxy.y, max2y.x, max2y.y);
 				
 				// Print out the x & y coordinates & the slope
-				cout << "MAX Y : (" << maxy.x << ", " << maxy.y << ") " << endl;
-				cout << "MAX 2 Y : (" << max2y.x << ", " << max2y.y << ") " << endl;
-				cout << "SLOPE : " << slope << endl;
+				//cout << "MAX Y : (" << maxy.x << ", " << maxy.y << ") " << endl;
+				//cout << "MAX 2 Y : (" << max2y.x << ", " << max2y.y << ") " << endl;
+				//cout << "SLOPE : " << slope << endl;
 				
 				if(slope < 0)
 				{
@@ -411,6 +413,7 @@ int main(int argc, char** argv)
 			if (largestContour2 == -1)
 				largestContour2 = c;
 
+			
 			// We have 2 contours to check 
 			if (contourArea(contours[c]) > contourArea(contours[largestContour]))
 			{
@@ -431,10 +434,19 @@ int main(int argc, char** argv)
             // Resets timer because calculating distance to tape again
             duration = 0;
             
+            int k = 0;
+            /*if (lr[0] == RIGHT)
+            { 
+            	k =1;
+            }*/
+            for (; k< sortedContours.size();k+=2)
+            {
+            
+            
 			// Initializes variables
 			float finalDistInInches;
-			int rectHeight = boundRect[largestContour].height;
-			int rectWidth = boundRect[largestContour].width;
+			int rectHeight = boundRect[sortedContours[k]].height;
+			int rectWidth = boundRect[sortedContours[k]].width;
 
 			if (DEBUG_MODE)
 			{
@@ -443,8 +455,8 @@ int main(int argc, char** argv)
 				cout << "Width: " << rectWidth << endl;
 			}
 
-			Rect largestRect = boundRect[largestContour];
-			Rect largestRect2 = boundRect[largestContour2];
+			Rect largestRect = boundRect[sortedContours[k]];
+			Rect largestRect2 = boundRect[sortedContours[k+1]];
 			float leftCornerDist = abs(largestRect.tl().x - largestRect2.tl().x);
 			float rightCornerDist = abs(largestRect.br().x - largestRect2.br().x);
 
@@ -630,6 +642,7 @@ int main(int argc, char** argv)
 			// Print out how long the cam feed has been running & the camera FPS
 			cout << "msec_duration: " << msec_duration.count() << endl;
 			cout << "frames: " << frames << " FPS: " << fps << endl;
+		}
 		}
 		
 	}
