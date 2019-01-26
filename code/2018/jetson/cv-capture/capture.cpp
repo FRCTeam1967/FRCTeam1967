@@ -41,10 +41,11 @@ const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with s
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
-double hue[] = {62,79};
+double hue[] = {67, 88};
 double sat[] = {149,255};
 double val[] = {73,236};
 
+bool correctData = true;
 
 void changeKey(double hsv[], char key, bool plus) 
 {
@@ -85,21 +86,21 @@ void callibrateHSV(char key)
 			changeKey(val, key, plus);
 			break;
 		case 'r': // For reset
-			hue[0] = 50;
-			hue[1] = 81;
-			sat[0] = 163;
+			hue[0] = 62;
+			hue[1] = 79;
+			sat[0] = 149;
 			sat[1] = 255;
-			val[0] = 72;
-			val[1] = 144;
+			val[0] = 73;
+			val[1] = 236;
 			break;
 	}
-	if (DEBUG_MODE)
-	{
+	//if (DEBUG_MODE)
+	//{
 		// Print out the HSV values
 		cout << "hue: [" << hue[0] << ", " << hue[1] << "]" << endl;
 		cout << "sat: [" << sat[0] << ", " << sat[1] << "]"<< endl;
 		cout << "val: [" << val[0] << ", " << val[1] << "]" << endl;
-	}
+	//}
 }
 
 float findAverage(float average[])
@@ -126,10 +127,10 @@ float findSlope(float x1, float y1, float x2, float y2)
 int main(int argc, char** argv)
 {
 	// Network tables send data to the roboRIO
-	NetworkTable::SetTeam(1967); //set team number
-	NetworkTable::SetClientMode();
-	NetworkTable::Initialize();
-	shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
+	//NetworkTable::SetTeam(1967); //set team number
+	//NetworkTable::SetClientMode();
+	//NetworkTable::Initialize();
+	//shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 	
 	// Checks if argument passed
 	bool argPassed = true;
@@ -309,20 +310,96 @@ int main(int argc, char** argv)
 						// Print out sortedContours array
 						cout << "Sorted Contours: " << sortedContours[element] << endl;
 					}
+					//cout << "Sorted Contours: " << sortedContours[element] << endl;
 					element++; // increment the element that the next low value will be added to
 					(contourCopy[index][0]).x = IMPOSSIBLE_ELEMENT; // Set valye at index of last low value to an impossibly large number
-					if (DEBUG_MODE)
-					{
-						// Print out contourCopy array
-						cout << "Contour Copy: " << contourCopy[a] << endl;
-					}
 				}
+				
 			}
 			if (DEBUG_MODE)
 			{
 				// Print this when done making the sorted list
 				cout << "Finished Sorting" << endl;
 			}
+			
+			// Create array for left & right tapes
+			vector<bool> lr(sortedContours.size());
+			
+			// Create the 2 pts that we'll use below
+			Point maxy;
+			maxy.x = 640;
+			maxy.y = 480;
+			Point max2y;
+			max2y.x = 640;
+			max2y.y = 480;
+			
+			// Create vars for slope & if data is correct
+			float slope = 0;
+			
+			// Find slope of each tape
+			for (int a = 0; a < sortedContours.size(); a++)
+			{
+				// Print cycle # of for loop
+				cout << "A : " << a << endl;
+				
+				for(int b = 0; b < sortedContours[a].size(); b++)
+				{
+					if(sortedContours[a][b].y < maxy.y)
+					{
+						// Reassign maxy & max2y
+						max2y = maxy;
+						maxy = sortedContours[a][b];
+					}
+					else if(sortedContours[a][b].y < max2y.y)
+					{
+						// Reassign maxy
+						max2y = sortedContours[a][b];
+					}
+				}
+				
+				// Find slope of the tape
+				slope = findSlope(maxy.x, maxy.y, max2y.x, max2y.y);
+				
+				// Print out the x & y coordinates & the slope
+				cout << "MAX Y : (" << maxy.x << ", " << maxy.y << ") " << endl;
+				cout << "MAX 2 Y : (" << max2y.x << ", " << max2y.y << ") " << endl;
+				cout << "SLOPE : " << slope << endl;
+				
+				if(slope < 0)
+				{
+					lr[a] = 1; //right tape
+				}
+				else
+				{
+					lr[a] = 0; //left tape
+				}
+				
+				// Print out if tape is left / right
+				cout << "LEFT OR RIGHT " << lr[a] << endl;
+			}
+			// Print extra space so that console is easier to read
+			cout << " " << endl;
+			
+			// Decide if left / right data is correct
+			correctData = true;
+			for(int c = 1; c < sortedContours.size(); c++)
+			{
+				if(lr[c-1] == lr[c])
+				{
+					correctData = false;
+				}
+			}
+			
+			if(correctData)
+			{
+				cout << "CORRECT DATA = true " << endl;
+			}
+			else
+			{
+				cout << "CORRECT DATA = false " << endl;
+			}
+			
+			cout << " " << endl;
 
             // Finds largest and second largest contours
 			if (largestContour == -1)
@@ -432,7 +509,7 @@ int main(int argc, char** argv)
 				finalDistInInches = avgDistToTape;
 				
 				// Angle calculation (NEEDS FIXED TO WORK PROPERLY)
-				//float angle = atan((fovWidth/(2*finalDistInInches)));
+				float angle = (atan((offsetInches/finalDistInInches))) * (180/M_PI);
 				//cout << "ANGLE: " << angle << endl;
 			
 			}
@@ -447,11 +524,13 @@ int main(int argc, char** argv)
 			}
 
 
-			
-			// Sends distance and offset to robot (through network tables)
-			vTable->PutNumber("Horizontal Offset", offsetInches);
-			vTable->PutNumber("Distance to Tape", finalDistInInches);
-			vTable->PutNumber("Robot Distance", robotDistance);
+			if(correctData)
+			{
+				// Sends distance and offset to robot (through network tables)
+				//vTable->PutNumber("Horizontal Offset", offsetInches);
+				//vTable->PutNumber("Distance to Tape", finalDistInInches);
+				//vTable->PutNumber("Robot Distance", robotDistance);
+			}
 
 			average[counter] = finalDistInInches;
 
@@ -460,7 +539,10 @@ int main(int argc, char** argv)
 			if (counter==8)
 			{
                 lastAverage = findAverage(average);
-				vTable->PutNumber("Averaged Distance to Tape", lastAverage);
+				if(correctData)
+				{
+					//vTable->PutNumber("Averaged Distance to Tape", lastAverage);
+				}
 				counter=0;
                 
 				if (DEBUG_MODE)
@@ -502,12 +584,18 @@ int main(int argc, char** argv)
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME) 
 				{
-                    vTable->PutNumber("Distance to Tape", -1);
+                   if(correctData)
+                   {
+                   		//vTable->PutNumber("Distance to Tape", -1);
+                   }
                     if(DEBUG_MODE)
 					{
 						cout << "Averaged Distance to Tape: -1 " << endl;
 					}
-                    vTable->PutNumber("Averaged Distance to Tape", -1);
+                   if(correctData)
+                   {
+                   		// vTable->PutNumber("Averaged Distance to Tape", -1);
+                   }
                 }
                 else 
 				{
@@ -515,7 +603,10 @@ int main(int argc, char** argv)
 					{
 						cout << "Averaged Distance to Tape: " << lastAverage << endl;
 					}
-                    vTable->PutNumber("Averaged Distance to Tape", lastAverage);
+                	if(correctData)
+                	{ 
+                 		//vTable->PutNumber("Averaged Distance to Tape", lastAverage);
+                	}
                 }
             }
         }
