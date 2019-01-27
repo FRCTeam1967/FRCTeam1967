@@ -33,4 +33,6 @@ public:
 
     bool isIdle;
     bool isCancelled;
+    bool testMode;
+    bool regMode;
 };
