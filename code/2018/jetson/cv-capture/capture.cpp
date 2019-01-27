@@ -48,6 +48,9 @@ double sat[] = {149, 255};
 double val[] = {73, 236};
 
 bool correctData = true;
+float offsetInches;
+float robotDistance;
+float lengthWidth;
 
 void changeKey(double hsv[], char key, bool plus)
 {
@@ -127,7 +130,7 @@ float findSlope(float x1, float y1, float x2, float y2)
 }
 
 //filter tape (hsv stuff & bounding box)
-void filterTape(Mat frame, Mat green, Mat outline)
+void filterTape(Mat frame, Mat green, Mat outline, vector<vector<Point>> contours)
 {
     // Convert from brg to hsv
     cvtColor(frame, green, COLOR_BGR2HSV);
@@ -140,7 +143,7 @@ void filterTape(Mat frame, Mat green, Mat outline)
 }
 
 //finding polygons
-findPolygons(vector<Points> contours, vector<Points> contours_poly, Mat frame)
+void findPolygons(vector<Point> contours, vector<Point> contours_poly, Mat frame, bool argPassed)
 {
     approxPolyDP(Mat(contours), contours_poly, 10, true);
     for (int i = 0; i < contours_poly.size(); i++)
@@ -156,7 +159,7 @@ findPolygons(vector<Points> contours, vector<Points> contours_poly, Mat frame)
 }
 
 //sorting
-void sortContours(vector<vector<Points>> contourCopy, int element, vector<vector<Point>> sortedContours)
+void sortContours(vector<vector<Point>> contourCopy, vector<vector<Point>> sortedContours)
 {
     // Create variables & arrays necesarry for code segment below
     int element = 0;
@@ -200,7 +203,7 @@ void sortContours(vector<vector<Points>> contourCopy, int element, vector<vector
 }
 
 //find left & right
-void findLeftRightTape(Point maxy, Point max2y, vector<vector<Points>> sortedContours, vector<float> lr, bool correctData)
+void findLeftRightTape(Point maxy, Point max2y, vector<vector<Point>> sortedContours, vector<bool> lr, bool correctData)
 {
     // Create vars for slope & if data is correct
     float slope = 0;
@@ -258,7 +261,8 @@ void findLeftRightTape(Point maxy, Point max2y, vector<vector<Points>> sortedCon
     }
 }
 
-void find2Largest(int largestContour, int largestContour2, int c, vector<vector<Points>> contours)
+/*
+void find2Largest(int largestContour, int largestContour2, int c, vector<vector<Point>> contours)
 {
     // Finds largest and second largest contours
     if (largestContour == -1)
@@ -284,18 +288,19 @@ void find2Largest(int largestContour, int largestContour2, int c, vector<vector<
         largestContour2 = c;
     }
 }
+*/
 
 //find offset
 void findOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
 {
-    float lengthWidth = rightRect.tl().x + rightRect.width - leftRect.tl().x; // length from left edge of left tape to right edge of right tape
+    lengthWidth = rightRect.tl().x + rightRect.width - leftRect.tl().x; // length from left edge of left tape to right edge of right tape
     float pixelsToInches = T_INCHES_BOTH_WIDTH / lengthWidth;
     float tapeCenter = leftRect.tl().x + lengthWidth / 2;
     float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
-    float offsetInches = localOffset * pixelsToInches;
+    offsetInches = localOffset * pixelsToInches;
 }
 
-//find distanc
+//find distance
 void findDist(float lengthWidth, int widthThreshold, int rectHeight, Mat frame, float finalDistInInches, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches)
 {
     // Checks if tape's height is cut off
@@ -339,7 +344,7 @@ void findDist(float lengthWidth, int widthThreshold, int rectHeight, Mat frame, 
         float angle = (atan((offsetInches / finalDistInInches))) * (180 / M_PI);
         //cout << "ANGLE: " << angle << endl;
     }
-    float robotDistance = finalDistInInches - ROBOT_OFFSET;
+    robotDistance = finalDistInInches - ROBOT_OFFSET;
 }
 
 int main(int argc, char **argv)
@@ -402,7 +407,7 @@ int main(int argc, char **argv)
         }
         cap >> frame;
 
-        filterTape(frame, green);
+        filterTape(frame, green, outline, contours);
 
         vector<vector<Point>> contours_poly(contours.size());
         vector<Rect> boundRect(contours.size());
@@ -452,7 +457,7 @@ int main(int argc, char **argv)
                 drawContours(frame, contours, c, color, 4);
             }
 
-            findPolygons(contours[c], contours_poly[c], frame);
+            findPolygons(contours[c], contours_poly[c], frame, argPassed);
 
             boundRect[c] = boundingRect(Mat(contours_poly[c]));
             if (argPassed)
@@ -476,7 +481,7 @@ int main(int argc, char **argv)
             }
 
             // Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
-            sortContours(contourCopy, element, sortedContours);
+            sortContours(contourCopy, sortedContours);
 
             if (DEBUG_MODE)
             {
@@ -496,7 +501,7 @@ int main(int argc, char **argv)
             max2y.y = 480;
 
             findLeftRightTape(maxy, max2y, sortedContours, lr, correctData);
-            find2Largest(largestContour, largestContour2, c, contours);
+            //find2Largest(largestContour, largestContour2, c, contours);
 
             hasTwoRects = true;
         }
