@@ -32,9 +32,13 @@ float turn_kI = 0.0;
 float turn_kD = 0.06;
 
 AutoDrive*visionDrive;
+DifferentialDriveSegment*driveSegment;
+DifferentialTurnSegment*turn;
 
 VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor){ //add cargo and hatch mechanisms
     visionDrive= new ::AutoDrive(drive, VISION_DRIVE_SPEED, vision_kP, vision_kI, vision_kD); // added :: to resolve "expected type specifier" error
+    driveSegment= new DifferentialDriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 78, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+    turn= new DifferentialTurnSegment(gyro, drive, -90, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 
     SetMachineName("VisionStateMachine");
     SetName(Idle, "Default Idle");
@@ -44,6 +48,8 @@ VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS4
     SetName(ScoreCargoOnRocketShip, "Score cargo into rocket ship");
     SetName(ScoreHatchPanel, "Score hatch panel");
     SetName(CancelActions, "Cancel the current state");
+    SetName(DriveSegment, "Drive");
+    SetName(TurnSegment, "Turn");
 
     isIdle=true;
     isCancelled=false;
@@ -56,12 +62,23 @@ VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS4
 VisionStateMachine::~VisionStateMachine(){
     Terminate();
     delete visionDrive;
+    delete driveSegment;
+    delete turn;
 }
 
 void VisionStateMachine::StartSequence(){
     isIdle=false;
+    regMode=true;
 }
 
+void VisionStateMachine::StartSequenceTest(){
+    isIdle=false;
+    testMode=true;
+}
+
+bool VisionStateMachine::IsIdle(){
+    return isIdle;
+}
 void VisionStateMachine::Cancel(){
     isCancelled=true;
 }
@@ -70,28 +87,57 @@ void VisionStateMachine::StateEngine(int curState){
     switch (curState){
         case Idle:
             if(!isIdle){
-                NewState(AutoDrive, "Button pressed to start vision");
+                if(regMode){
+                    NewState(AutoDrive, "Button pressed to start vision");
+                }
+                else if(testMode){
+                    NewState(DriveSegment, "testing");
+                }
             }
             else if(isCancelled){
                 isCancelled=false;
             }
             break;
         case AutoDrive:
+            // if autodrive object is complete, then switch state to drive complete
             if(visionDrive->IsComplete()){
                 NewState(DriveComplete, "AutoDrive complete");
             }
             if(isCancelled){
                 visionDrive->Abort();
+                isIdle=true;
                 NewState(Idle, "AutoDrive cancelled");
             }
             break;
         case DriveComplete:
+            //do i need to "release" drive so that drive team can control?
+            //go back to idle
+            //cancel if statement
             isIdle=true;
             regMode=false;
             testMode=false;
             NewState(Idle, "Sequence Complete");
             break;
-        
+        case DriveSegment:
+            if(driveSegment->IsComplete()){
+                NewState(TurnSegment, "Drive complete");
+            }
+            if(isCancelled){
+                driveSegment->Abort();
+                isIdle=true;
+                NewState(Idle, "AutoDrive cancelled");
+            }
+            break;
+        case TurnSegment:
+            if(turn->IsComplete()){
+                NewState(DriveComplete, "Turn complete");
+            }
+            if(isCancelled){
+                turn->Abort();
+                isIdle=true;
+                NewState(Idle, "AutoDrive cancelled");
+            }
+            break;
 
 
         //THESE CASES WON'T BE NEEDED BC WE ARE GOING TO HAVE BUTTONS FOR OPERATOR TO PRESS TO RAISE THE ELEVATOR

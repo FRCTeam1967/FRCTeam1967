@@ -24,11 +24,15 @@ public:
         ScoreCargoOnCargoShip,
         ScoreCargoOnRocketShip, //assuming that scoring cargo on cargoship and scoring on rocket ship are a bit different
         ScoreHatchPanel,
-        CancelActions
+        CancelActions,
+        DriveSegment,
+        TurnSegment
     };
 
     void StateEngine(int curState);
     void StartSequence();
+    void StartSequenceTest();
+    bool IsIdle();
     void Cancel();
 
     bool isIdle;

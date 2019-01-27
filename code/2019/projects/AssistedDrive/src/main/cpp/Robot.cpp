@@ -80,7 +80,7 @@ class Robot : public frc::TimedRobot {
     drive = new frc::DifferentialDrive(*leftDrive, *rightDrive);
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
-    gyro = new frc::ADXRS450_Gyro(frc::SPI::Port::kOnboardCS0);
+    gyro = new frc::ADXRS450_Gyro(frc::SPI::Port::kOnboardCS0); //gyro didn't work; maybe try other port options
     vision = new VisionStateMachine(drive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), flmotor, frmotor);
 
     drive->SetSafetyEnabled(false); 
@@ -98,14 +98,14 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousPeriodic() override
   {
-    //drive->TankDrive(-left->GetY(), -right->GetY());
-    //PROGRAM WAY TO "RELEASE" THE DRIVE FROM VISIONSTATEMACHINE ONCE COMPLETE OR CANCELLED
-
     if(xbox->GetButtonY()){
-      vision->StartSequence();
+      vision->StartSequenceTest(); //test mode 
+    }
+    else if(vision->IsIdle()){ 
+      drive->TankDrive(-left->GetY(), -right->GetY());
     }
 
-    //Need to test cancel button
+    frc::SmartDashboard::PutNumber("angle", gyro->GetAngle());
     if(xbox->GetButtonX()){
       vision->Cancel();
     }
