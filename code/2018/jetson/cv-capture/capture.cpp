@@ -129,21 +129,8 @@ float findSlope(float x1, float y1, float x2, float y2)
     return ((y2 - y1) / (x2 - x1));
 }
 
-//filter tape (hsv stuff & bounding box)
-void filterTape(Mat frame, Mat green, Mat outline, vector<vector<Point>> contours)
-{
-    // Convert from brg to hsv
-    cvtColor(frame, green, COLOR_BGR2HSV);
-    // Filter green taperobot distance: 16.6748
-    inRange(green, Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green);
-    // Blurs image
-    GaussianBlur(green, outline, Size(9, 9), 2, 2);
-    // Finds contours
-    findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
-}
-
 //finding polygons
-void findPolygons(vector<Point> contours, vector<Point> contours_poly, Mat frame, bool argPassed)
+/*void findPolygons(vector<Point> contours, vector<Point> contours_poly, Mat frame, bool argPassed)
 {
     approxPolyDP(Mat(contours), contours_poly, 10, true);
     for (int i = 0; i < contours_poly.size(); i++)
@@ -156,7 +143,7 @@ void findPolygons(vector<Point> contours, vector<Point> contours_poly, Mat frame
             putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
         }
     }
-}
+}*/
 
 //sorting
 void sortContours(vector<vector<Point>> contourCopy, vector<vector<Point>> sortedContours)
@@ -301,7 +288,7 @@ void findOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FO
 }
 
 //find distance
-void findDist(float lengthWidth, int widthThreshold, int rectHeight, Mat frame, float finalDistInInches, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches)
+void findDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, float finalDistInInches, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches)
 {
     // Checks if tape's height is cut off
     if (lengthWidth < widthThreshold)
@@ -309,7 +296,7 @@ void findDist(float lengthWidth, int widthThreshold, int rectHeight, Mat frame, 
         // Uses tape height to find distance
         widthThreshold = DEFAULT_WIDTH_THRESHOLD + 5;
         float fovHeight = FOV_PIXELS_HEIGHT * T_INCHES_HEIGHT / rectHeight;
-        float fovWidth = fovHeight * frame.size().width / frame.size().height;
+        float fovWidth = fovHeight * frameWidth / frameHeight;
         float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
         //float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
         float verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
@@ -324,7 +311,7 @@ void findDist(float lengthWidth, int widthThreshold, int rectHeight, Mat frame, 
         // Uses tape width to find distance
         widthThreshold = DEFAULT_WIDTH_THRESHOLD;
         float fovWidth = FOV_PIXELS_WIDTH * T_INCHES_WIDTH / rectWidth;
-        float fovHeight = fovWidth * frame.size().height / frame.size().width;
+        float fovHeight = fovWidth * frameHeight / frameWidth;
         float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
         float distanceToTape = fovDiagonal / (2 * tan(theta / 1.4));
 
@@ -406,8 +393,18 @@ int main(int argc, char **argv)
             cout << "Width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
         }
         cap >> frame;
-
-        filterTape(frame, green, outline, contours);
+        
+        float frameHeight = frame.size().height;
+        float frameWidth = frame.size().width;
+        
+        // Convert from brg to hsv
+    	cvtColor(frame, green, COLOR_BGR2HSV);
+    	// Filter green taperobot distance: 16.6748
+    	inRange(green, Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green);
+    	// Blurs image
+    	GaussianBlur(green, outline, Size(9, 9), 2, 2);
+    	// Finds contours
+    	findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
 
         vector<vector<Point>> contours_poly(contours.size());
         vector<Rect> boundRect(contours.size());
@@ -457,7 +454,17 @@ int main(int argc, char **argv)
                 drawContours(frame, contours, c, color, 4);
             }
 
-            findPolygons(contours[c], contours_poly[c], frame, argPassed);
+            approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
+    		for (int i = 0; i < contours_poly.size(); i++)
+    		{
+        		if (argPassed)
+        		{
+            		Scalar red = Scalar(255, 0, 0);
+            		circle(frame, contours_poly[c][i], 3, red, 10);
+            		Point p = contours_poly[c][i];
+            		putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
+        		}
+    		}
 
             boundRect[c] = boundingRect(Mat(contours_poly[c]));
             if (argPassed)
@@ -556,7 +563,7 @@ int main(int argc, char **argv)
                     cout << "Width Threshold: " << widthThreshold << endl;
                 }
 
-                findDist(lengthWidth, widthThreshold, rectHeight, frame, finalDistInInches, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
+                findDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, finalDistInInches, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
 
                 if (correctData)
                 {
