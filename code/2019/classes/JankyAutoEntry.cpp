@@ -33,5 +33,6 @@ bool JankyAutoEntry::IsComplete(){
 }
 
 void JankyAutoEntry::Abort(){
+	active=false;
 	End();
 }
