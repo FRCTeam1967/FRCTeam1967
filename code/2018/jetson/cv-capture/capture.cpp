@@ -24,9 +24,9 @@ using namespace cv;
 
 // Constants
 const float ROBOT_OFFSET = 13.5;   // In inches, how far is the camera into the robot (from the edge of bumpers)
-const int MIN_AREA = 500;		   // Pixels
+const int MIN_AREA = 500;          // Pixels
 const float T_INCHES_HEIGHT = 5.5; // Height of tape in inches
-const float T_INCHES_WIDTH = 2;	// Width of tape in inches
+const float T_INCHES_WIDTH = 2;    // Width of tape in inches
 const float T_INCHES_LEFT_WIDTH = 11.25;
 const float T_INCHES_BOTH_WIDTH = 14.5;
 const int FOV_PIXELS_HEIGHT = 480;
@@ -37,8 +37,8 @@ const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
 const int RIGHT = 1;
 const int LEFT = 0;
-const int NO_VALUE_TIME = 3;		 // Seconds
-const bool DEBUG_MODE = false;		 // Flag for whether to print out values & messages (true = prints & false = no prints)
+const int NO_VALUE_TIME = 3;         // Seconds
+const bool DEBUG_MODE = false;       // Flag for whether to print out values & messages (true = prints & false = no prints)
 const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with sorting algorithm)
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
@@ -126,44 +126,229 @@ float findSlope(float x1, float y1, float x2, float y2)
     return ((y2 - y1) / (x2 - x1));
 }
 
-
 //filter tape (hsv stuff & bounding box)
-void filterTape()
+void filterTape(Mat frame, Mat green, Mat outline)
 {
+    // Convert from brg to hsv
+    cvtColor(frame, green, COLOR_BGR2HSV);
+    // Filter green taperobot distance: 16.6748
+    inRange(green, Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green);
+    // Blurs image
+    GaussianBlur(green, outline, Size(9, 9), 2, 2);
+    // Finds contours
+    findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+}
 
+//finding polygons
+findPolygons(vector<Points> contours, vector<Points> contours_poly, Mat frame)
+{
+    approxPolyDP(Mat(contours), contours_poly, 10, true);
+    for (int i = 0; i < contours_poly.size(); i++)
+    {
+        if (argPassed)
+        {
+            Scalar red = Scalar(255, 0, 0);
+            circle(frame, contours_poly[i], 3, red, 10);
+            Point p = contours_poly[i];
+            putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
+        }
+    }
 }
 
 //sorting
-void sortThroughTapes()
+void sortContours(vector<vector<Points>> contourCopy, int element, vector<vector<Point>> sortedContours)
 {
+    // Create variables & arrays necesarry for code segment below
+    int element = 0;
+    int index;
+    int lowestValue;
+    for (int a = 0; a < contourCopy.size(); a++) // Loops through as many times as the size of 'contourCopy'
+    {
+        lowestValue = 641;                           // Set lowest value to 1 + the maximum x value
+        for (int b = 0; b < contourCopy.size(); b++) // Loops through as many times as the size of 'contourCopy'
+        {
+            if (contourCopy[b].size() == 0) // If the array is empty, continue
+            {
+                continue;
+            }
 
+            if (DEBUG_MODE)
+            {
+                // Print out contourCopy's first X coordinate
+                cout << "Contour Copy X Coordinate 1: " << (contourCopy[b][0]).x << endl;
+            }
+
+            if ((lowestValue > (contourCopy[b][0]).x) && ((contourCopy[b][0]).x != 1000))
+            {
+                lowestValue = (contourCopy[b][0]).x; // Set 'lowestValue' to the new low value
+                index = b;                           // Set the index to the index of the lowest value (we need this for later)
+            }
+        }
+        if (lowestValue < 641) // Will sort the contours as long as the values are appropriate
+        {
+            sortedContours[element] = contourCopy[index]; // Add elements to the sorted list
+            if (DEBUG_MODE)
+            {
+                // Print out sortedContours array
+                cout << "Sorted Contours: " << sortedContours[element] << endl;
+            }
+            //cout << "Sorted Contours: " << sortedContours[element] << endl;
+            element++;                                      // increment the element that the next low value will be added to
+            (contourCopy[index][0]).x = IMPOSSIBLE_ELEMENT; // Set valye at index of last low value to an impossibly large number
+        }
+    }
 }
 
 //find left & right
-void findLeftRightTape()
+void findLeftRightTape(Point maxy, Point max2y, vector<vector<Points>> sortedContours, vector<float> lr, bool correctData)
 {
+    // Create vars for slope & if data is correct
+    float slope = 0;
 
+    // Find slope of each tape
+    for (int a = 0; a < sortedContours.size(); a++)
+    {
+        // Print cycle # of for loop
+        //cout << "A : " << a << endl;
+
+        for (int b = 0; b < sortedContours[a].size(); b++)
+        {
+            if (sortedContours[a][b].y < maxy.y)
+            {
+                // Reassign maxy & max2y
+                max2y = maxy;
+                maxy = sortedContours[a][b];
+            }
+            else if (sortedContours[a][b].y < max2y.y)
+            {
+                // Reassign maxy
+                max2y = sortedContours[a][b];
+            }
+        }
+
+        // Find slope of the tape
+        slope = findSlope(maxy.x, maxy.y, max2y.x, max2y.y);
+
+        // Print out the x & y coordinates & the slope
+        //cout << "MAX Y : (" << maxy.x << ", " << maxy.y << ") " << endl;
+        //cout << "MAX 2 Y : (" << max2y.x << ", " << max2y.y << ") " << endl;
+        //cout << "SLOPE : " << slope << endl;
+
+        if (slope < 0)
+        {
+            lr[a] = 1; //right tape
+        }
+        else
+        {
+            lr[a] = 0; //left tape
+        }
+
+        // Print out if tape is left / right
+        //cout << "LEFT OR RIGHT " << lr[a] << endl;
+    }
+
+    // Decide if left / right data is correct
+    correctData = true;
+    for (int g = 1; g < sortedContours.size(); g += 2)
+    {
+        if (lr[g - 1] == lr[g])
+        {
+            correctData = false;
+        }
+    }
+}
+
+void find2Largest(int largestContour, int largestContour2, int c, vector<vector<Points>> contours)
+{
+    // Finds largest and second largest contours
+    if (largestContour == -1)
+    {
+        largestContour = c;
+        continue;
+    }
+
+    if (largestContour2 == -1)
+    {
+        largestContour2 = c;
+    }
+
+    // We have 2 contours to check
+    if (contourArea(contours[c]) > contourArea(contours[largestContour]))
+    {
+        int temp = largestContour;
+        largestContour = c;
+        largestContour2 = temp;
+    }
+    else if (contourArea(contours[c]) > contourArea(contours[largestContour2]))
+    {
+        largestContour2 = c;
+    }
 }
 
 //find offset
-void findOffset()
+void findOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
 {
-
+    float lengthWidth = rightRect.tl().x + rightRect.width - leftRect.tl().x; // length from left edge of left tape to right edge of right tape
+    float pixelsToInches = T_INCHES_BOTH_WIDTH / lengthWidth;
+    float tapeCenter = leftRect.tl().x + lengthWidth / 2;
+    float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
+    float offsetInches = localOffset * pixelsToInches;
 }
 
-//find distance
-void findDistance()
+//find distanc
+void findDist(float lengthWidth, int widthThreshold, int rectHeight, Mat frame, float finalDistInInches, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches)
 {
+    // Checks if tape's height is cut off
+    if (lengthWidth < widthThreshold)
+    {
+        // Uses tape height to find distance
+        widthThreshold = DEFAULT_WIDTH_THRESHOLD + 5;
+        float fovHeight = FOV_PIXELS_HEIGHT * T_INCHES_HEIGHT / rectHeight;
+        float fovWidth = fovHeight * frame.size().width / frame.size().height;
+        float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
+        //float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
+        float verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
+        finalDistInInches = verticalDistanceToTape;
+        if (DEBUG_MODE)
+        {
+            cout << "Height" << endl;
+        }
+    }
+    else
+    {
+        // Uses tape width to find distance
+        widthThreshold = DEFAULT_WIDTH_THRESHOLD;
+        float fovWidth = FOV_PIXELS_WIDTH * T_INCHES_WIDTH / rectWidth;
+        float fovHeight = fovWidth * frame.size().height / frame.size().width;
+        float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
+        float distanceToTape = fovDiagonal / (2 * tan(theta / 1.4));
 
+        // Getting pixel width using top left corners of both tapes
+        fovWidth = FOV_PIXELS_WIDTH * T_INCHES_LEFT_WIDTH / leftCornerDist;
+        float horizDistanceToTapeLeft = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
+
+        // Getting pixel width using bottom right corners of both tapes
+        fovWidth = FOV_PIXELS_WIDTH * T_INCHES_LEFT_WIDTH / rightCornerDist;
+        float horizDistanceToTapeRight = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
+
+        // Averaging out left and right distances to be more accurate
+        float avgDistToTape = (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2;
+        finalDistInInches = avgDistToTape;
+
+        // Angle calculation (NEEDS FIXED TO WORK PROPERLY)
+        float angle = (atan((offsetInches / finalDistInInches))) * (180 / M_PI);
+        //cout << "ANGLE: " << angle << endl;
+    }
+    float robotDistance = finalDistInInches - ROBOT_OFFSET;
 }
 
 int main(int argc, char **argv)
 {
-    // Network tables send data to the roboRIO
-    //NetworkTable::SetTeam(1967); //set team number
-    //NetworkTable::SetClientMode();
-    //NetworkTable::Initialize();
-    //shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
+    //Network tables send data to the roboRIO
+    /*NetworkTable::SetTeam(1967); //set team number
+    NetworkTable::SetClientMode();
+    NetworkTable::Initialize();
+    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");*/
 
     // Checks if argument passed
     bool argPassed = true;
@@ -176,10 +361,8 @@ int main(int argc, char **argv)
 
     // Change exposure & brightness of camera
     system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
-
     // Opens the camera stream
     VideoCapture cap(0);
-
     // If camera stream won't open, display this message
     if (!cap.isOpened())
     {
@@ -210,7 +393,7 @@ int main(int argc, char **argv)
             cout << "Duration: " << duration << endl;
             cout << "Last Average: " << lastAverage << endl;
         }
-        Mat gray, frame, green, outline;
+        Mat frame, green, outline;
         if (DEBUG_MODE)
         {
             // Print out the height & width
@@ -219,17 +402,8 @@ int main(int argc, char **argv)
         }
         cap >> frame;
 
-        // Convert from brg to hsv
-        cvtColor(frame, green, COLOR_BGR2HSV);
+        filterTape(frame, green);
 
-        // Filter green taperobot distance: 16.6748
-        inRange(green, Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green);
-
-        // Blurs image
-        GaussianBlur(green, outline, Size(9, 9), 2, 2);
-
-        // Finds contours
-        findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
         vector<vector<Point>> contours_poly(contours.size());
         vector<Rect> boundRect(contours.size());
         vector<vector<Point>> contourCopy(contours.size());
@@ -278,18 +452,7 @@ int main(int argc, char **argv)
                 drawContours(frame, contours, c, color, 4);
             }
 
-            // Finds polygons and draws bounding rectangles
-            approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
-            for (int i = 0; i < contours_poly[c].size(); i++)
-            {
-                if (argPassed)
-                {
-                    Scalar red = Scalar(255, 0, 0);
-                    circle(frame, contours_poly[c][i], 3, red, 10);
-                    Point p = contours_poly[c][i];
-                    putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
-                }
-            }
+            findPolygons(contours[c], contours_poly[c], frame);
 
             boundRect[c] = boundingRect(Mat(contours_poly[c]));
             if (argPassed)
@@ -302,10 +465,6 @@ int main(int argc, char **argv)
                 cout << "Contours: " << maxContour << endl;
             }
 
-            // Create variables & arrays necesarry for code segment below
-            int element = 0;
-            int index;
-            int lowestValue;
             //vector<vector<Point>> contourCopy(contours.size());
             //vector<vector<Point>> sortedContours(contours.size());
             contourCopy = contours_poly;
@@ -317,41 +476,8 @@ int main(int argc, char **argv)
             }
 
             // Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
-            for (int a = 0; a < contourCopy.size(); a++) // Loops through as many times as the size of 'contourCopy'
-            {
-                lowestValue = 641;							 // Set lowest value to 1 + the maximum x value
-                for (int b = 0; b < contourCopy.size(); b++) // Loops through as many times as the size of 'contourCopy'
-                {
-                    if (contourCopy[b].size() == 0) // If the array is empty, continue
-                    {
-                        continue;
-                    }
+            sortContours(contourCopy, element, sortedContours);
 
-                    if (DEBUG_MODE)
-                    {
-                        // Print out contourCopy's first X coordinate
-                        cout << "Contour Copy X Coordinate 1: " << (contourCopy[b][0]).x << endl;
-                    }
-
-                    if ((lowestValue > (contourCopy[b][0]).x) && ((contourCopy[b][0]).x != 1000))
-                    {
-                        lowestValue = (contourCopy[b][0]).x; // Set 'lowestValue' to the new low value
-                        index = b;							 // Set the index to the index of the lowest value (we need this for later)
-                    }
-                }
-                if (lowestValue < 641) // Will sort the contours as long as the values are appropriate
-                {
-                    sortedContours[element] = contourCopy[index]; // Add elements to the sorted list
-                    if (DEBUG_MODE)
-                    {
-                        // Print out sortedContours array
-                        cout << "Sorted Contours: " << sortedContours[element] << endl;
-                    }
-                    //cout << "Sorted Contours: " << sortedContours[element] << endl;
-                    element++;										// increment the element that the next low value will be added to
-                    (contourCopy[index][0]).x = IMPOSSIBLE_ELEMENT; // Set valye at index of last low value to an impossibly large number
-                }
-            }
             if (DEBUG_MODE)
             {
                 // Print this when done making the sorted list
@@ -369,95 +495,9 @@ int main(int argc, char **argv)
             max2y.x = 640;
             max2y.y = 480;
 
-            // Create vars for slope & if data is correct
-            float slope = 0;
+            findLeftRightTape(maxy, max2y, sortedContours, lr, correctData);
+            find2Largest(largestContour, largestContour2, c, contours);
 
-            // Find slope of each tape
-            for (int a = 0; a < sortedContours.size(); a++)
-            {
-                // Print cycle # of for loop
-                //cout << "A : " << a << endl;
-
-                for (int b = 0; b < sortedContours[a].size(); b++)
-                {
-                    if (sortedContours[a][b].y < maxy.y)
-                    {
-                        // Reassign maxy & max2y
-                        max2y = maxy;
-                        maxy = sortedContours[a][b];
-                    }
-                    else if (sortedContours[a][b].y < max2y.y)
-                    {
-                        // Reassign maxy
-                        max2y = sortedContours[a][b];
-                    }
-                }
-
-                // Find slope of the tape
-                slope = findSlope(maxy.x, maxy.y, max2y.x, max2y.y);
-
-                // Print out the x & y coordinates & the slope
-                //cout << "MAX Y : (" << maxy.x << ", " << maxy.y << ") " << endl;
-                //cout << "MAX 2 Y : (" << max2y.x << ", " << max2y.y << ") " << endl;
-                //cout << "SLOPE : " << slope << endl;
-
-                if (slope < 0)
-                {
-                    lr[a] = 1; //right tape
-                }
-                else
-                {
-                    lr[a] = 0; //left tape
-                }
-
-                // Print out if tape is left / right
-                //cout << "LEFT OR RIGHT " << lr[a] << endl;
-            }
-            // Print extra space so that console is easier to read
-            //cout << " " << endl;
-
-            // Decide if left / right data is correct
-            correctData = true;
-            for (int c = 1; c < sortedContours.size(); c+=2)
-            {
-                if (lr[c - 1] == lr[c])
-                {
-                    correctData = false;
-                }
-            }
-
-            if (correctData)
-            {
-                //cout << "CORRECT DATA = true " << endl;
-            }
-            else
-            {
-                //cout << "CORRECT DATA = false " << endl;
-            }
-
-            //cout << " " << endl;
-
-            // Finds largest and second largest contours
-            if (largestContour == -1)
-            {
-                largestContour = c;
-                continue;
-            }
-
-            if (largestContour2 == -1)
-                largestContour2 = c;
-
-            // We have 2 contours to check
-            if (contourArea(contours[c]) > contourArea(contours[largestContour]))
-            {
-                int temp = largestContour;
-                largestContour = c;
-                largestContour2 = temp;
-            }
-            else if (contourArea(contours[c]) > contourArea(contours[largestContour2]))
-            {
-                largestContour2 = c;
-            }
             hasTwoRects = true;
         }
 
@@ -472,11 +512,11 @@ int main(int argc, char **argv)
             {
                 k = 1;
             }
-            
+
             //cout << "start of for loop" << endl;
             for (; k < sortedContours.size(); k += 2)
             {
-				//cout << "K VALUE: " << k << endl;
+                //cout << "K VALUE: " << k << endl;
                 // Initializes variables
                 float finalDistInInches;
                 int rectHeight = boundRect[k].height;
@@ -502,12 +542,8 @@ int main(int argc, char **argv)
                     rightRect = largestRect;
                 }
 
-                // Finds horizontal offset
-                float lengthWidth = rightRect.tl().x + rightRect.width - leftRect.tl().x; // length from left edge of left tape to right edge of right tape
-                float pixelsToInches = T_INCHES_BOTH_WIDTH / lengthWidth;
-                float tapeCenter = leftRect.tl().x + lengthWidth / 2;
-                float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
-                float offsetInches = localOffset * pixelsToInches;
+                findOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+
                 if (DEBUG_MODE)
                 {
                     // Print out offset & widthThreshold
@@ -515,63 +551,20 @@ int main(int argc, char **argv)
                     cout << "Width Threshold: " << widthThreshold << endl;
                 }
 
-                // Checks if tape's height is cut off
-                if (lengthWidth < widthThreshold)
+                findDist(lengthWidth, widthThreshold, rectHeight, frame, finalDistInInches, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
+
+                if (correctData)
                 {
-                    // Uses tape height to find distance
-                    widthThreshold = DEFAULT_WIDTH_THRESHOLD + 5;
-                    float fovHeight = FOV_PIXELS_HEIGHT * T_INCHES_HEIGHT / rectHeight;
-                    float fovWidth = fovHeight * frame.size().width / frame.size().height;
-                    float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
-                    //float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
-                    float verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
-                    finalDistInInches = verticalDistanceToTape;
-                    if (DEBUG_MODE)
-                    {
-                        cout << "Height" << endl;
-                    }
+                    cout << "Final Dist Inches: " << finalDistInInches << endl;
+                    //cout << k << ": " << boundRect[k] << endl;
+                    //cout << " " << endl;
                 }
                 else
                 {
-                    // Uses tape width to find distance
-                    widthThreshold = DEFAULT_WIDTH_THRESHOLD;
-                    float fovWidth = FOV_PIXELS_WIDTH * T_INCHES_WIDTH / rectWidth;
-                    float fovHeight = fovWidth * frame.size().height / frame.size().width;
-                    float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
-                    float distanceToTape = fovDiagonal / (2 * tan(theta / 1.4));
-
-                    // Getting pixel width using top left corners of both tapes
-                    fovWidth = FOV_PIXELS_WIDTH * T_INCHES_LEFT_WIDTH / leftCornerDist;
-                    float horizDistanceToTapeLeft = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
-
-                    // Getting pixel width using bottom right corners of both tapes
-                    fovWidth = FOV_PIXELS_WIDTH * T_INCHES_LEFT_WIDTH / rightCornerDist;
-                    float horizDistanceToTapeRight = fovWidth / (2 * tan(MEASURED_HORIZ_FOV));
-
-                    // Averaging out left and right distances to be more accurate
-                    float avgDistToTape = (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2;
-                    finalDistInInches = avgDistToTape;
-
-                    // Angle calculation (NEEDS FIXED TO WORK PROPERLY)
-                    float angle = (atan((offsetInches / finalDistInInches))) * (180 / M_PI);
-                    //cout << "ANGLE: " << angle << endl;
+                    //cout << "BAD DATA" << endl;
+                    //cout << k << ": " << boundRect[k] << endl;
+                    //cout << " " << endl;
                 }
-
-                // Find how far tape is from edge of robot
-                float robotDistance = finalDistInInches - ROBOT_OFFSET;
-				
-				if(correctData)
-				{
-					cout << "Final Dist Inches: " << finalDistInInches << endl;
-					//cout << k << ": " << boundRect[k] << endl;
-					//cout << " " << endl;
-				}
-				else
-				{
-					//cout << "BAD DATA" << endl;
-					//cout << k << ": " << boundRect[k] << endl;
-					//cout << " " << endl;
-				}
 
                 if (DEBUG_MODE)
                 {
