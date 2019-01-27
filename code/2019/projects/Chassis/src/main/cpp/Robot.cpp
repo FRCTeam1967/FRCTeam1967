@@ -7,6 +7,7 @@
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/Encoder.h>
 #include <math.h>
+#include <frc/Ultrasonic.h>
 
 #define FRONT_LEFT_MOTOR_CHANNEL 3
 #define REAR_LEFT_MOTOR_CHANNEL 2
@@ -18,6 +19,8 @@
 #define PISTON_FRONT_LEFT_CHANNEL 3
 #define PISTON_FRONT_RIGHT_CHANNEL 3
 #define PISTON_BACK_CHANNEL 5
+#define PING_CHANNEL 4
+#define ECHO_CHANNEL 6
 
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6
@@ -40,6 +43,7 @@ class Robot : public frc::TimedRobot {
   jankyDrivestick*left;
   jankyDrivestick*right;
   jankyXboxJoystick*gameJoystick;
+  Ultrasonic*distSensor;
 
   public:
   Robot()
@@ -57,6 +61,7 @@ class Robot : public frc::TimedRobot {
     left = NULL;
     right = NULL;
     gameJoystick = NULL;
+    distSensor = NULL;
   }
 
   ~Robot()
@@ -74,6 +79,7 @@ class Robot : public frc::TimedRobot {
     delete left;
     delete right;
     delete gameJoystick;
+    delete distSensor;
   }
   
   virtual void RobotInit() override
@@ -85,12 +91,15 @@ class Robot : public frc::TimedRobot {
     frpiston = new Solenoid(10, PISTON_FRONT_RIGHT_CHANNEL);
     flpiston = new Solenoid(10, PISTON_FRONT_LEFT_CHANNEL);
     bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);
-    drive = new DifferentialDrive(*leftDrive, *rightDrive);
     leftDrive = new SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new SpeedControllerGroup(*frmotor, *rrmotor);
+    drive = new DifferentialDrive(*leftDrive, *rightDrive);
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
     gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
+    distSensor = new Ultrasonic(PING_CHANNEL, ECHO_CHANNEL);
+
+    drive -> SetSafetyEnabled(false);
   }
 
   virtual void AutonomousInit() override
@@ -124,10 +133,12 @@ class Robot : public frc::TimedRobot {
     double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
     double rightEncoderCount = frmotor->GetSensorCollection().GetQuadraturePosition();
     double rightEncoderDistance = (rightEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
+    double distance = distSensor->GetRangeInches();
     SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
     SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
     SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
     SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
+    SmartDashboard::PutNumber("Distance to object in front of robot", distance);
 
     bool buttonY = gameJoystick -> GetButtonY();
     bool buttonA = gameJoystick -> GetButtonA();
@@ -174,5 +185,5 @@ private:
 };
 int main() 
 { 
-  return frc::StartRobot<Robot>(); 
+  return frc::StartRobot<Robot>();
 }
