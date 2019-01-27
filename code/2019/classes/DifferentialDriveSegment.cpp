@@ -61,7 +61,7 @@ DifferentialDriveSegment::~DifferentialDriveSegment() {
 }
 
 bool DifferentialDriveSegment::JobDone(){
-	lEncoderCount = - -_leftEncoder -> ctre::phoenix::motorcontrol::SensorCollection::GetQuadraturePosition();
+	lEncoderCount = -_leftEncoder -> ctre::phoenix::motorcontrol::SensorCollection::GetQuadraturePosition();
 	rEncoderCount = _rightEncoder-> ctre::phoenix::motorcontrol::SensorCollection::GetQuadraturePosition();
 	lEncoderDistance = (lEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
 	rEncoderDistance = (rEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE_INCHES;
