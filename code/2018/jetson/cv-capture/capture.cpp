@@ -43,7 +43,7 @@ const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with s
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
-double hue[] = {67, 88};
+double hue[] = {62, 79};
 double sat[] = {149, 255};
 double val[] = {73, 236};
 
@@ -124,6 +124,37 @@ float findSlope(float x1, float y1, float x2, float y2)
 {
     // Using two (x, y) coordinates, returns the slope of the line
     return ((y2 - y1) / (x2 - x1));
+}
+
+
+//filter tape (hsv stuff & bounding box)
+void filterTape()
+{
+
+}
+
+//sorting
+void sortThroughTapes()
+{
+
+}
+
+//find left & right
+void findLeftRightTape()
+{
+
+}
+
+//find offset
+void findOffset()
+{
+
+}
+
+//find distance
+void findDistance()
+{
+
 }
 
 int main(int argc, char **argv)
@@ -345,7 +376,7 @@ int main(int argc, char **argv)
             for (int a = 0; a < sortedContours.size(); a++)
             {
                 // Print cycle # of for loop
-                cout << "A : " << a << endl;
+                //cout << "A : " << a << endl;
 
                 for (int b = 0; b < sortedContours[a].size(); b++)
                 {
@@ -380,14 +411,14 @@ int main(int argc, char **argv)
                 }
 
                 // Print out if tape is left / right
-                cout << "LEFT OR RIGHT " << lr[a] << endl;
+                //cout << "LEFT OR RIGHT " << lr[a] << endl;
             }
             // Print extra space so that console is easier to read
-            cout << " " << endl;
+            //cout << " " << endl;
 
             // Decide if left / right data is correct
             correctData = true;
-            for (int c = 1; c < sortedContours.size(); c++)
+            for (int c = 1; c < sortedContours.size(); c+=2)
             {
                 if (lr[c - 1] == lr[c])
                 {
@@ -397,14 +428,14 @@ int main(int argc, char **argv)
 
             if (correctData)
             {
-                cout << "CORRECT DATA = true " << endl;
+                //cout << "CORRECT DATA = true " << endl;
             }
             else
             {
-                cout << "CORRECT DATA = false " << endl;
+                //cout << "CORRECT DATA = false " << endl;
             }
 
-            cout << " " << endl;
+            //cout << " " << endl;
 
             // Finds largest and second largest contours
             if (largestContour == -1)
@@ -441,9 +472,11 @@ int main(int argc, char **argv)
             {
                 k = 1;
             }
+            
+            //cout << "start of for loop" << endl;
             for (; k < sortedContours.size(); k += 2)
             {
-
+				//cout << "K VALUE: " << k << endl;
                 // Initializes variables
                 float finalDistInInches;
                 int rectHeight = boundRect[k].height;
@@ -526,6 +559,19 @@ int main(int argc, char **argv)
 
                 // Find how far tape is from edge of robot
                 float robotDistance = finalDistInInches - ROBOT_OFFSET;
+				
+				if(correctData)
+				{
+					cout << "Final Dist Inches: " << finalDistInInches << endl;
+					//cout << k << ": " << boundRect[k] << endl;
+					//cout << " " << endl;
+				}
+				else
+				{
+					//cout << "BAD DATA" << endl;
+					//cout << k << ": " << boundRect[k] << endl;
+					//cout << " " << endl;
+				}
 
                 if (DEBUG_MODE)
                 {
