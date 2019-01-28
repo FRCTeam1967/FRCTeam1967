@@ -6,6 +6,7 @@ find_package(OpenCV REQUIRED)
 
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/../ntcore/wpiutil/include)
+include_directories(${CMAKE_SOURCE_DIR}/../include)
 
 add_executable(cv_capture capture.cpp)
 
@@ -26,4 +27,4 @@ set_target_properties(cscore PROPERTIES
     IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/../cscore/build/libcscore.so"
     INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/../cscore/src/main/native/include")
 
-target_link_libraries(cv_capture cscore)
+target_link_libraries(cv_capture cscore ntcore)

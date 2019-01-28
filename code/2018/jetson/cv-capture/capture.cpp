@@ -14,9 +14,8 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <networktables/NetworkTable.h>
-//#include <ntcore/src/networktables/NetworkTable.h>
-//#include "/home/nvidia/FRCTeam1967/code/jetson/ntcore/include/ntcore.h"
-//#include <cscore>
+#include <cscore.h>
+#include <Streamer.h>
 
 // Namespaces
 using namespace std;
@@ -39,6 +38,10 @@ const int NO_VALUE_TIME = 3; // Seconds
 const bool DEBUG_MODE = false; // Flag for whether to print out values & messages (true = prints & false = no prints)
 const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with sorting algorithm)
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
+
+// ports to connect to for MJPEG streams
+const int RAW_CAMERA_STREAM_PORT = 1185;
+const int CV_OUTPUT_STREAM_PORT  = 1186;
 
 // Set our HSV values
 double hue[] = {67, 88};
@@ -141,18 +144,13 @@ int main(int argc, char** argv)
 		argPassed = true;
 	}
 	
-	// Change exposure & brightness of camera
-	system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
+	// Opens and sets camera stream settings
+	const int cameraId = 0;					// device index of /dev/video*
+	jt::UsbCamera camera(cameraId, RAW_CAMERA_STREAM_PORT);
 
-	// Opens the camera stream
-    VideoCapture cap(0);
- 
-	// If camera stream won't open, display this message
-	if (!cap.isOpened())
-	{
-            cerr << "Failed to open USB camera. Check that the camera is plugged into the correct port" << endl;
-            return -1;
-	}
+	// Setup streamer for CV output
+	jt::CVStreamer streamer("CV Image", CV_OUTPUT_STREAM_PORT);
+	streamer.setResolutionFPS(640, 480, 30);
 
 	auto start = chrono::high_resolution_clock::now();
 	float frames = 0;
@@ -178,13 +176,17 @@ int main(int argc, char** argv)
         	cout << "Last Average: " << lastAverage << endl;
 		}
 		Mat gray, frame, green, outline;
+
+		uint64_t frameTime = camera.grabFrame(frame);
+		if (frameTime == 0)
+			continue;
+
 		if (DEBUG_MODE)
 		{
 			// Print out the height & width
-			cout << "Height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
-			cout << "Width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
+			cout << "Height: " << frame.rows << endl;
+			cout << "Width: " << frame.cols << endl;
 		}
-        cap >> frame;
 
 		// Convert from brg to hsv
 		cvtColor(frame, green, COLOR_BGR2HSV);
@@ -619,6 +621,7 @@ int main(int argc, char** argv)
 		}
 
 		frames++;
+		streamer.putCVFrame(green);
 		
 		// Calculate the msec_duration & fps
 		auto end = chrono::high_resolution_clock::now();
@@ -633,8 +636,6 @@ int main(int argc, char** argv)
 		}
 		
 	}
-
-	cap.release();
 
 	// Calculate the msec_duration & fps
 	auto end = chrono::high_resolution_clock::now();
