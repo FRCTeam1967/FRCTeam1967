@@ -283,13 +283,14 @@ void find2Largest(int largestContour, int largestContour2, int c, vector<vector<
 */
 
 //find offset
-void findOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
+float findOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
 {
+	float o;
     lengthWidth = rightRect.tl().x + rightRect.width - leftRect.tl().x; // length from left edge of left tape to right edge of right tape
     float pixelsToInches = T_INCHES_BOTH_WIDTH / lengthWidth;
     float tapeCenter = leftRect.tl().x + lengthWidth / 2;
     float localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
-    offsetInches = localOffset * pixelsToInches;
+    o = localOffset * pixelsToInches;
 }
 
 //find distance
@@ -465,7 +466,7 @@ int main(int argc, char **argv)
             }
 
             approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
-    		for (int i = 0; i < contours_poly.size(); i++)
+    		for (int i = 0; i < contours_poly[c].size(); i++)
     		{
     			//cout << "C " << contours[c][i] << endl;
     			//cout << "CP " << contours_poly[c][i] << endl;
@@ -593,7 +594,8 @@ int main(int argc, char **argv)
                     rightRect = largestRect;
                 }
 
-                findOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+                offsetInches = findOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+                
 
                 if (DEBUG_MODE)
                 {
@@ -606,7 +608,8 @@ int main(int argc, char **argv)
 
                 if (correctData)
                 {
-                    //cout << "Final Dist Inches: " << finalDistInInches << endl;
+                    cout << "Final Dist Inches: " << finalDistInInches << endl;
+                    cout << "Offset: " << offsetInches << endl;
                     //cout << k << ": " << boundRect[k] << endl;
                     //cout << " " << endl;
                 }
