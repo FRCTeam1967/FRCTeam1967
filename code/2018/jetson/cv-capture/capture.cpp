@@ -27,7 +27,7 @@ const float ROBOT_OFFSET = 13.5;   // In inches, how far is the camera into the 
 const int MIN_AREA = 500;          // Pixels
 const float T_INCHES_HEIGHT = 5.5; // Height of tape in inches
 const float T_INCHES_WIDTH = 2;    // Width of tape in inches
-const float T_INCHES_LEFT_WIDTH = 11.25;
+const float T_INCHES_LEFT_WIDTH = 11.75; 
 const float T_INCHES_BOTH_WIDTH = 14.5;
 const int FOV_PIXELS_HEIGHT = 480;
 const int FOV_PIXELS_WIDTH = 640;
@@ -43,9 +43,14 @@ const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with s
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
-double hue[] = {62, 79};
-double sat[] = {149, 255};
-double val[] = {73, 236};
+double hue[] = {63, 96};
+double sat[] = {112, 255};
+double val[] = {80, 255};
+
+//old
+//double hue[] = {62, 79};
+//double sat[] = {149, 255};
+//double val[] = {73, 236};
 
 bool correctData = true;
 float offsetInches;
@@ -91,12 +96,12 @@ void callibrateHSV(char key)
         changeKey(val, key, plus);
         break;
     case 'r': // For reset
-        hue[0] = 62;
-        hue[1] = 79;
-        sat[0] = 149;
+        hue[0] = 0;
+        hue[1] = 255;
+        sat[0] = 0;
         sat[1] = 255;
-        val[0] = 73;
-        val[1] = 236;
+        val[0] = 0;
+        val[1] = 255;
         break;
     }
     //if (DEBUG_MODE)
@@ -288,8 +293,9 @@ void findOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FO
 }
 
 //find distance
-void findDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, float finalDistInInches, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches)
+float findDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches)
 {
+	float dist;
     // Checks if tape's height is cut off
     if (lengthWidth < widthThreshold)
     {
@@ -300,7 +306,7 @@ void findDist(float lengthWidth, int widthThreshold, int rectHeight, float frame
         float fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
         //float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
         float verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
-        finalDistInInches = verticalDistanceToTape;
+        dist = verticalDistanceToTape;
         if (DEBUG_MODE)
         {
             cout << "Height" << endl;
@@ -325,13 +331,15 @@ void findDist(float lengthWidth, int widthThreshold, int rectHeight, float frame
 
         // Averaging out left and right distances to be more accurate
         float avgDistToTape = (horizDistanceToTapeLeft + horizDistanceToTapeRight) / 2;
-        finalDistInInches = avgDistToTape;
+        dist = avgDistToTape;
 
         // Angle calculation (NEEDS FIXED TO WORK PROPERLY)
-        float angle = (atan((offsetInches / finalDistInInches))) * (180 / M_PI);
+        float angle = (atan((offsetInches / dist))) * (180 / M_PI);
         //cout << "ANGLE: " << angle << endl;
     }
-    robotDistance = finalDistInInches - ROBOT_OFFSET;
+    robotDistance = dist - ROBOT_OFFSET;
+    
+    return dist;
 }
 
 int main(int argc, char **argv)
@@ -352,7 +360,7 @@ int main(int argc, char **argv)
     }
 
     // Change exposure & brightness of camera
-    system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=10"); // KEEP
+    system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=1"); // KEEP
     // Opens the camera stream
     VideoCapture cap(0);
     // If camera stream won't open, display this message
@@ -405,6 +413,8 @@ int main(int argc, char **argv)
     	GaussianBlur(green, outline, Size(9, 9), 2, 2);
     	// Finds contours
     	findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
+    	
+    	//cout << contours[0].size() << endl;
 
         vector<vector<Point>> contours_poly(contours.size());
         vector<Rect> boundRect(contours.size());
@@ -457,11 +467,16 @@ int main(int argc, char **argv)
             approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
     		for (int i = 0; i < contours_poly.size(); i++)
     		{
+    			//cout << "C " << contours[c][i] << endl;
+    			//cout << "CP " << contours_poly[c][i] << endl;
+    		
+    		
         		if (argPassed)
         		{
             		Scalar red = Scalar(255, 0, 0);
             		circle(frame, contours_poly[c][i], 3, red, 10);
             		Point p = contours_poly[c][i];
+            		//cout << p << endl;
             		putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
         		}
     		}
@@ -509,6 +524,30 @@ int main(int argc, char **argv)
 
             findLeftRightTape(maxy, max2y, sortedContours, lr, correctData);
             //find2Largest(largestContour, largestContour2, c, contours);
+            
+            // Finds largest and second largest contours
+    if (largestContour == -1)
+    {
+        largestContour = c;
+        continue;
+    }
+
+    if (largestContour2 == -1)
+    {
+        largestContour2 = c;
+    }
+
+    // We have 2 contours to check
+    if (contourArea(contours[c]) > contourArea(contours[largestContour]))
+    {
+        int temp = largestContour;
+        largestContour = c;
+        largestContour2 = temp;
+    }
+    else if (contourArea(contours[c]) > contourArea(contours[largestContour2]))
+    {
+        largestContour2 = c;
+    }
 
             hasTwoRects = true;
         }
@@ -563,11 +602,11 @@ int main(int argc, char **argv)
                     cout << "Width Threshold: " << widthThreshold << endl;
                 }
 
-                findDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, finalDistInInches, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
+                finalDistInInches = findDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
 
                 if (correctData)
                 {
-                    cout << "Final Dist Inches: " << finalDistInInches << endl;
+                    //cout << "Final Dist Inches: " << finalDistInInches << endl;
                     //cout << k << ": " << boundRect[k] << endl;
                     //cout << " " << endl;
                 }
