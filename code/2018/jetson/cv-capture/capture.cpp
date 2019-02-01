@@ -134,25 +134,10 @@ float findSlope(float x1, float y1, float x2, float y2)
     return ((y2 - y1) / (x2 - x1));
 }
 
-//finding polygons
-/*void findPolygons(vector<Point> contours, vector<Point> contours_poly, Mat frame, bool argPassed)
-{
-    approxPolyDP(Mat(contours), contours_poly, 10, true);
-    for (int i = 0; i < contours_poly.size(); i++)
-    {
-        if (argPassed)
-        {
-            Scalar red = Scalar(255, 0, 0);
-            circle(frame, contours_poly[i], 3, red, 10);
-            Point p = contours_poly[i];
-            putText(frame, format("(%d, %d)", p.x, p.y), p, FONT_HERSHEY_PLAIN, 1, Scalar(0, 0, 255));
-        }
-    }
-}*/
-
 //sorting
-void sortContours(vector<vector<Point>> contourCopy, vector<vector<Point>> sortedContours)
+vector<vector<Point>> sortContours(vector<vector<Point>> contourCopy)
 {
+	vector<vector<Point>> sc(contourCopy.size());
     // Create variables & arrays necesarry for code segment below
     int element = 0;
     int index;
@@ -181,30 +166,37 @@ void sortContours(vector<vector<Point>> contourCopy, vector<vector<Point>> sorte
         }
         if (lowestValue < 641) // Will sort the contours as long as the values are appropriate
         {
-            sortedContours[element] = contourCopy[index]; // Add elements to the sorted list
+            sc[element] = contourCopy[index]; // Add elements to the sorted list
             if (DEBUG_MODE)
             {
                 // Print out sortedContours array
-                cout << "Sorted Contours: " << sortedContours[element] << endl;
+                cout << "Sorted Contours: " << sc[element] << endl;
             }
-            //cout << "Sorted Contours: " << sortedContours[element] << endl;
+            //cout << "Sorted Contours: " << sc[element] << endl;
             element++;                                      // increment the element that the next low value will be added to
             (contourCopy[index][0]).x = IMPOSSIBLE_ELEMENT; // Set valye at index of last low value to an impossibly large number
         }
     }
+    return sc;
 }
 
 //find left & right
-void findLeftRightTape(Point maxy, Point max2y, vector<vector<Point>> sortedContours, vector<bool> lr, bool correctData)
+vector<bool> findLeftRightTape(vector<vector<Point>> sortedContours, bool correctData)
 {
+// Create the 2 pts that we'll use below
+            Point maxy;
+            maxy.x = 640;
+            maxy.y = 480;
+            Point max2y;
+            max2y.x = 640;
+            max2y.y = 480;
+	vector<bool> lr(sortedContours.size());
     // Create vars for slope & if data is correct
     float slope = 0;
 
     // Find slope of each tape
     for (int a = 0; a < sortedContours.size(); a++)
     {
-        // Print cycle # of for loop
-        //cout << "A : " << a << endl;
 
         for (int b = 0; b < sortedContours[a].size(); b++)
         {
@@ -251,36 +243,8 @@ void findLeftRightTape(Point maxy, Point max2y, vector<vector<Point>> sortedCont
             correctData = false;
         }
     }
+    return lr;
 }
-
-/*
-void find2Largest(int largestContour, int largestContour2, int c, vector<vector<Point>> contours)
-{
-    // Finds largest and second largest contours
-    if (largestContour == -1)
-    {
-        largestContour = c;
-        continue;
-    }
-
-    if (largestContour2 == -1)
-    {
-        largestContour2 = c;
-    }
-
-    // We have 2 contours to check
-    if (contourArea(contours[c]) > contourArea(contours[largestContour]))
-    {
-        int temp = largestContour;
-        largestContour = c;
-        largestContour2 = temp;
-    }
-    else if (contourArea(contours[c]) > contourArea(contours[largestContour2]))
-    {
-        largestContour2 = c;
-    }
-}
-*/
 
 //find offset
 float findOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
@@ -504,7 +468,7 @@ int main(int argc, char **argv)
             }
 
             // Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
-            sortContours(contourCopy, sortedContours);
+            sortedContours = sortContours(contourCopy);
 
             if (DEBUG_MODE)
             {
@@ -512,18 +476,7 @@ int main(int argc, char **argv)
                 cout << "Finished Sorting" << endl;
             }
 
-            // Create array for left & right tapes
-            //vector<bool> lr(sortedContours.size());
-
-            // Create the 2 pts that we'll use below
-            Point maxy;
-            maxy.x = 640;
-            maxy.y = 480;
-            Point max2y;
-            max2y.x = 640;
-            max2y.y = 480;
-
-            findLeftRightTape(maxy, max2y, sortedContours, lr, correctData);
+            lr = findLeftRightTape(sortedContours, correctData);
             //find2Largest(largestContour, largestContour2, c, contours);
             
             // Finds largest and second largest contours
