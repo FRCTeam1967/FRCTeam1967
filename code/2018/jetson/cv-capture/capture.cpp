@@ -181,7 +181,7 @@ vector<vector<Point>> sortContours(vector<vector<Point>> contourCopy)
 }
 
 //find left & right
-vector<bool> findLeftRightTape(vector<vector<Point>> sortedContours, bool correctData)
+vector<bool> findLeftRightTape(vector<vector<Point>> sortedContours)
 {
 // Create the 2 pts that we'll use below
             Point maxy;
@@ -235,7 +235,8 @@ vector<bool> findLeftRightTape(vector<vector<Point>> sortedContours, bool correc
     }
 
     // Decide if left / right data is correct
-    correctData = true;
+    /*correctData = true;
+    
     for (int g = 1; g < sortedContours.size(); g += 2)
     {
         if (lr[g - 1] == lr[g])
@@ -243,7 +244,40 @@ vector<bool> findLeftRightTape(vector<vector<Point>> sortedContours, bool correc
             correctData = false;
         }
     }
+    if (lr[0] == 1)
+    {
+    	correctData = false;
+    }
+    if (lr[lr.size()] == 0)
+    {
+    	correctData = false;
+    }
+    */
     return lr;
+}
+
+bool isCorrect(vector<bool> lr, vector<vector<Point>> sortedContours)
+{
+	// Decide if left / right data is correct
+    bool cd = true;
+    
+    for (int g = 1; g < sortedContours.size(); g += 2)
+    {
+        if (lr[g - 1] == lr[g])
+        {
+            cd = false;
+        }
+    }
+    if (lr[0] == 1)
+    {
+    	cd = false;
+    }
+    if (lr[lr.size() -1] == 0)
+    {
+    	cd = false;
+    }
+    
+    return cd;
 }
 
 //find offset
@@ -476,7 +510,9 @@ int main(int argc, char **argv)
                 cout << "Finished Sorting" << endl;
             }
 
-            lr = findLeftRightTape(sortedContours, correctData);
+            lr = findLeftRightTape(sortedContours);
+            correctData = isCorrect(lr, sortedContours);
+            
             //find2Largest(largestContour, largestContour2, c, contours);
             
             // Finds largest and second largest contours
@@ -558,7 +594,8 @@ int main(int argc, char **argv)
                 }
 
                 finalDistInInches = findDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
-
+				
+				cout << "CORRECT DATA: " << correctData << endl;
                 if (correctData)
                 {
                     cout << "Final Dist Inches: " << finalDistInInches << endl;
