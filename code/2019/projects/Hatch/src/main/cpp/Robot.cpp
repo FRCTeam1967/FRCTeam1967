@@ -6,8 +6,9 @@
 #include <jankyXboxJoystick.h>
 #include "HatchIntake.h"
 
-#define LEFTPISTON 4
-#define RIGHTPISTON 4
+#define LEFT_PISTON 4
+#define RIGHT_PISTON 4
+#define CARGO_PISTON 6
 
 using namespace std;
 using namespace frc;
@@ -15,7 +16,10 @@ using namespace frc;
 class Robot : public frc::TimedRobot {
   HatchIntake*hatch;
   jankyXboxJoystick*joystick;
-  
+  Solenoid*pistonBL;
+  Solenoid*pistonBR;
+  bool buttonPressed;
+
   public:
   //constructor
   Robot()
@@ -32,9 +36,10 @@ class Robot : public frc::TimedRobot {
   
   virtual void RobotInit() override
   {
-    hatch = new HatchIntake(LEFTPISTON, RIGHTPISTON);
+    hatch = new HatchIntake(LEFT_PISTON, CARGO_PISTON);
     joystick = new jankyXboxJoystick(2);
     hatch->Start();
+    buttonPressed = false;
   }
 
   virtual void AutonomousInit() override
@@ -54,11 +59,22 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
-    if (joystick -> GetButtonB())
+    bool b = joystick -> GetButtonB();
+    bool x = joystick -> GetButtonX();
+
+    if (b)
     {
-      printf("button pressed \n");
       hatch->Go();
     }
+
+    if (x && !buttonPressed)
+    {
+      hatch->BottomPistonsOut();
+      buttonPressed = true;
+    }
+
+    else if (!x && buttonPressed)
+      buttonPressed = false;
   }
 
   virtual void TestPeriodic() override

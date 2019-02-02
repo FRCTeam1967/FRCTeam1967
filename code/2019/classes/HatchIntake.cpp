@@ -6,21 +6,26 @@
 
 using namespace frc;
 
-HatchIntake::HatchIntake(int pistonLeftChannel, int pistonRightChannel)
+HatchIntake::HatchIntake(int pistonTopChannel, int pistonBottomChannel)
 {
     actuating = false;
     fullActuationTime = 1;
     fullCycleTime = 2;
+    i = 0;
     cycleTimer.Reset();
 
-    pistonLeft = new frc::Solenoid(10, pistonLeftChannel);
-    pistonRight = new frc::Solenoid(10, pistonRightChannel);
+    pistonTopLeft = new Solenoid(10, pistonTopChannel);
+    pistonTopRight = new Solenoid(10, pistonTopChannel);
+    pistonBottomLeft = new Solenoid(10, pistonBottomChannel);
+    pistonBottomRight = new Solenoid(10, pistonBottomChannel);
 }
 
 HatchIntake::~HatchIntake()
 {
-    delete pistonLeft;
-    delete pistonRight;
+    delete pistonTopLeft;
+    delete pistonTopRight;
+    delete pistonBottomLeft;
+    delete pistonBottomRight;
 }
 
 void HatchIntake::Go()
@@ -40,17 +45,32 @@ void HatchIntake::Run()
     {
         if (cycleTimer.Get() < fullActuationTime)
         {
-            pistonLeft->Set(true);
-            pistonRight->Set(true);
+            pistonTopLeft->Set(true);
+            pistonTopRight->Set(true); 
         }
 
         else
         {
-            pistonLeft->Set(false);
-            pistonRight->Set(false);
+            pistonTopLeft->Set(false);
+            pistonTopRight->Set(false);
             cycleTimer.Stop();
             cycleTimer.Reset();
             actuating = false;
         }
+    }
+}
+
+void HatchIntake::BottomPistonsOut()
+{
+    if (pistonBottomLeft->Get()==true && pistonBottomRight->Get()==true)
+    {
+        pistonBottomLeft->Set(false);
+        pistonBottomRight->Set(false);
+    }
+
+    else if (pistonBottomLeft->Get()==false && pistonBottomRight->Get()==false)
+    {
+        pistonBottomLeft->Set(true);
+        pistonBottomRight->Set(true);
     }
 }
