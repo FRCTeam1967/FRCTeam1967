@@ -184,19 +184,19 @@ vector<vector<Point>> sortContours(vector<vector<Point>> contourCopy)
 vector<bool> findLeftRightTape(vector<vector<Point>> sortedContours)
 {
 // Create the 2 pts that we'll use below
-            Point maxy;
-            maxy.x = 640;
-            maxy.y = 480;
-            Point max2y;
-            max2y.x = 640;
-            max2y.y = 480;
-	vector<bool> lr(sortedContours.size());
+    Point maxy;
+    Point max2y;
+	vector<bool> lr;
     // Create vars for slope & if data is correct
     float slope = 0;
 
     // Find slope of each tape
     for (int a = 0; a < sortedContours.size(); a++)
     {
+    	maxy.x = 640;
+        maxy.y = 480;
+        max2y.x = 640;
+        max2y.y = 480;
 
         for (int b = 0; b < sortedContours[a].size(); b++)
         {
@@ -214,45 +214,31 @@ vector<bool> findLeftRightTape(vector<vector<Point>> sortedContours)
         }
 
         // Find slope of the tape
-        slope = findSlope(maxy.x, maxy.y, max2y.x, max2y.y);
+        slope = findSlope(maxy.x, maxy.y, max2y.x, max2y.y); //(float x1, float y1, float x2, float y2)
 
         // Print out the x & y coordinates & the slope
-        //cout << "MAX Y : (" << maxy.x << ", " << maxy.y << ") " << endl;
-        //cout << "MAX 2 Y : (" << max2y.x << ", " << max2y.y << ") " << endl;
+        
+        //cout << "A: " << a << endl;
+        //cout << "MAX Y : " << maxy << endl;
+        //cout << "MAX 2 Y : " << max2y << endl;
         //cout << "SLOPE : " << slope << endl;
-
-        if (slope < 0)
-        {
-            lr[a] = 1; //right tape
-        }
-        else
-        {
-            lr[a] = 0; //left tape
+        
+        cout << endl;
+		if(maxy != max2y)
+		{
+        	if (slope < 0)
+        	{
+            	lr.push_back(RIGHT); //right tape
+        	}
+        	else
+        	{
+            	lr.push_back(LEFT); //left tape
+        	}
         }
 
         // Print out if tape is left / right
         //cout << "LEFT OR RIGHT " << lr[a] << endl;
     }
-
-    // Decide if left / right data is correct
-    /*correctData = true;
-    
-    for (int g = 1; g < sortedContours.size(); g += 2)
-    {
-        if (lr[g - 1] == lr[g])
-        {
-            correctData = false;
-        }
-    }
-    if (lr[0] == 1)
-    {
-    	correctData = false;
-    }
-    if (lr[lr.size()] == 0)
-    {
-    	correctData = false;
-    }
-    */
     return lr;
 }
 
@@ -261,20 +247,12 @@ bool isCorrect(vector<bool> lr, vector<vector<Point>> sortedContours)
 	// Decide if left / right data is correct
     bool cd = true;
     
-    for (int g = 1; g < sortedContours.size(); g += 2)
+    for (int g = 1; g < sortedContours.size(); g ++)
     {
         if (lr[g - 1] == lr[g])
         {
             cd = false;
         }
-    }
-    if (lr[0] == 1)
-    {
-    	cd = false;
-    }
-    if (lr[lr.size() -1] == 0)
-    {
-    	cd = false;
     }
     
     return cd;
@@ -343,6 +321,7 @@ float findDist(float lengthWidth, int widthThreshold, int rectHeight, float fram
 
 int main(int argc, char **argv)
 {
+	vector<float> dists;
     //Network tables send data to the roboRIO
     /*NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
@@ -420,7 +399,7 @@ int main(int argc, char **argv)
         vector<vector<Point>> contourCopy(contours.size());
         vector<vector<Point>> sortedContours(contours.size());
         // Create array for left & right tapes
-        vector<bool> lr(sortedContours.size());
+        vector<bool> lr;
 
         bool hasTwoRects = false;
         int largestContour = -1;
@@ -509,9 +488,11 @@ int main(int argc, char **argv)
                 // Print this when done making the sorted list
                 cout << "Finished Sorting" << endl;
             }
-
-            lr = findLeftRightTape(sortedContours);
-            correctData = isCorrect(lr, sortedContours);
+            
+            //lr = findLeftRightTape(sortedContours);
+            //correctData = isCorrect(lr, sortedContours);
+            
+            //cout << "correct data: " << correctData <<endl;
             
             //find2Largest(largestContour, largestContour2, c, contours);
             
@@ -541,6 +522,8 @@ int main(int argc, char **argv)
 
             hasTwoRects = true;
         }
+        
+        lr = findLeftRightTape(sortedContours);
 
         // Finds distance only if 2 pieces of tape are detected
         if (hasTwoRects)
@@ -548,15 +531,32 @@ int main(int argc, char **argv)
             // Resets timer because calculating distance to tape again
             duration = 0;
 
-            int k = 0;
-            if (lr[0] == RIGHT)
-            {
-                k = 1;
-            }
-
+			for (int k = 0; k < lr.size(); k ++)
+			{
+				if(lr[k] == LEFT)
+				{
+					cout << "left ";
+				}
+				else
+				{
+					cout << "right ";
+				}
+			}
+			cout << endl << endl << endl;
             //cout << "start of for loop" << endl;
-            for (; k < sortedContours.size(); k += 2)
+            for (int k = 0; k < lr.size() -1; k ++)
             {
+            	if (lr[k] != LEFT)
+            	{
+            		//cout << "k - " << k << " lr[k] != LEFT" << endl;
+            		continue;
+            	}
+            	if (lr[k+1] != RIGHT)
+            	{
+            		//cout << "k - " << k << " lr[k+1] != RIGHT" << endl;
+            		continue;
+            	}
+            	
                 //cout << "K VALUE: " << k << endl;
                 // Initializes variables
                 float finalDistInInches;
@@ -594,21 +594,10 @@ int main(int argc, char **argv)
                 }
 
                 finalDistInInches = findDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
-				
-				cout << "CORRECT DATA: " << correctData << endl;
-                if (correctData)
-                {
-                    cout << "Final Dist Inches: " << finalDistInInches << endl;
-                    cout << "Offset: " << offsetInches << endl;
-                    //cout << k << ": " << boundRect[k] << endl;
-                    //cout << " " << endl;
-                }
-                else
-                {
-                    //cout << "BAD DATA" << endl;
-                    //cout << k << ": " << boundRect[k] << endl;
-                    //cout << " " << endl;
-                }
+                dists.push_back(finalDistInInches);
+                cout << "K: " << k << "  Final Dist: " << dists[k] << endl;
+                //cout << "Offset: " << offsetInches << endl;
+                //cout << k << ": " << boundRect[k] << endl;
 
                 if (DEBUG_MODE)
                 {
@@ -616,13 +605,10 @@ int main(int argc, char **argv)
                     cout << "Final Dist Inches: " << finalDistInInches << endl;
                 }
 
-                if (correctData)
-                {
-                    // Sends distance and offset to robot (through network tables)
-                    //vTable->PutNumber("Horizontal Offset", offsetInches);
-                    //vTable->PutNumber("Distance to Tape", finalDistInInches);
-                    //vTable->PutNumber("Robot Distance", robotDistance);
-                }
+                // Sends distance and offset to robot (through network tables)
+                //vTable->PutNumber("Horizontal Offset", offsetInches);
+                //vTable->PutNumber("Distance to Tape", finalDistInInches);
+                //vTable->PutNumber("Robot Distance", robotDistance);
 
                 average[counter] = finalDistInInches;
 
@@ -630,11 +616,7 @@ int main(int argc, char **argv)
 
                 if (counter == 8)
                 {
-                    lastAverage = findAverage(average);
-                    if (correctData)
-                    {
-                        //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
-                    }
+                    //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
                     counter = 0;
 
                     if (DEBUG_MODE)
@@ -661,6 +643,7 @@ int main(int argc, char **argv)
         // If not calculating distance to tape
         else
         {
+        	//cout << "no dist" << endl;
             // Start the clock if not started
             if (duration == 0)
             {
@@ -677,18 +660,14 @@ int main(int argc, char **argv)
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME)
                 {
-                    if (correctData)
-                    {
-                        //vTable->PutNumber("Distance to Tape", -1);
-                    }
+                    //vTable->PutNumber("Distance to Tape", -1);
                     if (DEBUG_MODE)
                     {
                         cout << "Averaged Distance to Tape: -1 " << endl;
                     }
-                    if (correctData)
-                    {
-                        // vTable->PutNumber("Averaged Distance to Tape", -1);
-                    }
+
+                    // vTable->PutNumber("Averaged Distance to Tape", -1);
+
                 }
                 else
                 {
