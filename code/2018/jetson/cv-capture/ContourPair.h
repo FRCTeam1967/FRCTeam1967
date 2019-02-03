@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <networktables/NetworkTable.h>
+#include "Contour.h"
 //#include <ntcore/src/networktables/NetworkTable.h>
 //#include "/home/nvidia/FRCTeam1967/code/jetson/ntcore/include/ntcore.h"
 //#include <cscore>
@@ -31,7 +32,7 @@ class ContourPair
 {
  public:
    ContourPair(Contour c1, Contour c2);
-   float getDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches);
+   float getDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist);
    float getDistFromBot();
    float getOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH);
  private:
@@ -48,6 +49,7 @@ class ContourPair
    float horizDistanceToTapeRight;
    float avgDistToTape;
    float distanceFromRobot;
+   float lengthWidth;
 
    // variables for offset calculation
    float offset;

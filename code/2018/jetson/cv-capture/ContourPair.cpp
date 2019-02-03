@@ -39,12 +39,9 @@ const float theta = 68.5 * M_PI / 360; // Degrees
 const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
 const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
-const int RIGHT = 1;
-const int LEFT = 0;
 const int NO_VALUE_TIME = 3;         // Seconds
 const bool DEBUG_MODE = false;       // Flag for whether to print out values & messages (true = prints & false = no prints)
 const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with sorting algorithm)
-int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 ContourPair::ContourPair(Contour c1, Contour c2)
 {
@@ -61,7 +58,7 @@ float ContourPair::getOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_
    return offset;
 }
 
-float ContourPair::getDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist, float offsetInches)
+float ContourPair::getDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist)
 {
    // Checks if tape's height is cut off
    if (lengthWidth < widthThreshold)
@@ -106,6 +103,6 @@ float ContourPair::getDist(float lengthWidth, int widthThreshold, int rectHeight
 
 float ContourPair::getDistFromBot()
 {
-   distanceFromRobot = distance - ROBOT_OFFSET
+   distanceFromRobot = distance - ROBOT_OFFSET;
    return distanceFromRobot;
 }

@@ -37,8 +37,6 @@ const float theta = 68.5 * M_PI / 360; // Degrees
 const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
 const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
-const int RIGHT = 1;
-const int LEFT = 0;
 const int NO_VALUE_TIME = 3;         // Seconds
 const bool DEBUG_MODE = false;       // Flag for whether to print out values & messages (true = prints & false = no prints)
 const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with sorting algorithm)
@@ -161,7 +159,7 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
             if (DEBUG_MODE)
             {
                 // Print out sortedContours array
-                cout << "Sorted Contours: " << sortedContours[element] << endl;
+                //cout << "Sorted Contours: " << sortedContours << endl;
             }
             //cout << "Sorted Contours: " << sortedContours[element] << endl;
             element++;                                   // increment the element that the next low value will be added to
@@ -372,11 +370,8 @@ int main(int argc, char **argv)
             {
                 largestContour2 = c;
             }
-
             hasTwoRects = true;
         }
-
-        lr = findLeftRightTape(sortedContours);
 
         // Finds distance only if 2 pieces of tape are detected
         if (hasTwoRects)
@@ -399,7 +394,7 @@ int main(int argc, char **argv)
                  << endl
                  << endl;
             //cout << "start of for loop" << endl;
-            for (int k = 0; k < lr.size() - 1; k++)
+            for (int k = 0; k < sortedContours.size() - 1; k++)
             {
                 if (lr[k] != LEFT)
                 {
@@ -411,6 +406,8 @@ int main(int argc, char **argv)
                     //cout << "k - " << k << " lr[k+1] != RIGHT" << endl;
                     continue;
                 }
+                ContourPair cp = ContourPair(sortedContours[k], sortedContours[k+1]);
+                contourPairs.push_back(cp);
 
                 //cout << "K VALUE: " << k << endl;
                 // Initializes variables
@@ -438,7 +435,7 @@ int main(int argc, char **argv)
                     rightRect = largestRect;
                 }
 
-                offsetInches = findOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+                cp.getOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
 
                 if (DEBUG_MODE)
                 {
@@ -447,9 +444,8 @@ int main(int argc, char **argv)
                     cout << "Width Threshold: " << widthThreshold << endl;
                 }
 
-                finalDistInInches = findDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist, offsetInches);
-                dists.push_back(finalDistInInches);
-                cout << "K: " << k << "  Final Dist: " << dists[k] << endl;
+                cp.getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
+                //cout << "K: " << k << "  Final Dist: " << dists[k] << endl;
                 //cout << "Offset: " << offsetInches << endl;
                 //cout << k << ": " << boundRect[k] << endl;
 

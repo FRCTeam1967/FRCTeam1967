@@ -27,20 +27,18 @@ using namespace cv;
 #ifndef CONTOUR_H_
 #define CONTOUR_H_
 
+enum leftOrRight{LEFT, RIGHT, NONE};
+
 class Contour
 {
  public:
-   Contour(vector<points> points);
-   enum getLeftOrRight();
+   Contour(vector<Point> points);
+   enum leftOrRight getLeftOrRight();
    void findMaxYs();
 
  private:
    vector<Point> points;
    float slope;
-   enum leftOrRight
-   {
-      LEFT, RIGHT, NONE;
-   }
    Point maxy;
    Point max2y;
 };

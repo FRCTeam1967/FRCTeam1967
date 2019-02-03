@@ -31,9 +31,10 @@ float getSlope(Point maxy, Point max2y) //float x1, float y1, float x2, float y2
     return ((maxy.y - max2y.y) / (maxy.x - max2y.x));
 }
 
-Contour::Contour(vector<points> points)
+Contour::Contour(vector<Point> points)
 {
     points = points;
+    getLeftOrRight();
 }
 
 void Contour::findMaxYs()
@@ -58,12 +59,13 @@ void Contour::findMaxYs()
     }
 }
 
-enum Contour::getLeftOrRight()
+enum leftOrRight Contour::getLeftOrRight()
 {
+	enum leftOrRight lr;
     slope = 0;
     // Find slope of the tape
     findMaxYs();
-    slope = findSlope(maxy, max2y);
+    slope = getSlope(maxy, max2y);
 
     // Print out the x & y coordinates & the slope
     //cout << "A: " << a << endl;
@@ -75,16 +77,16 @@ enum Contour::getLeftOrRight()
     {
         if (slope < 0)
         {
-            leftOrRight = RIGHT; //right tape
+            lr = RIGHT; //right tape
         }
         else if (slope > 0)
         {
-            leftOrRight = LEFT //left tape
+            lr = LEFT; //left tape
         }
         else
         {
-            leftOrRight = NONE;
+            lr = NONE;
         }
     }
-    return leftOrRight;
+    return lr;
 }

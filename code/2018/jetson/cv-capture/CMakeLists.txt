@@ -7,7 +7,7 @@ find_package(OpenCV REQUIRED)
 include_directories(${OpenCV_INCLUDE_DIRS})
 include_directories(${CMAKE_SOURCE_DIR}/../ntcore/wpiutil/include)
 
-add_executable(cv_capture capture.cpp)
+add_executable(cv_capture capture.cpp Contour.cpp ContourPair.cpp)
 
 SET(GCC_ADDITIONAL_FLAGS "-std=c++11 -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_ADDITIONAL_FLAGS}" )
