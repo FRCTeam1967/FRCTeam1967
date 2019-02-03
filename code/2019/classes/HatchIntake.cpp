@@ -14,18 +14,14 @@ HatchIntake::HatchIntake(int pistonTopChannel, int pistonBottomChannel)
     i = 0;
     cycleTimer.Reset();
 
-    pistonTopLeft = new Solenoid(10, pistonTopChannel);
-    pistonTopRight = new Solenoid(10, pistonTopChannel);
-    pistonBottomLeft = new Solenoid(10, pistonBottomChannel);
-    pistonBottomRight = new Solenoid(10, pistonBottomChannel);
+    pistonTop = new Solenoid(10, pistonTopChannel);
+    pistonBottom = new Solenoid(10, pistonBottomChannel);
 }
 
 HatchIntake::~HatchIntake()
 {
-    delete pistonTopLeft;
-    delete pistonTopRight;
-    delete pistonBottomLeft;
-    delete pistonBottomRight;
+    delete pistonTop;
+    delete pistonBottom;
 }
 
 void HatchIntake::Go()
@@ -45,14 +41,12 @@ void HatchIntake::Run()
     {
         if (cycleTimer.Get() < fullActuationTime)
         {
-            pistonTopLeft->Set(true);
-            pistonTopRight->Set(true); 
+            pistonTop->Set(true);
         }
 
         else
         {
-            pistonTopLeft->Set(false);
-            pistonTopRight->Set(false);
+            pistonTop->Set(false);
             cycleTimer.Stop();
             cycleTimer.Reset();
             actuating = false;
@@ -62,15 +56,13 @@ void HatchIntake::Run()
 
 void HatchIntake::BottomPistonsOut()
 {
-    if (pistonBottomLeft->Get()==true && pistonBottomRight->Get()==true)
+    if (pistonBottom->Get()==true)
     {
-        pistonBottomLeft->Set(false);
-        pistonBottomRight->Set(false);
+        pistonBottom->Set(false);
     }
 
-    else if (pistonBottomLeft->Get()==false && pistonBottomRight->Get()==false)
+    else if (pistonBottom->Get()==false)
     {
-        pistonBottomLeft->Set(true);
-        pistonBottomRight->Set(true);
+        pistonBottom->Set(true);
     }
 }
