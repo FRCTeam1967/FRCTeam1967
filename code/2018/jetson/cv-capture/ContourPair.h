@@ -37,7 +37,6 @@ class ContourPair
    float getOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH);
  private:
    vector<Contour> contourPair;
-   Point centerOfTapes;
    // variables for distance calculation
    float distance;
    float fovHeight;
@@ -50,7 +49,6 @@ class ContourPair
    float avgDistToTape;
    float distanceFromRobot;
    float lengthWidth;
-
    // variables for offset calculation
    float offset;
    float pixelsToInches;

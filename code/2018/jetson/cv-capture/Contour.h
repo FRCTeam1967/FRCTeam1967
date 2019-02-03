@@ -35,7 +35,6 @@ class Contour
    Contour(vector<Point> points);
    enum leftOrRight getLeftOrRight();
    void findMaxYs();
-
  private:
    vector<Point> points;
    float slope;

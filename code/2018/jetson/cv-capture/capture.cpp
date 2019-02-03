@@ -25,17 +25,9 @@ using namespace std;
 using namespace cv;
 
 // Constants
-const float ROBOT_OFFSET = 13.5;   // In inches, how far is the camera into the robot (from the edge of bumpers)
 const int MIN_AREA = 500;          // Pixels
-const float T_INCHES_HEIGHT = 5.5; // Height of tape in inches
-const float T_INCHES_WIDTH = 2;    // Width of tape in inches
-const float T_INCHES_LEFT_WIDTH = 11.75;
 const float T_INCHES_BOTH_WIDTH = 14.5;
-const int FOV_PIXELS_HEIGHT = 480;
 const int FOV_PIXELS_WIDTH = 640;
-const float theta = 68.5 * M_PI / 360; // Degrees
-const float MEASURED_HORIZ_FOV = 51.80498 * M_PI / 360;
-const float MEASURED_VERT_FOV = 38.3557 * M_PI / 360;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
 const int NO_VALUE_TIME = 3;         // Seconds
 const bool DEBUG_MODE = false;       // Flag for whether to print out values & messages (true = prints & false = no prints)
@@ -99,28 +91,10 @@ void callibrateHSV(char key)
         val[1] = 255;
         break;
     }
-    //if (DEBUG_MODE)
-    //{
     // Print out the HSV values
     cout << "hue: [" << hue[0] << ", " << hue[1] << "]" << endl;
     cout << "sat: [" << sat[0] << ", " << sat[1] << "]" << endl;
     cout << "val: [" << val[0] << ", " << val[1] << "]" << endl;
-    //}
-}
-
-float findAverage(float average[])
-{
-    // Finds average of values in an array of length 8
-    int m;
-    float sum;
-
-    sum = 0;
-    for (m = 0; m < 8; m++)
-    {
-        sum += average[m];
-    }
-
-    return sum / 8.0;
 }
 
 //sorting

@@ -15,11 +15,7 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <ctype.h>
-#include <networktables/NetworkTable.h>
 #include "Contour.h"
-//#include <ntcore/src/networktables/NetworkTable.h>
-//#include "/home/nvidia/FRCTeam1967/code/jetson/ntcore/include/ntcore.h"
-//#include <cscore>
 
 // Namespaces
 using namespace std;
@@ -68,20 +64,20 @@ enum leftOrRight Contour::getLeftOrRight()
     slope = getSlope(maxy, max2y);
 
     // Print out the x & y coordinates & the slope
-    //cout << "A: " << a << endl;
-    //cout << "MAX Y : " << maxy << endl;
-    //cout << "MAX 2 Y : " << max2y << endl;
-    //cout << "SLOPE : " << slope << endl;
+    /*cout << "A: " << a << endl;
+    cout << "MAX Y : " << maxy << endl;
+    cout << "MAX 2 Y : " << max2y << endl;
+    cout << "SLOPE : " << slope << endl;*/
 
     if (maxy != max2y)
     {
         if (slope < 0)
         {
-            lr = RIGHT; //right tape
+            lr = RIGHT;
         }
         else if (slope > 0)
         {
-            lr = LEFT; //left tape
+            lr = LEFT;
         }
         else
         {
