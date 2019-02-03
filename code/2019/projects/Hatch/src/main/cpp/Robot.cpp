@@ -6,8 +6,8 @@
 #include <jankyXboxJoystick.h>
 #include "HatchIntake.h"
 
-#define TOP_PISTON 4
-#define CARGO_PISTON 6
+#define TOP_PISTONS 6
+#define CARGO_PISTON 4
 
 using namespace std;
 using namespace frc;
@@ -33,7 +33,7 @@ class Robot : public frc::TimedRobot {
   
   virtual void RobotInit() override
   {
-    hatch = new HatchIntake(TOP_PISTON, CARGO_PISTON);
+    hatch = new HatchIntake(TOP_PISTONS, CARGO_PISTON);
     joystick = new jankyXboxJoystick(2);
     hatch->Start();
     buttonPressed = false;
