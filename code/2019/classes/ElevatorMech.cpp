@@ -50,7 +50,7 @@
 #define CARGO_SHIP_CARGO_HEIGHT 36 // one inch over edge of bay
 #define CARGO_SHIP_HATCH_HEIGHT 19
 
-// pid values - used for regulation [add later]
+// pid values - used for regulation [add later]; p - prop, i - int, d - der
 /*#define P_VAL 0.5
 #define I_VAL 0.0
 #define D_VAL 0.0*/
@@ -188,7 +188,6 @@ void ElevatorMech::SmartDashboardComments(){
 	frc::SmartDashboard::PutNumber("Amount To Move", amountToMove);
     frc::SmartDashboard::PutBoolean("Top Limit Switch Value", GetTopLimSwitch());
 	frc::SmartDashboard::PutBoolean("Bottom Limit Switch Value", GetBottomLimSwitch());
-	frc::SmartDashboard::PutNumber("Encoder Distance:", GetEncoderDistance());
 }
 
 // run + check for hatch piston status
@@ -239,10 +238,10 @@ void ElevatorMech::PutMechanismDown(){
 
 //run functions if piston not out
 void ElevatorMech::Run(){
-    SmartDashboardComments();
     GetEncoderCount();
     avgEncoderCount = ((leftEncoderCount + rightEncoderCount) / 2); //averages left and right encoders to get one uniform variable
-    amountToMove = (desiredHeight - avgEncoderCount * -1); //finds distance to travel
+    amountToMove = (desiredHeight - avgEncoderCount * -1); //finds distance to travel - return changing value by calculating it every time?
+    SmartDashboardComments();
     if (isMechanismRunning) {
         if (amountToMove > UD_HYSTERESIS_POS) {
             ElevatorMotorDown();
@@ -263,10 +262,11 @@ void ElevatorMech::Run(){
 }
 
 void ElevatorMech::ConditionalRun(){
-    if (!hatchPistonsIn){
-        Run();
+    if (hatchPistonsIn){
+        Pause();
     }
-}
+} // call in robot.cpp
+
 
 // PID setup - add if necessary
 /*void ElevatorMech::PIDSetup() {
@@ -294,7 +294,3 @@ void ElevatorMech::ConditionalRun(){
 	lMotor->Config_kI(kPIDLoopIdx, I_VAL, kTimeoutMs);
 	lMotor->Config_kD(kPIDLoopIdx, D_VAL, kTimeoutMs);*/
 //}
-
-
-
-
