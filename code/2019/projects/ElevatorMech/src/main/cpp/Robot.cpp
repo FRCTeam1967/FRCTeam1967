@@ -19,6 +19,7 @@ class Robot : public frc::TimedRobot {
   WPI_TalonSRX * rMotor;
   ElevatorMech * elevator;
   jankyXboxJoystick * joystick;
+  bool hatchPistonsIn = false;
 
   public:
   //constructor
@@ -38,25 +39,25 @@ class Robot : public frc::TimedRobot {
 
   }
   
-  virtual void RobotInit() override{
+  virtual void RobotInit() override {
     joystick = new jankyXboxJoystick(2);
     elevator = new ElevatorMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, 1, 2); //lim switch channels unknown atm
     elevator -> StartUpInit();
   }
 
-  virtual void AutonomousInit() override{
+  virtual void AutonomousInit() override {
   
   }
 
-  virtual void AutonomousPeriodic() override{
+  virtual void AutonomousPeriodic() override {
     
   }
 
-  virtual void TeleopInit() override{
+  virtual void TeleopInit() override {
 
   }
 
-  virtual void TeleopPeriodic() override{
+  virtual void TeleopPeriodic() override {
     elevator -> ConditionalRun();
     
     bool buttonB = joystick -> GetButtonB();
@@ -95,7 +96,7 @@ class Robot : public frc::TimedRobot {
     }
   }
 
-  virtual void TestPeriodic() override{
+  virtual void TestPeriodic() override {
 
   }
 
