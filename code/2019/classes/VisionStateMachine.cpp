@@ -110,9 +110,6 @@ void VisionStateMachine::StateEngine(int curState){
             }
             break;
         case DriveComplete:
-            //do i need to "release" drive so that drive team can control?
-            //go back to idle
-            //cancel if statement
             isIdle=true;
             regMode=false;
             testMode=false;
