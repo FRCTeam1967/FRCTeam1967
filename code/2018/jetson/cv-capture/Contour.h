@@ -24,19 +24,24 @@
 using namespace std;
 using namespace cv;
 
-#ifndef CONTOURCLASS_H_
-#define CONTOURCLASS_H_
+#ifndef CONTOUR_H_
+#define CONTOUR_H_
 
-class ContourClass {
+class Contour
+{
+ public:
+   Contour(vector<points> points);
+   enum getLeftOrRight();
+   void findMaxYs();
 
-public:
-float getSlope(float x1, float y1, float x2, float y2);
-enum getLeftOrRight();
-
-private:
-vector<Point> points;
-float slope;
-enum leftOrRight {LEFT, RIGHT, NONE;}
-
+ private:
+   vector<Point> points;
+   float slope;
+   enum leftOrRight
+   {
+      LEFT, RIGHT, NONE;
+   }
+   Point maxy;
+   Point max2y;
 };
 #endif
