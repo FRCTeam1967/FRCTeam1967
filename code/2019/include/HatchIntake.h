@@ -17,10 +17,8 @@ class HatchIntake: public JankyTask
         void BottomPistonsOut();
 
     private:
-        Solenoid*pistonTopLeft;
-        Solenoid*pistonTopRight;
-        Solenoid*pistonBottomLeft;
-        Solenoid*pistonBottomRight;
+        Solenoid*pistonTop;
+        Solenoid*pistonBottom;
         bool actuating;
         double fullActuationTime;
         double fullCycleTime;
