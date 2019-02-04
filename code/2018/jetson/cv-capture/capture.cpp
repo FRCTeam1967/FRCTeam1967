@@ -25,13 +25,13 @@ using namespace std;
 using namespace cv;
 
 // Constants
-const int MIN_AREA = 500;          // Pixels
+const int MIN_AREA = 500; // Pixels
 const float T_INCHES_BOTH_WIDTH = 14.5;
 const int FOV_PIXELS_WIDTH = 640;
 const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to right edge of both tapes before tape gets cut off (lengthwidth)
-const int NO_VALUE_TIME = 3;         // Seconds
-const bool DEBUG_MODE = false;       // Flag for whether to print out values & messages (true = prints & false = no prints)
-const int IMPOSSIBLE_ELEMENT = 1000; // Impossible x value (used later on with sorting algorithm)
+const int NO_VALUE_TIME = 3;             // Seconds
+const bool DEBUG_MODE = false;           // Flag for whether to print out values & messages (true = prints & false = no prints)
+const int IMPOSSIBLE_ELEMENT = 1000;     // Impossible x value (used later on with sorting algorithm)
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
@@ -39,9 +39,6 @@ double hue[] = {63, 96};
 double sat[] = {112, 255};
 double val[] = {80, 255};
 
-bool correctData = true;
-float offsetInches;
-float robotDistance;
 float lengthWidth;
 
 void changeKey(double hsv[], char key, bool plus)
@@ -100,7 +97,6 @@ void callibrateHSV(char key)
 //sorting
 void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contours)
 {
-
     // Create variables & arrays necesarry for code segment below
     int element = 0;
     int index;
@@ -115,12 +111,6 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
                 continue;
             }
 
-            if (DEBUG_MODE)
-            {
-                // Print out contours's first X coordinate
-                cout << "Contour Copy X Coordinate 1: " << (contours[b][0]).x << endl;
-            }
-
             if ((lowestValue > (contours[b][0]).x) && ((contours[b][0]).x != 1000))
             {
                 lowestValue = (contours[b][0]).x; // Set 'lowestValue' to the new low value
@@ -129,7 +119,8 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
         }
         if (lowestValue < 641) // Will sort the contours as long as the values are appropriate
         {
-            sortedContours[element] = contours[index]; // Add elements to the sorted list
+            Contour c = Contour(contours[index]);
+            sortedContours.push_back(c); // Add elements to the sorted list
             if (DEBUG_MODE)
             {
                 // Print out sortedContours array
@@ -144,9 +135,10 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
 
 int main(int argc, char **argv)
 {
+    // Initialize sortedContours & contourPairs vectors
     vector<Contour> sortedContours;
     vector<ContourPair> contourPairs;
-    
+
     //Network tables send data to the roboRIO
     /*NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
@@ -172,6 +164,9 @@ int main(int argc, char **argv)
         cerr << "Failed to open USB camera. Check that the camera is plugged into the correct port" << endl;
         return -1;
     }
+
+    sortedContours.clear();
+    contourPairs.clear();
 
     auto start = chrono::high_resolution_clock::now();
     float frames = 0;
@@ -217,16 +212,9 @@ int main(int argc, char **argv)
         // Finds contours
         findContours(outline, contours, RETR_TREE, CHAIN_APPROX_SIMPLE, Point(0, 0));
 
-        //cout << contours[0].size() << endl;
-
         vector<vector<Point>> contours_poly(contours.size());
         vector<Rect> boundRect(contours.size());
-        //vector<vector<Point>> sortedContours(contours.size());
 
-        // Create array for left & right tapes
-        vector<bool> lr;
-
-        bool hasTwoRects = false;
         int largestContour = -1;
         int largestContour2 = -1;
 
@@ -253,8 +241,6 @@ int main(int argc, char **argv)
         // Loops through each contour - does more processing if contour area is greater than MIN_AREA
         for (int c = 0; c < contours.size(); c++)
         {
-            //double currentArea = contourArea(contours[c]);
-
             if (contourArea(contours[c]) < MIN_AREA)
             {
                 continue;
@@ -294,10 +280,6 @@ int main(int argc, char **argv)
                 cout << "Contours: " << maxContour << endl;
             }
 
-            //vector<vector<Point>> contourCopy(contours.size());
-            //vector<vector<Point>> sortedContours(contours.size());
-            //contourCopy = contours_poly;
-
             if (DEBUG_MODE)
             {
                 // Print this when starting to make the sorted list
@@ -305,21 +287,13 @@ int main(int argc, char **argv)
             }
 
             // Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
-            //sortedContours = sortContours(contourCopy);
-            sortContours(sortedContours, contours);
+            sortContours(sortedContours, contours_poly);
 
             if (DEBUG_MODE)
             {
                 // Print this when done making the sorted list
                 cout << "Finished Sorting" << endl;
             }
-
-            //lr = findLeftRightTape(sortedContours);
-            //correctData = isCorrect(lr, sortedContours);
-
-            //cout << "correct data: " << correctData <<endl;
-
-            //find2Largest(largestContour, largestContour2, c, contours);
 
             // Finds largest and second largest contours
             if (largestContour == -1)
@@ -344,167 +318,140 @@ int main(int argc, char **argv)
             {
                 largestContour2 = c;
             }
-            hasTwoRects = true;
         }
 
         // Finds distance only if 2 pieces of tape are detected
-        if (hasTwoRects)
+        // if (hasTwoRects)
+        // {
+        // Resets timer because calculating distance to tape again
+        duration = 0;
+
+        for (int k = 0; k < sortedContours.size() - 1; k++)
         {
-            // Resets timer because calculating distance to tape again
-            duration = 0;
-
-            for (int k = 0; k < lr.size(); k++)
+            if (sortedContours[k].getLeftOrRight() != LEFT)
             {
-                if (lr[k] == LEFT)
-                {
-                    cout << "left ";
-                }
-                else
-                {
-                    cout << "right ";
-                }
+                continue;
             }
-            cout << endl
-                 << endl
-                 << endl;
-            //cout << "start of for loop" << endl;
-            for (int k = 0; k < sortedContours.size() - 1; k++)
+            if (sortedContours[k + 1].getLeftOrRight() != RIGHT)
             {
-                if (lr[k] != LEFT)
-                {
-                    //cout << "k - " << k << " lr[k] != LEFT" << endl;
-                    continue;
-                }
-                if (lr[k + 1] != RIGHT)
-                {
-                    //cout << "k - " << k << " lr[k+1] != RIGHT" << endl;
-                    continue;
-                }
-                ContourPair cp = ContourPair(sortedContours[k], sortedContours[k+1]);
-                contourPairs.push_back(cp);
+                continue;
+            }
+            ContourPair cp = ContourPair(sortedContours[k], sortedContours[k + 1]);
+            contourPairs.push_back(cp);
 
-                //cout << "K VALUE: " << k << endl;
-                // Initializes variables
-                float finalDistInInches;
-                int rectHeight = boundRect[k].height;
-                int rectWidth = boundRect[k].width;
+            // Initializes variables
+            float finalDistInInches;
+            int rectHeight = boundRect[k].height;
+            int rectWidth = boundRect[k].width;
+
+            if (DEBUG_MODE)
+            {
+                // Print out the height and width (in pixels)
+                cout << "Height: " << rectHeight << endl;
+                cout << "Width: " << rectWidth << endl;
+            }
+
+            Rect largestRect = boundRect[k];
+            Rect largestRect2 = boundRect[k + 1];
+            float leftCornerDist = abs(largestRect.tl().x - largestRect2.tl().x);
+            float rightCornerDist = abs(largestRect.br().x - largestRect2.br().x);
+
+            // Distinguishes left and right tape
+            Rect leftRect = largestRect, rightRect = largestRect2;
+            if (largestRect.tl().x > largestRect2.tl().x)
+            {
+                leftRect = largestRect2;
+                rightRect = largestRect;
+            }
+
+            cp.getOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+
+            if (DEBUG_MODE)
+            {
+                // Print out offset & widthThreshold
+                cout << "Width Threshold: " << widthThreshold << endl;
+            }
+
+            cp.getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
+            //cout << "K: " << k << "  Final Dist: " << dists[k] << endl;
+            //cout << k << ": " << boundRect[k] << endl;
+
+            if (DEBUG_MODE)
+            {
+                // Print out distance from edge of robot to tape
+                cout << "Final Dist Inches: " << finalDistInInches << endl;
+            }
+
+            // Sends distance and offset to robot (through network tables)
+            //vTable->PutNumber("Horizontal Offset", offsetInches);
+            //vTable->PutNumber("Distance to Tape", finalDistInInches);
+            //vTable->PutNumber("Robot Distance", robotDistance);
+
+            average[counter] = finalDistInInches;
+
+            counter++;
+
+            if (counter == 8)
+            {
+                //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
+                counter = 0;
 
                 if (DEBUG_MODE)
                 {
-                    // Print out the height and width (in pixels)
-                    cout << "Height: " << rectHeight << endl;
-                    cout << "Width: " << rectWidth << endl;
-                }
-
-                Rect largestRect = boundRect[k];
-                Rect largestRect2 = boundRect[k + 1];
-                float leftCornerDist = abs(largestRect.tl().x - largestRect2.tl().x);
-                float rightCornerDist = abs(largestRect.br().x - largestRect2.br().x);
-
-                // Distinguishes left and right tape
-                Rect leftRect = largestRect, rightRect = largestRect2;
-                if (largestRect.tl().x > largestRect2.tl().x)
-                {
-                    leftRect = largestRect2;
-                    rightRect = largestRect;
-                }
-
-                cp.getOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
-
-                if (DEBUG_MODE)
-                {
-                    // Print out offset & widthThreshold
-                    cout << "Offset: " << offsetInches << endl;
-                    cout << "Width Threshold: " << widthThreshold << endl;
-                }
-
-                cp.getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
-                //cout << "K: " << k << "  Final Dist: " << dists[k] << endl;
-                //cout << "Offset: " << offsetInches << endl;
-                //cout << k << ": " << boundRect[k] << endl;
-
-                if (DEBUG_MODE)
-                {
-                    // Print out distance from edge of robot to tape
-                    cout << "Final Dist Inches: " << finalDistInInches << endl;
-                }
-
-                // Sends distance and offset to robot (through network tables)
-                //vTable->PutNumber("Horizontal Offset", offsetInches);
-                //vTable->PutNumber("Distance to Tape", finalDistInInches);
-                //vTable->PutNumber("Robot Distance", robotDistance);
-
-                average[counter] = finalDistInInches;
-
-                counter++;
-
-                if (counter == 8)
-                {
-                    //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
-                    counter = 0;
-
-                    if (DEBUG_MODE)
-                    {
-                        // Print out avg distance to tape & offset
-                        cout << "Averaged Distance to Tape: " << lastAverage << endl;
-                        cout << "Horizontal Offset: " << offsetInches << endl;
-                        cout << " " << endl;
-                    }
-                }
-                if (DEBUG_MODE)
-                {
-                    // Printing out values
-                    cout << "Horizontal Offset: " << offsetInches << endl;
-                    cout << "rectWidth: " << rectWidth << endl;
-                    cout << "lengthWidth: " << lengthWidth << endl;
-                    cout << "Distance to Tape: " << finalDistInInches << endl;
-                    cout << "Robot Distance: " << robotDistance << endl;
-                    cout << "Average Counter: " << counter << ", Average Value: " << average[counter] << endl;
+                    // Print out avg distance to tape & offset
+                    cout << "Averaged Distance to Tape: " << lastAverage << endl;
                     cout << " " << endl;
                 }
             }
+            if (DEBUG_MODE)
+            {
+                // Printing out values
+                cout << "rectWidth: " << rectWidth << endl;
+                cout << "lengthWidth: " << lengthWidth << endl;
+                cout << "Distance to Tape: " << finalDistInInches << endl;
+                cout << "Average Counter: " << counter << ", Average Value: " << average[counter] << endl;
+                cout << " " << endl;
+            }
         }
+        // }
         // If not calculating distance to tape
+        // else
+        // {
+        //cout << "no dist" << endl;
+        // Start the clock if not started
+        if (duration == 0)
+        {
+            auto valueStart = chrono::high_resolution_clock::now();
+            duration = .001;
+        }
         else
         {
-            //cout << "no dist" << endl;
-            // Start the clock if not started
-            if (duration == 0)
+            // Calculate duration
+            auto valueEnd = chrono::high_resolution_clock::now();
+            auto valueDuration = chrono::duration_cast<chrono::milliseconds>(valueEnd - valueStart);
+            duration = valueDuration.count() * 1000;
+
+            // Send -1 to distance if time not calculating new values is more than 2 seconds
+            if (duration >= NO_VALUE_TIME)
             {
-                auto valueStart = chrono::high_resolution_clock::now();
-                duration = .001;
+                //vTable->PutNumber("Distance to Tape", -1);
+                if (DEBUG_MODE)
+                {
+                    cout << "Averaged Distance to Tape: -1 " << endl;
+                }
+
+                // vTable->PutNumber("Averaged Distance to Tape", -1);
             }
             else
             {
-                // Calculate duration
-                auto valueEnd = chrono::high_resolution_clock::now();
-                auto valueDuration = chrono::duration_cast<chrono::milliseconds>(valueEnd - valueStart);
-                duration = valueDuration.count() * 1000;
-
-                // Send -1 to distance if time not calculating new values is more than 2 seconds
-                if (duration >= NO_VALUE_TIME)
+                if (DEBUG_MODE)
                 {
-                    //vTable->PutNumber("Distance to Tape", -1);
-                    if (DEBUG_MODE)
-                    {
-                        cout << "Averaged Distance to Tape: -1 " << endl;
-                    }
-
-                    // vTable->PutNumber("Averaged Distance to Tape", -1);
+                    cout << "Averaged Distance to Tape: " << lastAverage << endl;
                 }
-                else
-                {
-                    if (DEBUG_MODE)
-                    {
-                        cout << "Averaged Distance to Tape: " << lastAverage << endl;
-                    }
-                    if (correctData)
-                    {
-                        //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
-                    }
-                }
+                //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
             }
         }
+        // }
 
         if (argPassed)
         {
@@ -519,16 +466,7 @@ int main(int argc, char **argv)
         auto end = chrono::high_resolution_clock::now();
         auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
         float fps = (frames / msec_duration.count()) * 1000;
-
-        if (DEBUG_MODE)
-        {
-            // Print out how long the cam feed has been running & the camera FPS
-            cout << "msec_duration: " << msec_duration.count() << endl;
-            cout << "frames: " << frames << " FPS: " << fps << endl;
-        }
     }
-
-    //}
 
     cap.release();
 
@@ -536,11 +474,4 @@ int main(int argc, char **argv)
     auto end = chrono::high_resolution_clock::now();
     auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
     float fps = (frames / msec_duration.count()) * 1000;
-
-    if (DEBUG_MODE)
-    {
-        // Print out how long the cam feed has been running & the camera FPS
-        cout << "msec_duration: " << msec_duration.count() << endl;
-        cout << "frames: " << frames << " FPS: " << fps << endl;
-    }
 }

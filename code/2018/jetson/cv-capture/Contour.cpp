@@ -1,6 +1,6 @@
 /*
-   ContourClass.cpp
-   @author - Maddie, Anika, Angela
+   Contour.cpp
+   @author - Maddie, Anika, Angela, Layla, Ushoshi
    @version - February 2, 2019
 */
 
@@ -21,15 +21,15 @@
 using namespace std;
 using namespace cv;
 
-float getSlope(Point maxy, Point max2y) //float x1, float y1, float x2, float y2)
+float getSlope(float x1, float y1, float x2, float y2) //float x1, float y1, float x2, float y2)
 {
     // Using two (x, y) coordinates, returns the slope of the line
-    return ((maxy.y - max2y.y) / (maxy.x - max2y.x));
+    return ((y2 - y1) / (x2 - x1));
 }
 
 Contour::Contour(vector<Point> points)
 {
-    points = points;
+    this->points = points;
     getLeftOrRight();
 }
 
@@ -59,7 +59,6 @@ enum leftOrRight Contour::getLeftOrRight()
 {
 	enum leftOrRight lr;
     slope = 0;
-    // Find slope of the tape
     findMaxYs();
     slope = getSlope(maxy, max2y);
 

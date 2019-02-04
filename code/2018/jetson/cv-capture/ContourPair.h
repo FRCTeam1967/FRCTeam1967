@@ -1,6 +1,6 @@
 /*
-   ContourPairClass.h
-   @author - Maddie, Anika, Angela
+   ContourPair.h
+   @author - Maddie, Anika, Angela, Layla, Ushoshi
    @version - February 2, 2019
 */
 
