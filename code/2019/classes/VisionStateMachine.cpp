@@ -51,10 +51,10 @@ VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS4
     SetName(DriveSegment, "Drive");
     SetName(TurnSegment, "Turn");
 
-    isIdle=true;
+    //isIdle=true;
     isCancelled=false;
-    testMode= false;
-    regMode= false;
+    //testMode= false;
+    //regMode= false;
 
     Start();
 }
@@ -67,17 +67,24 @@ VisionStateMachine::~VisionStateMachine(){
 }
 
 void VisionStateMachine::StartSequence(){
-    isIdle=false;
-    regMode=true;
+    if(GetCurrentState()==Idle){
+        NewState(AutoDrive, "Button pressed to start vision");
+    }
+    //isIdle=false; //TODO: rename
+    //regMode=true; //TODO: can change state to Autodrive here
 }
 
 void VisionStateMachine::StartSequenceTest(){
-    isIdle=false;
-    testMode=true;
+    if(GetCurrentState()==Idle){
+        NewState(DriveSegment, "testing");
+    }
+    //isIdle=false;
+    //testMode=true; // TODO: change to use !regMode
+    //TODO: can change state to DriveSegment here
 }
 
 bool VisionStateMachine::IsIdle(){
-    return isIdle;
+    return (GetCurrentState()==Idle); // TODO: return current state of state machine instead of isIdle
 }
 void VisionStateMachine::Cancel(){
     isCancelled=true;
@@ -86,15 +93,7 @@ void VisionStateMachine::Cancel(){
 void VisionStateMachine::StateEngine(int curState){
     switch (curState){
         case Idle:
-            if(!isIdle){
-                if(regMode){
-                    NewState(AutoDrive, "Button pressed to start vision");
-                }
-                else if(testMode){
-                    NewState(DriveSegment, "testing");
-                }
-            }
-            else if(isCancelled){
+            if(isCancelled){
                 isCancelled=false;
             }
             break;
@@ -105,14 +104,14 @@ void VisionStateMachine::StateEngine(int curState){
             }
             if(isCancelled){
                 visionDrive->Abort();
-                isIdle=true;
+                //isIdle=true;
                 NewState(Idle, "AutoDrive cancelled");
             }
             break;
         case DriveComplete:
-            isIdle=true;
-            regMode=false;
-            testMode=false;
+            //isIdle=true;
+            //regMode=false;
+            //testMode=false;
             NewState(Idle, "Sequence Complete");
             break;
         case DriveSegment:
@@ -121,7 +120,7 @@ void VisionStateMachine::StateEngine(int curState){
             }
             if(isCancelled){
                 driveSegment->Abort();
-                isIdle=true;
+                //isIdle=true;
                 NewState(Idle, "AutoDrive cancelled");
             }
             break;
@@ -131,7 +130,7 @@ void VisionStateMachine::StateEngine(int curState){
             }
             if(isCancelled){
                 turn->Abort();
-                isIdle=true;
+                //isIdle=true;
                 NewState(Idle, "AutoDrive cancelled");
             }
             break;
