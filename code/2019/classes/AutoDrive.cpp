@@ -9,13 +9,16 @@
 #include "frc/WPILib.h"
 #include "JankyAutoEntry.h"
 
-#define START_TIME 1 //time for camera to begin capturing
+#define START_TIME 1 //time for camera to begin capturing TODO: reduce this
 #define DISTANCE_TO_STOP_DRIVING 23 //need to change for this year
 #define VISION_DISTANCE "averaged distance to tape"
 #define VISION_OFFSET "horizontal offset"
 
 AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
+	kP=p;
+	kI=i;
+	kD=d;
 	chassis=drive;
 	_speed=speed;
 	pid = new frc::PIDController(kP,kI,kD,this,this);
@@ -56,18 +59,19 @@ bool AutoDrive::JobDone(){
 	}*/
 
 	//Handle Bad Data
-	if(visionTimer->Get()>=START_TIME){
+	if(visionTimer->Get()>=START_TIME){ 
 		printf("distance %f \n", distance);
 		printf("vision speed %f \n", _speed);
 		if(distance==-100 || distance==-1){ //0 is default value when vision doesn't send data
+			//TODO: make sure these values are bad data tht vision sends
 			badDataCounter++;
 			printf("Bad Data Count: %d \n", badDataCounter);
 		}
-		if(badDataCounter==5){
+		if(badDataCounter==5){ //TODO: add printf with reason why vision quit
 			return true;
 		}
 
-		if(distance<DISTANCE_TO_STOP_DRIVING && distance>0){
+		if(distance<DISTANCE_TO_STOP_DRIVING && distance>0){ //TODO: add printf with reason for completed drive
 			return true;
 		}
 	}
@@ -90,6 +94,7 @@ double AutoDrive::PIDGet(){
     //make sure these are the right names for what vision is sending to the dashboard
 	distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, -100); 
 	horizontalOffset=frc::SmartDashboard::GetNumber(VISION_OFFSET, -100);
+	//TODO: filter out bad data here outside of the (-100, 100) range before returning; make #defines for the range values
 	return horizontalOffset;
 }
 
