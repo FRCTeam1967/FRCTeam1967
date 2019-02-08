@@ -13,6 +13,8 @@
 #define DISTANCE_TO_STOP_DRIVING 23 //need to change for this year
 #define VISION_DISTANCE "averaged distance to tape"
 #define VISION_OFFSET "horizontal offset"
+#define HORIZONTAL_OFFSET_UPPER_BOUND 100
+#define HORIZONTAL_OFFSET_LOW_BOUND (-100)
 
 AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
@@ -34,8 +36,9 @@ AutoDrive::~AutoDrive() {
 void AutoDrive::Start(){
 	badDataCounter=0;
 	frc::SmartDashboard::PutNumber(VISION_DISTANCE, -100);
+
     //might have to be changed this year depending on vision data
-	pid->SetInputRange(-100, 100); //bounds for the horizontal offset
+	pid->SetInputRange(HORIZONTAL_OFFSET_LOW_BOUND, HORIZONTAL_OFFSET_UPPER_BOUND); //bounds for the horizontal offset
 	pid->SetOutputRange(-1.0, 1.0);
 	pid->SetSetpoint(0.0);
 	pid->Enable();
@@ -62,11 +65,14 @@ bool AutoDrive::JobDone(){
 	if(visionTimer->Get()>=START_TIME){ 
 		printf("distance %f \n", distance);
 		printf("vision speed %f \n", _speed);
-		if(distance==-100 || distance==-1){ //0 is default value when vision doesn't send data
+
+		if(distance==-100 || distance==-1){ //-1 is default value when vision has bad data
+			//^ maybe this should be distance<=-1
 			//TODO: make sure these values are bad data tht vision sends
 			badDataCounter++;
 			printf("Bad Data Count: %d \n", badDataCounter);
 		}
+		
 		if(badDataCounter==5){ //TODO: add printf with reason why vision quit
 			return true;
 		}
@@ -94,8 +100,14 @@ double AutoDrive::PIDGet(){
     //make sure these are the right names for what vision is sending to the dashboard
 	distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, -100); 
 	horizontalOffset=frc::SmartDashboard::GetNumber(VISION_OFFSET, -100);
-	//TODO: filter out bad data here outside of the (-100, 100) range before returning; make #defines for the range values
-	return horizontalOffset;
+
+	//filtering out bad horizontal offset data here outside of the (-100, 100) range before returning
+	if(horizontalOffset>HORIZONTAL_OFFSET_HIGH_BOUND || horizontalOffset<HORIZONTAL_OFFSET_LOW_BOUND){
+		return 0; //this should make the robot not turn
+	}
+	else{
+		return horizontalOffset;
+	}
 }
 
 void AutoDrive::PIDWrite(double output){
