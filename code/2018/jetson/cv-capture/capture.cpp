@@ -128,7 +128,7 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
             }
             //cout << "Sorted Contours: " << sortedContours[element] << endl;
             element++;                                   // increment the element that the next low value will be added to
-            (contours[index][0]).x = IMPOSSIBLE_ELEMENT; // Set valye at index of last low value to an impossibly large number
+            (contours[index][0]).x = IMPOSSIBLE_ELEMENT; // Set value at index of last low value to an impossibly large number
         }
     }
 }
@@ -185,6 +185,9 @@ int main(int argc, char **argv)
 
     for (;;)
     {
+    	sortedContours.clear();
+    	contourPairs.clear();
+    
         if (DEBUG_MODE)
         {
             // Print out the duration & last avg
@@ -202,7 +205,7 @@ int main(int argc, char **argv)
 
         float frameHeight = frame.size().height;
         float frameWidth = frame.size().width;
-
+        
         // Convert from brg to hsv
         cvtColor(frame, green, COLOR_BGR2HSV);
         // Filter green taperobot distance: 16.6748
@@ -217,6 +220,8 @@ int main(int argc, char **argv)
 
         int largestContour = -1;
         int largestContour2 = -1;
+        bool hasTwoRects = false;
+
 
         char key = waitKey(1);
 
@@ -318,11 +323,12 @@ int main(int argc, char **argv)
             {
                 largestContour2 = c;
             }
+            hasTwoRects = true;
         }
 
         // Finds distance only if 2 pieces of tape are detected
-        // if (hasTwoRects)
-        // {
+        if (hasTwoRects)
+        {
         // Resets timer because calculating distance to tape again
         duration = 0;
 
@@ -330,10 +336,12 @@ int main(int argc, char **argv)
         {
             if (sortedContours[k].getLeftOrRight() != LEFT)
             {
+                //cout << "continuing" << endl;
                 continue;
             }
             if (sortedContours[k + 1].getLeftOrRight() != RIGHT)
             {
+            	//cout << "continuing" << endl;
                 continue;
             }
             ContourPair cp = ContourPair(sortedContours[k], sortedContours[k + 1]);
@@ -364,17 +372,27 @@ int main(int argc, char **argv)
                 rightRect = largestRect;
             }
 
-            cp.getOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+            float of = cp.getOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
 
             if (DEBUG_MODE)
             {
                 // Print out offset & widthThreshold
                 cout << "Width Threshold: " << widthThreshold << endl;
             }
-
-            cp.getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
-            //cout << "K: " << k << "  Final Dist: " << dists[k] << endl;
-            //cout << k << ": " << boundRect[k] << endl;
+			
+			float d = cp.getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
+            
+            
+            if(!isinf(d))
+            {
+            	cout << "Offset: " << of << endl;
+            	cout << "Distance:" << d << endl;
+            	cout << endl;
+            }
+            else
+            {
+            	continue;
+            }
 
             if (DEBUG_MODE)
             {
@@ -413,11 +431,11 @@ int main(int argc, char **argv)
                 cout << " " << endl;
             }
         }
-        // }
-        // If not calculating distance to tape
-        // else
-        // {
-        //cout << "no dist" << endl;
+        }
+        //If not calculating distance to tape
+        else
+        {
+        cout << "no dist" << endl;
         // Start the clock if not started
         if (duration == 0)
         {
@@ -451,7 +469,7 @@ int main(int argc, char **argv)
                 //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
             }
         }
-        // }
+        }
 
         if (argPassed)
         {

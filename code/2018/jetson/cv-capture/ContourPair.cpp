@@ -63,6 +63,7 @@ float ContourPair::getDist(float lengthWidth, int widthThreshold, int rectHeight
       //float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
       verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
       distance = verticalDistanceToTape;
+      //distance = distanceToTape;
    }
    else
    {

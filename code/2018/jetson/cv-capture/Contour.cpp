@@ -60,11 +60,10 @@ enum leftOrRight Contour::getLeftOrRight()
 	enum leftOrRight lr;
     slope = 0;
     findMaxYs();
-    slope = getSlope(maxy, max2y);
+    slope = getSlope(maxy.x, maxy.y, max2y.x, max2y.y);
 
     // Print out the x & y coordinates & the slope
-    /*cout << "A: " << a << endl;
-    cout << "MAX Y : " << maxy << endl;
+    /*cout << "MAX Y : " << maxy << endl;
     cout << "MAX 2 Y : " << max2y << endl;
     cout << "SLOPE : " << slope << endl;*/
 
@@ -83,5 +82,7 @@ enum leftOrRight Contour::getLeftOrRight()
             lr = NONE;
         }
     }
+    
+    //cout << "LR: " << lr << endl;
     return lr;
 }
