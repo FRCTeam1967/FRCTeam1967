@@ -6,8 +6,14 @@
 #include <jankyXboxJoystick.h>
 #include "HatchIntake.h"
 
+<<<<<<< HEAD
 #define TOP_PISTONS 6
 #define CARGO_PISTON 4
+=======
+#define TOP_PISTON 4
+#define CARGO_PISTON 6
+#define HATCH_ULTRASON_CHANNEL 2
+>>>>>>> 0e277e0... - added ultrasonic sensor analog input channel to code
 
 using namespace std;
 using namespace frc;
@@ -15,6 +21,7 @@ using namespace frc;
 class Robot : public frc::TimedRobot {
   HatchIntake*hatch;
   jankyXboxJoystick*joystick;
+  AnalogInput*hatchDetector;
   bool buttonPressed;
 
   public:
@@ -23,6 +30,7 @@ class Robot : public frc::TimedRobot {
   {
     hatch = NULL;
     joystick = NULL;
+    hatchDetector = NULL;
     hatch->Start();
   }
   //deconstructor
@@ -30,12 +38,14 @@ class Robot : public frc::TimedRobot {
   {
     delete hatch;
     delete joystick;
+    delete hatchDetector;
   }
   
   virtual void RobotInit() override
   {
     hatch = new HatchIntake(TOP_PISTONS, CARGO_PISTON);
     joystick = new jankyXboxJoystick(2);
+    hatchDetector = new AnalogInput(HATCH_ULTRASON_CHANNEL);
     buttonPressed = false;
   }
 
@@ -56,8 +66,11 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
+    int hatchDistance = hatchDetector -> GetValue();
     bool b = joystick -> GetButtonB();
     bool x = joystick -> GetButtonX();
+
+    SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
 
     if (b)
     {
