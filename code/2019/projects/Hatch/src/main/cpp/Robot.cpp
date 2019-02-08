@@ -8,7 +8,7 @@
 
 #define TOP_PISTON 4
 #define CARGO_PISTON 6
-#define HATCH_ULTRASON_CHANNEL 2
+#define CARGO_MOTOR_CHANNEL 2
 
 using namespace std;
 using namespace frc;
@@ -16,7 +16,7 @@ using namespace frc;
 class Robot : public frc::TimedRobot {
   HatchIntake*hatch;
   jankyXboxJoystick*joystick;
-  AnalogInput*hatchDetector;
+  WPI_TalonSRX*cargoMotor;
   bool buttonPressed;
 
   public:
@@ -25,7 +25,7 @@ class Robot : public frc::TimedRobot {
   {
     hatch = NULL;
     joystick = NULL;
-    hatchDetector = NULL;
+    cargoMotor = NULL;
     hatch->Start();
   }
   //deconstructor
@@ -33,14 +33,14 @@ class Robot : public frc::TimedRobot {
   {
     delete hatch;
     delete joystick;
-    delete hatchDetector;
+    delete cargoMotor;
   }
   
   virtual void RobotInit() override
   {
     hatch = new HatchIntake(TOP_PISTON, CARGO_PISTON);
     joystick = new jankyXboxJoystick(2);
-    hatchDetector = new AnalogInput(HATCH_ULTRASON_CHANNEL);
+    cargoMotor = new WPI_TalonSRX(CARGO_MOTOR_CHANNEL);
     buttonPressed = false;
   }
 
@@ -56,12 +56,12 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopInit() override
   {
-
+    cargoMotor -> ConfigSelectedFeedbackSensor(Analog, 0, 0);
   }
 
   virtual void TeleopPeriodic() override
   {
-    int hatchDistance = hatchDetector -> GetValue();
+    int hatchDistance = cargoMotor->GetSensorCollection().GetAnalogIn();
     bool b = joystick -> GetButtonB();
     bool x = joystick -> GetButtonX();
 
