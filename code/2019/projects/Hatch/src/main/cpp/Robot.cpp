@@ -23,6 +23,7 @@ class Robot : public frc::TimedRobot {
   {
     hatch = NULL;
     joystick = NULL;
+    hatch->Start();
   }
   //deconstructor
   ~Robot()
@@ -35,7 +36,6 @@ class Robot : public frc::TimedRobot {
   {
     hatch = new HatchIntake(TOP_PISTONS, CARGO_PISTON);
     joystick = new jankyXboxJoystick(2);
-    hatch->Start();
     buttonPressed = false;
   }
 

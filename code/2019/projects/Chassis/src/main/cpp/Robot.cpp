@@ -7,7 +7,7 @@
 #include <frc/drive/DifferentialDrive.h>
 #include <frc/Encoder.h>
 #include <math.h>
-#include <frc/Ultrasonic.h>
+#include <frc/AnalogInput.h>
 
 #define FRONT_LEFT_MOTOR_CHANNEL 3
 #define REAR_LEFT_MOTOR_CHANNEL 2
@@ -19,8 +19,7 @@
 #define PISTON_FRONT_LEFT_CHANNEL 3
 #define PISTON_FRONT_RIGHT_CHANNEL 3
 #define PISTON_BACK_CHANNEL 5
-#define PING_CHANNEL 4
-#define ECHO_CHANNEL 6
+#define CARGO_ULTRASON_CHANNEL 3
 
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6
@@ -43,7 +42,9 @@ class Robot : public frc::TimedRobot {
   jankyDrivestick*left;
   jankyDrivestick*right;
   jankyXboxJoystick*gameJoystick;
-  Ultrasonic*distSensor;
+  AnalogInput*distSensor;
+  int i, m;
+  bool ypressed, apressed;
 
   public:
   Robot()
@@ -97,9 +98,14 @@ class Robot : public frc::TimedRobot {
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
     gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
-    distSensor = new Ultrasonic(PING_CHANNEL, ECHO_CHANNEL);
+    distSensor = new AnalogInput(CARGO_ULTRASON_CHANNEL);
 
     drive -> SetSafetyEnabled(false);
+
+    i = 0;
+    m = 0;
+    ypressed=false;
+    apressed=false;
   }
 
   virtual void AutonomousInit() override
@@ -124,16 +130,13 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
-    int i = 0;
-    int m = 0;
-    
     drive->TankDrive(-left->GetY(), -right->GetY());
     
     double leftEncoderCount = -(flmotor->GetSensorCollection().GetQuadraturePosition());
     double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
     double rightEncoderCount = frmotor->GetSensorCollection().GetQuadraturePosition();
     double rightEncoderDistance = (rightEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
-    double distance = distSensor->GetRangeInches();
+    int distance = distSensor->GetValue();
     SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
     SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
     SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
@@ -143,37 +146,39 @@ class Robot : public frc::TimedRobot {
     bool buttonY = gameJoystick -> GetButtonY();
     bool buttonA = gameJoystick -> GetButtonA();
 
-    if (buttonY)
+    if (buttonY && ypressed==false)
     {
-      if (i==0)
-      {
-        frpiston -> Set(true);
-        flpiston -> Set(true);
-        i++;
-      }
-
-      if (i==1)
+      if(frpiston->Get()==true && flpiston->Get()==true)
       {
         frpiston -> Set(false);
         flpiston -> Set(false);
-        i--;
       }
+
+      else
+      {
+        frpiston -> Set(true);
+        frpiston -> Set(true);
+      }
+
+      ypressed=true;
     }
 
-    if (buttonA)
+    else if (!buttonY && ypressed==true)
+      ypressed=false;
+
+    if (buttonA && apressed==false)
     {
-      if (m==0)
-      {
+      if(bpiston->Get()==true)
+        bipston -> Set(false);
+      
+      else
         bpiston -> Set(true);
-        m++;
-      }
- 
-      if (m==1)
-      {
-        bpiston -> Set(false);
-        m--;
-      }
+      
+      apressed=true;
     }
+ 
+    if (!buttonA && apressed==true)
+      apressed=false;
   }
 
   virtual void TestPeriodic() override
