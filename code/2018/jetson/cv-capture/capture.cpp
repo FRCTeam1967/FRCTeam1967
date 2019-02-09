@@ -40,6 +40,8 @@ double sat[] = {112, 255};
 double val[] = {80, 255};
 
 float lengthWidth;
+float d;
+float of;
 
 void changeKey(double hsv[], char key, bool plus)
 {
@@ -140,10 +142,10 @@ int main(int argc, char **argv)
     vector<ContourPair> contourPairs;
 
     //Network tables send data to the roboRIO
-    /*NetworkTable::SetTeam(1967); //set team number
+    NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
     NetworkTable::Initialize();
-    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");*/
+    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 
     // Checks if argument passed
     bool argPassed = true;
@@ -221,6 +223,8 @@ int main(int argc, char **argv)
         int largestContour = -1;
         int largestContour2 = -1;
         bool hasTwoRects = false;
+        of = 0;
+        d = 0;
 
 
         char key = waitKey(1);
@@ -344,6 +348,7 @@ int main(int argc, char **argv)
             	//cout << "continuing" << endl;
                 continue;
             }
+            
             ContourPair cp = ContourPair(sortedContours[k], sortedContours[k + 1]);
             contourPairs.push_back(cp);
 
@@ -371,8 +376,10 @@ int main(int argc, char **argv)
                 leftRect = largestRect2;
                 rightRect = largestRect;
             }
-
-            float of = cp.getOffset(leftRect, rightRect, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+			
+            of = contourPairs[contourPairs.size() - 1].getOffset(leftRect.tl().x, rightRect.tl().x, rightRect.width, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+            
+            //(float lRectTlX, float rRectTlX, float rRectWidth, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
 
             if (DEBUG_MODE)
             {
@@ -380,7 +387,7 @@ int main(int argc, char **argv)
                 cout << "Width Threshold: " << widthThreshold << endl;
             }
 			
-			float d = cp.getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
+			d = contourPairs[contourPairs.size() - 1].getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
             
             
             if(!isinf(d))
@@ -431,6 +438,22 @@ int main(int argc, char **argv)
                 cout << " " << endl;
             }
         }
+        //Send Offset & distance to Smart Dashboard
+        float smallestOffset = fabs(contourPairs[0].returnOffset());
+        float distToSend = contourPairs[0].returnDist();
+        int indexOfOffset = 0;
+        
+        for (int a; a<contourPairs.size(); a++)
+        {
+        	if (fabs(smallestOffset)>fabs(contourPairs[a].returnOffset()))
+        	{
+        		smallestOffset = fabs(contourPairs[a].returnOffset());
+        		distToSend = contourPairs[a].returnDist();
+        	}
+        }
+        vTable->PutNumber("Offset", smallestOffset);
+        vTable->PutNumber("Distance", distToSend);
+        
         }
         //If not calculating distance to tape
         else
@@ -470,6 +493,7 @@ int main(int argc, char **argv)
             }
         }
         }
+		
 
         if (argPassed)
         {

@@ -40,14 +40,24 @@ ContourPair::ContourPair(Contour c1, Contour c2)
    contourPair = {c1, c2};
 }
 
-float ContourPair::getOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
+float ContourPair::getOffset(float lRectTlX, float rRectTlX, float rRectWidth, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
 {
-   lengthWidth = rightRect.tl().x + rightRect.width - leftRect.tl().x; // length from left edge of left tape to right edge of right tape
+   lengthWidth = rRectTlX + rRectWidth - lRectTlX; // length from left edge of left tape to right edge of right tape
    pixelsToInches = T_INCHES_BOTH_WIDTH / lengthWidth;
-   tapeCenter = leftRect.tl().x + lengthWidth / 2;
+   tapeCenter = lRectTlX + lengthWidth / 2;
    localOffset = (FOV_PIXELS_WIDTH / 2) - tapeCenter;
    offset = localOffset * pixelsToInches;
    return offset;
+}
+
+float ContourPair::returnOffset()
+{
+	return offset;
+}
+
+float ContourPair::returnDist()
+{
+	return distance;
 }
 
 float ContourPair::getDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist)

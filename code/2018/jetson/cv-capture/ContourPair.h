@@ -34,7 +34,9 @@ class ContourPair
    ContourPair(Contour c1, Contour c2);
    float getDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist);
    float getDistFromBot();
-   float getOffset(Rect leftRect, Rect rightRect, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH);
+   float getOffset(float lRectTlX, float rRectTlX, float rRectWidth, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH);
+   float returnOffset();
+   float returnDist();
  private:
    vector<Contour> contourPair;
    // variables for distance calculation
