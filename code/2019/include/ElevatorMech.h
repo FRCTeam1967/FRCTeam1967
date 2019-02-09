@@ -41,7 +41,7 @@ public:
         bool GetIfMechIsRunning(); 
         void StartUpInit();
 
-        double GetEncoderCount(); 
+        int GetEncoderCount(); 
         double GetEncoderDistance(); 
 
         void ElevatorMotorUp(); 
@@ -63,15 +63,16 @@ private:
         bool reachedMaxHeight;
         bool reachedMinHeight;
         bool needsToPutDownMechanism; 
-        double leftEncoderCount;
-        double rightEncoderCount;
+        int leftEncoderCount;
+        int rightEncoderCount;
         double leftEncoderDistance;
         double rightEncoderDistance;
-        double avgEncoderCount;
+        double avgEncoderDistance;
         bool bottomLimSwitchHasNotBeenPressed;
         bool topLimSwitchHasNotBeenPressed;
         bool done;
         bool hatchPistonsIn;
+        string setHeight;
 
 
 
@@ -80,4 +81,3 @@ private:
         frc::DigitalInput * bottomLimSwitch;
         frc::DigitalInput * topLimSwitch;
 };
-

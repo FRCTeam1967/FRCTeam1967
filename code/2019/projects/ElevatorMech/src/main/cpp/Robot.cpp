@@ -10,8 +10,8 @@
 #include "jankyTask.h"
 #include "ElevatorMech.h"
 
-#define L_MOTOR_CHANNEL 6
-#define R_MOTOR_CHANNEL 1
+#define L_MOTOR_CHANNEL 6 // 2 on realbot
+#define R_MOTOR_CHANNEL 1 //4 on realbot
 #define GAME_JOYSTICK_CHANNEL 2
 
 class Robot : public frc::TimedRobot {
@@ -53,47 +53,77 @@ class Robot : public frc::TimedRobot {
     
   }
 
-  virtual void TeleopInit() override {
+  virtual void TeleopInit() override {    
 
   }
 
   virtual void TeleopPeriodic() override {
-    elevator -> ConditionalRun();
-    
     bool buttonB = joystick -> GetButtonB();
-    if (buttonB){
-      elevator -> RocketLowCargoHeight();
+    bool buttonA = joystick -> GetButtonA();
+    bool buttonY = joystick -> GetButtonY(); 
+    bool buttonX = joystick -> GetButtonX();
+    bool buttonLB = joystick -> GetButtonLB();
+    //bool buttonStart = joystick -> GetButtonStart();
+    bool buttonRB = joystick -> GetButtonRB();
+    //float rightVal = joystick -> GetRightYAxis();
+    //bool buttonBack = joystick -> GetButtonBack();
+
+    //elevator -> Run();
+
+   /*if (rightVal > 0.2){
+      elevator -> ElevatorMotorUp();
+    }
+    else if (rightVal < -0.2){
+      elevator -> ElevatorMotorDown();
+    }*/
+
+
+
+
+
+    if (buttonA){
+      elevator -> ElevatorMotorUp();
+    }
+    else if (buttonB){
+      elevator -> ElevatorMotorDown();
+    }
+    else {
+      elevator -> ElevatorMotorStop();
     }
 
-    bool buttonA = joystick -> GetButtonA();
-    if (buttonA){
+
+    if (buttonX){
       elevator -> ShipCargoHeight();
     }
 
-    bool buttonY = joystick -> GetButtonY(); 
-    if (buttonY){
-      elevator -> RocketHighCargoHeight();
+    else if (buttonY){
+      elevator -> RocketMedCargoHeight();
     }
 
-    bool buttonX = joystick -> GetButtonX();
-    if (buttonX){
+    /*else if (buttonLB){
       elevator -> GroundHeight();
-    }
+    }*/
 
-    bool buttonLB = joystick -> GetButtonLB();
-    if (buttonLB){
-      elevator -> RocketLowHatchHeight();
-    }
-
-    bool buttonStart = joystick -> GetButtonStart();
-    if (buttonStart){
-      elevator -> HPHeight();
-    }
-
-    bool buttonRB = joystick -> GetButtonRB();
     if (buttonRB){
-      elevator -> RocketHighHatchHeight();
+      elevator -> ElevatorMotorStop();
     }
+
+
+    /*else if (buttonX){
+      elevator -> GroundHeight();
+    }*/
+
+    /*if (button){
+      elevator -> HPHeight();
+    }*/
+
+    /*if (buttonY){
+      elevator -> ElevatorMotorStop();
+    }*/
+
+    /*else if (buttonRB){
+      elevator -> ElevatorMotorStop();
+    }*/
   }
 
   virtual void TestPeriodic() override {
