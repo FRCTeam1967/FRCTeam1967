@@ -8,10 +8,15 @@
 #include "jankyDrivestick.h"
 #include "jankyXboxJoystick.h"
 
+//Motors
+// 4 = left elevator
+//2 = right elevator
 #define FRONT_LEFT_MOTOR_CHANNEL 3
-#define REAR_LEFT_MOTOR_CHANNEL 2
+#define REAR_LEFT_MOTOR_CHANNEL 1
 #define FRONT_RIGHT_MOTOR_CHANNEL 5
-#define REAR_RIGHT_MOTOR_CHANNEL 4
+#define REAR_RIGHT_MOTOR_CHANNEL 0
+
+//Joysticks
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
 #define XBOX_CONTROLLER 2
