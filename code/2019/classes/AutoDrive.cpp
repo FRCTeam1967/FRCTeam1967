@@ -15,6 +15,8 @@
 #define VISION_OFFSET "horizontal offset"
 #define HORIZONTAL_OFFSET_UPPER_BOUND 100
 #define HORIZONTAL_OFFSET_LOW_BOUND (-100)
+#define MAX_BAD_DATA 5
+#define BAD_DATA_DEFAULT (-1)
 
 AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
@@ -66,18 +68,19 @@ bool AutoDrive::JobDone(){
 		printf("distance %f \n", distance);
 		printf("vision speed %f \n", _speed);
 
-		if(distance==-100 || distance==-1){ //-1 is default value when vision has bad data
-			//^ maybe this should be distance<=-1
-			//TODO: make sure these values are bad data tht vision sends
+		if(distance==BAD_DATA_DEFAULT){ //this is default value when vision is unable to detect the tape
 			badDataCounter++;
 			printf("Bad Data Count: %d \n", badDataCounter);
 		}
+		//TODO: add more bad data cases (ex. if distance is negative or infinite)
 		
-		if(badDataCounter==5){ //TODO: add printf with reason why vision quit
+		if(badDataCounter>=MAX_BAD_DATA){
+			printf("AutoDrive exited because unable to detect the tape \n");
 			return true;
 		}
 
-		if(distance<DISTANCE_TO_STOP_DRIVING && distance>0){ //TODO: add printf with reason for completed drive
+		if(distance<DISTANCE_TO_STOP_DRIVING && distance>0){
+			printf("AutoDrive complete! Distance reached! \n");
 			return true;
 		}
 	}
@@ -97,12 +100,12 @@ void AutoDrive::End(){
 }
 
 double AutoDrive::PIDGet(){
-    //make sure these are the right names for what vision is sending to the dashboard
+    //TODO: make sure these are the right names for what vision is sending to the dashboard
 	distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, -100); 
 	horizontalOffset=frc::SmartDashboard::GetNumber(VISION_OFFSET, -100);
 
 	//filtering out bad horizontal offset data here outside of the (-100, 100) range before returning
-	if(horizontalOffset>HORIZONTAL_OFFSET_HIGH_BOUND || horizontalOffset<HORIZONTAL_OFFSET_LOW_BOUND){
+	if(horizontalOffset>HORIZONTAL_OFFSET_UPPER_BOUND || horizontalOffset<HORIZONTAL_OFFSET_LOW_BOUND){
 		return 0; //this should make the robot not turn
 	}
 	else{
