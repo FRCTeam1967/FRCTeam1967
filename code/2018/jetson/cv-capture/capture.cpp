@@ -35,9 +35,9 @@ const int IMPOSSIBLE_ELEMENT = 1000;     // Impossible x value (used later on wi
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
-double hue[] = {63, 96};
-double sat[] = {112, 255};
-double val[] = {80, 255};
+double hue[] = {69, 77}; //{63, 96};
+double sat[] = {112, 255}; //{112, 255};
+double val[] = {132, 255}; //{80, 255};
 
 float lengthWidth;
 float d;
@@ -105,7 +105,7 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
     int lowestValue;
     for (int a = 0; a < contours.size(); a++) // Loops through as many times as the size of 'contours'
     {
-        lowestValue = 641;                        // Set lowest value to 1 + the maximum x value
+        lowestValue = FOV_PIXELS_WIDTH + 1;                        // Set lowest value to 1 + the maximum x value
         for (int b = 0; b < contours.size(); b++) // Loops through as many times as the size of 'contours'
         {
             if (contours[b].size() == 0) // If the array is empty, continue
@@ -119,7 +119,7 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
                 index = b;                        // Set the index to the index of the lowest value (we need this for later)
             }
         }
-        if (lowestValue < 641) // Will sort the contours as long as the values are appropriate
+        if (lowestValue < (FOV_PIXELS_WIDTH + 1)) // Will sort the contours as long as the values are appropriate
         {
             Contour c = Contour(contours[index]);
             sortedContours.push_back(c); // Add elements to the sorted list
@@ -142,10 +142,10 @@ int main(int argc, char **argv)
     vector<ContourPair> contourPairs;
 
     //Network tables send data to the roboRIO
-    NetworkTable::SetTeam(1967); //set team number
+    /*NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
     NetworkTable::Initialize();
-    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
+    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");*/
 
     // Checks if argument passed
     bool argPassed = true;
@@ -167,8 +167,8 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    sortedContours.clear();
-    contourPairs.clear();
+    //sortedContours.clear();
+    //contourPairs.clear();
 
     auto start = chrono::high_resolution_clock::now();
     float frames = 0;
@@ -451,8 +451,8 @@ int main(int argc, char **argv)
         		distToSend = contourPairs[a].returnDist();
         	}
         }
-        vTable->PutNumber("Offset", smallestOffset);
-        vTable->PutNumber("Distance", distToSend);
+        //vTable->PutNumber("Offset", smallestOffset);
+        //vTable->PutNumber("Distance", distToSend);
         
         }
         //If not calculating distance to tape
