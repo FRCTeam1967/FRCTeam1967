@@ -7,6 +7,8 @@
 #include "DifferentialTurnSegment.h"
 #include "jankyDrivestick.h"
 #include "jankyXboxJoystick.h"
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/core/core.hpp>
 
 //Motors
 // 4 = left elevator
@@ -70,8 +72,27 @@ class Robot : public frc::TimedRobot {
     delete vision;
   }
   
+  static void DriveTeamCameraThread()
+    {
+        cs::UsbCamera driveTeamCamera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
+        driveTeamCamera.SetResolution(640, 480);
+        cs::CvSink cvSink = frc::CameraServer::GetInstance()->GetVideo();
+        cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Drive Team Camera", 640, 480);
+        cv::Mat source;
+        cv::Mat output;
+        while(true) {
+            cvSink.GrabFrame(source);
+            cvtColor(source, output, cv::COLOR_BGR2GRAY);
+            outputStream.PutFrame(output);
+        }
+    }
+
   virtual void RobotInit() override
   {
+    //Run drive team camera
+    std::thread driveTeamCameraThread(DriveTeamCameraThread);
+    driveTeamCameraThread.detach();
+
     flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
