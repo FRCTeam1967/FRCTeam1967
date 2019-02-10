@@ -17,7 +17,7 @@
 #include "Contour.h"
 #include "ContourPair.h"
 //#include <ntcore/src/networktables/NetworkTable.h>
-//#include "/home/nvidia/FRCTeam1967/code/jetson/ntcore/include/ntcore.h"
+#include "/home/nvidia/FRCTeam1967/code/2018/jetson/ntcore/include/ntcore.h"
 //#include <cscore>
 
 // Namespaces
@@ -32,15 +32,14 @@ const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to r
 const int NO_VALUE_TIME = 3;             // Seconds
 const int IMPOSSIBLE_ELEMENT = 1000;     // Impossible x value (used later on with sorting algorithm)
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
+float smallestOffset;
+float distToSend;
+float indexOfOffset;
 
 // Set our HSV values
 double hue[] = {69, 77};   //{63, 96};
 double sat[] = {112, 255}; //{112, 255};
 double val[] = {132, 255}; //{80, 255};
-
-float lengthWidth;
-float d;
-float of;
 
 void changeKey(double hsv[], char key, bool plus)
 {
@@ -136,10 +135,10 @@ int main(int argc, char **argv)
     vector<ContourPair> contourPairs;
 
     //Network tables send data to the roboRIO
-    /*NetworkTable::SetTeam(1967); //set team number
+    NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
     NetworkTable::Initialize();
-    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");*/
+    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 
     // Checks if argument passed
     bool argPassed = true;
@@ -198,9 +197,6 @@ int main(int argc, char **argv)
         int largestContour = -1;
         int largestContour2 = -1;
         bool hasTwoRects = false;
-        of = 0;
-        d = 0;
-
         char key = waitKey(1);
 
         if (key == ' ')
@@ -307,8 +303,6 @@ int main(int argc, char **argv)
                     continue;
                 }
 
-                cout << "SortedContours Size: " << sortedContours.size() << endl;
-
                 ContourPair cp = ContourPair(sortedContours[k], sortedContours[k + 1]);
                 contourPairs.push_back(cp);
 
@@ -330,26 +324,8 @@ int main(int argc, char **argv)
                     rightRect = largestRect;
                 }
 
-                of = contourPairs[contourPairs.size() - 1].getOffset(leftRect.tl().x, rightRect.tl().x, rightRect.width, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
-                d = contourPairs[contourPairs.size() - 1].getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
-
-                if (!isinf(d))
-                {
-                    cout << "Left Tape Index: " << k << endl;
-                    cout << "Right Tape Index: " << (k + 1) << endl;
-                    cout << "Offset: " << of << endl;
-                    cout << "Distance:" << d << endl;
-                    cout << endl;
-                }
-                else
-                {
-                    continue;
-                }
-
-                // Sends distance and offset to robot (through network tables)
-                //vTable->PutNumber("Horizontal Offset", offsetInches);
-                //vTable->PutNumber("Distance to Tape", finalDistInInches);
-                //vTable->PutNumber("Robot Distance", robotDistance);
+                contourPairs[contourPairs.size() - 1].getOffset(leftRect.tl().x, rightRect.tl().x, rightRect.width, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+                contourPairs[contourPairs.size() - 1].getDist(widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
 
                 average[counter] = finalDistInInches;
 
@@ -360,21 +336,40 @@ int main(int argc, char **argv)
                     counter = 0;
                 }
             }
+            
             //Send Offset & distance to Smart Dashboard
-            float smallestOffset = fabs(contourPairs[0].returnOffset());
-            float distToSend = contourPairs[0].returnDist();
-            int indexOfOffset = 0;
-
-            for (int a; a < contourPairs.size(); a++)
+            if(contourPairs.size() > 0)
+            {
+            	smallestOffset = fabs(contourPairs[0].returnOffset());
+            	distToSend = contourPairs[0].returnDist();
+            	indexOfOffset = 0;
+			}
+			
+            for (int a = 0; a < contourPairs.size(); a++)
             {
                 if (fabs(smallestOffset) > fabs(contourPairs[a].returnOffset()))
                 {
+                	indexOfOffset = a;
                     smallestOffset = fabs(contourPairs[a].returnOffset());
                     distToSend = contourPairs[a].returnDist();
                 }
             }
-            //vTable->PutNumber("Offset", smallestOffset);
-            //vTable->PutNumber("Distance", distToSend);
+            
+            //Print out distances & offsets
+            for(int b = 0; b < contourPairs.size(); b++)
+            {
+            	cout << "Distance of " << b << ": " << contourPairs[b].returnDist() << endl;
+     			cout << "Offset of " << b << ": " << contourPairs[b].returnOffset() << endl;       		
+            }
+            cout << "Smallest offset (Target # " << indexOfOffset << "): " << smallestOffset << endl;
+     		cout << "Distance to send (Target # " << indexOfOffset << "): " << smallestOffset << endl;
+     		cout << endl;
+            if(!isinf(distToSend))
+            {
+            	//Send data to smart dashboard
+            	vTable->PutNumber("Offset", smallestOffset);
+            	vTable->PutNumber("Distance to Tape", distToSend);
+            }
         }
         //If not calculating distance to tape
         else
@@ -396,8 +391,8 @@ int main(int argc, char **argv)
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME)
                 {
-                    //vTable->PutNumber("Distance to Tape", -1);
-                    // vTable->PutNumber("Averaged Distance to Tape", -1);
+                    vTable->PutNumber("Distance to Tape", -1);
+                    vTable->PutNumber("Averaged Distance to Tape", -1);
                 }
             }
         }

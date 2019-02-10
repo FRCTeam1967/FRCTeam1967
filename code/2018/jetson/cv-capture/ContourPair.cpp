@@ -38,6 +38,8 @@ const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to r
 ContourPair::ContourPair(Contour c1, Contour c2)
 {
    contourPair = {c1, c2};
+   offset = -1000;
+   distance = -1;
 }
 
 float ContourPair::getOffset(float lRectTlX, float rRectTlX, float rRectWidth, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
@@ -60,7 +62,7 @@ float ContourPair::returnDist()
 	return distance;
 }
 
-float ContourPair::getDist(float lengthWidth, int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist)
+float ContourPair::getDist(int widthThreshold, int rectHeight, float frameHeight, float frameWidth, int rectWidth, float leftCornerDist, float rightCornerDist)
 {
    // Checks if tape's height is cut off
    if (lengthWidth < widthThreshold)
@@ -70,10 +72,10 @@ float ContourPair::getDist(float lengthWidth, int widthThreshold, int rectHeight
       fovHeight = FOV_PIXELS_HEIGHT * T_INCHES_HEIGHT / rectHeight;
       fovWidth = fovHeight * frameWidth / frameHeight;
       fovDiagonal = sqrt(pow(fovHeight, 2) + pow(fovWidth, 2));
-      //float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
-      verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
-      distance = verticalDistanceToTape;
-      //distance = distanceToTape;
+      float distanceToTape = fovDiagonal / (2 * tan(theta / 1.15));
+      //verticalDistanceToTape = fovHeight / (2 * tan(MEASURED_VERT_FOV));
+      //distance = verticalDistanceToTape;
+      distance = distanceToTape;
    }
    else
    {
