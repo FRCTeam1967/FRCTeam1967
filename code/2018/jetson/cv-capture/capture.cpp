@@ -32,13 +32,14 @@ const int DEFAULT_WIDTH_THRESHOLD = 100; // Number of pixels from left edge to r
 const int NO_VALUE_TIME = 3;             // Seconds
 const int IMPOSSIBLE_ELEMENT = 1000;     // Impossible x value (used later on with sorting algorithm)
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
+float smallestOffset;
+float distToSend;
+float indexOfOffset;
 
 // Set our HSV values
 double hue[] = {69, 77};   //{63, 96};
 double sat[] = {112, 255}; //{112, 255};
 double val[] = {132, 255}; //{80, 255};
-
-float lengthWidth;
 
 void changeKey(double hsv[], char key, bool plus)
 {
@@ -324,7 +325,7 @@ int main(int argc, char **argv)
                 }
 
                 contourPairs[contourPairs.size() - 1].getOffset(leftRect.tl().x, rightRect.tl().x, rightRect.width, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
-                contourPairs[contourPairs.size() - 1].getDist(lengthWidth, widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
+                contourPairs[contourPairs.size() - 1].getDist(widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
 
                 average[counter] = finalDistInInches;
 
@@ -337,10 +338,13 @@ int main(int argc, char **argv)
             }
             
             //Send Offset & distance to Smart Dashboard
-            float smallestOffset = fabs(contourPairs[0].returnOffset());
-            float distToSend = contourPairs[0].returnDist();
-            int indexOfOffset = 0;
-
+            if(contourPairs.size() > 0)
+            {
+            	smallestOffset = fabs(contourPairs[0].returnOffset());
+            	distToSend = contourPairs[0].returnDist();
+            	indexOfOffset = 0;
+			}
+			
             for (int a = 0; a < contourPairs.size(); a++)
             {
                 if (fabs(smallestOffset) > fabs(contourPairs[a].returnOffset()))
