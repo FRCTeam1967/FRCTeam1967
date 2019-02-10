@@ -103,6 +103,9 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
     int element = 0;
     int index;
     int lowestValue;
+    
+    cout << "Contours size: " << contours.size() << endl;
+    
     for (int a = 0; a < contours.size(); a++) // Loops through as many times as the size of 'contours'
     {
         lowestValue = FOV_PIXELS_WIDTH + 1;                        // Set lowest value to 1 + the maximum x value
@@ -189,6 +192,7 @@ int main(int argc, char **argv)
     {
     	sortedContours.clear();
     	contourPairs.clear();
+    	cout << "Size after clear: " << sortedContours.size() << endl;
     
         if (DEBUG_MODE)
         {
@@ -295,15 +299,6 @@ int main(int argc, char **argv)
                 cout << "Started Sorting" << endl;
             }
 
-            // Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
-            sortContours(sortedContours, contours_poly);
-
-            if (DEBUG_MODE)
-            {
-                // Print this when done making the sorted list
-                cout << "Finished Sorting" << endl;
-            }
-
             // Finds largest and second largest contours
             if (largestContour == -1)
             {
@@ -329,13 +324,24 @@ int main(int argc, char **argv)
             }
             hasTwoRects = true;
         }
+        
+        
 
         // Finds distance only if 2 pieces of tape are detected
         if (hasTwoRects)
         {
+        	// Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
+            sortContours(sortedContours, contours_poly);
+
+            if (DEBUG_MODE)
+            {
+                // Print this when done making the sorted list
+                cout << "Finished Sorting" << endl;
+            }
+            
         // Resets timer because calculating distance to tape again
         duration = 0;
-
+		
         for (int k = 0; k < sortedContours.size() - 1; k++)
         {
             if (sortedContours[k].getLeftOrRight() != LEFT)
@@ -348,6 +354,8 @@ int main(int argc, char **argv)
             	//cout << "continuing" << endl;
                 continue;
             }
+            
+            cout << "SortedContours Size: " << sortedContours.size() << endl;
             
             ContourPair cp = ContourPair(sortedContours[k], sortedContours[k + 1]);
             contourPairs.push_back(cp);
@@ -392,6 +400,8 @@ int main(int argc, char **argv)
             
             if(!isinf(d))
             {
+            	cout << "Left Tape Index: " << k << endl;
+            	cout << "Right Tape Index: " << (k + 1) << endl;
             	cout << "Offset: " << of << endl;
             	cout << "Distance:" << d << endl;
             	cout << endl;
