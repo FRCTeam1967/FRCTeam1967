@@ -104,8 +104,6 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
     int index;
     int lowestValue;
     
-    cout << "Contours size: " << contours.size() << endl;
-    
     for (int a = 0; a < contours.size(); a++) // Loops through as many times as the size of 'contours'
     {
         lowestValue = FOV_PIXELS_WIDTH + 1;                        // Set lowest value to 1 + the maximum x value
@@ -170,19 +168,15 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    //sortedContours.clear();
-    //contourPairs.clear();
-
     auto start = chrono::high_resolution_clock::now();
     float frames = 0;
     vector<Point> maxContour;
     vector<vector<Point>> contours;
     int counter = 0;
     float average[8];
-    float lastAverage = 0;
 
     // Calibration variable
-    bool calibrateHSVOn = false;
+    bool calibrateHSVOn = false; 
 
     // Clock variables
     auto valueStart = chrono::high_resolution_clock::now();
@@ -192,21 +186,14 @@ int main(int argc, char **argv)
     {
     	sortedContours.clear();
     	contourPairs.clear();
-    	cout << "Size after clear: " << sortedContours.size() << endl;
     
         if (DEBUG_MODE)
         {
             // Print out the duration & last avg
             cout << "Duration: " << duration << endl;
-            cout << "Last Average: " << lastAverage << endl;
         }
         Mat frame, green, outline;
-        if (DEBUG_MODE)
-        {
-            // Print out the height & width
-            cout << "Height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
-            cout << "Width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
-        }
+        
         cap >> frame;
 
         float frameHeight = frame.size().height;
@@ -269,8 +256,6 @@ int main(int argc, char **argv)
             approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
             for (int i = 0; i < contours_poly[c].size(); i++)
             {
-                //cout << "C " << contours[c][i] << endl;
-                //cout << "CP " << contours_poly[c][i] << endl;
 
                 if (argPassed)
                 {
@@ -411,12 +396,6 @@ int main(int argc, char **argv)
             	continue;
             }
 
-            if (DEBUG_MODE)
-            {
-                // Print out distance from edge of robot to tape
-                cout << "Final Dist Inches: " << finalDistInInches << endl;
-            }
-
             // Sends distance and offset to robot (through network tables)
             //vTable->PutNumber("Horizontal Offset", offsetInches);
             //vTable->PutNumber("Distance to Tape", finalDistInInches);
@@ -428,16 +407,9 @@ int main(int argc, char **argv)
 
             if (counter == 8)
             {
-                //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
                 counter = 0;
-
-                if (DEBUG_MODE)
-                {
-                    // Print out avg distance to tape & offset
-                    cout << "Averaged Distance to Tape: " << lastAverage << endl;
-                    cout << " " << endl;
-                }
             }
+            
             if (DEBUG_MODE)
             {
                 // Printing out values
@@ -492,14 +464,6 @@ int main(int argc, char **argv)
                 }
 
                 // vTable->PutNumber("Averaged Distance to Tape", -1);
-            }
-            else
-            {
-                if (DEBUG_MODE)
-                {
-                    cout << "Averaged Distance to Tape: " << lastAverage << endl;
-                }
-                //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
             }
         }
         }
