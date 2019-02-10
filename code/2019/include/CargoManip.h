@@ -6,6 +6,8 @@
 #include "frc/WPILib.h"
 #include "ctre/Phoenix.h"
 #include <iostream>
+#include <frc/Encoder.h>
+#include <jankyXboxJoystick.h>
 
 #define CARGOMANIP_H_
 
@@ -16,6 +18,7 @@ public:
     bool isMechRunning;
     //virtual void Run();
 
+    void StartInit(); //starts
     void RollersIn(); // brings cargo into bot
     void RollersOut(); // pushes cargo out of bot
     void CargoMechInRobot(); // retracts up into robot 
@@ -32,6 +35,8 @@ public:
     double getEncoderCount(); 
     float GetEncoderAngle(); //returns angle movement - type uncertain??
 
+    //void ButtonVals();
+
    // void PIDSetUp(); //for PID? try for elevator!
 
 
@@ -43,7 +48,7 @@ private:
     double encoderCount;
     float encoderAngle;
 
-    WPI_VictorSPX * motorRoll;
+    WPI_TalonSRX * motorRoll;
     WPI_TalonSRX * pivotMotor;
     frc::DigitalInput * limSwitchInside;
     frc::DigitalInput * limSwitchOutside;

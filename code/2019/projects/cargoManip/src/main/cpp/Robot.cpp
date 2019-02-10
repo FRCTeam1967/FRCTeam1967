@@ -4,7 +4,7 @@
 #include "CargoManip.h"
 #include "ctre/Phoenix.h" 
 #include <math.h>
-#include <hal/Encoder.h>
+#include <frc/Encoder.h>
 #include "hal/Constants.h"
 #include <jankyXboxJoystick.h>
 
@@ -34,6 +34,7 @@ class Robot : public frc::TimedRobot {
   virtual void RobotInit() override{
     cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL, LIM_SWITCH_INSIDE_CHANNEL, LIM_SWITCH_OUTSIDE_CHANNEL); // placeholder motor/lim switch channels
     joystick = new jankyXboxJoystick(2);
+    cargomanip -> StartInit();
   }
 
   virtual void AutonomousInit() override{
@@ -49,35 +50,47 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void TeleopPeriodic() override{
-    bool buttonB = joystick -> GetButtonB();
-    if (buttonB){
-      cargomanip -> RollersIn();
-    }
+      bool buttonB = joystick -> GetButtonB();
+      bool buttonX = joystick -> GetButtonX();
+      bool buttonLB = joystick -> GetButtonLB(); 
+      bool buttonRB = joystick -> GetButtonRB();
 
-    bool buttonA = joystick -> GetButtonA();
-    if (buttonA){
+      frc::SmartDashboard::PutBoolean("Button X Pressed:", buttonX);
+      frc::SmartDashboard::PutBoolean("Button B Pressed:", buttonB);
+      frc::SmartDashboard::PutBoolean("Button RB Pressed:", buttonRB);
+      frc::SmartDashboard::PutBoolean("Button LB Pressed:", buttonLB);
+
+    if (buttonB){
       cargomanip -> RollersOut();
     }
+    else if (buttonX){
+      cargomanip -> RollersIn();
+    }
+    else {
+      cargomanip -> RollersStop();
+    }
 
-    bool buttonLB = joystick -> GetButtonLB(); // TURN MOTOR OFF 
     if (buttonLB){
       cargomanip -> CargoMechInRobot(); //rename to cargomechinrobot
     }
-
-    bool buttonRB = joystick -> GetButtonRB();
-    if (buttonRB){
+    else if (buttonRB){
       cargomanip -> CargoMechOutRobot();
     }
-
-    bool buttonX = joystick -> GetButtonX();
-    if (buttonX){
-      cargomanip -> getCargoMechPosition();
-    }
-
-    bool buttonY = joystick -> GetButtonY();
-    if (buttonY){
+    else {
       cargomanip -> CargoMechStop();
     }
+
+ 
+ 
+    /*bool buttonX = joystick -> GetButtonX();
+    if (buttonX){
+      cargomanip -> getCargoMechPosition();
+    }*/
+
+    /*bool buttonY = joystick -> GetButtonY();
+    if (buttonY){
+      cargomanip -> CargoMechStop();
+    }*/
 
     bool buttonBack = joystick -> GetButtonBack();
     if (buttonBack){
