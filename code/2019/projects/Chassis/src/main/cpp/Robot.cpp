@@ -16,8 +16,8 @@
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
 #define GC_XBOX_CHANNEL 2
-#define PISTON_FRONT_LEFT_CHANNEL 3
-#define PISTON_FRONT_RIGHT_CHANNEL 3
+#define PISTON_FRONT_LEFT_CHANNEL 4
+#define PISTON_FRONT_RIGHT_CHANNEL 4
 #define PISTON_BACK_CHANNEL 5
 #define CARGO_ULTRASON_CHANNEL 3
 
@@ -33,8 +33,7 @@ class Robot : public frc::TimedRobot {
   WPI_TalonSRX*rlmotor;
   WPI_TalonSRX*frmotor;
   WPI_TalonSRX*rrmotor;
-  Solenoid*frpiston;
-  Solenoid*flpiston;
+  Solenoid*fpiston;
   Solenoid*bpiston;
   DifferentialDrive*drive;
   SpeedControllerGroup*leftDrive;
@@ -53,8 +52,7 @@ class Robot : public frc::TimedRobot {
     rlmotor = NULL;
     frmotor = NULL;
     rrmotor = NULL;
-    frpiston = NULL;
-    flpiston = NULL;
+    fpiston = NULL;
     bpiston = NULL;
     drive = NULL;
     leftDrive = NULL;
@@ -71,8 +69,7 @@ class Robot : public frc::TimedRobot {
     delete rlmotor;
     delete frmotor;
     delete rrmotor;
-    delete frpiston;
-    delete flpiston;
+    delete fpiston;
     delete bpiston;
     delete drive;
     delete leftDrive;
@@ -89,8 +86,7 @@ class Robot : public frc::TimedRobot {
     rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
     rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
-    frpiston = new Solenoid(10, PISTON_FRONT_RIGHT_CHANNEL);
-    flpiston = new Solenoid(10, PISTON_FRONT_LEFT_CHANNEL);
+    fpiston = new Solenoid(10, PISTON_FRONT_RIGHT_CHANNEL);
     bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);
     leftDrive = new SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new SpeedControllerGroup(*frmotor, *rrmotor);
@@ -148,17 +144,11 @@ class Robot : public frc::TimedRobot {
 
     if (buttonY && ypressed==false)
     {
-      if(frpiston->Get()==true && flpiston->Get()==true)
-      {
-        frpiston -> Set(false);
-        flpiston -> Set(false);
-      }
+      if(fpiston->Get()==true)
+        fpiston -> Set(false);
 
-      else
-      {
-        frpiston -> Set(true);
-        frpiston -> Set(true);
-      }
+      else if(fpiston->Get()==false)
+        fpiston -> Set(true);
 
       ypressed=true;
     }
@@ -169,7 +159,7 @@ class Robot : public frc::TimedRobot {
     if (buttonA && apressed==false)
     {
       if(bpiston->Get()==true)
-        bipston -> Set(false);
+        bpiston -> Set(false);
       
       else
         bpiston -> Set(true);
