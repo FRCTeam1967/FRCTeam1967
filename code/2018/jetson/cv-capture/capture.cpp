@@ -17,7 +17,7 @@
 #include "Contour.h"
 #include "ContourPair.h"
 //#include <ntcore/src/networktables/NetworkTable.h>
-//#include "/home/nvidia/FRCTeam1967/code/jetson/ntcore/include/ntcore.h"
+#include "/home/nvidia/FRCTeam1967/code/2018/jetson/ntcore/include/ntcore.h"
 //#include <cscore>
 
 // Namespaces
@@ -135,10 +135,10 @@ int main(int argc, char **argv)
     vector<ContourPair> contourPairs;
 
     //Network tables send data to the roboRIO
-    /*NetworkTable::SetTeam(1967); //set team number
+    NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
     NetworkTable::Initialize();
-    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");*/
+    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 
     // Checks if argument passed
     bool argPassed = true;
@@ -367,8 +367,8 @@ int main(int argc, char **argv)
             if(!isinf(distToSend))
             {
             	//Send data to smart dashboard
-            	//vTable->PutNumber("Offset", smallestOffset);
-            	//vTable->PutNumber("Distance to Tape", distToSend);
+            	vTable->PutNumber("Offset", smallestOffset);
+            	vTable->PutNumber("Distance to Tape", distToSend);
             }
         }
         //If not calculating distance to tape
@@ -391,8 +391,8 @@ int main(int argc, char **argv)
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME)
                 {
-                    //vTable->PutNumber("Distance to Tape", -1);
-                    // vTable->PutNumber("Averaged Distance to Tape", -1);
+                    vTable->PutNumber("Distance to Tape", -1);
+                    vTable->PutNumber("Averaged Distance to Tape", -1);
                 }
             }
         }
