@@ -35,9 +35,9 @@ const int IMPOSSIBLE_ELEMENT = 1000;     // Impossible x value (used later on wi
 int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 
 // Set our HSV values
-double hue[] = {63, 96};
-double sat[] = {112, 255};
-double val[] = {80, 255};
+double hue[] = {69, 77}; //{63, 96};
+double sat[] = {112, 255}; //{112, 255};
+double val[] = {132, 255}; //{80, 255};
 
 float lengthWidth;
 float d;
@@ -103,9 +103,10 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
     int element = 0;
     int index;
     int lowestValue;
+    
     for (int a = 0; a < contours.size(); a++) // Loops through as many times as the size of 'contours'
     {
-        lowestValue = 641;                        // Set lowest value to 1 + the maximum x value
+        lowestValue = FOV_PIXELS_WIDTH + 1;                        // Set lowest value to 1 + the maximum x value
         for (int b = 0; b < contours.size(); b++) // Loops through as many times as the size of 'contours'
         {
             if (contours[b].size() == 0) // If the array is empty, continue
@@ -119,7 +120,7 @@ void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contour
                 index = b;                        // Set the index to the index of the lowest value (we need this for later)
             }
         }
-        if (lowestValue < 641) // Will sort the contours as long as the values are appropriate
+        if (lowestValue < (FOV_PIXELS_WIDTH + 1)) // Will sort the contours as long as the values are appropriate
         {
             Contour c = Contour(contours[index]);
             sortedContours.push_back(c); // Add elements to the sorted list
@@ -142,10 +143,10 @@ int main(int argc, char **argv)
     vector<ContourPair> contourPairs;
 
     //Network tables send data to the roboRIO
-    NetworkTable::SetTeam(1967); //set team number
+    /*NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
     NetworkTable::Initialize();
-    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
+    shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");*/
 
     // Checks if argument passed
     bool argPassed = true;
@@ -167,19 +168,15 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    sortedContours.clear();
-    contourPairs.clear();
-
     auto start = chrono::high_resolution_clock::now();
     float frames = 0;
     vector<Point> maxContour;
     vector<vector<Point>> contours;
     int counter = 0;
     float average[8];
-    float lastAverage = 0;
 
     // Calibration variable
-    bool calibrateHSVOn = false;
+    bool calibrateHSVOn = false; 
 
     // Clock variables
     auto valueStart = chrono::high_resolution_clock::now();
@@ -194,15 +191,9 @@ int main(int argc, char **argv)
         {
             // Print out the duration & last avg
             cout << "Duration: " << duration << endl;
-            cout << "Last Average: " << lastAverage << endl;
         }
         Mat frame, green, outline;
-        if (DEBUG_MODE)
-        {
-            // Print out the height & width
-            cout << "Height: " << cap.get(CV_CAP_PROP_FRAME_HEIGHT) << endl;
-            cout << "Width: " << cap.get(CV_CAP_PROP_FRAME_WIDTH) << endl;
-        }
+        
         cap >> frame;
 
         float frameHeight = frame.size().height;
@@ -265,8 +256,6 @@ int main(int argc, char **argv)
             approxPolyDP(Mat(contours[c]), contours_poly[c], 10, true);
             for (int i = 0; i < contours_poly[c].size(); i++)
             {
-                //cout << "C " << contours[c][i] << endl;
-                //cout << "CP " << contours_poly[c][i] << endl;
 
                 if (argPassed)
                 {
@@ -295,15 +284,6 @@ int main(int argc, char **argv)
                 cout << "Started Sorting" << endl;
             }
 
-            // Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
-            sortContours(sortedContours, contours_poly);
-
-            if (DEBUG_MODE)
-            {
-                // Print this when done making the sorted list
-                cout << "Finished Sorting" << endl;
-            }
-
             // Finds largest and second largest contours
             if (largestContour == -1)
             {
@@ -329,13 +309,24 @@ int main(int argc, char **argv)
             }
             hasTwoRects = true;
         }
+        
+        
 
         // Finds distance only if 2 pieces of tape are detected
         if (hasTwoRects)
         {
+        	// Sort through contours & create a new sorted list of them --> can use later when pairing up the tapes
+            sortContours(sortedContours, contours_poly);
+
+            if (DEBUG_MODE)
+            {
+                // Print this when done making the sorted list
+                cout << "Finished Sorting" << endl;
+            }
+            
         // Resets timer because calculating distance to tape again
         duration = 0;
-
+		
         for (int k = 0; k < sortedContours.size() - 1; k++)
         {
             if (sortedContours[k].getLeftOrRight() != LEFT)
@@ -348,6 +339,8 @@ int main(int argc, char **argv)
             	//cout << "continuing" << endl;
                 continue;
             }
+            
+            cout << "SortedContours Size: " << sortedContours.size() << endl;
             
             ContourPair cp = ContourPair(sortedContours[k], sortedContours[k + 1]);
             contourPairs.push_back(cp);
@@ -392,6 +385,8 @@ int main(int argc, char **argv)
             
             if(!isinf(d))
             {
+            	cout << "Left Tape Index: " << k << endl;
+            	cout << "Right Tape Index: " << (k + 1) << endl;
             	cout << "Offset: " << of << endl;
             	cout << "Distance:" << d << endl;
             	cout << endl;
@@ -399,12 +394,6 @@ int main(int argc, char **argv)
             else
             {
             	continue;
-            }
-
-            if (DEBUG_MODE)
-            {
-                // Print out distance from edge of robot to tape
-                cout << "Final Dist Inches: " << finalDistInInches << endl;
             }
 
             // Sends distance and offset to robot (through network tables)
@@ -418,16 +407,9 @@ int main(int argc, char **argv)
 
             if (counter == 8)
             {
-                //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
                 counter = 0;
-
-                if (DEBUG_MODE)
-                {
-                    // Print out avg distance to tape & offset
-                    cout << "Averaged Distance to Tape: " << lastAverage << endl;
-                    cout << " " << endl;
-                }
             }
+            
             if (DEBUG_MODE)
             {
                 // Printing out values
@@ -451,8 +433,8 @@ int main(int argc, char **argv)
         		distToSend = contourPairs[a].returnDist();
         	}
         }
-        vTable->PutNumber("Offset", smallestOffset);
-        vTable->PutNumber("Distance", distToSend);
+        //vTable->PutNumber("Offset", smallestOffset);
+        //vTable->PutNumber("Distance", distToSend);
         
         }
         //If not calculating distance to tape
@@ -482,14 +464,6 @@ int main(int argc, char **argv)
                 }
 
                 // vTable->PutNumber("Averaged Distance to Tape", -1);
-            }
-            else
-            {
-                if (DEBUG_MODE)
-                {
-                    cout << "Averaged Distance to Tape: " << lastAverage << endl;
-                }
-                //vTable->PutNumber("Averaged Distance to Tape", lastAverage);
             }
         }
         }
