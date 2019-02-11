@@ -13,10 +13,10 @@
 //Motors
 // 4 = left elevator
 //2 = right elevator
-#define FRONT_LEFT_MOTOR_CHANNEL 3
-#define REAR_LEFT_MOTOR_CHANNEL 1
-#define FRONT_RIGHT_MOTOR_CHANNEL 5
-#define REAR_RIGHT_MOTOR_CHANNEL 0
+#define FRONT_LEFT_MOTOR_CHANNEL 1
+#define REAR_LEFT_MOTOR_CHANNEL 2
+#define FRONT_RIGHT_MOTOR_CHANNEL 4
+#define REAR_RIGHT_MOTOR_CHANNEL 3
 
 //Joysticks
 #define LEFT_JOYSTICK_CHANNEL 0
@@ -145,6 +145,8 @@ class Robot : public frc::TimedRobot {
   virtual void TeleopPeriodic() override
   {
     drive->TankDrive(-left->GetY(), -right->GetY());
+
+    //TODO: add hatch mech, chassis lifting pistons, elevator, ultrasonic, and cargo mech code
   }
 
   virtual void TestPeriodic() override
