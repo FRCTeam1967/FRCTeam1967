@@ -24,7 +24,7 @@
 /*#define L_MOTOR_F_SPEED_2 -0.6
 #define L_MOTOR_R_SPEED_2 0.3
 #define L_MOTOR_F_SPEED_3 -0.5
-#define L_MOTOR_R_SPEED_3 0.2/*
+#define L_MOTOR_R_SPEED_3 0.2*/
 //#define R_MOTOR_F_SPEED 0.8
 //#define R_MOTOR_R_SPEED -0.9
 #define MOTOR_STOP_SPEED 0.0
@@ -68,14 +68,14 @@ bool hatchPistonsIn = false; //sets up ConditionalRun - if pistons in, class doe
 
 ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBottomChannel, int limSwitchTopChannel) {
     //motors + encoder setup (motors need to be in brake mode)
-    lMotor = new WPI_TalonSRX(lMotorChannel);
-    rMotor = new WPI_TalonSRX(rMotorChannel);
-    rMotor -> Set(ControlMode::Follower, lMotorChannel);
-	lMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	lMotor -> SetSelectedSensorPosition(0, 0, 10);
-	lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
-    rMotor -> SetSelectedSensorPosition(0, 0, 10);
-	rMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+    lmotor = new WPI_TalonSRX(lMotorChannel);
+    rmotor = new WPI_TalonSRX(rMotorChannel);
+    rmotor -> Set(ControlMode::Follower, lMotorChannel);
+	lmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	lmotor -> SetSelectedSensorPosition(0, 0, 10);
+	lmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+    rmotor -> SetSelectedSensorPosition(0, 0, 10);
+	rmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 
     //lim switches
     bottomLimSwitch = new frc::DigitalInput(limSwitchBottomChannel);
@@ -85,23 +85,23 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 }
 
 ElevatorMech::~ElevatorMech(){
-    delete lMotor;
-    delete rMotor;
+    delete lmotor;
+    delete rmotor;
     delete bottomLimSwitch;
     delete topLimSwitch;
 }
 
 //encoder functions
 void ElevatorMech::ResetEncoder(){
-	lMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	lMotor -> SetSelectedSensorPosition(0, 0, 10);
-    rMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	rMotor -> SetSelectedSensorPosition(0, 0, 10);
+	lmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	lmotor -> SetSelectedSensorPosition(0, 0, 10);
+    rmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	rmotor -> SetSelectedSensorPosition(0, 0, 10);
 }
 
 int ElevatorMech::GetEncoderCount(){
-    leftEncoderCount = -lMotor -> GetSensorCollection().GetQuadraturePosition();
-    rightEncoderCount = rMotor -> GetSensorCollection().GetQuadraturePosition();
+    leftEncoderCount = -lmotor -> GetSensorCollection().GetQuadraturePosition();
+    rightEncoderCount = rmotor -> GetSensorCollection().GetQuadraturePosition();
     frc::SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
     frc::SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
 }
@@ -117,31 +117,31 @@ double ElevatorMech::GetEncoderDistance(){
 
 //elevator motor movement functions
 void ElevatorMech::ElevatorMotorUp(){
-    lMotor -> Set(L_MOTOR_F_SPEED_1);
+    lmotor -> Set(L_MOTOR_F_SPEED_1);
 }
 
 void ElevatorMech::ElevatorMotorDown(){
-    lMotor -> Set(L_MOTOR_R_SPEED_1);
+    lmotor -> Set(L_MOTOR_R_SPEED_1);
 }
 
-void ElevatorMech::ElevatorMotorUpSpeed2(){
-    lMotor -> Set(L_MOTOR_F_SPEED_2);
+/*void ElevatorMech::ElevatorMotorUpSpeed2(){
+    lmotor -> Set(L_MOTOR_F_SPEED_2);
 }
 
 void ElevatorMech::ElevatorMotorDownSpeed2(){
-    lMotor -> Set(L_MOTOR_R_SPEED_2);
+    lmotor -> Set(L_MOTOR_R_SPEED_2);
 }
 
 void ElevatorMech::ElevatorMotorUpSpeed3(){
-    lMotor -> Set(L_MOTOR_F_SPEED_3);
+    lmotor -> Set(L_MOTOR_F_SPEED_3);
 }
 
 void ElevatorMech::ElevatorMotorDownSpeed3(){
-    lMotor -> Set(L_MOTOR_R_SPEED_3);
-}
+    lmotor -> Set(L_MOTOR_R_SPEED_3);
+}*/
 
 void ElevatorMech::ElevatorMotorStop(){
-    lMotor -> Set(MOTOR_STOP_SPEED);
+    lmotor -> Set(MOTOR_STOP_SPEED);
 }
 
 // lim switch values
@@ -234,10 +234,10 @@ void ElevatorMech::SmartDashboardComments(){
 // run + check for hatch piston status
 
 void ElevatorMech::StartUpInit(){
-    lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
-	lMotor -> SetSelectedSensorPosition(0, 0, 10);
-    rMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
-	rMotor -> SetSelectedSensorPosition(0, 0, 10);
+    lmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+	lmotor -> SetSelectedSensorPosition(0, 0, 10);
+    rmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+	rmotor -> SetSelectedSensorPosition(0, 0, 10);
     SmartDashboardComments();
     setHeight = "None";
 	isMechanismRunning = false;

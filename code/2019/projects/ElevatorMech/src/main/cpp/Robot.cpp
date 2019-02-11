@@ -10,13 +10,13 @@
 #include "jankyTask.h"
 #include "ElevatorMech.h"
 
-#define L_MOTOR_CHANNEL 6 // 2 on realbot
-#define R_MOTOR_CHANNEL 1 //4 on realbot
+#define L_MOTOR_CHANNEL 6 // 5 on realbot
+#define R_MOTOR_CHANNEL 1 //0 on realbot
 #define GAME_JOYSTICK_CHANNEL 2
 
 class Robot : public frc::TimedRobot {
-  WPI_TalonSRX * fMotor;
-  WPI_TalonSRX * rMotor;
+  WPI_TalonSRX * lmotor;
+  WPI_TalonSRX * rmotor;
   ElevatorMech * elevator;
   jankyXboxJoystick * joystick;
   bool hatchPistonsIn = false;
@@ -25,16 +25,16 @@ class Robot : public frc::TimedRobot {
   public:
   //constructor
   Robot(){
-    fMotor = NULL;
-    rMotor = NULL;
+    lmotor = NULL;
+    rmotor = NULL;
     elevator = NULL;
     joystick = NULL;
   }
 
   //deconstructor
   ~Robot(){
-    delete fMotor;
-    delete rMotor;
+    delete lmotor;
+    delete rmotor;
     delete elevator;
     delete joystick;
 

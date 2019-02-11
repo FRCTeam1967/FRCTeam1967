@@ -81,8 +81,8 @@ private:
 
 
 
-        WPI_TalonSRX * lMotor;
-        WPI_TalonSRX * rMotor;
+        WPI_TalonSRX * lmotor;
+        WPI_TalonSRX * rmotor;
         frc::DigitalInput * bottomLimSwitch;
         frc::DigitalInput * topLimSwitch;
 };
