@@ -48,7 +48,7 @@ private:
     double encoderCount;
     float encoderAngle;
 
-    WPI_TalonSRX * motorRoll;
+    WPI_VictorSPX * motorRoll;
     WPI_TalonSRX * pivotMotor;
     frc::DigitalInput * limSwitchInside;
     frc::DigitalInput * limSwitchOutside;

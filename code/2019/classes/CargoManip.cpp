@@ -9,12 +9,12 @@
 #include "ctre/Phoenix.h" 
 #include <math.h>
 #include <frc/Encoder.h>
-#include "hal/Constants.h"
+
 #include <jankyXboxJoystick.h>
 
 
-#define MOTOR_ROLL_F_SPEED -1.0            //roller intake speed
-#define MOTOR_ROLL_R_SPEED 1.0             //roller outtake speed
+#define MOTOR_ROLL_F_SPEED -1.0   //roller intake speed
+#define MOTOR_ROLL_R_SPEED 1.0   //roller outtake speed
 #define MOTOR_PIVOT_F_SPEED -0.4  //mech out of bot speed
 #define MOTOR_PIVOT_R_SPEED 0.8 //mech in bot speed
 #define MOTOR_STOP_SPEED 0.0  // stops motor
