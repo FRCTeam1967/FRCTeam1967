@@ -19,8 +19,12 @@
 #include "ElevatorMech.h"
 #include "ctre/phoenix/motorcontrol/SensorCollection.h"
 
-#define L_MOTOR_F_SPEED -0.9 //motors are switched, so forward is negative
-#define L_MOTOR_R_SPEED 0.7
+#define L_MOTOR_F_SPEED_1 -0.8 //motors are switched, so forward is negative
+#define L_MOTOR_R_SPEED_1 0.5
+/*#define L_MOTOR_F_SPEED_2 -0.6
+#define L_MOTOR_R_SPEED_2 0.3
+#define L_MOTOR_F_SPEED_3 -0.5
+#define L_MOTOR_R_SPEED_3 0.2/*
 //#define R_MOTOR_F_SPEED 0.8
 //#define R_MOTOR_R_SPEED -0.9
 #define MOTOR_STOP_SPEED 0.0
@@ -31,8 +35,12 @@
 #define SPROCKET_INCHES_PER_TOOTH 0.25 
 
 //hysteresis: wiggle room for preset height [if mech reaches within an inch of its destination, stop]
-#define UD_HYSTERESIS_POS 5.0
-#define UD_HYSTERESIS_NEG -5.0
+#define UD_HYSTERESIS_1_POS 5.0
+#define UD_HYSTERESIS_1_NEG -5.0
+/*#define UD_HYSTERESIS_2_POS 3.0
+#define UD_HYSTERESIS_2_NEG -3.0
+#define UD_HYSTERESIS_3_POS 0.5
+#define UD_HYSTERESIS_3_NEG -0.5*/
 
 #define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain - recalculate for 2019
 //1.8125 * M_PI
@@ -109,11 +117,27 @@ double ElevatorMech::GetEncoderDistance(){
 
 //elevator motor movement functions
 void ElevatorMech::ElevatorMotorUp(){
-    lMotor -> Set(L_MOTOR_F_SPEED);
+    lMotor -> Set(L_MOTOR_F_SPEED_1);
 }
 
 void ElevatorMech::ElevatorMotorDown(){
-    lMotor -> Set(L_MOTOR_R_SPEED);
+    lMotor -> Set(L_MOTOR_R_SPEED_1);
+}
+
+void ElevatorMech::ElevatorMotorUpSpeed2(){
+    lMotor -> Set(L_MOTOR_F_SPEED_2);
+}
+
+void ElevatorMech::ElevatorMotorDownSpeed2(){
+    lMotor -> Set(L_MOTOR_R_SPEED_2);
+}
+
+void ElevatorMech::ElevatorMotorUpSpeed3(){
+    lMotor -> Set(L_MOTOR_F_SPEED_3);
+}
+
+void ElevatorMech::ElevatorMotorDownSpeed3(){
+    lMotor -> Set(L_MOTOR_R_SPEED_3);
 }
 
 void ElevatorMech::ElevatorMotorStop(){
@@ -135,7 +159,7 @@ int ElevatorMech::GetTopLimSwitch(){
 void ElevatorMech::RocketLowCargoHeight(){
     desiredHeight = ROCKET_LOW_CARGO_HEIGHT;
     isMechanismRunning = true;
-    cout <<"Rocket Low Cargo Height";
+    setHeight = "Rocket Low Cargo Height";
 }
 
 void ElevatorMech::RocketMedCargoHeight(){
@@ -262,27 +286,55 @@ void ElevatorMech::PutMechanismDown(){
     }
 }
 
+/*void ElevatorMech::FindLocation(double amountToMove){
+        if (amountToMove > UD_HYSTERESIS_1_POS) {
+            ElevatorMotorDown();
+        }
+        else if (amountToMove < UD_HYSTERESIS_1_NEG) {
+            ElevatorMotorUp();
+        }
+        else {
+            if (amountToMove > UD_HYSTERESIS_2_POS){
+                ElevatorMotorDownSpeed2();
+            }
+            else if (amountToMove < UD_HYSTERESIS_2_NEG){
+                ElevatorMotorUpSpeed2();
+            }
+            else {
+                if (amountToMove > UD_HYSTERESIS_3_POS){
+                    ElevatorMotorDownSpeed3();
+                }
+                else if (amountToMove < UD_HYSTERESIS_3_NEG){
+                    ElevatorMotorUpSpeed3();
+                }
+                else if ((amountToMove <= UD_HYSTERESIS_3_POS) && (amountToMove >= UD_HYSTERESIS_3_NEG)){
+                    ElevatorMotorStop();
+                }
+            }
+        }
+    }
+*/
 //run functions if piston not out
-void ElevatorMech::Run(){
+void ElevatorMech::Run(){ 
     GetEncoderDistance();
     avgEncoderDistance = leftEncoderDistance;
     //avgEncoderCount = ((leftEncoderCount + rightEncoderCount) / 2); //averages left and right encoders to get one uniform variable
-    amountToMove = ((desiredHeight - avgEncoderDistance) * -1); //finds distance to travel - return changing value by calculating it every time?
+    amountToMove = (avgEncoderDistance - desiredHeight); //finds distance to travel - return changing value by calculating it every time?
     SmartDashboardComments();
     if (isMechanismRunning) { //uhp: 0.5, uhn: -0.5
-        if (amountToMove > UD_HYSTERESIS_POS) {
-            ElevatorMotorDown();
-        }
-        else if (amountToMove < UD_HYSTERESIS_NEG) {
-            ElevatorMotorUp();
-        }
-        else if ((amountToMove <= UD_HYSTERESIS_POS) && (amountToMove >= UD_HYSTERESIS_NEG)){
-            ElevatorMotorStop();
-            isMechanismRunning = false;
-            if (!done){
-                cout << "Elevator at Desired Height";
-                done = true;
-            }
+         if (amountToMove > UD_HYSTERESIS_1_POS) {
+             ElevatorMotorDown();
+         }
+         else if (amountToMove < UD_HYSTERESIS_1_NEG) {
+             ElevatorMotorUp();
+         }
+         else if ((amountToMove <= UD_HYSTERESIS_1_POS) && (amountToMove >= UD_HYSTERESIS_1_NEG)){
+             ElevatorMotorStop();
+             isMechanismRunning = false;
+             if (!done){
+                 cout << "Elevator at Desired Height";
+                 done = true;
+             }
         }
     }
 }

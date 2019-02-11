@@ -20,6 +20,7 @@ class Robot : public frc::TimedRobot {
   ElevatorMech * elevator;
   jankyXboxJoystick * joystick;
   bool hatchPistonsIn = false;
+  string setHeight;
 
   public:
   //constructor
@@ -63,25 +64,63 @@ class Robot : public frc::TimedRobot {
     bool buttonY = joystick -> GetButtonY(); 
     bool buttonX = joystick -> GetButtonX();
     bool buttonLB = joystick -> GetButtonLB();
-    //bool buttonStart = joystick -> GetButtonStart();
+    bool buttonStart = joystick -> GetButtonStart();
     bool buttonRB = joystick -> GetButtonRB();
-    //float rightVal = joystick -> GetRightYAxis();
-    //bool buttonBack = joystick -> GetButtonBack();
+    float rightVal = joystick -> GetRightYAxis();
+    bool buttonBack = joystick -> GetButtonBack();
 
     //elevator -> Run();
 
-   /*if (rightVal > 0.2){
-      elevator -> ElevatorMotorUp();
-    }
-    else if (rightVal < -0.2){
+
+  
+   if (buttonRB){ // stop button overrides everything 
+     elevator -> ElevatorMotorStop();
+   }
+   
+   // presets - overrides manual control
+   else if (buttonX){ 
+      elevator -> ShipCargoHeight();
+   }
+   else if (buttonY){
+      elevator -> RocketLowCargoHeight();
+   }
+   else if (buttonA){
+     elevator -> HPHeight();
+   }
+   else if (buttonB){
+     elevator -> RocketLowHatchHeight();
+   }
+   else if (buttonBack){
+     elevator -> ShipHatchHeight();
+   }
+   else if (buttonStart){
+     elevator -> RocketMedCargoHeight();
+   }
+   else if (buttonLB){
+     elevator -> GroundHeight();
+   }
+
+   //manual controls
+   else { 
+     if (rightVal >= 0.2){
       elevator -> ElevatorMotorDown();
-    }*/
+      setHeight = "None";
+    }
+    else if (rightVal <= -0.2){
+      elevator -> ElevatorMotorUp();
+      setHeight = "None";
+    }
+    else if (rightVal < 0.2 && rightVal > -0.2){
+      elevator -> ElevatorMotorStop();
+      setHeight = "None";
+    }
+   }
 
 
 
 
 
-    if (buttonA){
+    /*if (buttonA){
       elevator -> ElevatorMotorUp();
     }
     else if (buttonB){
@@ -89,25 +128,24 @@ class Robot : public frc::TimedRobot {
     }
     else {
       elevator -> ElevatorMotorStop();
-    }
+    }*/ 
 
 
-    if (buttonX){
+    /*(if (buttonX){
       elevator -> ShipCargoHeight();
-    }
+    }/*
 
     else if (buttonY){
       elevator -> RocketMedCargoHeight();
     }
 
-    /*else if (buttonLB){
+    else if (buttonLB){
       elevator -> GroundHeight();
-    }*/
+    }
 
     if (buttonRB){
       elevator -> ElevatorMotorStop();
     }
-
 
     /*else if (buttonX){
       elevator -> GroundHeight();

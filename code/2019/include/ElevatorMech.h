@@ -40,6 +40,7 @@ public:
         void SmartDashboardComments(); 
         bool GetIfMechIsRunning(); 
         void StartUpInit();
+        //void FindLocation(double amountToMove);
 
         int GetEncoderCount(); 
         double GetEncoderDistance(); 
@@ -47,6 +48,10 @@ public:
         void ElevatorMotorUp(); 
         void ElevatorMotorDown();
         void ElevatorMotorStop(); 
+        void ElevatorMotorUpSpeed2();
+        void ElevatorMotorDownSpeed2();
+        void ElevatorMotorUpSpeed3();
+        void ElevatorMotorDownSpeed3();
         //PID
         //void PIDSetup(); //only if required at the moment not sure yet
 
