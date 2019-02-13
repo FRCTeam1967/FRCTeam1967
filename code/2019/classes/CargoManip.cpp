@@ -9,7 +9,6 @@
 #include "ctre/Phoenix.h" 
 #include <math.h>
 #include <frc/Encoder.h>
-
 #include <jankyXboxJoystick.h>
 
 
@@ -21,7 +20,7 @@
 #define ENCODER_COUNTS_PER_REVOLUTION 4096
 
 CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel, int limSwitchInsideChannel, int limSwitchOutsideChannel){
-  motorRoll = new WPI_TalonSRX(motorRollChannel);
+  motorRoll = new WPI_VictorSPX(motorRollChannel);
   pivotMotor = new WPI_TalonSRX(motorPivotChannel);
   limSwitchInside = new frc::DigitalInput(limSwitchInsideChannel);
   limSwitchOutside = new frc::DigitalInput(limSwitchOutsideChannel);

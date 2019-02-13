@@ -10,8 +10,8 @@
 
 #define MOTOR_ROLL_CHANNEL 8
 #define MOTOR_PIVOT_CHANNEL 7
-#define LIM_SWITCH_INSIDE_CHANNEL 2 //inaccurate
-#define LIM_SWITCH_OUTSIDE_CHANNEL 4 //inaccurate
+#define LIM_SWITCH_INSIDE_CHANNEL 7
+#define LIM_SWITCH_OUTSIDE_CHANNEL 7
 #define GAME_JOYSTICK_CHANNEL 2
 // placeholder channels
 
@@ -59,6 +59,8 @@ class Robot : public frc::TimedRobot {
       frc::SmartDashboard::PutBoolean("Button B Pressed:", buttonB);
       frc::SmartDashboard::PutBoolean("Button RB Pressed:", buttonRB);
       frc::SmartDashboard::PutBoolean("Button LB Pressed:", buttonLB);
+      frc::SmartDashboard::PutBoolean("Outside Limit Switch Pressed:", cargomanip -> GetLimSwitchOutside());
+      frc::SmartDashboard::PutBoolean("Inside Limit Switch Pressed:", cargomanip -> GetLimSwitchInside());      
 
     if (buttonB){
       cargomanip -> RollersOut();
@@ -92,7 +94,7 @@ class Robot : public frc::TimedRobot {
       cargomanip -> CargoMechStop();
     }*/
 
-    bool buttonBack = joystick -> GetButtonBack();
+    /*bool buttonBack = joystick -> GetButtonBack();
     if (buttonBack){
       cargomanip -> GetLimSwitchOutside();
     }
@@ -100,7 +102,7 @@ class Robot : public frc::TimedRobot {
     bool buttonStart = joystick -> GetButtonStart();
     if (buttonStart){
       cargomanip -> GetLimSwitchInside();
-    }
+    }*/
 
   }
 
