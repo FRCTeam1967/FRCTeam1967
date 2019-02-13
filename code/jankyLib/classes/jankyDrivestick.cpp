@@ -78,3 +78,39 @@ bool jankyDrivestick::IsAnyTopButtonPressed()
 		return false;
 	}
 }
+
+bool jankyDrivestick::Get2(){
+	return (Joystick::GetRawButton(2));
+}
+
+bool jankyDrivestick::Get3(){
+	return (Joystick::GetRawButton(3));
+}
+
+bool jankyDrivestick::Get4(){
+	return (Joystick::GetRawButton(4));
+}
+
+bool jankyDrivestick::Get5(){
+	return (Joystick::GetRawButton(5));
+}
+
+bool jankyDrivestick::Get6(){
+	return (Joystick::GetRawButton(6));
+}
+
+bool jankyDrivestick::Get7(){
+	return (Joystick::GetRawButton(7));
+}
+
+bool jankyDrivestick::Get8(){
+	return (Joystick::GetRawButton(8));
+}
+
+bool jankyDrivestick::Get9(){
+	return (Joystick::GetRawButton(9));
+}
+
+bool jankyDrivestick::Get10(){
+	return (Joystick::GetRawButton(10));
+}
