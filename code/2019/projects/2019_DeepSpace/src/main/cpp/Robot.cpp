@@ -139,7 +139,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousPeriodic() override
   {
-    if(joystick->GetButtonY()){ //replace later to use the button board
+    if(left->Get3()){ //replace later to use the button board
       vision->StartSequenceTest(); //test mode 
     }
     else if(vision->IsIdle()){ 
@@ -147,7 +147,7 @@ class Robot : public frc::TimedRobot {
     }
 
     frc::SmartDashboard::PutNumber("angle", gyro->GetAngle());
-    if(joystick->GetButtonX()){
+    if(left->Get4()){
       vision->Cancel();
     }
 
