@@ -11,6 +11,7 @@
 #include "ctre/Phoenix.h" 
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/core/core.hpp>
+#include "HatchIntake.h"
 
 //Motors
 // 4 = left elevator
@@ -30,15 +31,19 @@
 #define XBOX_CONTROLLER 2
 //define XBOX_CONTROLLER_2 - if we need a second one
 
+using namespace std;
+using namespace frc;
+
 class Robot : public frc::TimedRobot {
   public:
     WPI_TalonSRX * flmotor;
     WPI_TalonSRX * rlmotor;
     WPI_TalonSRX * frmotor;
     WPI_TalonSRX * rrmotor;
-    frc::SpeedControllerGroup * leftDrive;
-    frc::SpeedControllerGroup * rightDrive;
-    frc::DifferentialDrive * drive;
+    WPI_TalonSRX * cargoMotor;
+    SpeedControllerGroup * leftDrive;
+    SpeedControllerGroup * rightDrive;
+    DifferentialDrive * drive;
     jankyDrivestick * left;
     jankyDrivestick * right;
     jankyXboxJoystick * joystick;
@@ -46,6 +51,8 @@ class Robot : public frc::TimedRobot {
     frc::ADXRS450_Gyro * gyro;
     VisionStateMachine * vision;
     CargoManip * cargomanip;
+    HatchIntake * hatch;
+    bool buttonPressed;
     
   //constructor
   Robot()
@@ -54,6 +61,7 @@ class Robot : public frc::TimedRobot {
     rlmotor = NULL;
     frmotor = NULL;
     rrmotor = NULL;
+    cargoMotor = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
     drive = NULL;
@@ -64,6 +72,8 @@ class Robot : public frc::TimedRobot {
     gyro = NULL;
     vision = NULL;
     cargomanip = NULL;
+    hatch = NULL;
+    hatch->Start();
   }
 
   //deconstructor
@@ -73,6 +83,7 @@ class Robot : public frc::TimedRobot {
     delete rlmotor;
     delete frmotor;
     delete rrmotor;
+    delete cargoMotor;
     delete leftDrive;
     delete rightDrive;
     delete drive;
@@ -83,6 +94,7 @@ class Robot : public frc::TimedRobot {
     delete gyro;
     delete vision;
     delete cargomanip;
+    delete hatch;
   }
   
   static void DriveTeamCameraThread()
@@ -110,6 +122,7 @@ class Robot : public frc::TimedRobot {
     rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
     rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
+    cargoMotor = new WPI_TalonSRX(CARGO_MOTOR_CHANNEL);    
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
@@ -126,15 +139,20 @@ class Robot : public frc::TimedRobot {
     drive->SetSafetyEnabled(false); 
     gyro->Calibrate();
     cargomanip -> StartInit();
+    hatch = new HatchIntake(TOP_PISTON, CARGO_PISTON);
+
+    buttonPressed = false;
   }
 
   virtual void AutonomousInit() override
   {
     gyro->Reset();
-   	flmotor->SetSelectedSensorPosition(0, 0, 10);
-		flmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
-		frmotor->SetSelectedSensorPosition(0, 0, 10);
-		frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);  
+    flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+    frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+    flmotor->SetSelectedSensorPosition(0, 0, 10);
+    flmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
+    frmotor->SetSelectedSensorPosition(0, 0, 10);
+    frmotor->GetSensorCollection().SetQuadraturePosition(0, 10);
   }
 
   virtual void AutonomousPeriodic() override
@@ -155,7 +173,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopInit() override
   {
-
+    cargoMotor -> ConfigSelectedFeedbackSensor(Analog, 0, 0);
   }
 
   virtual void TeleopPeriodic() override
@@ -163,13 +181,19 @@ class Robot : public frc::TimedRobot {
     //drive 
     drive->TankDrive(-left->GetY(), -right->GetY());
 
-
-    //cargo
+    //buttons
     bool buttonB = joystick -> GetButtonB();
     bool buttonX = joystick -> GetButtonX();
+    bool buttonStart = joystick -> GetButtonStart();
+    bool buttonBack = joystick -> GetButtonBack();
     bool buttonLB = joystick -> GetButtonLB(); 
     bool buttonRB = joystick -> GetButtonRB();
 
+    //hatch
+    int hatchDistance = cargoMotor->GetSensorCollection().GetAnalogIn();
+    bool pistonOut;
+
+    //cargo
     frc::SmartDashboard::PutBoolean("Outside Limit Switch Pressed:", cargomanip -> GetLimSwitchOutside());
     frc::SmartDashboard::PutBoolean("Inside Limit Switch Pressed:", cargomanip -> GetLimSwitchInside());  
 
@@ -192,6 +216,25 @@ class Robot : public frc::TimedRobot {
     else {
       cargomanip -> CargoMechStop();
     }
+
+    //hatch
+    SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
+
+    if (buttonStart)
+    {
+      hatch->Go();
+    }
+
+    if (buttonBack && !buttonPressed)
+    {
+      hatch->BottomPistonsOut();
+      buttonPressed = true;
+    }
+
+    else if (!buttonBack && buttonPressed)
+      buttonPressed = false;
+
+    pistonOut = hatch->GetPistonStatus();
 
     //TODO: add hatch mech, chassis lifting pistons, elevator, & ultrasonic code
   }
