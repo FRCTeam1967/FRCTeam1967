@@ -64,6 +64,7 @@ class Robot : public frc::TimedRobot {
     int hatchDistance = cargoMotor->GetSensorCollection().GetAnalogIn();
     bool b = joystick -> GetButtonB();
     bool x = joystick -> GetButtonX();
+    bool pistonOut;
 
     SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
 
@@ -80,6 +81,8 @@ class Robot : public frc::TimedRobot {
 
     else if (!x && buttonPressed)
       buttonPressed = false;
+
+    pistonOut = hatch->GetPistonStatus();
   }
 
   virtual void TestPeriodic() override
