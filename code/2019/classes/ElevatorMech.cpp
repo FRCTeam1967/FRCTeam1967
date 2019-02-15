@@ -35,8 +35,8 @@
 #define SPROCKET_INCHES_PER_TOOTH 0.25 
 
 //hysteresis: wiggle room for preset height [if mech reaches within an inch of its destination, stop]
-#define UD_HYSTERESIS_1_POS 5.0
-#define UD_HYSTERESIS_1_NEG -5.0
+#define UD_HYSTERESIS_1_POS 2.0
+#define UD_HYSTERESIS_1_NEG -2.0
 /*#define UD_HYSTERESIS_2_POS 3.0
 #define UD_HYSTERESIS_2_NEG -3.0
 #define UD_HYSTERESIS_3_POS 0.5
@@ -99,7 +99,7 @@ void ElevatorMech::ResetEncoder(){
 	rmotor -> SetSelectedSensorPosition(0, 0, 10);
 }
 
-int ElevatorMech::GetEncoderCount(){
+double ElevatorMech::GetEncoderCount(){
     leftEncoderCount = -lmotor -> GetSensorCollection().GetQuadraturePosition();
     rightEncoderCount = rmotor -> GetSensorCollection().GetQuadraturePosition();
     frc::SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
@@ -108,7 +108,7 @@ int ElevatorMech::GetEncoderCount(){
 
 double ElevatorMech::GetEncoderDistance(){
     GetEncoderCount();
-    leftEncoderDistance = ((leftEncoderCount/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
+    leftEncoderDistance = ((((leftEncoderCount*100)/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
     rightEncoderDistance = ((rightEncoderCount/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
     frc::SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
     frc::SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);

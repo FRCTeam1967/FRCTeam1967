@@ -42,7 +42,7 @@ public:
         void StartUpInit();
         //void FindLocation(double amountToMove);
 
-        int GetEncoderCount(); 
+        double GetEncoderCount(); 
         double GetEncoderDistance(); 
 
         void ElevatorMotorUp(); 
