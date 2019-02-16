@@ -42,7 +42,7 @@ ContourPair::ContourPair(Contour c1, Contour c2)
    distance = -1;
 }
 
-float ContourPair::getOffset(float lRectTlX, float rRectTlX, float rRectWidth, float T_INCHES_BOTH_WIDTH, int FOV_PIXELS_WIDTH)
+float ContourPair::getOffset(float lRectTlX, float rRectTlX, float rRectWidth)
 {
    lengthWidth = rRectTlX + rRectWidth - lRectTlX; // length from left edge of left tape to right edge of right tape
    pixelsToInches = T_INCHES_BOTH_WIDTH / lengthWidth;

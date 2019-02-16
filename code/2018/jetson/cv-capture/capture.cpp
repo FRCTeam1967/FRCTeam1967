@@ -37,9 +37,9 @@ float distToSend;
 float indexOfOffset;
 
 // Set our HSV values
-double hue[] = {69, 77};   //{63, 96};
-double sat[] = {112, 255}; //{112, 255};
-double val[] = {132, 255}; //{80, 255};
+double hue[] = {62, 84};   //{63, 96};
+double sat[] = {100, 255}; //{112, 255};
+double val[] = {111, 215}; //{80, 255};
 
 void changeKey(double hsv[], char key, bool plus)
 {
@@ -148,9 +148,11 @@ int main(int argc, char **argv)
         // There are arguments being passed in
         argPassed = true;
     }
-
+	
+	
     // Change exposure & brightness of camera
     system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=1"); // KEEP
+    
     // Opens the camera stream
     VideoCapture cap(0);
     // If camera stream won't open, display this message
@@ -324,7 +326,7 @@ int main(int argc, char **argv)
                     rightRect = largestRect;
                 }
 
-                contourPairs[contourPairs.size() - 1].getOffset(leftRect.tl().x, rightRect.tl().x, rightRect.width, T_INCHES_BOTH_WIDTH, FOV_PIXELS_WIDTH);
+                contourPairs[contourPairs.size() - 1].getOffset(leftRect.tl().x, rightRect.tl().x, rightRect.width);
                 contourPairs[contourPairs.size() - 1].getDist(widthThreshold, rectHeight, frameHeight, frameWidth, rectWidth, leftCornerDist, rightCornerDist);
 
                 average[counter] = finalDistInInches;
@@ -345,7 +347,7 @@ int main(int argc, char **argv)
             	indexOfOffset = 0;
 			}
 			
-            for (int a = 0; a < contourPairs.size(); a++)
+            for (int a = 1; a < contourPairs.size(); a++)
             {
                 if (fabs(smallestOffset) > fabs(contourPairs[a].returnOffset()))
                 {
@@ -362,7 +364,7 @@ int main(int argc, char **argv)
      			cout << "Offset of " << b << ": " << contourPairs[b].returnOffset() << endl;       		
             }
             cout << "Smallest offset (Target # " << indexOfOffset << "): " << smallestOffset << endl;
-     		cout << "Distance to send (Target # " << indexOfOffset << "): " << smallestOffset << endl;
+     		cout << "Distance to send (Target # " << indexOfOffset << "): " << distToSend << endl;
      		cout << endl;
             if(!isinf(distToSend))
             {
