@@ -83,7 +83,6 @@ class Robot : public frc::TimedRobot {
     bool buttonPressed;
     bool hatchPistonsIn;
     string setHeight;
-    cs::UsbCamera * driveCam;
     bool StartPressed, BackPressed;
     
   //constructor
@@ -105,7 +104,6 @@ class Robot : public frc::TimedRobot {
     cargomanip = NULL;
     hatch = NULL;
     elevator = NULL;
-    driveCam = NULL;
     //fpiston = NULL;
     //bpiston = NULL;
   }
@@ -129,16 +127,16 @@ class Robot : public frc::TimedRobot {
     delete cargomanip;
     delete hatch;
     delete elevator; 
-    delete driveCam;
     //delete fpiston;
     //delete bpiston;
   }
 
   virtual void RobotInit() override {
     //Run drive team camera
-    cs::UsbCamera driveCam = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
-    driveCam.SetResolution(640,480);
-    driveCam.SetFPS(25); //can't go above 30
+    cs::UsbCamera driveCam;
+    driveCam = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+    driveCam.SetResolution(360,240);
+    driveCam.SetFPS(15);
 
     //Motors for driving
     flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
