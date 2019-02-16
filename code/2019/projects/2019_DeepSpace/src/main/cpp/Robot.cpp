@@ -15,8 +15,6 @@
 #include "ElevatorMech.h"
 
 //Motors
-// 4 = left elevator
-//2 = right elevator
 #define FRONT_LEFT_MOTOR_CHANNEL 1
 #define REAR_LEFT_MOTOR_CHANNEL 2
 #define FRONT_RIGHT_MOTOR_CHANNEL 4
@@ -29,6 +27,8 @@
 #define ELEVATOR_LIM_SWITCH_TOP_CHANNEL 5 //might be 0
 #define TOP_HATCH_PISTON 4
 #define BOTTOM_CARGO_PISTON 6
+#define PISTON_FRONT_CHANNEL 4 //change for real robot
+#define PISTON_BACK_CHANNEL 5 //change for real robot
 
 //Joysticks
 #define LEFT_JOYSTICK_CHANNEL 0
@@ -58,10 +58,13 @@ class Robot : public frc::TimedRobot {
     CargoManip * cargomanip;
     HatchIntake * hatch;
     ElevatorMech * elevator;
+    //Solenoid*fpiston;
+    //Solenoid*bpiston;
     bool buttonPressed;
     bool hatchPistonsIn;
     string setHeight;
     cs::UsbCamera * driveCam;
+    bool StartPressed, BackPressed;
     
   //constructor
   Robot(){
@@ -83,6 +86,8 @@ class Robot : public frc::TimedRobot {
     hatch = NULL;
     elevator = NULL;
     driveCam = NULL;
+    //fpiston = NULL;
+    //bpiston = NULL;
   }
 
   //deconstructor
@@ -105,6 +110,8 @@ class Robot : public frc::TimedRobot {
     delete hatch;
     delete elevator; 
     delete driveCam;
+    //delete fpiston;
+    //delete bpiston;
   }
 
   virtual void RobotInit() override {
@@ -133,9 +140,15 @@ class Robot : public frc::TimedRobot {
     cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL);
     hatch = new HatchIntake(TOP_HATCH_PISTON, BOTTOM_CARGO_PISTON);
     elevator = new ElevatorMech(L_ELEVATOR_MOTOR_CHANNEL, R_ELEVATOR_MOTOR_CHANNEL, ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL, ELEVATOR_LIM_SWITCH_TOP_CHANNEL);
+    //fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
+    //bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);    
+    
     drive->SetSafetyEnabled(false); 
     gyro->Calibrate();
     buttonPressed = false;
+
+    StartPressed=false;
+    BackPressed=false;
 
     cargomanip -> StartInit();
     hatch -> Start();
@@ -157,11 +170,12 @@ class Robot : public frc::TimedRobot {
       vision->StartSequenceTest(); //test mode 
     }
     else if(vision->IsIdle()){ 
-      drive->TankDrive(-left->GetY(), -right->GetY());
+      drive->TankDrive(-joystick->GetLeftYAxis(), -joystick->GetRightYAxis());
+      //drive->TankDrive(-left->GetY(), -right->GetY());
     }
 
     frc::SmartDashboard::PutNumber("angle", gyro->GetAngle());
-    if(left->Get4()){
+    if(left->Get2()){
       vision->Cancel();
     }
 
@@ -172,14 +186,16 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void TeleopPeriodic() override {
-  //drive 
-    drive->TankDrive(-left->GetY(), -right->GetY());
+  //drive TODO: add vision logic here
+    //drive->TankDrive(-left->GetY(), -right->GetY());
+    drive->TankDrive(-joystick->GetLeftYAxis(), -joystick->GetRightYAxis());
 
   //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
     bool buttonB = joystick -> GetButtonB(); //cargo rollers out
     bool buttonX = joystick -> GetButtonX(); //cargo rollers in
     bool buttonA = joystick -> GetButtonA(); //cargo mech into robot
     bool buttonY = joystick -> GetButtonY(); //cargo mech out of robot
+    //TODO: CHANGE CHASSIS PISTON BUTTONS TO BE ON JANKYDRIVESTICK
     bool buttonStart = joystick -> GetButtonStart(); //chassis piston?
     bool buttonBack = joystick -> GetButtonBack(); //chassis piston?
     bool buttonLB = joystick -> GetButtonLB(); //hatch bottom pistons
@@ -196,7 +212,6 @@ class Robot : public frc::TimedRobot {
     bool buttonRB2 = joystick2 -> GetButtonRB(); //hard stop
 
   //ELEVATOR
-    
     //conditional run
     hatchPistonsIn = hatch -> GetPistonStatus();
 
@@ -296,7 +311,33 @@ class Robot : public frc::TimedRobot {
       buttonPressed = false;
     }
 
-    //TODO: add chassis lifting pistons
+    //chassis lifting pistons
+    //front piston
+    /*if (buttonStart && StartPressed==false)
+    {
+      if(fpiston->Get()==true)
+        fpiston -> Set(false);
+
+      else if(fpiston->Get()==false)
+        fpiston -> Set(true);
+      StartPressed=true;
+    }
+    else if (!buttonStart && StartPressed==true)
+      StartPressed=false;
+
+    //back pistons
+    if (buttonBack && BackPressed==false)
+    {
+      if(bpiston->Get()==true)
+        bpiston -> Set(false);
+      
+      else
+        bpiston -> Set(true);
+      BackPressed=true;
+    }
+    else if (!buttonBack && BackPressed==true)
+      BackPressed=false;*/
+    
   }
 
   virtual void TestPeriodic() override
