@@ -153,9 +153,9 @@ int ElevatorMech::GetTopLimSwitch(){
     return topLimSwitch -> Get();
 }
 
-//presets
+//presets 
 
-//rocket presents
+//rocket presets
 void ElevatorMech::RocketLowCargoHeight(){
     desiredHeight = ROCKET_LOW_CARGO_HEIGHT;
     isMechanismRunning = true;

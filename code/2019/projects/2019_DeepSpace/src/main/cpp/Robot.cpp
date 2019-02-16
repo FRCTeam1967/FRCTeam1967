@@ -213,25 +213,25 @@ class Robot : public frc::TimedRobot {
 
   //TODO: rename buttons according to function
   //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
-    bool buttonB = joystick -> GetButtonB(); //cargo rollers out
-    bool buttonX = joystick -> GetButtonX(); //cargo rollers in
-    bool buttonA = joystick -> GetButtonA(); //cargo mech into robot
-    bool buttonY = joystick -> GetButtonY(); //cargo mech out of robot
+    bool rollersOut = joystick -> GetButtonB();
+    bool rollersIn = joystick -> GetButtonX(); 
+    bool cargoIn = joystick -> GetButtonA(); 
+    bool cargoOut = joystick -> GetButtonY(); 
     //TODO: CHANGE CHASSIS PISTON BUTTONS TO BE ON JANKYDRIVESTICK
-    bool buttonStart = joystick -> GetButtonStart(); //chassis piston?
-    bool buttonBack = joystick -> GetButtonBack(); //chassis piston?
-    bool buttonLB = joystick -> GetButtonLB(); //hatch bottom pistons
-    bool buttonRB = joystick -> GetButtonRB(); //hatch in-out pistons
-    float rightVal = joystick2 -> GetRightYAxis(); //manual elevator
+    bool chassisFront = joystick -> GetButtonStart(); 
+    bool chassisBack = joystick -> GetButtonBack(); 
+    bool cargoPistons = joystick -> GetButtonLB(); 
+    bool hatchPistons = joystick -> GetButtonRB(); 
+    float manualElevator = joystick2 -> GetRightYAxis(); 
 
-    bool buttonB2 = joystick2 -> GetButtonB(); //rocket low hatch height + hp station + cargo ship hatch
-    bool buttonX2 = joystick2 -> GetButtonX(); //rocket medium cargo height
-    bool buttonA2 = joystick2 -> GetButtonA(); //rocket high cargo height
-    bool buttonY2 = joystick2 -> GetButtonY(); //rocket low cargo height
-    bool buttonStart2 = joystick2 -> GetButtonStart(); //cargo ship cargo height
-    bool buttonBack2 = joystick2 -> GetButtonBack(); //rocket ship high hatch
-    bool buttonLB2 = joystick2 -> GetButtonLB(); //ground height
-    bool buttonRB2 = joystick2 -> GetButtonRB(); //hard stop
+    bool rocketLowHatchHPShipHatch = joystick2 -> GetButtonB(); //rocket low hatch height + hp station + cargo ship hatch god i hate this name so much
+    bool rocketMedCargo = joystick2 -> GetButtonX(); 
+    bool rocketHighCargo = joystick2 -> GetButtonA();
+    bool rocketLowCargo = joystick2 -> GetButtonY(); 
+    bool cargoShipCargo = joystick2 -> GetButtonStart(); 
+    bool rocketHighHatch = joystick2 -> GetButtonBack(); 
+    bool groundHeight = joystick2 -> GetButtonLB(); 
+    bool elevatorStop = joystick2 -> GetButtonRB();
 
   //ELEVATOR
     //conditional run
@@ -247,50 +247,50 @@ class Robot : public frc::TimedRobot {
     }
     
     //hard stop, overrides everything
-    if (buttonRB2){ // stop button overrides everything 
+    if (elevatorStop){ // stop button overrides everything 
       elevator -> ElevatorMotorStop();
     }
 
     //presets
-    else if (buttonStart2){ 
+    else if (cargoShipCargo){ 
       elevator -> ShipCargoHeight();
     }
 
-    else if (buttonY2){
+    else if (rocketLowCargo){
       elevator -> RocketLowCargoHeight();
     }
 
-    else if (buttonA2){
+    else if (rocketHighCargo){
       elevator -> RocketHighCargoHeight();
     }
 
-    else if (buttonB2){
+    else if (rocketLowHatchHPShipHatch){
       elevator -> RocketLowHatchHeight();
     }
    
-    else if (buttonBack2){
+    else if (rocketHighHatch){
       elevator -> RocketHighHatchHeight();
     }  
    
-    else if (buttonX2){
+    else if (rocketMedCargo){
       elevator -> RocketMedCargoHeight();
     }
    
-    else if (buttonLB2){
+    else if (groundHeight){
       elevator -> GroundHeight();
     }
 
    //manual controls
     else { 
-      if (rightVal >= 0.2){
+      if (manualElevator >= 0.2){
         elevator -> ElevatorMotorDown();
         setHeight = "None";
       }
-      else if (rightVal <= -0.2){
+      else if (manualElevator <= -0.2){
         elevator -> ElevatorMotorUp();
         setHeight = "None";
       }
-      else if (rightVal < 0.2 && rightVal > -0.2){
+      else if (manualElevator < 0.2 && manualElevator > -0.2){
         elevator -> ElevatorMotorStop();
         setHeight = "None";
       }
@@ -298,20 +298,20 @@ class Robot : public frc::TimedRobot {
 
 
   //cargo
-    if (buttonB){
+    if (rollersOut){
       cargomanip -> RollersOut();
     }
-    else if (buttonX){
+    else if (rollersIn){
       cargomanip -> RollersIn();
     }
     else {
       cargomanip -> RollersStop();
     }
 
-    if (buttonA){
+    if (cargoIn){
       cargomanip -> CargoMechInRobot(); 
     }
-    else if (buttonY){
+    else if (cargoOut){
       cargomanip -> CargoMechOutRobot();
     }
     else {
@@ -323,23 +323,23 @@ class Robot : public frc::TimedRobot {
     //bool pistonOut;
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
 
-    if (buttonRB)
+    if (hatchPistons)
     {
       hatch->Go();
     }
 
-    if (buttonLB && !buttonPressed)
+    if (cargoPistons && !buttonPressed)
     {
       hatch->BottomPistonsSwitch();
       buttonPressed = true;
     }
-    else if (!buttonLB && buttonPressed){
+    else if (!cargoPistons && buttonPressed){
       buttonPressed = false;
     }
 
     //chassis lifting pistons
     //front piston
-    /*if (buttonStart && StartPressed==false)
+    /*if (chassisFront && StartPressed==false)
     {
       if(fpiston->Get()==true)
         fpiston -> Set(false);
@@ -348,11 +348,11 @@ class Robot : public frc::TimedRobot {
         fpiston -> Set(true);
       StartPressed=true;
     }
-    else if (!buttonStart && StartPressed==true)
+    else if (!chassisFront && StartPressed==true)
       StartPressed=false;
 
     //back pistons
-    if (buttonBack && BackPressed==false)
+    if (chassisBack && BackPressed==false)
     {
       if(bpiston->Get()==true)
         bpiston -> Set(false);
@@ -361,7 +361,7 @@ class Robot : public frc::TimedRobot {
         bpiston -> Set(true);
       BackPressed=true;
     }
-    else if (!buttonBack && BackPressed==true)
+    else if (!chassisBack && BackPressed==true)
       BackPressed=false;*/
     
   }
