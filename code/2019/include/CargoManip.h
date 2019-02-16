@@ -13,7 +13,7 @@
 
 class CargoManip {
 public:
-    CargoManip(int motorRollChannel, int motorPivotChannel, int limSwitchInsideChannel, int limSwitchOutsideChannel);
+    CargoManip(int motorRollChannel, int motorPivotChannel);
     virtual ~CargoManip();
     bool isMechRunning;
     //virtual void Run();
@@ -25,12 +25,12 @@ public:
     void CargoMechOutRobot(); // extends down out of robot 
     void RollersStop(); //stops roll
     void CargoMechStop();
-    void CargoMechStopWithLimSwitch(); //uses lim switch value to stop mech
+    //void CargoMechStopWithLimSwitch(); //uses lim switch value to stop mech
 
     bool getCargoMechPosition(); //gets if claw is up or down (switch to a string to specify??)
 
-	int GetLimSwitchOutside(); //get the value of the limit switch for when the claw goes outside the robot(true/false)
-	int GetLimSwitchInside(); //get the value of the limit switch for when the claw goes inside the robot(true/false)
+	/*int GetLimSwitchOutside(); //get the value of the limit switch for when the claw goes outside the robot(true/false)
+	int GetLimSwitchInside();*/ //get the value of the limit switch for when the claw goes inside the robot(true/false)
 
     double getEncoderCount(); 
     float GetEncoderAngle(); //returns angle movement - type uncertain??
@@ -50,8 +50,8 @@ private:
 
     WPI_VictorSPX * motorRoll;
     WPI_TalonSRX * pivotMotor;
-    frc::DigitalInput * limSwitchInside;
-    frc::DigitalInput * limSwitchOutside;
+    //frc::DigitalInput * limSwitchInside;
+    //frc::DigitalInput * limSwitchOutside;
     frc::Encoder * pivotEncoder;
 
 }; 

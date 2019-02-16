@@ -10,8 +10,6 @@
 
 #define MOTOR_ROLL_CHANNEL 8
 #define MOTOR_PIVOT_CHANNEL 7
-#define LIM_SWITCH_INSIDE_CHANNEL 7
-#define LIM_SWITCH_OUTSIDE_CHANNEL 7
 #define GAME_JOYSTICK_CHANNEL 2
 // placeholder channels
 
@@ -32,7 +30,7 @@ class Robot : public frc::TimedRobot {
   }
   
   virtual void RobotInit() override{
-    cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL, LIM_SWITCH_INSIDE_CHANNEL, LIM_SWITCH_OUTSIDE_CHANNEL); // placeholder motor/lim switch channels
+    cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL); // placeholder motor/lim switch channels
     joystick = new jankyXboxJoystick(2);
     cargomanip -> StartInit();
   }
@@ -59,8 +57,8 @@ class Robot : public frc::TimedRobot {
       frc::SmartDashboard::PutBoolean("Button B Pressed:", buttonB);
       frc::SmartDashboard::PutBoolean("Button RB Pressed:", buttonRB);
       frc::SmartDashboard::PutBoolean("Button LB Pressed:", buttonLB);
-      frc::SmartDashboard::PutBoolean("Outside Limit Switch Pressed:", cargomanip -> GetLimSwitchOutside());
-      frc::SmartDashboard::PutBoolean("Inside Limit Switch Pressed:", cargomanip -> GetLimSwitchInside());      
+      //frc::SmartDashboard::PutBoolean("Outside Limit Switch Pressed:", cargomanip -> GetLimSwitchOutside());
+      //frc::SmartDashboard::PutBoolean("Inside Limit Switch Pressed:", cargomanip -> GetLimSwitchInside());      
 
     if (buttonB){
       cargomanip -> RollersOut();
