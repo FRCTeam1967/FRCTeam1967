@@ -14,21 +14,41 @@
 #include "HatchIntake.h"
 #include "ElevatorMech.h"
 
+#define ROBOT_2019 //CHANGE THIS BASED ON THE ROBOT
+
 //Motors
+#ifdef ROBOT_2019
 #define FRONT_LEFT_MOTOR_CHANNEL 1
 #define REAR_LEFT_MOTOR_CHANNEL 2
 #define FRONT_RIGHT_MOTOR_CHANNEL 4
 #define REAR_RIGHT_MOTOR_CHANNEL 3
 #define MOTOR_ROLL_CHANNEL 6 
 #define MOTOR_PIVOT_CHANNEL 7 // might be switched w/ motor_roll_channel
-#define L_ELEVATOR_MOTOR_CHANNEL 5 
-#define R_ELEVATOR_MOTOR_CHANNEL 0 
-#define ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL 5 //might be 0
-#define ELEVATOR_LIM_SWITCH_TOP_CHANNEL 5 //might be 0
+#define L_ELEVATOR_MOTOR_CHANNEL 0
+#define R_ELEVATOR_MOTOR_CHANNEL 5 
+#define ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL 2 //might be 0
+#define ELEVATOR_LIM_SWITCH_TOP_CHANNEL 3 //might be 0
 #define TOP_HATCH_PISTON 4
-#define BOTTOM_CARGO_PISTON 6
-#define PISTON_FRONT_CHANNEL 4 //change for real robot
-#define PISTON_BACK_CHANNEL 5 //change for real robot
+#define BOTTOM_CARGO_PISTON 5
+#define PISTON_FRONT_CHANNEL 6 //change for real robot
+#define PISTON_BACK_CHANNEL 7 //change for real robot
+
+#else //for Lola
+#define FRONT_LEFT_MOTOR_CHANNEL 3
+#define REAR_LEFT_MOTOR_CHANNEL 2
+#define FRONT_RIGHT_MOTOR_CHANNEL 5
+#define REAR_RIGHT_MOTOR_CHANNEL 4
+#define MOTOR_ROLL_CHANNEL 8
+#define MOTOR_PIVOT_CHANNEL 7
+#define L_ELEVATOR_MOTOR_CHANNEL 6
+#define R_ELEVATOR_MOTOR_CHANNEL 1
+#define ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL 2 //doesn't exist on Lola
+#define ELEVATOR_LIM_SWITCH_TOP_CHANNEL 3 //doesn't exist on Lola
+#define TOP_HATCH_PISTON 4 // claw open and close
+#define BOTTOM_CARGO_PISTON 5 //doesn't exist on Lola
+#define PISTON_FRONT_CHANNEL 6 //doesn't exist on Lola
+#define PISTON_BACK_CHANNEL 7 //doesn't exist on Lola
+#endif
 
 //Joysticks
 #define LEFT_JOYSTICK_CHANNEL 0
@@ -45,7 +65,7 @@ class Robot : public frc::TimedRobot {
     WPI_TalonSRX * rlmotor;
     WPI_TalonSRX * frmotor;
     WPI_TalonSRX * rrmotor;
-    WPI_TalonSRX * cargoPistonMotor;
+    //WPI_TalonSRX * cargoPistonMotor;
     frc::SpeedControllerGroup * leftDrive;
     frc::SpeedControllerGroup * rightDrive;
     frc::DifferentialDrive * drive;
@@ -72,7 +92,7 @@ class Robot : public frc::TimedRobot {
     rlmotor = NULL;
     frmotor = NULL;
     rrmotor = NULL;
-    cargoPistonMotor = NULL;
+    //cargoPistonMotor = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
     drive = NULL;
@@ -96,7 +116,7 @@ class Robot : public frc::TimedRobot {
     delete rlmotor;
     delete frmotor;
     delete rrmotor;
-    delete cargoPistonMotor;
+    //delete cargoPistonMotor;
     delete leftDrive;
     delete rightDrive;
     delete drive;
@@ -125,7 +145,7 @@ class Robot : public frc::TimedRobot {
     rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
     rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
-    cargoPistonMotor = new WPI_TalonSRX(BOTTOM_CARGO_PISTON);    
+    //cargoPistonMotor = new WPI_TalonSRX(BOTTOM_CARGO_PISTON);    
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
@@ -157,6 +177,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousInit() override {
     gyro->Reset();
+    hatch->BottomPistonsOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     flmotor->SetSelectedSensorPosition(0, 0, 10);
@@ -182,7 +203,7 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void TeleopInit() override {
-    cargoPistonMotor -> ConfigSelectedFeedbackSensor(Analog, 0, 0);
+    //cargoPistonMotor -> ConfigSelectedFeedbackSensor(Analog, 0, 0);
   }
 
   virtual void TeleopPeriodic() override {
@@ -190,6 +211,7 @@ class Robot : public frc::TimedRobot {
     //drive->TankDrive(-left->GetY(), -right->GetY());
     drive->TankDrive(-joystick->GetLeftYAxis(), -joystick->GetRightYAxis());
 
+  //TODO: rename buttons according to function
   //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
     bool buttonB = joystick -> GetButtonB(); //cargo rollers out
     bool buttonX = joystick -> GetButtonX(); //cargo rollers in
@@ -215,8 +237,13 @@ class Robot : public frc::TimedRobot {
     //conditional run
     hatchPistonsIn = hatch -> GetPistonStatus();
 
+    frc::SmartDashboard::PutBoolean("Bottom Piston In:", hatchPistonsIn);
+
     if (hatchPistonsIn){
       elevator -> Pause();
+    }
+    else {
+      elevator -> Start();
     }
     
     //hard stop, overrides everything
@@ -292,9 +319,9 @@ class Robot : public frc::TimedRobot {
     }
 
   //hatch
-    int hatchDistance = cargoPistonMotor->GetSensorCollection().GetAnalogIn();
-    bool pistonOut;
-    SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
+    //int hatchDistance = cargoPistonMotor->GetSensorCollection().GetAnalogIn();
+    //bool pistonOut;
+    //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
 
     if (buttonRB)
     {
@@ -303,11 +330,10 @@ class Robot : public frc::TimedRobot {
 
     if (buttonLB && !buttonPressed)
     {
-      hatch->BottomPistonsOut();
+      hatch->BottomPistonsSwitch();
       buttonPressed = true;
     }
-
-    else if (!buttonBack && buttonPressed){
+    else if (!buttonLB && buttonPressed){
       buttonPressed = false;
     }
 

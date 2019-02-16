@@ -14,7 +14,10 @@ class HatchIntake: public JankyTask
 
         void Go();
         virtual void Run();
+        void BottomPistonsSwitch();
         void BottomPistonsOut();
+        void BottonPistonsIn();
+
         bool GetPistonStatus();
 
     private:
