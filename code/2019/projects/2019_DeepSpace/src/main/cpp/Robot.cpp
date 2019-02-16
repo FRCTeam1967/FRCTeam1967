@@ -14,7 +14,7 @@
 #include "HatchIntake.h"
 #include "ElevatorMech.h"
 
-#define ROBOT_2019 //CHANGE THIS BASED ON THE ROBOT
+#define ROBOT_2019 //COMMENT THIS OUT IF TESTING ON LOLA
 
 //Motors
 #ifdef ROBOT_2019
@@ -38,14 +38,14 @@
 #define REAR_LEFT_MOTOR_CHANNEL 2
 #define FRONT_RIGHT_MOTOR_CHANNEL 5
 #define REAR_RIGHT_MOTOR_CHANNEL 4
-#define MOTOR_ROLL_CHANNEL 8
+#define MOTOR_ROLL_CHANNEL 8 //doesn't work because Lola has a talon here instead of a victor
 #define MOTOR_PIVOT_CHANNEL 7
 #define L_ELEVATOR_MOTOR_CHANNEL 6
 #define R_ELEVATOR_MOTOR_CHANNEL 1
 #define ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL 2 //doesn't exist on Lola
 #define ELEVATOR_LIM_SWITCH_TOP_CHANNEL 3 //doesn't exist on Lola
-#define TOP_HATCH_PISTON 4 // claw open and close
-#define BOTTOM_CARGO_PISTON 5 //doesn't exist on Lola
+#define TOP_HATCH_PISTON 5 // claw open and close
+#define BOTTOM_CARGO_PISTON 4 //doesn't exist on Lola
 #define PISTON_FRONT_CHANNEL 6 //doesn't exist on Lola
 #define PISTON_BACK_CHANNEL 7 //doesn't exist on Lola
 #endif
@@ -81,7 +81,7 @@ class Robot : public frc::TimedRobot {
     //Solenoid*fpiston;
     //Solenoid*bpiston;
     bool buttonPressed;
-    bool hatchPistonsIn;
+    bool hatchPistonsOut;
     string setHeight;
     cs::UsbCamera * driveCam;
     bool StartPressed, BackPressed;
@@ -191,7 +191,7 @@ class Robot : public frc::TimedRobot {
       vision->StartSequenceTest(); //test mode 
     }
     else if(vision->IsIdle()){ 
-      drive->TankDrive(-joystick->GetLeftYAxis(), -joystick->GetRightYAxis());
+      drive->TankDrive(-joystick->GetLeftYAxis(), -joystick->GetRightYAxis()); //TODO: CHANGE THIS AFTER RRN
       //drive->TankDrive(-left->GetY(), -right->GetY());
     }
 
@@ -199,11 +199,12 @@ class Robot : public frc::TimedRobot {
     if(left->Get2()){
       vision->Cancel();
     }
-
+    //TODO: ADD ALL THE GC LOGIC HERE SO THAT IT CAN BE USED WHEN OPERATOR CONTROLLED
   }
 
   virtual void TeleopInit() override {
     //cargoPistonMotor -> ConfigSelectedFeedbackSensor(Analog, 0, 0);
+    hatch->BottomPistonsOut();
   }
 
   virtual void TeleopPeriodic() override {
@@ -235,11 +236,11 @@ class Robot : public frc::TimedRobot {
 
   //ELEVATOR
     //conditional run
-    hatchPistonsIn = hatch -> GetPistonStatus();
+    hatchPistonsOut = hatch -> GetPistonStatus();
 
-    frc::SmartDashboard::PutBoolean("Bottom Piston In:", hatchPistonsIn);
+    frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
 
-    if (hatchPistonsIn){
+    if (!hatchPistonsOut){
       elevator -> Pause();
     }
     else {
@@ -250,7 +251,6 @@ class Robot : public frc::TimedRobot {
     if (elevatorStop){ // stop button overrides everything 
       elevator -> ElevatorMotorStop();
     }
-
     //presets
     else if (cargoShipCargo){ 
       elevator -> ShipCargoHeight();
