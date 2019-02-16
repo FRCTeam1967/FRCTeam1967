@@ -61,6 +61,7 @@ class Robot : public frc::TimedRobot {
     bool buttonPressed;
     bool hatchPistonsIn;
     string setHeight;
+    cs::UsbCamera * driveCam;
     
   //constructor
   Robot(){
@@ -81,6 +82,7 @@ class Robot : public frc::TimedRobot {
     cargomanip = NULL;
     hatch = NULL;
     elevator = NULL;
+    driveCam = NULL;
   }
 
   //deconstructor
@@ -102,28 +104,16 @@ class Robot : public frc::TimedRobot {
     delete cargomanip;
     delete hatch;
     delete elevator; 
+    delete driveCam;
   }
-  
-  static void DriveTeamCameraThread()
-    {
-        cs::UsbCamera driveTeamCamera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
-        driveTeamCamera.SetResolution(640, 480);
-        cs::CvSink cvSink = frc::CameraServer::GetInstance()->GetVideo();
-        cs::CvSource outputStream = frc::CameraServer::GetInstance()->PutVideo("Drive Team Camera", 640, 480);
-        cv::Mat source;
-        cv::Mat output;
-        while(true) {
-            cvSink.GrabFrame(source);
-            cvtColor(source, output, cv::COLOR_BGR2GRAY);
-            outputStream.PutFrame(output);
-        }
-    }
 
   virtual void RobotInit() override {
     //Run drive team camera
-    std::thread driveTeamCameraThread(DriveTeamCameraThread);
-    driveTeamCameraThread.detach();
+    cs::UsbCamera driveCam = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+    driveCam.SetResolution(640,480);
+    driveCam.SetFPS(25); //can't go above 30
 
+    //Motors for driving
     flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
