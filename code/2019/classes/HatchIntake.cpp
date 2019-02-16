@@ -57,12 +57,17 @@ void HatchIntake::Run()
 void HatchIntake::BottomPistonsOut()
 {
     if (pistonBottom->Get()==true)
-    {
         pistonBottom->Set(false);
-    }
 
     else if (pistonBottom->Get()==false)
-    {
         pistonBottom->Set(true);
-    }
+}
+
+bool HatchIntake::GetPistonStatus()
+{
+    if (pistonBottom->Get()==true)
+        hatchPistonsIn = true;
+
+    else if (pistonBottom->Get()==false)
+        hatchPistonsIn = false;
 }

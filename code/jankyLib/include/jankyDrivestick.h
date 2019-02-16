@@ -23,6 +23,10 @@ public:
 	bool Get2();
 	bool Get6();
 	bool Get4();
+	bool Get7();
+	bool Get8();
+	bool Get9();
+	bool Get10();
 	float GetJoystickTwist();
 	bool IsAnyTopButtonPressed();
 

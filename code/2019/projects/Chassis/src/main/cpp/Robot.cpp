@@ -9,10 +9,10 @@
 #include <math.h>
 #include <frc/AnalogInput.h>
 
-#define FRONT_LEFT_MOTOR_CHANNEL 3
-#define REAR_LEFT_MOTOR_CHANNEL 2
-#define FRONT_RIGHT_MOTOR_CHANNEL 5
-#define REAR_RIGHT_MOTOR_CHANNEL 4
+#define FRONT_LEFT_MOTOR_CHANNEL 5
+#define REAR_LEFT_MOTOR_CHANNEL 4
+#define FRONT_RIGHT_MOTOR_CHANNEL 3
+#define REAR_RIGHT_MOTOR_CHANNEL 2
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
 #define GC_XBOX_CHANNEL 2
@@ -20,6 +20,12 @@
 #define PISTON_FRONT_RIGHT_CHANNEL 4
 #define PISTON_BACK_CHANNEL 5
 #define CARGO_ULTRASON_CHANNEL 3
+#define PWM_CHANNEL 3
+#define MIN_PWM_NUM 1000
+#define MAX_PWM_NUM 2000
+#define NUM_CMDS 10
+#define SPACING (MAX_PWM_NUM-MIN_PWM_NUM)/NUM_CMDS
+#define ROUNDING_NUM SPACING/2
 
 #define ENCODER_UNITS_PER_ROTATION 4096
 #define DIAMETER 6
@@ -42,6 +48,7 @@ class Robot : public frc::TimedRobot {
   jankyDrivestick*right;
   jankyXboxJoystick*gameJoystick;
   AnalogInput*distSensor;
+  PWM*lightController;
   int i, m;
   bool ypressed, apressed;
 
@@ -61,6 +68,7 @@ class Robot : public frc::TimedRobot {
     right = NULL;
     gameJoystick = NULL;
     distSensor = NULL;
+    lightController = NULL;
   }
 
   ~Robot()
@@ -78,6 +86,7 @@ class Robot : public frc::TimedRobot {
     delete right;
     delete gameJoystick;
     delete distSensor;
+    delete lightController;
   }
   
   virtual void RobotInit() override
@@ -95,6 +104,7 @@ class Robot : public frc::TimedRobot {
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
     gameJoystick = new jankyXboxJoystick(GC_XBOX_CHANNEL);
     distSensor = new AnalogInput(CARGO_ULTRASON_CHANNEL);
+    lightController = new PWM(PWM_CHANNEL);
 
     drive -> SetSafetyEnabled(false);
 
@@ -127,6 +137,18 @@ class Robot : public frc::TimedRobot {
   virtual void TeleopPeriodic() override
   {
     drive->TankDrive(-left->GetY(), -right->GetY());
+
+    if(-left->GetY()!=0 && -right->GetY()!=0)
+      lightController -> SetRaw(1300);
+
+    else if(-left->GetY()!=0)
+      lightController -> SetRaw(1200);
+
+    else if(-right->GetY()!=0)
+      lightController -> SetRaw(1100);
+
+    else
+      lightController -> SetRaw(1000);
     
     double leftEncoderCount = -(flmotor->GetSensorCollection().GetQuadraturePosition());
     double leftEncoderDistance = (leftEncoderCount/ENCODER_UNITS_PER_ROTATION)*CIRCUMFERENCE;
@@ -138,6 +160,7 @@ class Robot : public frc::TimedRobot {
     SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
     SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
     SmartDashboard::PutNumber("Distance to object in front of robot", distance);
+    SmartDashboard::PutNumber("PWM value", lightController -> GetRaw());
 
     bool buttonY = gameJoystick -> GetButtonY();
     bool buttonA = gameJoystick -> GetButtonA();

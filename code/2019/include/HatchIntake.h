@@ -15,11 +15,13 @@ class HatchIntake: public JankyTask
         void Go();
         virtual void Run();
         void BottomPistonsOut();
+        bool GetPistonStatus();
 
     private:
         Solenoid*pistonTop;
         Solenoid*pistonBottom;
         bool actuating;
+        bool hatchPistonsIn;
         double fullActuationTime;
         double fullCycleTime;
         int i;

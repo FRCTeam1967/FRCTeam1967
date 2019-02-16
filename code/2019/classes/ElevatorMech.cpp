@@ -19,8 +19,12 @@
 #include "ElevatorMech.h"
 #include "ctre/phoenix/motorcontrol/SensorCollection.h"
 
-#define L_MOTOR_F_SPEED 0.8
-#define L_MOTOR_R_SPEED -0.9
+#define L_MOTOR_F_SPEED_1 -0.8 //motors are switched, so forward is negative
+#define L_MOTOR_R_SPEED_1 0.5
+/*#define L_MOTOR_F_SPEED_2 -0.6
+#define L_MOTOR_R_SPEED_2 0.3
+#define L_MOTOR_F_SPEED_3 -0.5
+#define L_MOTOR_R_SPEED_3 0.2*/
 //#define R_MOTOR_F_SPEED 0.8
 //#define R_MOTOR_R_SPEED -0.9
 #define MOTOR_STOP_SPEED 0.0
@@ -31,8 +35,12 @@
 #define SPROCKET_INCHES_PER_TOOTH 0.25 
 
 //hysteresis: wiggle room for preset height [if mech reaches within an inch of its destination, stop]
-#define UD_HYSTERESIS_POS 0.5
-#define UD_HYSTERESIS_NEG -0.5
+#define UD_HYSTERESIS_1_POS 2.0
+#define UD_HYSTERESIS_1_NEG -2.0
+/*#define UD_HYSTERESIS_2_POS 3.0
+#define UD_HYSTERESIS_2_NEG -3.0
+#define UD_HYSTERESIS_3_POS 0.5
+#define UD_HYSTERESIS_3_NEG -0.5*/
 
 #define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain - recalculate for 2019
 //1.8125 * M_PI
@@ -60,42 +68,48 @@ bool hatchPistonsIn = false; //sets up ConditionalRun - if pistons in, class doe
 
 ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBottomChannel, int limSwitchTopChannel) {
     //motors + encoder setup (motors need to be in brake mode)
-    lMotor = new WPI_TalonSRX(lMotorChannel);
-    rMotor = new WPI_TalonSRX(rMotorChannel);
-    rMotor -> Set(ControlMode::Follower, lMotorChannel);
-	lMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	lMotor -> SetSelectedSensorPosition(0, 0, 10);
-	lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+    lmotor = new WPI_TalonSRX(lMotorChannel);
+    rmotor = new WPI_TalonSRX(rMotorChannel);
+    rmotor -> Set(ControlMode::Follower, lMotorChannel);
+	lmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	lmotor -> SetSelectedSensorPosition(0, 0, 10);
+	lmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+    rmotor -> SetSelectedSensorPosition(0, 0, 10);
+	rmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 
     //lim switches
     bottomLimSwitch = new frc::DigitalInput(limSwitchBottomChannel);
     topLimSwitch = new frc::DigitalInput(limSwitchTopChannel);
+    
+    Start();
 }
 
 ElevatorMech::~ElevatorMech(){
-    delete lMotor;
-    delete rMotor;
+    delete lmotor;
+    delete rmotor;
     delete bottomLimSwitch;
     delete topLimSwitch;
 }
 
 //encoder functions
 void ElevatorMech::ResetEncoder(){
-	lMotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	lMotor -> SetSelectedSensorPosition(0, 0, 10);
+	lmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	lmotor -> SetSelectedSensorPosition(0, 0, 10);
+    rmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	rmotor -> SetSelectedSensorPosition(0, 0, 10);
 }
 
 double ElevatorMech::GetEncoderCount(){
-    double leftEncoderCount= lMotor -> GetSensorCollection().GetQuadraturePosition();
-    double rightEncoderCount= rMotor -> GetSensorCollection().GetQuadraturePosition();
+    leftEncoderCount = -lmotor -> GetSensorCollection().GetQuadraturePosition();
+    rightEncoderCount = rmotor -> GetSensorCollection().GetQuadraturePosition();
     frc::SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
     frc::SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
 }
 
 double ElevatorMech::GetEncoderDistance(){
     GetEncoderCount();
-    double leftEncoderDistance = ((leftEncoderCount/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
-    double rightEncoderDistance = ((rightEncoderCount/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
+    leftEncoderDistance = ((((leftEncoderCount*100)/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
+    rightEncoderDistance = ((rightEncoderCount/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
     frc::SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
     frc::SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
         
@@ -103,15 +117,31 @@ double ElevatorMech::GetEncoderDistance(){
 
 //elevator motor movement functions
 void ElevatorMech::ElevatorMotorUp(){
-    lMotor -> Set(L_MOTOR_F_SPEED);
+    lmotor -> Set(L_MOTOR_F_SPEED_1);
 }
 
 void ElevatorMech::ElevatorMotorDown(){
-    lMotor -> Set(L_MOTOR_R_SPEED);
+    lmotor -> Set(L_MOTOR_R_SPEED_1);
 }
 
+/*void ElevatorMech::ElevatorMotorUpSpeed2(){
+    lmotor -> Set(L_MOTOR_F_SPEED_2);
+}
+
+void ElevatorMech::ElevatorMotorDownSpeed2(){
+    lmotor -> Set(L_MOTOR_R_SPEED_2);
+}
+
+void ElevatorMech::ElevatorMotorUpSpeed3(){
+    lmotor -> Set(L_MOTOR_F_SPEED_3);
+}
+
+void ElevatorMech::ElevatorMotorDownSpeed3(){
+    lmotor -> Set(L_MOTOR_R_SPEED_3);
+}*/
+
 void ElevatorMech::ElevatorMotorStop(){
-    lMotor -> Set(MOTOR_STOP_SPEED);
+    lmotor -> Set(MOTOR_STOP_SPEED);
 }
 
 // lim switch values
@@ -129,53 +159,63 @@ int ElevatorMech::GetTopLimSwitch(){
 void ElevatorMech::RocketLowCargoHeight(){
     desiredHeight = ROCKET_LOW_CARGO_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Rocket Low Cargo Height";
 }
 
 void ElevatorMech::RocketMedCargoHeight(){
-        desiredHeight = ROCKET_MED_CARGO_HEIGHT;
+    desiredHeight = ROCKET_MED_CARGO_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Rocket Medium Cargo Height";
 }
 
 void ElevatorMech::RocketHighCargoHeight(){
     desiredHeight = ROCKET_HIGH_CARGO_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Rocket High Cargo Height";
 }
 
 void ElevatorMech::RocketLowHatchHeight(){
     desiredHeight = ROCKET_LOW_HATCH_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Rocket Low Hatch Height";
 }
 
 void ElevatorMech::RocketMedHatchHeight(){
     desiredHeight = ROCKET_MED_HATCH_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Rocket Medium Hatch Height";
 }
 
 void ElevatorMech::RocketHighHatchHeight(){
     desiredHeight = ROCKET_HIGH_HATCH_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Rocket High Hatch Height";
 }
 
 //ground + hp presets
 void ElevatorMech::GroundHeight(){
     desiredHeight = GROUND_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Ground Height";
 }
 
 void ElevatorMech::HPHeight(){
     desiredHeight = HP_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Human Player Station Height";
 }
 
 //cargo ship presents
 void ElevatorMech::ShipCargoHeight(){
     desiredHeight = CARGO_SHIP_CARGO_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Cargo Ship Cargo Height";
 }
 
 void ElevatorMech::ShipHatchHeight(){
     desiredHeight = CARGO_SHIP_HATCH_HEIGHT;
     isMechanismRunning = true;
+    setHeight = "Cargo Ship Hatch Hatch Height";
 }
 
 bool ElevatorMech::GetIfMechIsRunning(){
@@ -188,16 +228,26 @@ void ElevatorMech::SmartDashboardComments(){
 	frc::SmartDashboard::PutNumber("Amount To Move", amountToMove);
     frc::SmartDashboard::PutBoolean("Top Limit Switch Value", GetTopLimSwitch());
 	frc::SmartDashboard::PutBoolean("Bottom Limit Switch Value", GetBottomLimSwitch());
+    frc::SmartDashboard::PutString("Preset Height:", setHeight);
 }
 
 // run + check for hatch piston status
 
 void ElevatorMech::StartUpInit(){
-    lMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
-	lMotor -> SetSelectedSensorPosition(0, 0, 10);
+    lmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+	lmotor -> SetSelectedSensorPosition(0, 0, 10);
+    rmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+	rmotor -> SetSelectedSensorPosition(0, 0, 10);
+    SmartDashboardComments();
+    setHeight = "None";
 	isMechanismRunning = false;
 	desiredHeight = 0.0;
 	amountToMove = 0.0;
+    avgEncoderDistance = 0.0;
+    leftEncoderCount = 0.0;
+    rightEncoderCount = 0.0;
+    leftEncoderDistance = 0.0;
+    rightEncoderDistance = 0.0;
 
 	needsToPutDownMechanism = true;
     bottomLimSwitchHasNotBeenPressed = true;
@@ -236,27 +286,55 @@ void ElevatorMech::PutMechanismDown(){
     }
 }
 
-//run functions if piston not out
-void ElevatorMech::Run(){
-    GetEncoderCount();
-    avgEncoderCount = ((leftEncoderCount + rightEncoderCount) / 2); //averages left and right encoders to get one uniform variable
-    amountToMove = (desiredHeight - avgEncoderCount * -1); //finds distance to travel - return changing value by calculating it every time?
-    SmartDashboardComments();
-    if (isMechanismRunning) {
-        if (amountToMove > UD_HYSTERESIS_POS) {
+/*void ElevatorMech::FindLocation(double amountToMove){
+        if (amountToMove > UD_HYSTERESIS_1_POS) {
             ElevatorMotorDown();
         }
-        else if (amountToMove < UD_HYSTERESIS_NEG) {
+        else if (amountToMove < UD_HYSTERESIS_1_NEG) {
             ElevatorMotorUp();
         }
-        else if ((amountToMove < UD_HYSTERESIS_POS) && (amountToMove > UD_HYSTERESIS_NEG)){
-            ElevatorMotorStop();
-            isMechanismRunning = false;
-            if (!done){
-                cout << "Elevator at Desired Height";
-                done = true;
+        else {
+            if (amountToMove > UD_HYSTERESIS_2_POS){
+                ElevatorMotorDownSpeed2();
             }
-
+            else if (amountToMove < UD_HYSTERESIS_2_NEG){
+                ElevatorMotorUpSpeed2();
+            }
+            else {
+                if (amountToMove > UD_HYSTERESIS_3_POS){
+                    ElevatorMotorDownSpeed3();
+                }
+                else if (amountToMove < UD_HYSTERESIS_3_NEG){
+                    ElevatorMotorUpSpeed3();
+                }
+                else if ((amountToMove <= UD_HYSTERESIS_3_POS) && (amountToMove >= UD_HYSTERESIS_3_NEG)){
+                    ElevatorMotorStop();
+                }
+            }
+        }
+    }
+*/
+//run functions if piston not out
+void ElevatorMech::Run(){ 
+    GetEncoderDistance();
+    avgEncoderDistance = leftEncoderDistance;
+    //avgEncoderCount = ((leftEncoderCount + rightEncoderCount) / 2); //averages left and right encoders to get one uniform variable
+    amountToMove = (avgEncoderDistance - desiredHeight); //finds distance to travel - return changing value by calculating it every time?
+    SmartDashboardComments();
+    if (isMechanismRunning) { //uhp: 0.5, uhn: -0.5
+         if (amountToMove > UD_HYSTERESIS_1_POS) {
+             ElevatorMotorDown();
+         }
+         else if (amountToMove < UD_HYSTERESIS_1_NEG) {
+             ElevatorMotorUp();
+         }
+         else if ((amountToMove <= UD_HYSTERESIS_1_POS) && (amountToMove >= UD_HYSTERESIS_1_NEG)){
+             ElevatorMotorStop();
+             isMechanismRunning = false;
+             if (!done){
+                 cout << "Elevator at Desired Height";
+                 done = true;
+             }
         }
     }
 }

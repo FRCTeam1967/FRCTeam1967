@@ -40,6 +40,7 @@ public:
         void SmartDashboardComments(); 
         bool GetIfMechIsRunning(); 
         void StartUpInit();
+        //void FindLocation(double amountToMove);
 
         double GetEncoderCount(); 
         double GetEncoderDistance(); 
@@ -47,6 +48,10 @@ public:
         void ElevatorMotorUp(); 
         void ElevatorMotorDown();
         void ElevatorMotorStop(); 
+        void ElevatorMotorUpSpeed2();
+        void ElevatorMotorDownSpeed2();
+        void ElevatorMotorUpSpeed3();
+        void ElevatorMotorDownSpeed3();
         //PID
         //void PIDSetup(); //only if required at the moment not sure yet
 
@@ -63,21 +68,21 @@ private:
         bool reachedMaxHeight;
         bool reachedMinHeight;
         bool needsToPutDownMechanism; 
-        double leftEncoderCount;
-        double rightEncoderCount;
+        int leftEncoderCount;
+        int rightEncoderCount;
         double leftEncoderDistance;
         double rightEncoderDistance;
-        double avgEncoderCount;
+        double avgEncoderDistance;
         bool bottomLimSwitchHasNotBeenPressed;
         bool topLimSwitchHasNotBeenPressed;
         bool done;
         bool hatchPistonsIn;
+        string setHeight;
 
 
 
-        WPI_TalonSRX * lMotor;
-        WPI_TalonSRX * rMotor;
+        WPI_TalonSRX * lmotor;
+        WPI_TalonSRX * rmotor;
         frc::DigitalInput * bottomLimSwitch;
         frc::DigitalInput * topLimSwitch;
 };
-
