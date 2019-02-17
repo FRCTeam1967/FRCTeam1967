@@ -47,9 +47,3 @@
 //1.8125 * M_PI
 #define THIRD_STAGE_PRESENT 2
 #endif
-
-//Joysticks
-#define LEFT_JOYSTICK_CHANNEL 0
-#define RIGHT_JOYSTICK_CHANNEL 1
-#define XBOX_CONTROLLER 2
-#define XBOX_CONTROLLER_2 3

@@ -18,6 +18,12 @@
 using namespace std;
 using namespace frc;
 
+//Joysticks
+#define LEFT_JOYSTICK_CHANNEL 0
+#define RIGHT_JOYSTICK_CHANNEL 1
+#define XBOX_CONTROLLER 2
+#define XBOX_CONTROLLER_2 3
+
 class Robot : public frc::TimedRobot {
   public:
     WPI_TalonSRX * flmotor;
@@ -42,7 +48,7 @@ class Robot : public frc::TimedRobot {
     bool buttonPressed;
     bool hatchPistonsOut;
     string setHeight;
-    bool StartPressed, BackPressed;
+    bool chassisFrontButtonPressed, chassisBackButtonPressed;
     
   //constructor
   Robot(){
@@ -124,8 +130,8 @@ class Robot : public frc::TimedRobot {
     gyro->Calibrate();
     buttonPressed = false;
 
-    StartPressed=false;
-    BackPressed=false;
+    chassisFrontButtonPressed=false;
+    chassisBackButtonPressed=false;
 
     cargomanip -> StartInit();
     hatch -> Start();
@@ -148,8 +154,7 @@ class Robot : public frc::TimedRobot {
       vision->StartSequenceTest(); //test mode 
     }
     else if(vision->IsIdle()){ 
-      drive->TankDrive(-joystick->GetLeftYAxis(), -joystick->GetRightYAxis()); //TODO: CHANGE THIS AFTER RRN
-      //drive->TankDrive(-left->GetY(), -right->GetY());
+      drive->TankDrive(-left->GetY(), -right->GetY());
     }
 
     frc::SmartDashboard::PutNumber("angle", gyro->GetAngle());
@@ -166,8 +171,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopPeriodic() override {
   //drive TODO: add vision logic here
-    //drive->TankDrive(-left->GetY(), -right->GetY());
-    drive->TankDrive(-joystick->GetLeftYAxis(), -joystick->GetRightYAxis());
+    drive->TankDrive(-left->GetY(), -right->GetY());
 
   //TODO: rename buttons according to function
   //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
@@ -176,8 +180,8 @@ class Robot : public frc::TimedRobot {
     bool cargoIn = joystick -> GetButtonA(); 
     bool cargoOut = joystick -> GetButtonY(); 
     //TODO: CHANGE CHASSIS PISTON BUTTONS TO BE ON JANKYDRIVESTICK
-    bool chassisFront = joystick -> GetButtonStart(); 
-    bool chassisBack = joystick -> GetButtonBack(); 
+    bool chassisFront = right->Get3();
+    bool chassisBack = right->Get2(); 
     bool cargoPistons = joystick -> GetButtonLB(); 
     bool hatchPistons = joystick -> GetButtonRB(); 
     float manualElevator = joystick2 -> GetRightYAxis(); 
@@ -296,30 +300,30 @@ class Robot : public frc::TimedRobot {
 
     //chassis lifting pistons
     //front piston
-    /*if (chassisFront && StartPressed==false)
+    /*if (chassisFront && chassisFrontButtonPressed==false)
     {
       if(fpiston->Get()==true)
         fpiston -> Set(false);
 
       else if(fpiston->Get()==false)
         fpiston -> Set(true);
-      StartPressed=true;
+      chassisFrontButtonPressed=true;
     }
-    else if (!chassisFront && StartPressed==true)
-      StartPressed=false;
+    else if (!chassisFront && chassisFrontButtonPressed==true)
+      chassisStartButtonPressed=false;
 
     //back pistons
-    if (chassisBack && BackPressed==false)
+    if (chassisBack && chassisBackButtonPressed==false)
     {
       if(bpiston->Get()==true)
         bpiston -> Set(false);
       
       else
         bpiston -> Set(true);
-      BackPressed=true;
+      chassisBackButtonPressed=true;
     }
-    else if (!chassisBack && BackPressed==true)
-      BackPressed=false;*/
+    else if (!chassisBack && chassisBackButtonPressed==true)
+      chassisBackButtonPressed=false;*/
     
   }
 
