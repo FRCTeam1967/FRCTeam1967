@@ -2,10 +2,6 @@
 *   created on: Jan 25, 2019
 *    by: Sandhya, Isha, GC2 */
 
-// 2 cim motors
-// 2 encoders to return distance (w/ preset heights for rocket + ground  + cargo + hp)
-// 2 lim switches on stages 1 and 2, controlling next stage
-
 // elevator cannot run if hatch pisons are in
 
 #include "frc/WPILib.h" 
@@ -19,32 +15,16 @@
 #include "ElevatorMech.h"
 #include "ctre/phoenix/motorcontrol/SensorCollection.h"
 
-#define L_MOTOR_F_SPEED_1 -0.8 //motors are switched, so forward is negative
-#define L_MOTOR_R_SPEED_1 0.5
-/*#define L_MOTOR_F_SPEED_2 -0.6
-#define L_MOTOR_R_SPEED_2 0.3
-#define L_MOTOR_F_SPEED_3 -0.5
-#define L_MOTOR_R_SPEED_3 0.2*/
-//#define R_MOTOR_F_SPEED 0.8
-//#define R_MOTOR_R_SPEED -0.9
-#define MOTOR_STOP_SPEED 0.0
+#define ROBOT_2019
 
+#define L_MOTOR_F_SPEED_1 0.4 //motors are switched, so forward is negative
+#define L_MOTOR_R_SPEED_1 -0.3
+#define MOTOR_STOP_SPEED 0.0
 #define UD_PULSES_PER_REVOLUTION 4096
-#define GEAR_RATIO 12 
-#define SPROCKET_TEETH 22 
-#define SPROCKET_INCHES_PER_TOOTH 0.25 
 
 //hysteresis: wiggle room for preset height [if mech reaches within an inch of its destination, stop]
 #define UD_HYSTERESIS_1_POS 2.0
 #define UD_HYSTERESIS_1_NEG -2.0
-/*#define UD_HYSTERESIS_2_POS 3.0
-#define UD_HYSTERESIS_2_NEG -3.0
-#define UD_HYSTERESIS_3_POS 0.5
-#define UD_HYSTERESIS_3_NEG -0.5*/
-
-#define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain - recalculate for 2019
-//1.8125 * M_PI
-#define THIRD_STAGE_PRESENT 2 
 
 //measurements in inches 
 #define ROCKET_LOW_CARGO_HEIGHT 27.5 
@@ -62,6 +42,26 @@
 /*#define P_VAL 0.5
 #define I_VAL 0.0
 #define D_VAL 0.0*/
+
+
+//use for realbot
+#ifdef ROBOT_2019
+#define GEAR_RATIO 7
+#define UD_CIRCUMFERENCE 4 
+//1.8125 * M_PI
+#define THIRD_STAGE_PRESENT 2 
+//define SPROCKET_INCHES_PER_TOOTH 0.25
+//#define SPROCKET_TEETH_PER_REVOLUTION 16
+
+//use for lola
+#else
+#define GEAR_RATIO 12
+#define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain - recalculate for 2019
+//1.8125 * M_PI
+#define THIRD_STAGE_PRESENT 2
+
+#endif
+
 
 bool done = false; //used to determine completion of tasks
 bool hatchPistonsIn = false; //sets up ConditionalRun - if pistons in, class doesn't run
