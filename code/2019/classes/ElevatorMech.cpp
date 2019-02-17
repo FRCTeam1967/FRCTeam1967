@@ -14,6 +14,7 @@
 #include <jankyXboxJoystick.h>
 #include "ElevatorMech.h"
 #include "ctre/phoenix/motorcontrol/SensorCollection.h"
+#include "Settings.h"
 
 #define ROBOT_2019
 
@@ -42,26 +43,6 @@
 /*#define P_VAL 0.5
 #define I_VAL 0.0
 #define D_VAL 0.0*/
-
-
-//use for realbot
-#ifdef ROBOT_2019
-#define GEAR_RATIO 7
-#define UD_CIRCUMFERENCE 4 
-//1.8125 * M_PI
-#define THIRD_STAGE_PRESENT 2 
-//define SPROCKET_INCHES_PER_TOOTH 0.25
-//#define SPROCKET_TEETH_PER_REVOLUTION 16
-
-//use for lola
-#else
-#define GEAR_RATIO 12
-#define UD_CIRCUMFERENCE 5.5 //22 teeth & size 25 chain - recalculate for 2019
-//1.8125 * M_PI
-#define THIRD_STAGE_PRESENT 2
-
-#endif
-
 
 bool done = false; //used to determine completion of tasks
 bool hatchPistonsIn = false; //sets up ConditionalRun - if pistons in, class doesn't run
