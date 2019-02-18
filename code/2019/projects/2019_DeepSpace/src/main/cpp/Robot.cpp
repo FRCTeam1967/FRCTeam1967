@@ -7,6 +7,7 @@
 #include "DifferentialTurnSegment.h"
 #include "jankyDrivestick.h"
 #include "jankyXboxJoystick.h"
+#include "JankyButtonPanel.h"
 #include "CargoManip.h"
 #include "ctre/Phoenix.h" 
 #include <opencv2/imgproc/imgproc.hpp>
@@ -19,10 +20,22 @@ using namespace std;
 using namespace frc;
 
 //Joysticks
+
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
+
+//#define JANKY_BUTTON_PANEL //comment or uncomment depending on if using xbox vs button panel
+ 
+#ifdef JANKY_BUTTON_PANEL
+
+#define BUTTON_PANEL_CHANNEL 2
+
+#else
+
 #define XBOX_CONTROLLER 2
 #define XBOX_CONTROLLER_2 3
+
+#endif
 
 class Robot : public frc::TimedRobot {
   public:
@@ -36,8 +49,6 @@ class Robot : public frc::TimedRobot {
     frc::DifferentialDrive * drive;
     jankyDrivestick * left;
     jankyDrivestick * right;
-    jankyXboxJoystick * joystick;
-    jankyXboxJoystick * joystick2;
     frc::ADXRS450_Gyro * gyro;
     VisionStateMachine * vision;
     CargoManip * cargomanip;
@@ -49,6 +60,13 @@ class Robot : public frc::TimedRobot {
     bool hatchPistonsOut;
     string setHeight;
     bool chassisFrontButtonPressed, chassisBackButtonPressed;
+
+    #ifdef JANKY_BUTTON_PANEL
+    jankyButtonPanel * buttonpanel;
+    #else    
+    jankyXboxJoystick * joystick;
+    jankyXboxJoystick * joystick2;
+    #endif
     
   //constructor
   Robot(){
@@ -62,8 +80,6 @@ class Robot : public frc::TimedRobot {
     drive = NULL;
     left = NULL;
     right = NULL;
-    joystick = NULL;
-    joystick2 = NULL;
     gyro = NULL;
     vision = NULL;
     cargomanip = NULL;
@@ -71,6 +87,13 @@ class Robot : public frc::TimedRobot {
     elevator = NULL;
     //fpiston = NULL;
     //bpiston = NULL;
+    
+    #ifdef JANKY_BUTTON_PANEL
+    buttonpanel = NULL;
+    #else    
+    joystick = NULL;
+    joystick2 = NULL;
+    #endif
   }
 
   //deconstructor
@@ -85,15 +108,20 @@ class Robot : public frc::TimedRobot {
     delete drive;
     delete left;
     delete right; 
-    delete joystick;
-    delete joystick2;
     delete gyro;
     delete vision;
     delete cargomanip;
     delete hatch;
-    delete elevator; 
+    delete elevator; //nyoon
     //delete fpiston;
     //delete bpiston;
+    
+    #ifdef JANKY_BUTTON_PANEL
+    delete buttonpanel;
+    #else    
+    delete joystick;
+    delete joystick2;
+    #endif
   }
 
   virtual void RobotInit() override {
@@ -113,8 +141,6 @@ class Robot : public frc::TimedRobot {
 		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new frc::SpeedControllerGroup(*frmotor, *rrmotor);
-    joystick = new jankyXboxJoystick(XBOX_CONTROLLER);
-    joystick2 = new jankyXboxJoystick(XBOX_CONTROLLER_2);
     drive = new frc::DifferentialDrive(*leftDrive, *rightDrive);
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
@@ -126,6 +152,13 @@ class Robot : public frc::TimedRobot {
     //fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
     //bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);    
     
+    #ifdef JANKY_BUTTON_PANEL
+    buttonpanel = new jankyButtonPanel(BUTTON_PANEL_CHANNEL);
+    #else    
+    joystick = new jankyXboxJoystick(XBOX_CONTROLLER);
+    joystick2 = new jankyXboxJoystick(XBOX_CONTROLLER_2);
+    #endif
+
     drive->SetSafetyEnabled(false); 
     gyro->Calibrate();
     buttonPressed = false;
@@ -136,6 +169,8 @@ class Robot : public frc::TimedRobot {
     cargomanip -> StartInit();
     hatch -> Start();
     elevator -> Start();
+    elevator -> StartUpInit();
+    elevator -> ResetEncoder();
   }
 
   virtual void AutonomousInit() override {
@@ -173,19 +208,37 @@ class Robot : public frc::TimedRobot {
   //drive TODO: add vision logic here
     drive->TankDrive(-left->GetY(), -right->GetY());
 
-  //TODO: rename buttons according to function
   //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
+    bool chassisFront = right->Get3();
+    bool chassisBack = right->Get2(); 
+   
+    #ifdef JANKY_BUTTON_PANEL
+    float rollers = buttonpanel -> GetRollersYAxis();
+    bool cargoIn = buttonpanel -> GetCargoIn();
+    bool cargoOut = buttonpanel -> GetCargoOut();
+
+    bool cargoPistons = buttonpanel -> GetBottomPistons();
+    bool hatchPistons = buttonpanel -> GetTopPistons(); 
+
+    float manualElevator = buttonpanel -> GetElevatorYAxis();
+    bool rocketLowHatchHPShipHatch = buttonpanel -> GetRocketHatchLow(); //rocket low hatch height + hp station + cargo ship hatch god i hate this name so much
+    bool rocketMedCargo = buttonpanel -> GetRocketCargoMed(); 
+    bool rocketHighCargo = buttonpanel -> GetRocketCargoHigh();
+    bool rocketLowCargo = buttonpanel -> GetRocketCargoLow(); 
+    bool cargoShipCargo = buttonpanel -> GetShipCargo(); 
+    bool rocketHighHatch = buttonpanel -> GetRocketHatchHigh(); 
+    bool groundHeight = buttonpanel -> GetGroundHeight(); 
+
+    #else
     bool rollersOut = joystick -> GetButtonB();
     bool rollersIn = joystick -> GetButtonX(); 
     bool cargoIn = joystick -> GetButtonA(); 
     bool cargoOut = joystick -> GetButtonY(); 
-    //TODO: CHANGE CHASSIS PISTON BUTTONS TO BE ON JANKYDRIVESTICK
-    bool chassisFront = right->Get3();
-    bool chassisBack = right->Get2(); 
+
     bool cargoPistons = joystick -> GetButtonLB(); 
     bool hatchPistons = joystick -> GetButtonRB(); 
-    float manualElevator = joystick2 -> GetRightYAxis(); 
 
+    float manualElevator = joystick2 -> GetRightYAxis(); 
     bool rocketLowHatchHPShipHatch = joystick2 -> GetButtonB(); //rocket low hatch height + hp station + cargo ship hatch god i hate this name so much
     bool rocketMedCargo = joystick2 -> GetButtonX(); 
     bool rocketHighCargo = joystick2 -> GetButtonA();
@@ -194,6 +247,7 @@ class Robot : public frc::TimedRobot {
     bool rocketHighHatch = joystick2 -> GetButtonBack(); 
     bool groundHeight = joystick2 -> GetButtonLB(); 
     bool elevatorStop = joystick2 -> GetButtonRB();
+    #endif
 
   //ELEVATOR
     //conditional run
@@ -209,11 +263,12 @@ class Robot : public frc::TimedRobot {
     }
     
     //hard stop, overrides everything
-    if (elevatorStop){ // stop button overrides everything 
+
+    /*if (elevatorStop){ // stop button overrides everything 
       elevator -> ElevatorMotorStop();
     }
     //presets
-    else if (cargoShipCargo){ 
+    else */if (cargoShipCargo){ 
       elevator -> ShipCargoHeight();
     }
 
@@ -259,6 +314,19 @@ class Robot : public frc::TimedRobot {
 
 
   //cargo
+  
+  #ifdef JANKY_BUTTON_PANEL
+    if (rollers >= 0.2){
+      cargomanip -> RollersIn();
+    }
+    else if (rollers <= -0.2){
+      cargomanip -> RollersOut();
+    }
+    else if (rollers < 0.2 && rollers > -0.2){
+      cargomanip -> RollersStop();
+    }
+
+  #else
     if (rollersOut){
       cargomanip -> RollersOut();
     }
@@ -268,6 +336,7 @@ class Robot : public frc::TimedRobot {
     else {
       cargomanip -> RollersStop();
     }
+    #endif
 
     if (cargoIn){
       cargomanip -> CargoMechInRobot(); 

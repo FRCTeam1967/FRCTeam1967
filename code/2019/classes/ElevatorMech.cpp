@@ -81,7 +81,7 @@ void ElevatorMech::ResetEncoder(){
 }
 
 double ElevatorMech::GetEncoderCount(){
-    leftEncoderCount = -lmotor -> GetSensorCollection().GetQuadraturePosition();
+    leftEncoderCount = lmotor -> GetSensorCollection().GetQuadraturePosition();
     rightEncoderCount = rmotor -> GetSensorCollection().GetQuadraturePosition();
     frc::SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
     frc::SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
@@ -90,10 +90,9 @@ double ElevatorMech::GetEncoderCount(){
 double ElevatorMech::GetEncoderDistance(){
     GetEncoderCount();
     leftEncoderDistance = ((((leftEncoderCount*100)/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
-    rightEncoderDistance = ((rightEncoderCount/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT;
+    rightEncoderDistance = (((rightEncoderCount*100/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
     frc::SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
-    frc::SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);
-        
+    frc::SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);   
 }
 
 //elevator motor movement functions
@@ -298,8 +297,7 @@ void ElevatorMech::PutMechanismDown(){
 //run functions if piston not out
 void ElevatorMech::Run(){ 
     GetEncoderDistance();
-    avgEncoderDistance = leftEncoderDistance;
-    //avgEncoderCount = ((leftEncoderCount + rightEncoderCount) / 2); //averages left and right encoders to get one uniform variable
+    avgEncoderDistance = (leftEncoderDistance + rightEncoderCount) / 2; //averages left and right encoders to get one uniform variable
     amountToMove = (avgEncoderDistance - desiredHeight); //finds distance to travel - return changing value by calculating it every time?
     SmartDashboardComments();
     if (isMechanismRunning) { //uhp: 0.5, uhn: -0.5
