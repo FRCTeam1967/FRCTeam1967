@@ -22,6 +22,8 @@
 CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
   motorRoll = new WPI_VictorSPX(motorRollChannel);
   pivotMotor = new WPI_TalonSRX(motorPivotChannel);
+
+  pivotMotor-> ConfigSelectedFeedbackSensor(Analog, 0, 0);
   //limSwitchInside = new frc::DigitalInput(limSwitchInsideChannel);
   //limSwitchOutside = new frc::DigitalInput(limSwitchOutsideChannel);
   //encoderRoll = new frc::Encoder();
@@ -112,4 +114,8 @@ void CargoManip::StartInit(){
   pivotMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 	encoderCount = 0.0;
 	encoderAngle = 0.0;
+}
+
+float CargoManip::GetHatchPanelDistance(){
+  return (pivotMotor->GetSensorCollection().GetAnalogIn());
 }

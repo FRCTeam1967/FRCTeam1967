@@ -34,7 +34,7 @@ public:
 
     double getEncoderCount(); 
     float GetEncoderAngle(); //returns angle movement - type uncertain??
-
+    float GetHatchPanelDistance();
     //void ButtonVals();
 
    // void PIDSetUp(); //for PID? try for elevator!
