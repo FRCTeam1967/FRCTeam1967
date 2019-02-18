@@ -16,8 +16,7 @@
 #include <networktables/NetworkTable.h>
 #include "Contour.h"
 #include "ContourPair.h"
-//#include <ntcore/src/networktables/NetworkTable.h>
-#include "/home/nvidia/FRCTeam1967/code/2018/jetson/ntcore/include/ntcore.h"
+#include <ntcore.h>
 //#include <cscore>
 
 // Namespaces
