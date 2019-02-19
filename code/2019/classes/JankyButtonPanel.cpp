@@ -67,10 +67,10 @@ bool jankyButtonPanel::GetGroundHeight(){
 
 float jankyButtonPanel::GetElevatorYAxis(){
     if (elevatorBottomLimSwitch -> Get()){
-        x = -(elevatorBottomLimSwitch -> Get());
+        x = -1.0;
     }
     else if (elevatorTopLimSwitch -> Get()){
-        x = elevatorTopLimSwitch -> Get();
+        x = 1.0;
     }
     else {
         x = 0;
@@ -87,11 +87,11 @@ bool jankyButtonPanel::GetCargoOut(){
 }
 
 float jankyButtonPanel::GetRollersYAxis(){
-    if (cargoTopLimSwitch -> Get()){
-        y = -(cargoTopLimSwitch -> Get());
+    if (cargoBottomLimSwitch -> Get()){
+        y = -1.0;
     }
     else if (cargoTopLimSwitch -> Get()){
-        y = cargoTopLimSwitch -> Get();
+        y = 1.0;
     }
     else {
         y = 0;
