@@ -81,11 +81,13 @@ bool AutoDrive::JobDone(){
 
 		if(distance==BAD_DATA_DEFAULT){ //this is default value when vision is unable to detect the tape
 			badDataCounter++;
-			printf("Bad Data Count: %d \n", badDataCounter);
+			frc::SmartDashboard::PutNumber("Bad Data Count:", badDataCounter);
+			//printf("Bad Data Count: %d \n", badDataCounter);
 		}
 		else if(distance==NO_DATA_DEFAULT){
 			noDataCounter++;
-			printf("No Data Sent Count: %d \n", noDataCounter);
+			frc::SmartDashboard::PutNumber("No Data Count:", noDataCounter);
+			//printf("No Data Sent Count: %d \n", noDataCounter);
 		}
 		else if(distance<STOP_DRIVING_DISTANCE){
 			printf("AutoDrive complete! Distance reached! \n");
