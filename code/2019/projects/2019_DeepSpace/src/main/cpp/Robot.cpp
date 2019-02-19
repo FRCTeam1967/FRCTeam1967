@@ -43,7 +43,6 @@ class Robot : public frc::TimedRobot {
     WPI_TalonSRX * rlmotor;
     WPI_TalonSRX * frmotor;
     WPI_TalonSRX * rrmotor;
-    //WPI_TalonSRX * cargoPistonMotor;
     frc::SpeedControllerGroup * leftDrive;
     frc::SpeedControllerGroup * rightDrive;
     frc::DifferentialDrive * drive;
@@ -52,10 +51,10 @@ class Robot : public frc::TimedRobot {
     frc::ADXRS450_Gyro * gyro;
     VisionStateMachine * vision;
     CargoManip * cargomanip;
-    //HatchIntake * hatch;
+    HatchIntake * hatch;
     ElevatorMech * elevator;
-    //Solenoid*fpiston;
-    //Solenoid*bpiston;
+    Solenoid*fpiston;
+    Solenoid*bpiston;
     bool buttonPressed;
     bool hatchPistonsOut;
     string setHeight;
@@ -74,7 +73,6 @@ class Robot : public frc::TimedRobot {
     rlmotor = NULL;
     frmotor = NULL;
     rrmotor = NULL;
-    //cargoPistonMotor = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
     drive = NULL;
@@ -83,10 +81,10 @@ class Robot : public frc::TimedRobot {
     gyro = NULL;
     vision = NULL;
     cargomanip = NULL;
-    //hatch = NULL;
+    hatch = NULL;
     elevator = NULL;
-    //fpiston = NULL;
-    //bpiston = NULL;
+    fpiston = NULL;
+    bpiston = NULL;
     
     #ifdef JANKY_BUTTON_PANEL
     buttonpanel = NULL;
@@ -102,7 +100,6 @@ class Robot : public frc::TimedRobot {
     delete rlmotor;
     delete frmotor;
     delete rrmotor;
-    //delete cargoPistonMotor;
     delete leftDrive;
     delete rightDrive;
     delete drive;
@@ -111,10 +108,10 @@ class Robot : public frc::TimedRobot {
     delete gyro;
     delete vision;
     delete cargomanip;
-    //delete hatch;
+    delete hatch;
     delete elevator; //nyoon
-    //delete fpiston;
-    //delete bpiston;
+    delete fpiston;
+    delete bpiston;
     
     #ifdef JANKY_BUTTON_PANEL
     delete buttonpanel;
@@ -136,7 +133,6 @@ class Robot : public frc::TimedRobot {
     rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
     rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
-    //cargoPistonMotor = new WPI_TalonSRX(BOTTOM_CARGO_PISTON);    
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
@@ -147,10 +143,10 @@ class Robot : public frc::TimedRobot {
     gyro = new frc::ADXRS450_Gyro(frc::SPI::Port::kOnboardCS0); //gyro didn't work; maybe try other port options
     vision = new VisionStateMachine(drive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), flmotor, frmotor, rlmotor, rrmotor);
     cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL);
-    //hatch = new HatchIntake(TOP_HATCH_PISTON, BOTTOM_CARGO_PISTON);
+    hatch = new HatchIntake(TOP_HATCH_PISTON, BOTTOM_CARGO_PISTON);
     elevator = new ElevatorMech(L_ELEVATOR_MOTOR_CHANNEL, R_ELEVATOR_MOTOR_CHANNEL, ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL, ELEVATOR_LIM_SWITCH_TOP_CHANNEL);
-    //fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
-    //bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);    
+    fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
+    bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);    
     
     #ifdef JANKY_BUTTON_PANEL
     buttonpanel = new jankyButtonPanel(BUTTON_PANEL_CHANNEL);
@@ -167,7 +163,7 @@ class Robot : public frc::TimedRobot {
     chassisBackButtonPressed=false;
 
     cargomanip -> StartInit();
-    //hatch -> Start();
+    hatch -> Start();
     elevator -> Start();
     elevator -> StartUpInit();
     elevator -> ResetEncoder();
@@ -175,7 +171,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousInit() override {
     gyro->Reset();
-    //hatch->BottomPistonsOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
+    hatch->BottomPistonsOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     flmotor->SetSelectedSensorPosition(0, 0, 10);
@@ -200,8 +196,7 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void TeleopInit() override {
-    //cargoPistonMotor -> ConfigSelectedFeedbackSensor(Analog, 0, 0);
-    //hatch->BottomPistonsOut();
+    hatch->BottomPistonsOut();
   }
 
   virtual void TeleopPeriodic() override {
@@ -251,16 +246,16 @@ class Robot : public frc::TimedRobot {
 
   //ELEVATOR
     //conditional run
-    //hatchPistonsOut = hatch -> GetPistonStatus();
+    hatchPistonsOut = hatch -> GetPistonStatus();
 
-    //frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
+    frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
 
-    /*if (!hatchPistonsOut){
+    if (!hatchPistonsOut){
       elevator -> Pause();
     }
     else {
       elevator -> Start();
-    }*/
+    }
     
     //hard stop, overrides everything
 
@@ -350,11 +345,10 @@ class Robot : public frc::TimedRobot {
     }
 
   //hatch
-    //int hatchDistance = cargoPistonMotor->GetSensorCollection().GetAnalogIn();
     //bool pistonOut;
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
 
-    /*if (hatchPistons)
+    if (hatchPistons)
     {
       hatch->Go();
     }
@@ -366,11 +360,11 @@ class Robot : public frc::TimedRobot {
     }
     else if (!cargoPistons && buttonPressed){
       buttonPressed = false;
-    }*/
+    }
 
     //chassis lifting pistons
     //front piston
-    /*if (chassisFront && chassisFrontButtonPressed==false)
+    if (chassisFront && chassisFrontButtonPressed==false)
     {
       if(fpiston->Get()==true)
         fpiston -> Set(false);
@@ -380,7 +374,7 @@ class Robot : public frc::TimedRobot {
       chassisFrontButtonPressed=true;
     }
     else if (!chassisFront && chassisFrontButtonPressed==true)
-      chassisStartButtonPressed=false;
+      chassisFrontButtonPressed=false;
 
     //back pistons
     if (chassisBack && chassisBackButtonPressed==false)
@@ -393,7 +387,7 @@ class Robot : public frc::TimedRobot {
       chassisBackButtonPressed=true;
     }
     else if (!chassisBack && chassisBackButtonPressed==true)
-      chassisBackButtonPressed=false;*/
+      chassisBackButtonPressed=false;
     
   }
 
