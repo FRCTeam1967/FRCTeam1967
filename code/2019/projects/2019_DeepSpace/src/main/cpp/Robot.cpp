@@ -52,7 +52,7 @@ class Robot : public frc::TimedRobot {
     frc::ADXRS450_Gyro * gyro;
     VisionStateMachine * vision;
     CargoManip * cargomanip;
-    HatchIntake * hatch;
+    //HatchIntake * hatch;
     ElevatorMech * elevator;
     //Solenoid*fpiston;
     //Solenoid*bpiston;
@@ -83,7 +83,7 @@ class Robot : public frc::TimedRobot {
     gyro = NULL;
     vision = NULL;
     cargomanip = NULL;
-    hatch = NULL;
+    //hatch = NULL;
     elevator = NULL;
     //fpiston = NULL;
     //bpiston = NULL;
@@ -111,7 +111,7 @@ class Robot : public frc::TimedRobot {
     delete gyro;
     delete vision;
     delete cargomanip;
-    delete hatch;
+    //delete hatch;
     delete elevator; //nyoon
     //delete fpiston;
     //delete bpiston;
@@ -126,10 +126,10 @@ class Robot : public frc::TimedRobot {
 
   virtual void RobotInit() override {
     //Run drive team camera
-    cs::UsbCamera driveCam;
+    /*cs::UsbCamera driveCam;
     driveCam = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
     driveCam.SetResolution(360,240);
-    driveCam.SetFPS(15);
+    driveCam.SetFPS(15);*/
 
     //Motors for driving
     flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
@@ -145,9 +145,9 @@ class Robot : public frc::TimedRobot {
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
     gyro = new frc::ADXRS450_Gyro(frc::SPI::Port::kOnboardCS0); //gyro didn't work; maybe try other port options
-    vision = new VisionStateMachine(drive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), flmotor, frmotor);
+    vision = new VisionStateMachine(drive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), flmotor, frmotor, rlmotor, rrmotor);
     cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL);
-    hatch = new HatchIntake(TOP_HATCH_PISTON, BOTTOM_CARGO_PISTON);
+    //hatch = new HatchIntake(TOP_HATCH_PISTON, BOTTOM_CARGO_PISTON);
     elevator = new ElevatorMech(L_ELEVATOR_MOTOR_CHANNEL, R_ELEVATOR_MOTOR_CHANNEL, ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL, ELEVATOR_LIM_SWITCH_TOP_CHANNEL);
     //fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
     //bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);    
@@ -167,7 +167,7 @@ class Robot : public frc::TimedRobot {
     chassisBackButtonPressed=false;
 
     cargomanip -> StartInit();
-    hatch -> Start();
+    //hatch -> Start();
     elevator -> Start();
     elevator -> StartUpInit();
     elevator -> ResetEncoder();
@@ -175,7 +175,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousInit() override {
     gyro->Reset();
-    hatch->BottomPistonsOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
+    //hatch->BottomPistonsOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     flmotor->SetSelectedSensorPosition(0, 0, 10);
@@ -186,7 +186,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousPeriodic() override {
     if(left->Get3()){ //replace later to use the button board
-      vision->StartSequenceTest(); //test mode 
+      vision->StartSequence(); //test mode 
     }
     else if(vision->IsIdle()){ 
       drive->TankDrive(-left->GetY(), -right->GetY());
@@ -201,7 +201,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopInit() override {
     //cargoPistonMotor -> ConfigSelectedFeedbackSensor(Analog, 0, 0);
-    hatch->BottomPistonsOut();
+    //hatch->BottomPistonsOut();
   }
 
   virtual void TeleopPeriodic() override {
@@ -251,16 +251,16 @@ class Robot : public frc::TimedRobot {
 
   //ELEVATOR
     //conditional run
-    hatchPistonsOut = hatch -> GetPistonStatus();
+    //hatchPistonsOut = hatch -> GetPistonStatus();
 
-    frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
+    //frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
 
-    if (!hatchPistonsOut){
+    /*if (!hatchPistonsOut){
       elevator -> Pause();
     }
     else {
       elevator -> Start();
-    }
+    }*/
     
     //hard stop, overrides everything
 
@@ -269,6 +269,7 @@ class Robot : public frc::TimedRobot {
     }
     //presets
     else */if (cargoShipCargo){ 
+      //flip arm to be vertical
       elevator -> ShipCargoHeight();
     }
 
@@ -353,7 +354,7 @@ class Robot : public frc::TimedRobot {
     //bool pistonOut;
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
 
-    if (hatchPistons)
+    /*if (hatchPistons)
     {
       hatch->Go();
     }
@@ -365,7 +366,7 @@ class Robot : public frc::TimedRobot {
     }
     else if (!cargoPistons && buttonPressed){
       buttonPressed = false;
-    }
+    }*/
 
     //chassis lifting pistons
     //front piston

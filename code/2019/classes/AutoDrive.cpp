@@ -8,18 +8,24 @@
 #include "AutoDrive.h"
 #include "frc/WPILib.h"
 #include "JankyAutoEntry.h"
+#include "ctre/Phoenix.h"
 
-#define START_TIME 1 //time for camera to begin capturing TODO: reduce this
-#define DISTANCE_TO_STOP_DRIVING 23 //need to change for this year
-#define VISION_DISTANCE "averaged distance to tape"
-#define VISION_OFFSET "horizontal offset"
+#define STARTING_TIME 0.1 //time for camera to begin capturing TODO: reduce this
+#define STOP_DRIVING_DISTANCE 20 //need to change for this year
+#define VISION_DISTANCE "Distance to Tape"
+#define VISION_OFFSET "Offset"
 #define HORIZONTAL_OFFSET_UPPER_BOUND 100
 #define HORIZONTAL_OFFSET_LOW_BOUND (-100)
-#define MAX_BAD_DATA 5
+#define MAX_BAD_DATA 10
 #define BAD_DATA_DEFAULT (-1)
+#define NO_DATA_DEFAULT (-100)
 
-AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d) {
+AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_TalonSRX*rlmotor, WPI_TalonSRX*rrmotor) {
 	// TODO Auto-generated constructor stub
+	_flmotor=flmotor;
+	_frmotor=frmotor;
+	_rlmotor=rlmotor;
+	_rrmotor=rrmotor;
 	kP=p;
 	kI=i;
 	kD=d;
@@ -27,17 +33,22 @@ AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, doubl
 	_speed=speed;
 	pid = new frc::PIDController(kP,kI,kD,this,this);
 	visionTimer = new frc::Timer();
+
+	frc::SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
+	frc::SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
+
 }
 
 AutoDrive::~AutoDrive() {
 	// TODO Auto-generated destructor stub
+	//pid->Disable();
 	delete pid;
 	delete visionTimer;
 }
 
 void AutoDrive::Start(){
 	badDataCounter=0;
-	frc::SmartDashboard::PutNumber(VISION_DISTANCE, -100);
+	noDataCounter=0;
 
     //might have to be changed this year depending on vision data
 	pid->SetInputRange(HORIZONTAL_OFFSET_LOW_BOUND, HORIZONTAL_OFFSET_UPPER_BOUND); //bounds for the horizontal offset
@@ -64,13 +75,21 @@ bool AutoDrive::JobDone(){
 	}*/
 
 	//Handle Bad Data
-	if(visionTimer->Get()>=START_TIME){ 
-		printf("distance %f \n", distance);
-		printf("vision speed %f \n", _speed);
+	if(visionTimer->Get()>=STARTING_TIME){ 
+		//printf("distance %f \n", distance);
+		//printf("vision speed %f \n", _speed);
 
 		if(distance==BAD_DATA_DEFAULT){ //this is default value when vision is unable to detect the tape
 			badDataCounter++;
 			printf("Bad Data Count: %d \n", badDataCounter);
+		}
+		else if(distance==NO_DATA_DEFAULT){
+			noDataCounter++;
+			printf("No Data Sent Count: %d \n", noDataCounter);
+		}
+		else if(distance<STOP_DRIVING_DISTANCE){
+			printf("AutoDrive complete! Distance reached! \n");
+			return true;
 		}
 		//TODO: add more bad data cases (ex. if distance is negative or infinite)
 		
@@ -78,11 +97,11 @@ bool AutoDrive::JobDone(){
 			printf("AutoDrive exited because unable to detect the tape \n");
 			return true;
 		}
-
-		if(distance<DISTANCE_TO_STOP_DRIVING && distance>0){
-			printf("AutoDrive complete! Distance reached! \n");
+		else if(noDataCounter>=MAX_BAD_DATA){
+			printf("AutoDrive exited because no data being sent; using default value of -100 \n");
 			return true;
 		}
+
 	}
 	return false;
 
@@ -94,19 +113,32 @@ void AutoDrive::RunAction(){
 
 void AutoDrive::End(){
 	pid->Disable();
+	pid->Reset();
 	chassis->TankDrive(0.0, 0.0);
+	//chassis->ArcadeDrive(0.0, 0.0);
+	//if this doesn't work then try the commented stuff
+	/*_flmotor->Set(0.0);
+	_frmotor->Set(0.0);
+	_rlmotor->Set(0.0);
+	_rrmotor->Set(0.0);*/
+	printf("end \n");
 	visionTimer->Stop();
 	visionTimer->Reset();
 }
 
 double AutoDrive::PIDGet(){
     //TODO: make sure these are the right names for what vision is sending to the dashboard
-	distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, -100); 
-	horizontalOffset=frc::SmartDashboard::GetNumber(VISION_OFFSET, -100);
+	distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
+	horizontalOffset=frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT);
 
 	//filtering out bad horizontal offset data here outside of the (-100, 100) range before returning
 	if(horizontalOffset>HORIZONTAL_OFFSET_UPPER_BOUND || horizontalOffset<HORIZONTAL_OFFSET_LOW_BOUND){
+		printf("Horizontal Offset out of bounds: %d \n", horizontalOffset);		
 		return 0; //this should make the robot not turn
+	}
+	else if(horizontalOffset==NO_DATA_DEFAULT){
+		printf("Horizontal Offset not changing from default: %d \n", horizontalOffset);		
+		return 0;		
 	}
 	else{
 		return horizontalOffset;

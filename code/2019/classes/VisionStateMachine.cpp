@@ -19,7 +19,7 @@
 
 //P, I, and D values for the AutoDrive in which the robot turns to get horizontal offset to zero
 // THESE VALUES NEED TO BE TUNED
-float vision_kP = 0.05;
+float vision_kP = 0.0;
 float vision_kI = 0.0;
 float vision_kD = 0.0;
 
@@ -35,9 +35,9 @@ AutoDrive*visionDrive;
 DifferentialDriveSegment*driveSegment;
 DifferentialTurnSegment*turn;
 
-VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor){ //add cargo and hatch mechanisms
-    visionDrive= new ::AutoDrive(drive, VISION_DRIVE_SPEED, vision_kP, vision_kI, vision_kD); // added :: to resolve "expected type specifier" error
-    driveSegment= new DifferentialDriveSegment(gyro, drive, leftEncoder, rightEncoder, leftmotor, rightmotor, 78, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
+VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_TalonSRX*rlmotor, WPI_TalonSRX*rrmotor){ //add cargo and hatch mechanisms
+    visionDrive= new ::AutoDrive(drive, VISION_DRIVE_SPEED, vision_kP, vision_kI, vision_kD, flmotor, frmotor, rlmotor, rrmotor); // added :: to resolve "expected type specifier" error
+    driveSegment= new DifferentialDriveSegment(gyro, drive, leftEncoder, rightEncoder, flmotor, frmotor, 78, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
     turn= new DifferentialTurnSegment(gyro, drive, -90, TURN_SPEED, turn_kP, turn_kI, turn_kD);
 
     SetMachineName("VisionStateMachine");
