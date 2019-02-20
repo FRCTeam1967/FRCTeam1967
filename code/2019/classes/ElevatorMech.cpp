@@ -28,16 +28,17 @@
 #define UD_HYSTERESIS_1_NEG -2.0
 
 //measurements in inches 
-#define ROCKET_LOW_CARGO_HEIGHT 27.5 
-#define ROCKET_MED_CARGO_HEIGHT 55.5 
-#define ROCKET_HIGH_CARGO_HEIGHT 83.5 
-#define ROCKET_LOW_HATCH_HEIGHT 19
-#define ROCKET_MED_HATCH_HEIGHT 47
-#define ROCKET_HIGH_HATCH_HEIGHT 75 
-#define GROUND_HEIGHT 0.0
-#define HP_HEIGHT 19
-#define CARGO_SHIP_CARGO_HEIGHT 36 // one inch over edge of bay
-#define CARGO_SHIP_HATCH_HEIGHT 19
+#define INCHES_OFF_GROUND 5.0
+#define ROCKET_LOW_CARGO_HEIGHT 27.5 - INCHES_OFF_GROUND 
+#define ROCKET_MED_CARGO_HEIGHT 55.5 - INCHES_OFF_GROUND 
+#define ROCKET_HIGH_CARGO_HEIGHT 83.5 - INCHES_OFF_GROUND 
+#define ROCKET_LOW_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
+#define ROCKET_MED_HATCH_HEIGHT 47 - INCHES_OFF_GROUND 
+#define ROCKET_HIGH_HATCH_HEIGHT 75 - INCHES_OFF_GROUND 
+#define GROUND_HEIGHT 0.0 - INCHES_OFF_GROUND 
+#define HP_HEIGHT 19 - INCHES_OFF_GROUND 
+#define CARGO_SHIP_CARGO_HEIGHT 36 - INCHES_OFF_GROUND  // one inch over edge of bay
+#define CARGO_SHIP_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 
 // pid values - used for regulation [add later]; p - prop, i - int, d - der
 /*#define P_VAL 0.5
@@ -84,13 +85,13 @@ double ElevatorMech::GetEncoderCount(){
     leftEncoderCount = lmotor -> GetSensorCollection().GetQuadraturePosition();
     rightEncoderCount = rmotor -> GetSensorCollection().GetQuadraturePosition();
     frc::SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
-    frc::SmartDashboard::PutNumber("Right Encoder Count", rightEncoderCount);
+    frc::SmartDashboard::PutNumber("Right Encoder Count", -rightEncoderCount);
 }
 
 double ElevatorMech::GetEncoderDistance(){
     GetEncoderCount();
     leftEncoderDistance = ((((leftEncoderCount*100)/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
-    rightEncoderDistance = (((rightEncoderCount*100/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
+    rightEncoderDistance = (((-rightEncoderCount*100/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
     frc::SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
     frc::SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);   
 }
@@ -297,7 +298,7 @@ void ElevatorMech::PutMechanismDown(){
 //run functions if piston not out
 void ElevatorMech::Run(){ 
     GetEncoderDistance();
-    avgEncoderDistance = (leftEncoderDistance + rightEncoderCount) / 2; //averages left and right encoders to get one uniform variable
+    avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2; //averages left and right encoders to get one uniform variable
     amountToMove = (avgEncoderDistance - desiredHeight); //finds distance to travel - return changing value by calculating it every time?
     SmartDashboardComments();
     if (isMechanismRunning) { //uhp: 0.5, uhn: -0.5
