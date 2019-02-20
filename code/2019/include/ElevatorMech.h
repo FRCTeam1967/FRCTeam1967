@@ -23,8 +23,6 @@ public:
         virtual ~ElevatorMech(); 
         virtual void Run();
 
-        void ConditionalRun();
-
         void RocketLowCargoHeight(); 
         void RocketMedCargoHeight(); 
         void RocketHighCargoHeight(); 
@@ -48,10 +46,6 @@ public:
         void ElevatorMotorUp(); 
         void ElevatorMotorDown();
         void ElevatorMotorStop(); 
-        void ElevatorMotorUpSpeed2();
-        void ElevatorMotorDownSpeed2();
-        void ElevatorMotorUpSpeed3();
-        void ElevatorMotorDownSpeed3();
         //PID
         //void PIDSetup(); //only if required at the moment not sure yet
 
@@ -78,8 +72,6 @@ private:
         bool done;
         bool hatchPistonsIn;
         string setHeight;
-
-
 
         WPI_TalonSRX * lmotor;
         WPI_TalonSRX * rmotor;

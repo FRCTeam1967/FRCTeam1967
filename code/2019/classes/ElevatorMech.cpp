@@ -319,13 +319,6 @@ void ElevatorMech::Run(){
     }
 }
 
-void ElevatorMech::ConditionalRun(){
-    if (hatchPistonsIn){
-        Pause();
-    }
-} // call in robot.cpp
-
-
 // PID setup - add if necessary
 /*void ElevatorMech::PIDSetup() {
 	int absolutePosition = lMotor->GetSelectedSensorPosition(0); /* mask out the bottom12 bits, we don't care about the wrap arounds */
