@@ -351,7 +351,7 @@ int main(int argc, char **argv)
                 if (fabs(smallestOffset) > fabs(contourPairs[a].returnOffset()))
                 {
                 	indexOfOffset = a;
-                    smallestOffset = fabs(contourPairs[a].returnOffset());
+                    smallestOffset = contourPairs[a].returnOffset();
                     distToSend = contourPairs[a].returnDist();
                 }
             }
@@ -392,8 +392,8 @@ int main(int argc, char **argv)
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME)
                 {
-                    vTable->PutNumber("Distance to Tape", -1);
-                    vTable->PutNumber("Averaged Distance to Tape", -1);
+                    vTable->PutNumber("Offset", -100);
+            	    vTable->PutNumber("Distance to Tape", -1);
                 }
             }
         }
