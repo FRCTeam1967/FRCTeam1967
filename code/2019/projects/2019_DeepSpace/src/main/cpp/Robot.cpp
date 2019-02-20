@@ -24,11 +24,12 @@ using namespace frc;
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
 
-//#define JANKY_BUTTON_PANEL //comment or uncomment depending on if using xbox vs button panel
+#define JANKY_BUTTON_PANEL //comment or uncomment depending on if using xbox vs button panel
  
 #ifdef JANKY_BUTTON_PANEL
 
-#define BUTTON_PANEL_CHANNEL 2
+#define CARGO_SIDE_CHANNEL 3
+#define HATCH_SIDE_CHANNEL 4
 
 #else
 
@@ -149,7 +150,7 @@ class Robot : public frc::TimedRobot {
     bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);    
     
     #ifdef JANKY_BUTTON_PANEL
-    buttonpanel = new jankyButtonPanel(BUTTON_PANEL_CHANNEL);
+    buttonpanel = new jankyButtonPanel(CARGO_SIDE_CHANNEL, HATCH_SIDE_CHANNEL);
     #else    
     joystick = new jankyXboxJoystick(XBOX_CONTROLLER);
     joystick2 = new jankyXboxJoystick(XBOX_CONTROLLER_2);
@@ -221,6 +222,7 @@ class Robot : public frc::TimedRobot {
     bool rocketHighCargo = buttonpanel -> GetRocketCargoHigh();
     bool rocketLowCargo = buttonpanel -> GetRocketCargoLow(); 
     bool cargoShipCargo = buttonpanel -> GetShipCargo(); 
+    bool rocketMedHatch = buttonpanel -> GetRocketHatchMed();
     bool rocketHighHatch = buttonpanel -> GetRocketHatchHigh(); 
     bool groundHeight = buttonpanel -> GetGroundHeight(); 
 
@@ -265,41 +267,55 @@ class Robot : public frc::TimedRobot {
     //presets
     else */if (cargoShipCargo){ 
       //flip arm to be vertical
+      //printf("cargo ship cargo button pressed \n");
       elevator -> ShipCargoHeight();
     }
 
     else if (rocketLowCargo){
+      //printf("rocket low cargo button pressed \n");
       elevator -> RocketLowCargoHeight();
     }
 
     else if (rocketHighCargo){
+      //printf("rocket high cargo button pressed \n");
       elevator -> RocketHighCargoHeight();
     }
 
     else if (rocketLowHatchHPShipHatch){
+      //printf("rocket low hatch button pressed \n");
       elevator -> RocketLowHatchHeight();
     }
    
     else if (rocketHighHatch){
+      //printf("rocket high hatch button pressed \n");
       elevator -> RocketHighHatchHeight();
     }  
    
     else if (rocketMedCargo){
+      //printf("rocket medium cargo button pressed \n");
       elevator -> RocketMedCargoHeight();
     }
    
+    else if (rocketMedHatch){
+      //printf("rocket medium hatch button pressed \n");
+      elevator -> RocketMedHatchHeight();
+    }
+
     else if (groundHeight){
+      //printf("ground button pressed \n");
       elevator -> GroundHeight();
     }
 
    //manual controls
     else { 
-      if (manualElevator >= 0.2){
+      if (manualElevator <= -0.2){
         elevator -> ElevatorMotorDown();
+        //printf("elevator down triggered \n");
         setHeight = "None";
       }
-      else if (manualElevator <= -0.2){
+      else if (manualElevator >= 0.2){
         elevator -> ElevatorMotorUp();
+        //printf("elevator up triggered \n");
         setHeight = "None";
       }
       else if (manualElevator < 0.2 && manualElevator > -0.2){
@@ -312,10 +328,12 @@ class Robot : public frc::TimedRobot {
   //cargo
   
   #ifdef JANKY_BUTTON_PANEL
-    if (rollers >= 0.2){
+    if (rollers <= -0.2){
+      //printf("rollers in triggered \n");
       cargomanip -> RollersIn();
     }
-    else if (rollers <= -0.2){
+    else if (rollers >= 0.2){
+      //printf("rollers out triggered \n");
       cargomanip -> RollersOut();
     }
     else if (rollers < 0.2 && rollers > -0.2){
@@ -350,11 +368,13 @@ class Robot : public frc::TimedRobot {
 
     if (hatchPistons)
     {
+      printf("hatch top pistons button pressed \n");
       hatch->Go();
     }
 
     if (cargoPistons && !buttonPressed)
     {
+      printf("cargo/hatch bottom pistons button pressed \n");
       hatch->BottomPistonsSwitch();
       buttonPressed = true;
     }
