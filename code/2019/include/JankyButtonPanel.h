@@ -29,7 +29,7 @@
 
 class jankyButtonPanel {
 public:
-    jankyButtonPanel(int joystickPortA, int joystickPortB, int elevatorBottomLS, int elevatorTopLS, int cargoBottomLS, int cargoTopLS);
+    jankyButtonPanel(int joystickPortA, int joystickPortB);
 	virtual ~jankyButtonPanel(void);
 
     bool GetRocketCargoLow();
@@ -41,11 +41,9 @@ public:
     bool GetShipCargo();
     bool GetGroundHeight();
     float GetElevatorYAxis();
-    //bool GetElevatorLimSwitches();
     bool GetCargoIn();
     bool GetCargoOut();
     float GetRollersYAxis();
-    //bool GetCargoLimSwitches();
     bool GetBottomPistons();
     bool GetTopPistons();
     float x;
@@ -54,11 +52,5 @@ public:
 private:
     frc::Joystick * joystick1;
     frc::Joystick * joystick2;
-    frc::DigitalInput * elevatorBottomLimSwitch;
-    frc::DigitalInput * elevatorTopLimSwitch;
-    frc::DigitalInput * cargoBottomLimSwitch;
-    frc::DigitalInput * cargoTopLimSwitch;
-    //frc::DigitalInput * cargoLeftLimSwitch;
-    //frc::DigitalInput * cargoRightLimSwitch;
 };
 #endif

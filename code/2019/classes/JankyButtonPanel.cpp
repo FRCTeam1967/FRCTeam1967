@@ -7,17 +7,16 @@
 #include <frc/Joystick.h>
 #include "JankyButtonPanel.h"
 
+#define ELEVATOR_X_AXIS_CHANNEL 1 // before 1
+#define ELEVATOR_Y_AXIS_CHANNEL 0 // before 2
+#define ROLLER_X_AXIS_CHANNEL 1
+#define ROLLER_Y_AXIS_CHANNEL 0
+
 //include ports here
 
-jankyButtonPanel::jankyButtonPanel(int joystickPortA, int joystickPortB, int elevatorBottomLS, int elevatorTopLS, int cargoBottomLS, int cargoTopLS){
-    joystick1 = new frc::Joystick(joystickPortA);
-    joystick2 = new frc::Joystick(joystickPortB);
-    elevatorBottomLimSwitch = new frc::DigitalInput(elevatorBottomLS);
-    elevatorTopLimSwitch = new frc::DigitalInput(elevatorTopLS);
-    cargoBottomLimSwitch = new frc::DigitalInput(cargoBottomLS);
-    cargoTopLimSwitch = new frc::DigitalInput(cargoBottomLS);
-    //cargoLeftLimSwitch = new frc::DigitalInput(cargoLeftLS);
-    //cargoRightLimSwitch = new frc::DigitalInput(cargoRightLS);
+jankyButtonPanel::jankyButtonPanel(int joystickPortA, int joystickPortB){
+    joystick1 = new frc::Joystick(joystickPortA); // cargo side joystick
+    joystick2 = new frc::Joystick(joystickPortB); // hatch side joystick
     x=0;
     y=0;
 }
@@ -25,12 +24,6 @@ jankyButtonPanel::jankyButtonPanel(int joystickPortA, int joystickPortB, int ele
 jankyButtonPanel::~jankyButtonPanel(){
     delete joystick1;
     delete joystick2;
-    delete elevatorBottomLimSwitch;
-    delete elevatorTopLimSwitch;
-    delete cargoBottomLimSwitch;
-    delete cargoTopLimSwitch;
-    //delete cargoLeftLimSwitch;
-    //delete cargoRightLimSwitch;
 }
 
 bool jankyButtonPanel::GetRocketCargoMed(){
@@ -66,16 +59,8 @@ bool jankyButtonPanel::GetGroundHeight(){
 }
 
 float jankyButtonPanel::GetElevatorYAxis(){
-    if (elevatorBottomLimSwitch -> Get()){
-        x = -1.0;
-    }
-    else if (elevatorTopLimSwitch -> Get()){
-        x = 1.0;
-    }
-    else {
-        x = 0;
-    }
-    return x;
+    float x = joystick2->GetRawAxis(ELEVATOR_Y_AXIS_CHANNEL);
+	return x;
 }
 
 bool jankyButtonPanel::GetCargoIn(){
@@ -87,16 +72,8 @@ bool jankyButtonPanel::GetCargoOut(){
 }
 
 float jankyButtonPanel::GetRollersYAxis(){
-    if (cargoBottomLimSwitch -> Get()){
-        y = -1.0;
-    }
-    else if (cargoTopLimSwitch -> Get()){
-        y = 1.0;
-    }
-    else {
-        y = 0;
-    }
-    return y;
+    float y = -joystick1->GetRawAxis(ROLLER_Y_AXIS_CHANNEL);
+	return y;    
 }
 
 bool jankyButtonPanel::GetBottomPistons(){
