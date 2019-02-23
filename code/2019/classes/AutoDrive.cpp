@@ -20,16 +20,8 @@
 #define BAD_DATA_DEFAULT (-1)
 #define NO_DATA_DEFAULT (-100)
 
-#ifdef JANKY_BOT_2019
-AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_VictorSPX*rlmotor, WPI_VictorSPX*rrmotor) {
-#else
-AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_TalonSRX*rlmotor, WPI_TalonSRX*rrmotor) {
-#endif
+AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
-	_flmotor=flmotor;
-	_frmotor=frmotor;
-	_rlmotor=rlmotor;
-	_rrmotor=rrmotor;
 	kP=p;
 	kI=i;
 	kD=d;
@@ -124,13 +116,6 @@ void AutoDrive::End(){
 	pid->Disable();
 	pid->Reset();
 	chassis->TankDrive(0.0, 0.0);
-	//chassis->ArcadeDrive(0.0, 0.0);
-	//if this doesn't work then try the commented stuff
-	/*_flmotor->Set(0.0);
-	_frmotor->Set(0.0);
-	_rlmotor->Set(0.0);
-	_rrmotor->Set(0.0);*/
-	//TODO: remove talons from constructor
 	printf("end \n");
 	visionTimer->Stop();
 	visionTimer->Reset();

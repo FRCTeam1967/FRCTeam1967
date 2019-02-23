@@ -141,10 +141,10 @@ class Robot : public frc::TimedRobot {
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
     #ifdef JANKY_BOT_2019
     rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
-    rrmotor = new WPI_VictorSPX(FRONT_RIGHT_MOTOR_CHANNEL);
+    rrmotor = new WPI_VictorSPX(REAR_RIGHT_MOTOR_CHANNEL);
     #else
     rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
-    rrmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
+    rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
     #endif
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
