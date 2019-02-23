@@ -4,11 +4,11 @@
  *  Created on: Jan 21, 2019
  *      Author: AnishaKabir
  */
-
 #include "AutoDrive.h"
 #include "frc/WPILib.h"
 #include "JankyAutoEntry.h"
 #include "ctre/Phoenix.h"
+#include "Settings.h"
 
 #define STARTING_TIME 0.1 //time for camera to begin capturing TODO: reduce this
 #define STOP_DRIVING_DISTANCE 20 //need to change for this year
@@ -20,7 +20,11 @@
 #define BAD_DATA_DEFAULT (-1)
 #define NO_DATA_DEFAULT (-100)
 
+#ifdef JANKY_BOT_2019
+AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_VictorSPX*rlmotor, WPI_VictorSPX*rrmotor) {
+#else
 AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_TalonSRX*rlmotor, WPI_TalonSRX*rrmotor) {
+#endif
 	// TODO Auto-generated constructor stub
 	_flmotor=flmotor;
 	_frmotor=frmotor;
@@ -82,12 +86,12 @@ bool AutoDrive::JobDone(){
 		if(distance==BAD_DATA_DEFAULT){ //this is default value when vision is unable to detect the tape
 			badDataCounter++;
 			frc::SmartDashboard::PutNumber("Bad Data Count:", badDataCounter);
-			//printf("Bad Data Count: %d \n", badDataCounter);
+			//printf("Bad Data Count: %f \n", badDataCounter);
 		}
 		else if(distance==NO_DATA_DEFAULT){
 			noDataCounter++;
 			frc::SmartDashboard::PutNumber("No Data Count:", noDataCounter);
-			//printf("No Data Sent Count: %d \n", noDataCounter);
+			//printf("No Data Sent Count: %f \n", noDataCounter);
 		}
 		else if(distance<STOP_DRIVING_DISTANCE){
 			printf("AutoDrive complete! Distance reached! \n");
@@ -135,11 +139,11 @@ double AutoDrive::PIDGet(){
 
 	//filtering out bad horizontal offset data here outside of the (-100, 100) range before returning
 	if(horizontalOffset>HORIZONTAL_OFFSET_UPPER_BOUND || horizontalOffset<HORIZONTAL_OFFSET_LOW_BOUND){
-		printf("Horizontal Offset out of bounds: %d \n", horizontalOffset);		
+		printf("Horizontal Offset out of bounds: %f \n", horizontalOffset);		
 		return 0; //this should make the robot not turn
 	}
 	else if(horizontalOffset==NO_DATA_DEFAULT){
-		printf("Horizontal Offset not changing from default: %d \n", horizontalOffset);		
+		printf("Horizontal Offset not changing from default: %f \n", horizontalOffset);		
 		return 0;		
 	}
 	else{

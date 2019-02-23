@@ -3,7 +3,7 @@
 *    by: Sandhya, Isha, GC2 */
 
 // elevator cannot run if hatch pisons are in
-
+#include "Settings.h"
 #include "frc/WPILib.h" 
 #include "jankyTask.h"
 #include "ctre/Phoenix.h"
@@ -14,12 +14,14 @@
 #include <jankyXboxJoystick.h>
 #include "ElevatorMech.h"
 #include "ctre/phoenix/motorcontrol/SensorCollection.h"
-#include "Settings.h"
 
-#define ROBOT_2019
-
+#ifdef JANKY_BOT_2019 //Speeds for jankybot & realbot need to be different, because jankybot has CIMS & realbot has miniCIMS
 #define L_MOTOR_F_SPEED_1 0.4 //motors are switched, so forward is negative
 #define L_MOTOR_R_SPEED_1 -0.3
+#else
+#define L_MOTOR_F_SPEED_1 0.5 //motors are switched, so forward is negative
+#define L_MOTOR_R_SPEED_1 -0.4
+#endif
 #define MOTOR_STOP_SPEED 0.0
 #define UD_PULSES_PER_REVOLUTION 4096
 

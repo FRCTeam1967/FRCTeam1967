@@ -4,6 +4,7 @@
  *  Created on: Feb 24, 2018
  *      Author: AnishaKabir
  */
+#include "Settings.h"
 #include "frc/WPILib.h"
 #include "JankyAutoEntry.h"
 #include "ctre/Phoenix.h"
@@ -13,7 +14,11 @@
 
 class AutoDrive : public JankyAutoEntry, public frc::PIDOutput, public frc::PIDSource {
 public:
+	#ifdef JANKY_BOT_2019
+	AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_VictorSPX*rlmotor, WPI_VictorSPX*rrmotor);
+	#else
 	AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_TalonSRX*rlmotor, WPI_TalonSRX*rrmotor);
+	#endif
 	float horizontalOffset;
 	float distance;
 	int badDataCounter;
@@ -25,8 +30,13 @@ public:
 	frc::Timer*visionTimer;
 	WPI_TalonSRX* _flmotor;
 	WPI_TalonSRX* _frmotor;
+	#ifdef JANKY_BOT_2019
+	WPI_VictorSPX* _rlmotor;
+	WPI_VictorSPX* _rrmotor;
+	#else
 	WPI_TalonSRX* _rlmotor;
 	WPI_TalonSRX* _rrmotor;
+	#endif
 	double kP;
 	double kI;
 	double kD;

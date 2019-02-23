@@ -1,7 +1,7 @@
 /*      ElevatorMech.h
 *   created on: Jan 25, 2019
 *    by: Sandhya, Isha, GC2 */
-
+#include "Settings.h"
 #include "frc/WPILib.h" 
 #include "jankyTask.h"
 #include "ctre/Phoenix.h"

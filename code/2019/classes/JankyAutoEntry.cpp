@@ -4,7 +4,7 @@
  *  Created on: Feb 4, 2018
  *      Author: Maxine
  */
-
+#include "Settings.h"
 #include <JankyAutoEntry.h>
 #include "frc/WPILib.h"
 bool active;

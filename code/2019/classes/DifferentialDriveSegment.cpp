@@ -4,6 +4,7 @@
  *  Created on: Feb 8, 2018
  *      Author: AnishaKabir
  */
+#include "Settings.h"
 #include "frc/WPILib.h"
 #include "DifferentialDriveSegment.h"
 #include "JankyAutoEntry.h"

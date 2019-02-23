@@ -1,11 +1,10 @@
 /*
  * TurnSegment.cpp
-
  *
  *  Created on: Feb 10, 2018
  *      Author: Maxine, Bob W
  */
-
+#include "Settings.h"
 #include <DifferentialTurnSegment.h>
 #include "frc/WPILib.h"
 #define TURN_TIME 4
@@ -21,7 +20,6 @@ DifferentialTurnSegment::DifferentialTurnSegment(frc::ADXRS450_Gyro*gyro, frc::D
 	pid = new frc::PIDController(kP,kI,kD,_gyro,this);
 	turnTimer = new frc::Timer();
 }
-
 
 DifferentialTurnSegment::~DifferentialTurnSegment() {
 	// TODO Auto-generated destructor stub
@@ -67,6 +65,7 @@ void DifferentialTurnSegment::RunAction()
 {
 
 }
+
 void DifferentialTurnSegment::End()
 {
 	pid->Disable();

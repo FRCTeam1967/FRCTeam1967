@@ -1,6 +1,5 @@
 /*
  * DriveSegment.h
-
  *
  *  Created on: Feb 8, 2018
  *      Author: Anisha Kabir
@@ -8,6 +7,7 @@
 
 #ifndef DIFFERENTIALDRIVESEGMENT_H_
 #define DIFFERENTIALDRIVESEGMENT_H_
+#include "Settings.h"
 #include "JankyAutoEntry.h"
 #include "frc/WPILib.h"
 #include "ctre/Phoenix.h"

@@ -2,7 +2,7 @@
 *    Created on: Feb 15, 2019
 *    Author: Sandhya Ganesan
 */
-
+#include "Settings.h"
 #include <frc/WPILib.h>
 #include <frc/Joystick.h>
 #include "JankyButtonPanel.h"

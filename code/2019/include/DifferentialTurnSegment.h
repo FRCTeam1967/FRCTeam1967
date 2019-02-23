@@ -1,6 +1,5 @@
 /*
  * TurnSegment.h
-
  *
  *  Created on: Feb 10, 2018
  *      Author: Maxine, Bob W
@@ -8,10 +7,9 @@
 
 #ifndef SRC_DIFFERENTIALTURNSEGMENT_H_
 #define SRC_DIFFERENTIALTURNSEGMENT_H_
-
+#include "Settings.h"
 #include "frc/WPILib.h"
 #include "JankyAutoEntry.h"
-
 
 class DifferentialTurnSegment : public JankyAutoEntry, public frc::PIDOutput{
 public:

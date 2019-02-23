@@ -1,3 +1,4 @@
+#include "Settings.h"
 #include "frc/WPILib.h"
 #include <iostream>
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -14,7 +15,6 @@
 #include <opencv2/core/core.hpp>
 #include "HatchIntake.h"
 #include "ElevatorMech.h"
-#include "Settings.h"
 
 using namespace std;
 using namespace frc;
@@ -41,9 +41,14 @@ using namespace frc;
 class Robot : public frc::TimedRobot {
   public:
     WPI_TalonSRX * flmotor;
-    WPI_TalonSRX * rlmotor;
     WPI_TalonSRX * frmotor;
+    #ifdef JANKY_BOT_2019
+    WPI_VictorSPX * rlmotor;
+    WPI_VictorSPX * rrmotor;
+    #else
+    WPI_TalonSRX * rlmotor;
     WPI_TalonSRX * rrmotor;
+    #endif
     frc::SpeedControllerGroup * leftDrive;
     frc::SpeedControllerGroup * rightDrive;
     frc::DifferentialDrive * drive;
@@ -123,17 +128,24 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void RobotInit() override {
+    #ifdef DRIVE_TEAM_CAM
     //Run drive team camera
-    /*cs::UsbCamera driveCam;
+    cs::UsbCamera driveCam;
     driveCam = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
     driveCam.SetResolution(360,240);
-    driveCam.SetFPS(15);*/
+    driveCam.SetFPS(15);
+    #endif
 
     //Motors for driving
     flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
-    rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
-    rrmotor = new WPI_TalonSRX(REAR_RIGHT_MOTOR_CHANNEL);
+    #ifdef JANKY_BOT_2019
+    rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
+    rrmotor = new WPI_VictorSPX(FRONT_RIGHT_MOTOR_CHANNEL);
+    #else
+    rlmotor = new WPI_TalonSRX(REAR_LEFT_MOTOR_CHANNEL);
+    rrmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
+    #endif
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
 		frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     leftDrive = new frc::SpeedControllerGroup(*flmotor, *rlmotor);
@@ -418,6 +430,7 @@ class Robot : public frc::TimedRobot {
 
 private:
 };
+
 int main() 
 { 
   return frc::StartRobot<Robot>(); 

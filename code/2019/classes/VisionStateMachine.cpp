@@ -12,6 +12,7 @@
 #include "AutoDrive.h"
 #include "DifferentialDriveSegment.h"
 #include "DifferentialTurnSegment.h"
+#include "Settings.h"
 
 #define VISION_DRIVE_SPEED 0.4 //arbitrary speed for now
 #define DRIVE_SPEED 0.5
@@ -35,7 +36,11 @@ AutoDrive*visionDrive;
 DifferentialDriveSegment*driveSegment;
 DifferentialTurnSegment*turn;
 
+#ifdef JANKY_BOT_2019
+VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_VictorSPX*rlmotor, WPI_VictorSPX*rrmotor){ //add cargo and hatch mechanisms
+#else
 VisionStateMachine::VisionStateMachine(frc::DifferentialDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*flmotor, WPI_TalonSRX*frmotor, WPI_TalonSRX*rlmotor, WPI_TalonSRX*rrmotor){ //add cargo and hatch mechanisms
+#endif
     visionDrive= new ::AutoDrive(drive, VISION_DRIVE_SPEED, vision_kP, vision_kI, vision_kD, flmotor, frmotor, rlmotor, rrmotor); // added :: to resolve "expected type specifier" error
     driveSegment= new DifferentialDriveSegment(gyro, drive, leftEncoder, rightEncoder, flmotor, frmotor, 78, DRIVE_SPEED, drive_kP, drive_kI, drive_kD);
     turn= new DifferentialTurnSegment(gyro, drive, -90, TURN_SPEED, turn_kP, turn_kI, turn_kD);

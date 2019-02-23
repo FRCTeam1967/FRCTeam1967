@@ -1,8 +1,9 @@
 /*       CargoManip.h
 *   created on: Jan 19, 2019
 *    by: Sandhya, Isha, GC2 
-*  logic creds to Maddie (2018)  */
-
+*  logic creds to Maddie (2018)  
+*/
+#include "Settings.h"
 #include "frc/WPILib.h"
 #include "ctre/Phoenix.h"
 #include <iostream>
@@ -38,7 +39,6 @@ public:
     //void ButtonVals();
 
    // void PIDSetUp(); //for PID? try for elevator!
-
 
 private:
     //double encoderCount;

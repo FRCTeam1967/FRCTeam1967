@@ -1,7 +1,7 @@
 /*       CargoManip.cpp
 *   created on: Jan 19, 2019
 *    by: Sandhya, Isha, GC2    */
-
+#include "Settings.h"
 #include "frc/WPILib.h" 
 #include <iostream> 
 #include <frc/smartdashboard/SmartDashboard.h>
@@ -10,7 +10,6 @@
 #include <math.h>
 #include <frc/Encoder.h>
 #include <jankyXboxJoystick.h>
-
 
 #define MOTOR_ROLL_F_SPEED -1.0   //roller intake speed
 #define MOTOR_ROLL_R_SPEED 1.0   //roller outtake speed
