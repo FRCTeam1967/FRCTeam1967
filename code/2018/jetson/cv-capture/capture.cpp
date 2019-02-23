@@ -145,9 +145,8 @@ int main(int argc, char **argv)
     if (argc != 1)
     {
         // There are arguments being passed in
-        argPassed = true;
+        argPassed = false;
     }
-	
 	
     // Change exposure & brightness of camera
     system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=1"); // KEEP
