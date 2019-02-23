@@ -14,13 +14,13 @@
 #include "DifferentialTurnSegment.h"
 #include "Settings.h"
 
-#define VISION_DRIVE_SPEED 0.4 //arbitrary speed for now
+#define VISION_DRIVE_SPEED 0.5 //for testing with one motor on each side
 #define DRIVE_SPEED 0.5
 #define TURN_SPEED 0.3
 
 //P, I, and D values for the AutoDrive in which the robot turns to get horizontal offset to zero
 // THESE VALUES NEED TO BE TUNED
-float vision_kP = 0.0;
+float vision_kP = 0.05;
 float vision_kI = 0.0;
 float vision_kD = 0.0;
 

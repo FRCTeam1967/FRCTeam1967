@@ -10,8 +10,8 @@
 #include "ctre/Phoenix.h"
 #include "Settings.h"
 
-#define STARTING_TIME 0.1 //time for camera to begin capturing TODO: reduce this
-#define STOP_DRIVING_DISTANCE 20 //need to change for this year
+#define STARTING_TIME 0.1 //time for camera to begin capturing 
+#define STOP_DRIVING_DISTANCE 10 
 #define VISION_DISTANCE "Distance to Tape"
 #define VISION_OFFSET "Offset"
 #define HORIZONTAL_OFFSET_UPPER_BOUND 100
@@ -40,12 +40,13 @@ AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, doubl
 
 	frc::SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
 	frc::SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
+	frc::SmartDashboard::PutString("Reason for AutoDrive exit", "Default name");
 
 }
 
 AutoDrive::~AutoDrive() {
 	// TODO Auto-generated destructor stub
-	//pid->Disable();
+	pid->Disable();
 	delete pid;
 	delete visionTimer;
 }
@@ -100,11 +101,13 @@ bool AutoDrive::JobDone(){
 		//TODO: add more bad data cases (ex. if distance is negative or infinite)
 		
 		if(badDataCounter>=MAX_BAD_DATA){
-			printf("AutoDrive exited because unable to detect the tape \n");
+			frc::SmartDashboard::PutString("Reason for AutoDrive exit", "AutoDrive exited because unable to detect the tape");
+			//printf("AutoDrive exited because unable to detect the tape \n");
 			return true;
 		}
 		else if(noDataCounter>=MAX_BAD_DATA){
-			printf("AutoDrive exited because no data being sent; using default value of -100 \n");
+			frc::SmartDashboard::PutString("Reason for AutoDrive exit", "AutoDrive exited because no data being sent; using default value of -100");
+			//printf("AutoDrive exited because no data being sent; using default value of -100 \n");
 			return true;
 		}
 
@@ -127,6 +130,7 @@ void AutoDrive::End(){
 	_frmotor->Set(0.0);
 	_rlmotor->Set(0.0);
 	_rrmotor->Set(0.0);*/
+	//TODO: remove talons from constructor
 	printf("end \n");
 	visionTimer->Stop();
 	visionTimer->Reset();

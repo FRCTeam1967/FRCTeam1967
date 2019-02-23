@@ -380,13 +380,13 @@ class Robot : public frc::TimedRobot {
 
     if (hatchPistons)
     {
-      printf("hatch top pistons button pressed \n");
+      //printf("hatch top pistons button pressed \n");
       hatch->Go();
     }
 
     if (cargoPistons && !buttonPressed)
     {
-      printf("cargo/hatch bottom pistons button pressed \n");
+      //printf("cargo/hatch bottom pistons button pressed \n");
       hatch->BottomPistonsSwitch();
       buttonPressed = true;
     }
