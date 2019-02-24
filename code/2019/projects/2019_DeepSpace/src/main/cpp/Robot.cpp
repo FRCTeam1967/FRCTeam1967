@@ -205,7 +205,212 @@ class Robot : public frc::TimedRobot {
     if(left->Get2()){
       vision->Cancel();
     }
-    //TODO: ADD ALL THE GC LOGIC HERE SO THAT IT CAN BE USED WHEN OPERATOR CONTROLLED
+    
+    //gc logic
+    
+    bool chassisFront = right->Get3();
+    bool chassisBack = right->Get2(); 
+
+    #ifdef JANKY_BUTTON_PANEL
+    float rollers = buttonpanel -> GetRollersYAxis();
+    bool cargoIn = buttonpanel -> GetCargoIn();
+    bool cargoOut = buttonpanel -> GetCargoOut();
+
+    bool cargoPistons = buttonpanel -> GetBottomPistons();
+    bool hatchPistons = buttonpanel -> GetTopPistons(); 
+
+    float manualElevator = buttonpanel -> GetElevatorYAxis();
+    bool rocketLowHatchHPShipHatch = buttonpanel -> GetRocketHatchLow(); //rocket low hatch height + hp station + cargo ship hatch god i hate this name so much
+    bool rocketMedCargo = buttonpanel -> GetRocketCargoMed(); 
+    bool rocketHighCargo = buttonpanel -> GetRocketCargoHigh();
+    bool rocketLowCargo = buttonpanel -> GetRocketCargoLow(); 
+    bool cargoShipCargo = buttonpanel -> GetShipCargo(); 
+    bool rocketMedHatch = buttonpanel -> GetRocketHatchMed();
+    bool rocketHighHatch = buttonpanel -> GetRocketHatchHigh(); 
+    bool groundHeight = buttonpanel -> GetGroundHeight(); 
+
+    #else
+    bool rollersOut = joystick -> GetButtonB();
+    bool rollersIn = joystick -> GetButtonX(); 
+    bool cargoIn = joystick -> GetButtonA(); 
+    bool cargoOut = joystick -> GetButtonY(); 
+
+    bool cargoPistons = joystick -> GetButtonLB(); 
+    bool hatchPistons = joystick -> GetButtonRB(); 
+
+    float manualElevator = joystick2 -> GetRightYAxis(); 
+    bool rocketLowHatchHPShipHatch = joystick2 -> GetButtonB(); //rocket low hatch height + hp station + cargo ship hatch god i hate this name so much
+    bool rocketMedCargo = joystick2 -> GetButtonX(); 
+    bool rocketHighCargo = joystick2 -> GetButtonA();
+    bool rocketLowCargo = joystick2 -> GetButtonY(); 
+    bool cargoShipCargo = joystick2 -> GetButtonStart(); 
+    bool rocketHighHatch = joystick2 -> GetButtonBack(); 
+    bool groundHeight = joystick2 -> GetButtonLB(); 
+    bool elevatorStop = joystick2 -> GetButtonRB();
+    #endif
+
+  //ELEVATOR
+    //conditional run
+    hatchPistonsOut = hatch -> GetPistonStatus();
+
+    frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
+
+    if (!hatchPistonsOut){
+      elevator -> Pause();
+    }
+    else {
+      elevator -> Start();
+    }
+    
+    //hard stop, overrides everything
+
+    /*if (elevatorStop){ // stop button overrides everything 
+      elevator -> ElevatorMotorStop();
+    }
+    //presets
+    else */if (cargoShipCargo){ 
+      //flip arm to be vertical
+      //printf("cargo ship cargo button pressed \n");
+      elevator -> ShipCargoHeight();
+    }
+
+    else if (rocketLowCargo){
+      //printf("rocket low cargo button pressed \n");
+      elevator -> RocketLowCargoHeight();
+    }
+
+    else if (rocketHighCargo){
+      //printf("rocket high cargo button pressed \n");
+      elevator -> RocketHighCargoHeight();
+    }
+
+    else if (rocketLowHatchHPShipHatch){
+      //printf("rocket low hatch button pressed \n");
+      elevator -> RocketLowHatchHeight();
+    }
+   
+    else if (rocketHighHatch){
+      //printf("rocket high hatch button pressed \n");
+      elevator -> RocketHighHatchHeight();
+    }  
+   
+    else if (rocketMedCargo){
+      //printf("rocket medium cargo button pressed \n");
+      elevator -> RocketMedCargoHeight();
+    }
+   
+    else if (rocketMedHatch){
+      //printf("rocket medium hatch button pressed \n");
+      elevator -> RocketMedHatchHeight();
+    }
+
+    else if (groundHeight){
+      //printf("ground button pressed \n");
+      elevator -> GroundHeight();
+    }
+
+   //manual controls
+    else { 
+      if (manualElevator <= -0.2){
+        elevator -> ElevatorMotorDown();
+        //printf("elevator down triggered \n");
+        setHeight = "None";
+      }
+      else if (manualElevator >= 0.2){
+        elevator -> ElevatorMotorUp();
+        //printf("elevator up triggered \n");
+        setHeight = "None";
+      }
+      else if (manualElevator < 0.2 && manualElevator > -0.2){
+        elevator -> ElevatorMotorStop();
+        setHeight = "None";
+      }
+    }
+
+
+  //cargo
+  
+  #ifdef JANKY_BUTTON_PANEL
+    if (rollers <= -0.2){
+      //printf("rollers in triggered \n");
+      cargomanip -> RollersIn();
+    }
+    else if (rollers >= 0.2){
+      //printf("rollers out triggered \n");
+      cargomanip -> RollersOut();
+    }
+    else if (rollers < 0.2 && rollers > -0.2){
+      cargomanip -> RollersStop();
+    }
+
+  #else
+    if (rollersOut){
+      cargomanip -> RollersOut();
+    }
+    else if (rollersIn){
+      cargomanip -> RollersIn();
+    }
+    else {
+      cargomanip -> RollersStop();
+    }
+    #endif
+
+    if (cargoIn){
+      cargomanip -> CargoMechInRobot(); 
+    }
+    else if (cargoOut){
+      cargomanip -> CargoMechOutRobot();
+    }
+    else {
+      cargomanip -> CargoMechStop();
+    }
+
+  //hatch
+    //bool pistonOut;
+    //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
+
+    if (hatchPistons)
+    {
+      //printf("hatch top pistons button pressed \n");
+      hatch->Go();
+    }
+
+    if (cargoPistons && !buttonPressed)
+    {
+      //printf("cargo/hatch bottom pistons button pressed \n");
+      hatch->BottomPistonsSwitch();
+      buttonPressed = true;
+    }
+    else if (!cargoPistons && buttonPressed){
+      buttonPressed = false;
+    }
+
+    //chassis lifting pistons
+    //front piston
+    if (chassisFront && chassisFrontButtonPressed==false)
+    {
+      if(fpiston->Get()==true)
+        fpiston -> Set(false);
+
+      else if(fpiston->Get()==false)
+        fpiston -> Set(true);
+      chassisFrontButtonPressed=true;
+    }
+    else if (!chassisFront && chassisFrontButtonPressed==true)
+      chassisFrontButtonPressed=false;
+
+    //back pistons
+    if (chassisBack && chassisBackButtonPressed==false)
+    {
+      if(bpiston->Get()==true)
+        bpiston -> Set(false);
+      
+      else
+        bpiston -> Set(true);
+      chassisBackButtonPressed=true;
+    }
+    else if (!chassisBack && chassisBackButtonPressed==true)
+      chassisBackButtonPressed=false;
   }
 
   virtual void TeleopInit() override {
