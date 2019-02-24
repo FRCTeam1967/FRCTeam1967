@@ -355,6 +355,8 @@ int main(int argc, char **argv)
                 }
             }
             
+            smallestOffset = (contourPairs[indexOfOffset].returnOffset());
+
             //Print out distances & offsets
             for(int b = 0; b < contourPairs.size(); b++)
             {
