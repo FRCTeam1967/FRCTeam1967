@@ -63,6 +63,7 @@ class Robot : public frc::TimedRobot {
     Solenoid*bpiston;
     bool buttonPressed;
     bool hatchPistonsOut;
+    bool hatchPistonDeployed;
     string setHeight;
     bool chassisFrontButtonPressed, chassisBackButtonPressed;
 
@@ -171,12 +172,13 @@ class Robot : public frc::TimedRobot {
     drive->SetSafetyEnabled(false); 
     gyro->Calibrate();
     buttonPressed = false;
+    hatchPistonDeployed = false;
 
     chassisFrontButtonPressed=false;
     chassisBackButtonPressed=false;
 
     cargomanip -> StartInit();
-    hatch -> Start();
+    //hatch -> Start();
     elevator -> Start();
     elevator -> StartUpInit();
     elevator -> ResetEncoder();
@@ -184,7 +186,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousInit() override {
     gyro->Reset();
-    hatch->BottomPistonsOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
+    hatch->BottomPistonOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     flmotor->SetSelectedSensorPosition(0, 0, 10);
@@ -251,7 +253,7 @@ class Robot : public frc::TimedRobot {
 
   //ELEVATOR
     //conditional run
-    hatchPistonsOut = hatch -> GetPistonStatus();
+    hatchPistonsOut = hatch -> GetBottomPistonStatus();
 
     frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
 
@@ -366,22 +368,30 @@ class Robot : public frc::TimedRobot {
     }
 
   //hatch
-    //bool pistonOut;
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
-
-    if (hatchPistons)
+    
+    //Top pistons
+    if (hatchPistons && !hatchPistonDeployed)
     {
+      hatch->TopPistonSwitch();
+      hatchPistonDeployed = true;
       //printf("hatch top pistons button pressed \n");
-      hatch->Go();
+      //hatch->Go();
+    }
+    else if (!hatchPistons && hatchPistonDeployed)
+    {
+      hatchPistonDeployed = false;
     }
 
+    //Bottom pistons
     if (cargoPistons && !buttonPressed)
     {
       //printf("cargo/hatch bottom pistons button pressed \n");
-      hatch->BottomPistonsSwitch();
+      hatch->BottomPistonSwitch();
       buttonPressed = true;
     }
-    else if (!cargoPistons && buttonPressed){
+    else if (!cargoPistons && buttonPressed)
+    {
       buttonPressed = false;
     }
 
@@ -414,7 +424,7 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void TeleopInit() override {
-    hatch->BottomPistonsOut();
+    hatch->BottomPistonOut();
   }
 
   virtual void TeleopPeriodic() override {
@@ -465,7 +475,7 @@ class Robot : public frc::TimedRobot {
 
   //ELEVATOR
     //conditional run
-    hatchPistonsOut = hatch -> GetPistonStatus();
+    hatchPistonsOut = hatch -> GetBottomPistonStatus();
 
     frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
 
@@ -580,22 +590,30 @@ class Robot : public frc::TimedRobot {
     }
 
   //hatch
-    //bool pistonOut;
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
 
-    if (hatchPistons)
+    //Top pistons
+    if (hatchPistons && !hatchPistonDeployed)
     {
+      hatch->TopPistonSwitch();
+      hatchPistonDeployed = true;
       //printf("hatch top pistons button pressed \n");
-      hatch->Go();
+      //hatch->Go();
+    }
+    else if (!hatchPistons && hatchPistonDeployed)
+    {
+      hatchPistonDeployed = false;
     }
 
+    //Bottom pistons
     if (cargoPistons && !buttonPressed)
     {
       //printf("cargo/hatch bottom pistons button pressed \n");
-      hatch->BottomPistonsSwitch();
+      hatch->BottomPistonSwitch();
       buttonPressed = true;
     }
-    else if (!cargoPistons && buttonPressed){
+    else if (!cargoPistons && buttonPressed)
+    {
       buttonPressed = false;
     }
 

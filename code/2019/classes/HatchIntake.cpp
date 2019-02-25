@@ -9,11 +9,12 @@ using namespace frc;
 
 HatchIntake::HatchIntake(int pistonTopChannel, int pistonBottomChannel)
 {
-    actuating = false;
+    //Unused
+    /*actuating = false;
     fullActuationTime = 1;
     fullCycleTime = 2;
     i = 0;
-    cycleTimer.Reset();
+    cycleTimer.Reset();*/
 
     pistonTop = new Solenoid(10, pistonTopChannel);
     pistonBottom = new Solenoid(10, pistonBottomChannel);
@@ -25,7 +26,80 @@ HatchIntake::~HatchIntake()
     delete pistonBottom;
 }
 
-void HatchIntake::Go()
+// Bottom Pistons
+void HatchIntake::BottomPistonSwitch()
+{
+    if (pistonBottom->Get()==true)
+    {
+        BottomPistonIn();
+    }
+    else if (pistonBottom->Get()==false)
+    {
+        BottomPistonOut();
+    }
+}
+
+void HatchIntake::BottomPistonOut()
+{
+    pistonBottom->Set(true);
+}
+
+void HatchIntake::BottomPistonIn()
+{
+    pistonBottom->Set(false);
+}
+
+bool HatchIntake::GetBottomPistonStatus()
+{
+    if (GetBottomPistonStatus()==true)
+    {
+        hatchPistonsIn = true;
+    }
+    else if (GetBottomPistonStatus()==false)
+    {
+        hatchPistonsIn = false;
+    }
+    return(hatchPistonsIn);
+}
+
+// Top Pistons
+void HatchIntake::TopPistonSwitch()
+{
+    if (GetTopPistonStatus()==true)
+    {
+        TopPistonIn();
+    }
+    else if (GetTopPistonStatus()==false)
+    {
+        TopPistonOut();
+    }
+}
+
+void HatchIntake::TopPistonOut()
+{
+    pistonTop->Set(true);
+}
+
+void HatchIntake::TopPistonIn()
+{
+    pistonTop->Set(false);
+}
+
+bool HatchIntake::GetTopPistonStatus()
+{
+    if (pistonTop->Get()==true)
+    {
+        topPistonIn = true;
+    }
+    else if (pistonTop->Get()==false)
+    {
+        topPistonIn = false;
+    }
+    return(topPistonIn);
+}
+
+//Unused
+/*void HatchIntake::Go()
 {
     if (actuating == false)
     {
@@ -53,32 +127,4 @@ void HatchIntake::Run()
             actuating = false;
         }
     }
-}
-
-void HatchIntake::BottomPistonsSwitch()
-{
-    if (pistonBottom->Get()==true)
-        pistonBottom->Set(false);
-
-    else if (pistonBottom->Get()==false)
-        pistonBottom->Set(true);
-}
-
-void HatchIntake::BottomPistonsOut()
-{
-    pistonBottom->Set(true);
-}
-
-void HatchIntake::BottomPistonsIn()
-{
-    pistonBottom->Set(false);
-}
-
-bool HatchIntake::GetPistonStatus()
-{
-    if (pistonBottom->Get()==true)
-        hatchPistonsIn = true;
-
-    else if (pistonBottom->Get()==false)
-        hatchPistonsIn = false;
-}
+}*/

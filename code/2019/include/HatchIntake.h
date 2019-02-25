@@ -7,27 +7,34 @@
 
 using namespace frc;
 
-class HatchIntake: public JankyTask
+class HatchIntake//: public JankyTask
 {
     public:
         HatchIntake(int pistonTopChannel, int pistonBottomChannel);
         virtual ~HatchIntake();
-
-        void Go();
-        virtual void Run();
-        void BottomPistonsSwitch();
-        void BottomPistonsOut();
-        void BottomPistonsIn();
-
-        bool GetPistonStatus();
+        //Bottom Piston
+        void BottomPistonSwitch();
+        void BottomPistonOut();
+        void BottomPistonIn();
+        bool GetBottomPistonStatus();
+        //Top Piston
+        void TopPistonSwitch();
+        void TopPistonOut();
+        void TopPistonIn();
+        bool GetTopPistonStatus();
+        //Unused
+        /*void Go();
+        virtual void Run();*/
 
     private:
         Solenoid*pistonTop;
         Solenoid*pistonBottom;
-        bool actuating;
         bool hatchPistonsIn;
+        bool topPistonIn;
+        //Unused
+        /*bool actuating;
         double fullActuationTime;
         double fullCycleTime;
         int i;
-        Timer cycleTimer;
+        Timer cycleTimer;*/
 };
