@@ -2,6 +2,7 @@
 *   created on: Jan 25, 2019
 *    by: Sandhya, Isha, GC2 */
 
+
 // elevator cannot run if hatch pisons are in
 #include "Settings.h"
 #include "frc/WPILib.h" 
@@ -14,20 +15,24 @@
 #include <jankyXboxJoystick.h>
 #include "ElevatorMech.h"
 #include "ctre/phoenix/motorcontrol/SensorCollection.h"
+/*#include <frc/PIDController.h>
+#include <frc/PIDSource.h>
+#include <frc/PIDOutput.h>*/
+
 
 #ifdef JANKY_BOT_2019 //Speeds for jankybot & realbot need to be different, because jankybot has CIMS & realbot has miniCIMS
-#define L_MOTOR_F_SPEED_1 0.4 //motors are switched, so forward is negative
-#define L_MOTOR_R_SPEED_1 -0.3
+#define L_MOTOR_F_SPEED 0.3 
+#define L_MOTOR_R_SPEED -0.2
 #else
-#define L_MOTOR_F_SPEED_1 0.5 //motors are switched, so forward is negative
-#define L_MOTOR_R_SPEED_1 -0.4
+#define L_MOTOR_F_SPEED 0.5 
+#define L_MOTOR_R_SPEED -0.4
 #endif
 #define MOTOR_STOP_SPEED 0.0
 #define UD_PULSES_PER_REVOLUTION 4096
 
 //hysteresis: wiggle room for preset height [if mech reaches within an inch of its destination, stop]
-#define UD_HYSTERESIS_1_POS 2.0
-#define UD_HYSTERESIS_1_NEG -2.0
+#define UD_HYSTERESI_POS 2.0
+#define UD_HYSTERESIS_NEG -2.0
 
 //measurements in inches 
 #define INCHES_OFF_GROUND 5.0
@@ -42,29 +47,52 @@
 #define CARGO_SHIP_CARGO_HEIGHT 36 - INCHES_OFF_GROUND  // one inch over edge of bay
 #define CARGO_SHIP_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 
-// pid values - used for regulation [add later]; p - prop, i - int, d - der
-/*#define P_VAL 0.5
-#define I_VAL 0.0
-#define D_VAL 0.0*/
-
 bool done = false; //used to determine completion of tasks
-bool hatchPistonsIn = false; //sets up ConditionalRun - if pistons in, class doesn't run
+bool hatchPistonsOut = true; //sets up ConditionalRun - if pistons in, class doesn't run
 
 ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBottomChannel, int limSwitchTopChannel) {
     //motors + encoder setup (motors need to be in brake mode)
+    kTimeoutMs = 50;
+    kPIDLoopIdx = 0;
     lmotor = new WPI_TalonSRX(lMotorChannel);
-    rmotor = new WPI_TalonSRX(rMotorChannel);
+    rmotor = new WPI_TalonSRX(rMotorChannel); 
+
+    //object pid attempt
+    /*lmotor -> PIDGet();
+    source -> SetPIDSourceType(lmotor);
+    source.encoderCount = leftEncoderCount;
+    pid = new frc::PIDController(0.01, 0, 0, desiredHeight, CTRE_MagEncoder_Relative, &lmotor, 500); //source: encoder counts, output: motor speed
+    */
+
+    //pid setup
+    int absolutePosition = lmotor -> GetSelectedSensorPosition(0);
+    lmotor -> SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
+	lmotor -> ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+	lmotor -> SetSensorPhase(false);
+    lmotor -> ConfigNominalOutputForward(0, kTimeoutMs);
+	lmotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
+	lmotor -> ConfigPeakOutputForward(0.6, kTimeoutMs);
+	lmotor -> ConfigPeakOutputReverse(-0.6, kTimeoutMs);
+ 
+	lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
+	lmotor->Config_kP(kPIDLoopIdx, 0.01, kTimeoutMs); //p val: 0.01 (tune)
+	lmotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs); //i val: 0
+	lmotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
+    lmotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?
+
     rmotor -> Set(ControlMode::Follower, lMotorChannel);
-	lmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	lmotor -> SetSelectedSensorPosition(0, 0, 10);
+
+    /*lmotor -> SetSelectedSensorPosition(0, 0, 10);
 	lmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
     rmotor -> SetSelectedSensorPosition(0, 0, 10);
-	rmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
+	rmotor -> GetSensorCollection().SetQuadraturePosition(0,10);*/
+
 
     //lim switches
     bottomLimSwitch = new frc::DigitalInput(limSwitchBottomChannel);
     topLimSwitch = new frc::DigitalInput(limSwitchTopChannel);
     
+    //pid -> Enable();
     Start();
 }
 
@@ -73,6 +101,14 @@ ElevatorMech::~ElevatorMech(){
     delete rmotor;
     delete bottomLimSwitch;
     delete topLimSwitch;
+    //delete pid;
+}
+
+void ElevatorMech::EnablePID(){
+    lmotor -> Set(ControlMode::Position, desiredHeightPulses);
+    //lmotor -> Set(desiredHeightPulses); //necessary? is this done in the above line
+    //lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
+    controlMode = "Position, Running Control Loop";
 }
 
 //encoder functions
@@ -100,28 +136,16 @@ double ElevatorMech::GetEncoderDistance(){
 
 //elevator motor movement functions
 void ElevatorMech::ElevatorMotorUp(){
-    lmotor -> Set(L_MOTOR_F_SPEED_1);
+    lmotor -> Set(ControlMode::PercentOutput, L_MOTOR_F_SPEED);
+    controlMode = "PercentOutput, Running on Throttle Power";
+    //lmotor -> Set(L_MOTOR_F_SPEED);
 }
 
 void ElevatorMech::ElevatorMotorDown(){
-    lmotor -> Set(L_MOTOR_R_SPEED_1);
+    lmotor -> Set(ControlMode::PercentOutput, L_MOTOR_R_SPEED);
+    controlMode = "PercentOutput, Running on Throttle Power";
+    //lmotor -> Set(L_MOTOR_R_SPEED);
 }
-
-/*void ElevatorMech::ElevatorMotorUpSpeed2(){
-    lmotor -> Set(L_MOTOR_F_SPEED_2);
-}
-
-void ElevatorMech::ElevatorMotorDownSpeed2(){
-    lmotor -> Set(L_MOTOR_R_SPEED_2);
-}
-
-void ElevatorMech::ElevatorMotorUpSpeed3(){
-    lmotor -> Set(L_MOTOR_F_SPEED_3);
-}
-
-void ElevatorMech::ElevatorMotorDownSpeed3(){
-    lmotor -> Set(L_MOTOR_R_SPEED_3);
-}*/
 
 void ElevatorMech::ElevatorMotorStop(){
     lmotor -> Set(MOTOR_STOP_SPEED);
@@ -209,9 +233,16 @@ bool ElevatorMech::GetIfMechIsRunning(){
 void ElevatorMech::SmartDashboardComments(){
     frc::SmartDashboard::PutNumber("Desired Height", desiredHeight);
 	frc::SmartDashboard::PutNumber("Amount To Move", amountToMove);
+    frc::SmartDashboard::PutNumber("DH Encoder Pulses", desiredHeightPulses);
     frc::SmartDashboard::PutBoolean("Top Limit Switch Value", GetTopLimSwitch());
 	frc::SmartDashboard::PutBoolean("Bottom Limit Switch Value", GetBottomLimSwitch());
     frc::SmartDashboard::PutString("Preset Height:", setHeight);
+    if (lmotor -> GetControlMode() == ControlMode::Position){
+        frc::SmartDashboard::PutString("Current Control Mode:", controlMode);
+    }
+    else {
+        frc::SmartDashboard::PutString("Current Control Mode:", controlMode);
+    }
 }
 
 // run + check for hatch piston status
@@ -231,6 +262,8 @@ void ElevatorMech::StartUpInit(){
     rightEncoderCount = 0.0;
     leftEncoderDistance = 0.0;
     rightEncoderDistance = 0.0;
+    desiredHeight = 0;
+    desiredHeightPulses = 0;
 
 	needsToPutDownMechanism = true;
     bottomLimSwitchHasNotBeenPressed = true;
@@ -297,20 +330,31 @@ void ElevatorMech::PutMechanismDown(){
         }
     }
 */
+
 //run functions if piston not out
 void ElevatorMech::Run(){ 
     GetEncoderDistance();
     avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2; //averages left and right encoders to get one uniform variable
-    amountToMove = (avgEncoderDistance - desiredHeight); //finds distance to travel - return changing value by calculating it every time?
+    amountToMove = (desiredHeight - avgEncoderDistance); //finds distance to travel - return changing value by calculating it every time
+    desiredHeightPulses = ((((((desiredHeight * 100) / THIRD_STAGE_PRESENT) / UD_CIRCUMFERENCE) / GEAR_RATIO) * UD_PULSES_PER_REVOLUTION) / 100);
+    EnablePID();
     SmartDashboardComments();
-    if (isMechanismRunning) { //uhp: 0.5, uhn: -0.5
-         if (amountToMove > UD_HYSTERESIS_1_POS) {
+   // if (GetBottomLimSwitch()==0 && GetTopLimSwitch()==0){
+        //lmotor -> Set(ControlMode::Position, desiredHeightPulses);
+    lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
+    /*}
+    else {
+        lmotor -> Set(ControlMode::PercentOutput, 0);
+        ElevatorMotorStop();
+    }*/
+    /*if (isMechanismRunning) { //uhp: 0.5, uhn: -0.5
+         if (amountToMove > UD_HYSTERESIS_POS) {
              ElevatorMotorDown();
          }
-         else if (amountToMove < UD_HYSTERESIS_1_NEG) {
+         else if (amountToMove < UD_HYSTERESIS_NEG) {
              ElevatorMotorUp();
          }
-         else if ((amountToMove <= UD_HYSTERESIS_1_POS) && (amountToMove >= UD_HYSTERESIS_1_NEG)){
+         else if ((amountToMove <= UD_HYSTERESIS_POS) && (amountToMove >= UD_HYSTERESIS_NEG)){
              ElevatorMotorStop();
              isMechanismRunning = false;
              if (!done){
@@ -318,32 +362,33 @@ void ElevatorMech::Run(){
                  done = true;
              }
         }
-    }
+    }*/
 }
 
-// PID setup - add if necessary
-/*void ElevatorMech::PIDSetup() {
-	int absolutePosition = lMotor->GetSelectedSensorPosition(0); /* mask out the bottom12 bits, we don't care about the wrap arounds */
+// PID setup - done in constructor
+//void ElevatorMech::PIDSetup() {
+	//int absolutePosition = lmotor->GetSelectedSensorPosition(0); /* mask out the bottom12 bits, we don't care about the wrap arounds */
 	/* use the low level API to set the quad encoder signal */
-	//(lMotor->SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx,
-	//		kTimeoutMs);
-    
+	//(lmotor->SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
 
-	/* choose the sensor and sensor direction 
-	lMotor->ConfigSelectedFeedbackSensor(
+	/* choose the sensor and sensor direction */
+	/*lmotor->ConfigSelectedFeedbackSensor(
 			FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx,
 			kTimeoutMs);
-	lMotor->SetSensorPhase(false);*/
+	lmotor->SetSensorPhase(false);*/
 
 	/* set the peak and nominal outputs, 12V means full */
-	/*lMotor->ConfigNominalOutputForward(0, kTimeoutMs);
-	lMotor->ConfigNominalOutputReverse(0, kTimeoutMs);
-	lMotor->ConfigPeakOutputForward(1, kTimeoutMs);
-	lMotor->ConfigPeakOutputReverse(-1, kTimeoutMs);*/
+	/*lmotor->ConfigNominalOutputForward(0, kTimeoutMs);
+	lmotor->ConfigNominalOutputReverse(0, kTimeoutMs);
+	lmotor->ConfigPeakOutputForward(1, kTimeoutMs);
+	lmotor->ConfigPeakOutputReverse(-1, kTimeoutMs);*/
 
 	/* set closed loop gains in slot0 */
-	/*lMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
-	lMotor->Config_kP(kPIDLoopIdx, P_VAL, kTimeoutMs);
-	lMotor->Config_kI(kPIDLoopIdx, I_VAL, kTimeoutMs);
-	lMotor->Config_kD(kPIDLoopIdx, D_VAL, kTimeoutMs);*/
-//}
+	/*lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs);
+	lmotor->Config_kP(kPIDLoopIdx, P_VAL, kTimeoutMs);
+	lmotor->Config_kI(kPIDLoopIdx, I_VAL, kTimeoutMs);
+	lmotor->Config_kD(kPIDLoopIdx, D_VAL, kTimeoutMs);
+}*/
+
+//https://www.chiefdelphi.com/t/pid-output-to-a-variable/109158/6
+//https://www.chiefdelphi.com/t/pid-setsetpoint/148342

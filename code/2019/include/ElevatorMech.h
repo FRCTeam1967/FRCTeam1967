@@ -1,6 +1,8 @@
 /*      ElevatorMech.h
 *   created on: Jan 25, 2019
 *    by: Sandhya, Isha, GC2 */
+
+
 #include "Settings.h"
 #include "frc/WPILib.h" 
 #include "jankyTask.h"
@@ -41,13 +43,18 @@ public:
         //void FindLocation(double amountToMove);
 
         double GetEncoderCount(); 
-        double GetEncoderDistance(); 
+        double GetEncoderDistance();
 
         void ElevatorMotorUp(); 
         void ElevatorMotorDown();
         void ElevatorMotorStop(); 
         //PID
-        //void PIDSetup(); //only if required at the moment not sure yet
+        //void PIDSetup(); // done in constructor
+        void setSetpoint();
+        void EnablePID();
+        /*void PID();
+        void PIDWrite(float output);*/
+
 
 protected:
         int GetBottomLimSwitch(); 
@@ -58,6 +65,7 @@ private:
         void PutMechanismDown(); 
 
         double desiredHeight;
+        int desiredHeightPulses;
         double amountToMove; 
         bool reachedMaxHeight;
         bool reachedMinHeight;
@@ -70,11 +78,20 @@ private:
         bool bottomLimSwitchHasNotBeenPressed;
         bool topLimSwitchHasNotBeenPressed;
         bool done;
-        bool hatchPistonsIn;
+        bool hatchPistonsOut;
+        //int P, I, D;
+        //int error, setpoint;
         string setHeight;
+        string controlMode;
+
+        float kPIDLoopIdx;
+        float kTimeoutMs;
 
         WPI_TalonSRX * lmotor;
         WPI_TalonSRX * rmotor;
         frc::DigitalInput * bottomLimSwitch;
         frc::DigitalInput * topLimSwitch;
+        frc::PIDSource * source;
+        frc::PIDOutput * output;
+        frc::PIDController * pid;
 };
