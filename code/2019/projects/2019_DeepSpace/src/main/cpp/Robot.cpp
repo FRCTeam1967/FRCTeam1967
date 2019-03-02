@@ -429,7 +429,12 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopPeriodic() override {
   //drive TODO: add vision logic here
-    drive->TankDrive(-left->GetY(), -right->GetY());
+    if(left->Get3()){ //replace later to use the button board
+      vision->StartSequence(); //test mode 
+    }
+    else if(vision->IsIdle()){ 
+      drive->TankDrive(-left->GetY(), -right->GetY());
+    }
 
   //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
     bool chassisFront = right->Get3();
