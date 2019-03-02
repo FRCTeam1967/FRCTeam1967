@@ -2,7 +2,6 @@
 *   created on: Jan 25, 2019
 *    by: Sandhya, Isha, GC2 */
 
-
 // elevator cannot run if hatch pisons are in
 #include "Settings.h"
 #include "frc/WPILib.h" 
@@ -38,7 +37,7 @@
 #define INCHES_OFF_GROUND 5.0
 #define ROCKET_LOW_CARGO_HEIGHT 27.5 - INCHES_OFF_GROUND 
 #define ROCKET_MED_CARGO_HEIGHT 55.5 - INCHES_OFF_GROUND 
-#define ROCKET_HIGH_CARGO_HEIGHT 62.0 - INCHES_OFF_GROUND 
+#define ROCKET_HIGH_CARGO_HEIGHT 68.0 - INCHES_OFF_GROUND 
 #define ROCKET_LOW_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 #define ROCKET_MED_HATCH_HEIGHT 47 - INCHES_OFF_GROUND 
 #define ROCKET_HIGH_HATCH_HEIGHT 75 - INCHES_OFF_GROUND 
@@ -46,6 +45,9 @@
 #define HP_HEIGHT 19 - INCHES_OFF_GROUND 
 #define CARGO_SHIP_CARGO_HEIGHT 36 - INCHES_OFF_GROUND  // one inch over edge of bay
 #define CARGO_SHIP_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
+
+#define AMNT_TO_MOVE_MANUAL_UP 0.10 //In inches
+#define AMNT_TO_MOVE_MANUAL_DOWN -0.10 //In inches
 
 bool done = false; //used to determine completion of tasks
 bool hatchPistonsOut = true; //sets up ConditionalRun - if pistons in, class doesn't run
@@ -72,7 +74,7 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
     lmotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	lmotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
 	lmotor -> ConfigPeakOutputForward(0.7, kTimeoutMs);
-	lmotor -> ConfigPeakOutputReverse(-0.6, kTimeoutMs);
+	lmotor -> ConfigPeakOutputReverse(-0.3, kTimeoutMs);
  
 	lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
 	lmotor->Config_kP(kPIDLoopIdx, 0.2, kTimeoutMs); //p val: 0.01 (tune)
@@ -127,7 +129,7 @@ double ElevatorMech::GetEncoderCount(){
     frc::SmartDashboard::PutNumber("Right Encoder Count", -rightEncoderCount);
 }
 
-double ElevatorMech::GetEncoderDistance(){
+void ElevatorMech::GetEncoderDistance(){
     GetEncoderCount();
     leftEncoderDistance = ((((leftEncoderCount*100)/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
     rightEncoderDistance = (((-rightEncoderCount*100/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
@@ -145,19 +147,36 @@ void ElevatorMech::CalculateDesiredHeight(){
 
 //elevator motor movement functions
 void ElevatorMech::ElevatorMotorUp(){
-    lmotor -> Set(ControlMode::PercentOutput, L_MOTOR_F_SPEED);
-    controlMode = "PercentOutput, Running on Throttle Power";
+    if (desiredHeight < 68 && desiredHeight > 0.09)
+    {
+        CalculateDesiredHeight();
+        desiredHeight = avgEncoderDistance + AMNT_TO_MOVE_MANUAL_UP;
+        EnablePID();
+        isMechanismRunning = true;
+        setHeight = "Manual Control";
+    }
+    // lmotor -> Set(ControlMode::PercentOutput, L_MOTOR_F_SPEED);
+    // controlMode = "PercentOutput, Running on Throttle Power";
     //lmotor -> Set(L_MOTOR_F_SPEED);
 }
 
 void ElevatorMech::ElevatorMotorDown(){
-    lmotor -> Set(ControlMode::PercentOutput, L_MOTOR_R_SPEED);
-    controlMode = "PercentOutput, Running on Throttle Power";
+    if (desiredHeight < 68 && desiredHeight > 0.09)
+    {
+        CalculateDesiredHeight();
+        desiredHeight = avgEncoderDistance + AMNT_TO_MOVE_MANUAL_DOWN;
+        EnablePID();
+        isMechanismRunning = true;
+        setHeight = "Manual Control";
+    }
+    // lmotor -> Set(ControlMode::PercentOutput, L_MOTOR_R_SPEED);
+    // controlMode = "PercentOutput, Running on Throttle Power";
     //lmotor -> Set(L_MOTOR_R_SPEED);
 }
 
 void ElevatorMech::ElevatorMotorStop(){
-    lmotor -> Set(MOTOR_STOP_SPEED);
+    // lmotor -> Set(MOTOR_STOP_SPEED);
+    // controlMode = "PercentOutput, Running on Throttle Power";
 }
 
 // lim switch values

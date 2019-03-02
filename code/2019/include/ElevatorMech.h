@@ -43,7 +43,7 @@ public:
         //void FindLocation(double amountToMove);
 
         double GetEncoderCount(); 
-        double GetEncoderDistance();
+        void GetEncoderDistance();
         void CalculateDesiredHeight();
 
         void ElevatorMotorUp(); 

@@ -534,22 +534,22 @@ class Robot : public frc::TimedRobot {
     }
 
    //manual controls
-    // else { 
-    //   if (manualElevator <= -0.2){
-    //     elevator -> ElevatorMotorDown();
-    //     //printf("elevator down triggered \n");
-    //     setHeight = "None";
-    //   }
-    //   else if (manualElevator >= 0.2){
-    //     elevator -> ElevatorMotorUp();
-    //     //printf("elevator up triggered \n");
-    //     setHeight = "None";
-    //   }
-    //   else if (manualElevator < 0.2 && manualElevator > -0.2){
-    //     elevator -> ElevatorMotorStop();
-    //     setHeight = "None";
-    //   }
-    // }
+    else { 
+      if (manualElevator <= -0.2){
+        elevator -> ElevatorMotorDown();
+        //printf("elevator down triggered \n");
+        // setHeight = "None";
+      }
+      else if (manualElevator >= 0.2){
+        elevator -> ElevatorMotorUp();
+        //printf("elevator up triggered \n");
+        // setHeight = "None";
+      }
+      // else if (manualElevator < 0.2 && manualElevator > -0.2){
+      //   elevator -> ElevatorMotorStop();
+      //   // setHeight = "None";
+      // }
+    }
 
 
   //cargo
