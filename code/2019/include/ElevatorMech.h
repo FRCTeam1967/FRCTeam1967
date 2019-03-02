@@ -44,6 +44,7 @@ public:
 
         double GetEncoderCount(); 
         double GetEncoderDistance();
+        void CalculateDesiredHeight();
 
         void ElevatorMotorUp(); 
         void ElevatorMotorDown();

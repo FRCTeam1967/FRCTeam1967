@@ -179,7 +179,7 @@ class Robot : public frc::TimedRobot {
 
     cargomanip -> StartInit();
     //hatch -> Start();
-    elevator -> Start();
+    //elevator -> Start();
     elevator -> StartUpInit();
     elevator -> ResetEncoder();
   }
@@ -257,12 +257,12 @@ class Robot : public frc::TimedRobot {
 
     frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
 
-    if (!hatchPistonsOut){
-      elevator -> Pause();
-    }
-    else {
-      elevator -> Start();
-    }
+    // if (!hatchPistonsOut){
+    //   elevator -> Pause();
+    // }
+    // else {
+    //   elevator -> Start();
+    // }
     
     //hard stop, overrides everything
 
@@ -479,12 +479,12 @@ class Robot : public frc::TimedRobot {
 
     frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
 
-    if (!hatchPistonsOut){
-      elevator -> Pause();
-    }
-    else {
-      elevator -> Start();
-    }
+    // if (!hatchPistonsOut){
+    //   elevator -> Pause();
+    // }
+    // else {
+    //   elevator -> Start();
+    // }
     
     //hard stop, overrides everything
 
@@ -534,22 +534,22 @@ class Robot : public frc::TimedRobot {
     }
 
    //manual controls
-    else { 
-      if (manualElevator <= -0.2){
-        elevator -> ElevatorMotorDown();
-        //printf("elevator down triggered \n");
-        setHeight = "None";
-      }
-      else if (manualElevator >= 0.2){
-        elevator -> ElevatorMotorUp();
-        //printf("elevator up triggered \n");
-        setHeight = "None";
-      }
-      else if (manualElevator < 0.2 && manualElevator > -0.2){
-        elevator -> ElevatorMotorStop();
-        setHeight = "None";
-      }
-    }
+    // else { 
+    //   if (manualElevator <= -0.2){
+    //     elevator -> ElevatorMotorDown();
+    //     //printf("elevator down triggered \n");
+    //     setHeight = "None";
+    //   }
+    //   else if (manualElevator >= 0.2){
+    //     elevator -> ElevatorMotorUp();
+    //     //printf("elevator up triggered \n");
+    //     setHeight = "None";
+    //   }
+    //   else if (manualElevator < 0.2 && manualElevator > -0.2){
+    //     elevator -> ElevatorMotorStop();
+    //     setHeight = "None";
+    //   }
+    // }
 
 
   //cargo

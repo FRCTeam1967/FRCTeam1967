@@ -38,7 +38,7 @@
 #define INCHES_OFF_GROUND 5.0
 #define ROCKET_LOW_CARGO_HEIGHT 27.5 - INCHES_OFF_GROUND 
 #define ROCKET_MED_CARGO_HEIGHT 55.5 - INCHES_OFF_GROUND 
-#define ROCKET_HIGH_CARGO_HEIGHT 83.5 - INCHES_OFF_GROUND 
+#define ROCKET_HIGH_CARGO_HEIGHT 62.0 - INCHES_OFF_GROUND 
 #define ROCKET_LOW_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 #define ROCKET_MED_HATCH_HEIGHT 47 - INCHES_OFF_GROUND 
 #define ROCKET_HIGH_HATCH_HEIGHT 75 - INCHES_OFF_GROUND 
@@ -75,7 +75,7 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 	lmotor -> ConfigPeakOutputReverse(-0.6, kTimeoutMs);
  
 	lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
-	lmotor->Config_kP(kPIDLoopIdx, 0.4, kTimeoutMs); //p val: 0.01 (tune)
+	lmotor->Config_kP(kPIDLoopIdx, 0.2, kTimeoutMs); //p val: 0.01 (tune)
 	lmotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs); //i val: 0
 	lmotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
     lmotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?
@@ -93,7 +93,7 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
     //topLimSwitch = new frc::DigitalInput(limSwitchTopChannel);
     
     //pid -> Enable();
-    Start();
+    //Start();
 }
 
 ElevatorMech::~ElevatorMech(){
@@ -105,6 +105,7 @@ ElevatorMech::~ElevatorMech(){
 }
 
 void ElevatorMech::EnablePID(){
+    CalculateDesiredHeight();
     lmotor -> Set(ControlMode::Position, desiredHeightPulses);
     //lmotor -> Set(desiredHeightPulses); //necessary? is this done in the above line
     //lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
@@ -132,6 +133,14 @@ double ElevatorMech::GetEncoderDistance(){
     rightEncoderDistance = (((-rightEncoderCount*100/(UD_PULSES_PER_REVOLUTION*GEAR_RATIO))*UD_CIRCUMFERENCE)*THIRD_STAGE_PRESENT)/100;
     frc::SmartDashboard::PutNumber("Left Encoder Distance", leftEncoderDistance);
     frc::SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);   
+}
+
+void ElevatorMech::CalculateDesiredHeight(){
+    GetEncoderDistance();
+    avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2; //averages left and right encoders to get one uniform variable
+    amountToMove = (desiredHeight - avgEncoderDistance); //finds distance to travel - return changing value by calculating it every time
+    desiredHeightPulses = ((((((desiredHeight * 100) / THIRD_STAGE_PRESENT) / UD_CIRCUMFERENCE) * GEAR_RATIO) * UD_PULSES_PER_REVOLUTION) / 100);
+    frc::SmartDashboard::PutNumber("DesiredHeightPulses", desiredHeightPulses);
 }
 
 //elevator motor movement functions
@@ -208,6 +217,7 @@ void ElevatorMech::RocketHighHatchHeight(){
 //ground + hp presets
 void ElevatorMech::GroundHeight(){
     desiredHeight = GROUND_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Ground Height";
 }
@@ -342,15 +352,12 @@ void ElevatorMech::StartUpInit(){
 
 //run functions if piston not out
 void ElevatorMech::Run(){ 
-    GetEncoderDistance();
-    avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2; //averages left and right encoders to get one uniform variable
-    amountToMove = (desiredHeight - avgEncoderDistance); //finds distance to travel - return changing value by calculating it every time
-    desiredHeightPulses = ((((((desiredHeight * 100) / THIRD_STAGE_PRESENT) / UD_CIRCUMFERENCE) / GEAR_RATIO) * UD_PULSES_PER_REVOLUTION) / 100);
+    //CalculateDesiredHeight();
     SmartDashboardComments();
-    if ((lmotor -> GetControlMode()) != (ControlMode::PercentOutput)){
-        EnablePID();
-        //lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
-    }
+    // if ((lmotor -> GetControlMode()) != (ControlMode::PercentOutput)){
+    //     EnablePID();
+    //     //lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
+    // }
 
    // if (GetBottomLimSwitch()==0 && GetTopLimSwitch()==0){
         //lmotor -> Set(ControlMode::Position, desiredHeightPulses);

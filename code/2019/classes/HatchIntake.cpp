@@ -51,11 +51,11 @@ void HatchIntake::BottomPistonIn()
 
 bool HatchIntake::GetBottomPistonStatus()
 {
-    if (GetBottomPistonStatus()==true)
+    if (pistonBottom->Get()==true)
     {
         hatchPistonsIn = true;
     }
-    else if (GetBottomPistonStatus()==false)
+    else if (pistonBottom->Get()==false)
     {
         hatchPistonsIn = false;
     }
