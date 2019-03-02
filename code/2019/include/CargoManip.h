@@ -22,23 +22,26 @@ public:
     void StartInit(); //starts
     void RollersIn(); // brings cargo into bot
     void RollersOut(); // pushes cargo out of bot
-    void CargoMechInRobot(); // retracts up into robot 
-    void CargoMechOutRobot(); // extends down out of robot 
+    /*void CargoMechInRobot(); // retracts up into robot 
+    void CargoMechOutRobot(); // extends down out of robot */
+    void CargoMechIn(); //brings mechanism 1 phase in (0 -> 70 -> 90)
+    void CargoMechOut(); //brings mechanism 1 phase out (90 -> 70 -> 0)
     void RollersStop(); //stops roll
     void CargoMechStop();
     //void CargoMechStopWithLimSwitch(); //uses lim switch value to stop mech
 
-    bool getCargoMechPosition(); //gets if claw is up or down (switch to a string to specify??)
+    bool GetCargoMechPosition(); //gets if claw is up or down (switch to a string to specify??)
 
 	/*int GetLimSwitchOutside(); //get the value of the limit switch for when the claw goes outside the robot(true/false)
 	int GetLimSwitchInside();*/ //get the value of the limit switch for when the claw goes inside the robot(true/false)
 
-    double getEncoderCount(); 
-    float GetEncoderAngle(); //returns angle movement - type uncertain??
+    double GetEncoderCount(); 
+    float GetEncoderAngle(); 
+    double GetDesiredPulses();
     float GetHatchPanelDistance();
     //void ButtonVals();
 
-   // void PIDSetUp(); //for PID? try for elevator!
+   //void EnablePID(); 
 
 private:
     //double encoderCount;
@@ -47,13 +50,16 @@ private:
     bool cargoMechGoingBackward;
     double encoderCount;
     float encoderAngle;
+    float desiredAngle;
+    double desiredAnglePulses;
 
     WPI_VictorSPX * motorRoll;
     WPI_TalonSRX * pivotMotor;
     //frc::DigitalInput * limSwitchInside;
     //frc::DigitalInput * limSwitchOutside;
-    frc::Encoder * pivotEncoder;
-
+    //frc::Encoder * pivotEncoder;
+    float kPIDLoopIdx;
+    float kTimeoutMs;
 }; 
 
 //bool mechExtended: true is out of robot, false is in bot

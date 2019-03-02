@@ -357,15 +357,15 @@ class Robot : public frc::TimedRobot {
     }
     #endif
 
-    if (cargoIn){
-      cargomanip -> CargoMechInRobot(); 
+    /*if (cargoIn){
+      cargomanip -> CargoMechIn(); 
     }
     else if (cargoOut){
-      cargomanip -> CargoMechOutRobot();
+      cargomanip -> CargoMechOut();
     }
     else {
       cargomanip -> CargoMechStop();
-    }
+    }*/
 
   //hatch
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
@@ -579,15 +579,15 @@ class Robot : public frc::TimedRobot {
     }
     #endif
 
-    if (cargoIn){
-      cargomanip -> CargoMechInRobot(); 
+    /*if (cargoIn){
+      cargomanip -> CargoMechIn(); 
     }
     else if (cargoOut){
-      cargomanip -> CargoMechOutRobot();
+      cargomanip -> CargoMechOut();
     }
     else {
       cargomanip -> CargoMechStop();
-    }
+    }*/
 
   //hatch
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);

@@ -7,14 +7,15 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "CargoManip.h"
 #include "ctre/Phoenix.h" 
+#include "hal/Constants.h"
 #include <math.h>
 #include <frc/Encoder.h>
 #include <jankyXboxJoystick.h>
 
 #define MOTOR_ROLL_F_SPEED -1.0   //roller intake speed
 #define MOTOR_ROLL_R_SPEED 1.0   //roller outtake speed
-#define MOTOR_PIVOT_F_SPEED -0.4  //mech out of bot speed
-#define MOTOR_PIVOT_R_SPEED 0.8 //mech in bot speed
+#define MOTOR_PIVOT_F_SPEED -1.0  //mech out of bot speed
+#define MOTOR_PIVOT_R_SPEED 1.0 //mech in bot speed
 #define MOTOR_STOP_SPEED 0.0  // stops motor
 #define ENCODER_COUNTS_PER_REVOLUTION 4096
 
@@ -22,7 +23,28 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
   motorRoll = new WPI_VictorSPX(motorRollChannel);
   pivotMotor = new WPI_TalonSRX(motorPivotChannel);
 
-  pivotMotor-> ConfigSelectedFeedbackSensor(Analog, 0, 0);
+  //pid initialization for pivot motor
+  kTimeoutMs = 50;
+  kPIDLoopIdx = 0;
+
+  int absolutePosition = pivotMotor -> GetSelectedSensorPosition(0);
+  pivotMotor -> SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
+	pivotMotor -> ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+	pivotMotor -> SetSensorPhase(false);
+  pivotMotor -> ConfigNominalOutputForward(0, kTimeoutMs);
+	pivotMotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
+	pivotMotor -> ConfigPeakOutputForward(0.4, kTimeoutMs);
+	pivotMotor -> ConfigPeakOutputReverse(-0.8, kTimeoutMs);
+ 
+	pivotMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
+	pivotMotor->Config_kP(kPIDLoopIdx, 0.01, kTimeoutMs); //p val: 0.01 (tune)
+	pivotMotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs); //i val: 0
+	pivotMotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
+  pivotMotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?
+
+    pivotMotor -> Set(ControlMode::Position, desiredAnglePulses);
+
+  //pivotMotor-> ConfigSelectedFeedbackSensor(Analog, 0, 0);
   //limSwitchInside = new frc::DigitalInput(limSwitchInsideChannel);
   //limSwitchOutside = new frc::DigitalInput(limSwitchOutsideChannel);
   //encoderRoll = new frc::Encoder();
@@ -45,7 +67,6 @@ CargoManip::~CargoManip(){
 
 void CargoManip::RollersIn(){
   motorRoll -> Set(MOTOR_ROLL_F_SPEED);
-
 }
 
 void CargoManip::RollersOut(){
@@ -64,7 +85,7 @@ int CargoManip::GetLimSwitchOutside(){
   return limSwitchOutside -> Get();
 }*/
 
-void CargoManip::CargoMechOutRobot(){
+/*void CargoManip::CargoMechOutRobot(){
   pivotMotor -> Set(MOTOR_PIVOT_F_SPEED);
   cargoMechExtended = true;
   cargoMechGoingForward = true;
@@ -76,7 +97,7 @@ void CargoManip::CargoMechInRobot(){
   cargoMechExtended = false;
   cargoMechGoingForward = false;
   cargoMechGoingBackward = true;
-}
+}*/
 
 void CargoManip::CargoMechStop(){
   pivotMotor -> Set(MOTOR_STOP_SPEED);
@@ -94,25 +115,54 @@ void CargoManip::CargoMechStop(){
 	}
 }*/
 
-bool CargoManip::getCargoMechPosition(){
+bool CargoManip::GetCargoMechPosition(){
   return cargoMechExtended;
 }
 
-double CargoManip::getEncoderCount(){
-  pivotMotor -> ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+double CargoManip::GetEncoderCount(){
   pivotMotor -> SetSelectedSensorPosition(0, 0, 10);
   double encoderCount = pivotMotor -> GetSensorCollection().SetQuadraturePosition(0, 10);
 }
 
 float CargoManip::GetEncoderAngle(){
+  GetEncoderCount();
   float encoderAngle = ((encoderCount / ENCODER_COUNTS_PER_REVOLUTION) * 360);
   frc::SmartDashboard::PutNumber("Pivot Encoder Angle:", encoderAngle);
+}
+
+double CargoManip::GetDesiredPulses(){
+  GetEncoderAngle();
+  desiredAnglePulses = ((desiredAngle / 360) * ENCODER_COUNTS_PER_REVOLUTION);
+}
+
+void CargoManip::CargoMechIn(){
+  if (GetEncoderAngle() >=80 && GetEncoderAngle() <= 90){ //current angle should be 0 from view, 90 zeroed 
+      desiredAngle = 20;
+      GetDesiredPulses();
+  }
+  else if (GetEncoderAngle() > 20 && GetEncoderAngle() <= 80){ //current angle should be 70
+      desiredAngle = 0;
+      GetDesiredPulses();
+  }
+}
+
+void CargoManip::CargoMechOut(){
+    if (GetEncoderAngle() < 20){ //currently angle should be 90 from view, 0 zeroes
+      desiredAngle = 20;
+      GetDesiredPulses();
+    }
+    else if (GetEncoderAngle() >= 20 && GetEncoderAngle() < 80){ //current angle should be 70
+      desiredAngle = 90;
+      GetDesiredPulses();
+  }
 }
 
 void CargoManip::StartInit(){
   pivotMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 	encoderCount = 0.0;
 	encoderAngle = 0.0;
+  desiredAngle = 0;
+  desiredAnglePulses = 0;
 }
 
 float CargoManip::GetHatchPanelDistance(){

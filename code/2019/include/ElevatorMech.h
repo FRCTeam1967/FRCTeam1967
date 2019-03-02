@@ -89,8 +89,8 @@ private:
 
         WPI_TalonSRX * lmotor;
         WPI_TalonSRX * rmotor;
-        frc::DigitalInput * bottomLimSwitch;
-        frc::DigitalInput * topLimSwitch;
+        //frc::DigitalInput * bottomLimSwitch;
+        //frc::DigitalInput * topLimSwitch;
         frc::PIDSource * source;
         frc::PIDOutput * output;
         frc::PIDController * pid;

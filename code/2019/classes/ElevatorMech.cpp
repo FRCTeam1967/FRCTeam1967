@@ -21,11 +21,11 @@
 
 
 #ifdef JANKY_BOT_2019 //Speeds for jankybot & realbot need to be different, because jankybot has CIMS & realbot has miniCIMS
-#define L_MOTOR_F_SPEED 0.3 
-#define L_MOTOR_R_SPEED -0.2
+#define L_MOTOR_F_SPEED 0.7
+#define L_MOTOR_R_SPEED -0.6
 #else
-#define L_MOTOR_F_SPEED 0.5 
-#define L_MOTOR_R_SPEED -0.4
+#define L_MOTOR_F_SPEED 1.0
+#define L_MOTOR_R_SPEED -1.0
 #endif
 #define MOTOR_STOP_SPEED 0.0
 #define UD_PULSES_PER_REVOLUTION 4096
@@ -71,11 +71,11 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 	lmotor -> SetSensorPhase(false);
     lmotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	lmotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
-	lmotor -> ConfigPeakOutputForward(0.6, kTimeoutMs);
+	lmotor -> ConfigPeakOutputForward(0.7, kTimeoutMs);
 	lmotor -> ConfigPeakOutputReverse(-0.6, kTimeoutMs);
  
 	lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
-	lmotor->Config_kP(kPIDLoopIdx, 0.01, kTimeoutMs); //p val: 0.01 (tune)
+	lmotor->Config_kP(kPIDLoopIdx, 0.4, kTimeoutMs); //p val: 0.01 (tune)
 	lmotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs); //i val: 0
 	lmotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
     lmotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?
@@ -89,8 +89,8 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 
 
     //lim switches
-    bottomLimSwitch = new frc::DigitalInput(limSwitchBottomChannel);
-    topLimSwitch = new frc::DigitalInput(limSwitchTopChannel);
+    //bottomLimSwitch = new frc::DigitalInput(limSwitchBottomChannel);
+    //topLimSwitch = new frc::DigitalInput(limSwitchTopChannel);
     
     //pid -> Enable();
     Start();
@@ -99,8 +99,8 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 ElevatorMech::~ElevatorMech(){
     delete lmotor;
     delete rmotor;
-    delete bottomLimSwitch;
-    delete topLimSwitch;
+    //delete bottomLimSwitch;
+    //delete topLimSwitch;
     //delete pid;
 }
 
@@ -152,49 +152,55 @@ void ElevatorMech::ElevatorMotorStop(){
 }
 
 // lim switch values
-int ElevatorMech::GetBottomLimSwitch(){
+/*int ElevatorMech::GetBottomLimSwitch(){
     return bottomLimSwitch -> Get();
 }
 
 int ElevatorMech::GetTopLimSwitch(){
     return topLimSwitch -> Get();
-}
+}*/
 
 //presets 
 
 //rocket presets
 void ElevatorMech::RocketLowCargoHeight(){
     desiredHeight = ROCKET_LOW_CARGO_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Rocket Low Cargo Height";
 }
 
 void ElevatorMech::RocketMedCargoHeight(){
     desiredHeight = ROCKET_MED_CARGO_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Rocket Medium Cargo Height";
 }
 
 void ElevatorMech::RocketHighCargoHeight(){
     desiredHeight = ROCKET_HIGH_CARGO_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Rocket High Cargo Height";
 }
 
 void ElevatorMech::RocketLowHatchHeight(){
     desiredHeight = ROCKET_LOW_HATCH_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Rocket Low Hatch Height";
 }
 
 void ElevatorMech::RocketMedHatchHeight(){
     desiredHeight = ROCKET_MED_HATCH_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Rocket Medium Hatch Height";
 }
 
 void ElevatorMech::RocketHighHatchHeight(){
     desiredHeight = ROCKET_HIGH_HATCH_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Rocket High Hatch Height";
 }
@@ -208,6 +214,7 @@ void ElevatorMech::GroundHeight(){
 
 void ElevatorMech::HPHeight(){
     desiredHeight = HP_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Human Player Station Height";
 }
@@ -215,12 +222,14 @@ void ElevatorMech::HPHeight(){
 //cargo ship presents
 void ElevatorMech::ShipCargoHeight(){
     desiredHeight = CARGO_SHIP_CARGO_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Cargo Ship Cargo Height";
 }
 
 void ElevatorMech::ShipHatchHeight(){
     desiredHeight = CARGO_SHIP_HATCH_HEIGHT;
+    EnablePID();
     isMechanismRunning = true;
     setHeight = "Cargo Ship Hatch Hatch Height";
 }
@@ -234,8 +243,8 @@ void ElevatorMech::SmartDashboardComments(){
     frc::SmartDashboard::PutNumber("Desired Height", desiredHeight);
 	frc::SmartDashboard::PutNumber("Amount To Move", amountToMove);
     frc::SmartDashboard::PutNumber("DH Encoder Pulses", desiredHeightPulses);
-    frc::SmartDashboard::PutBoolean("Top Limit Switch Value", GetTopLimSwitch());
-	frc::SmartDashboard::PutBoolean("Bottom Limit Switch Value", GetBottomLimSwitch());
+    //frc::SmartDashboard::PutBoolean("Top Limit Switch Value", GetTopLimSwitch());
+	//frc::SmartDashboard::PutBoolean("Bottom Limit Switch Value", GetBottomLimSwitch());
     frc::SmartDashboard::PutString("Preset Height:", setHeight);
     if (lmotor -> GetControlMode() == ControlMode::Position){
         frc::SmartDashboard::PutString("Current Control Mode:", controlMode);
@@ -272,7 +281,7 @@ void ElevatorMech::StartUpInit(){
 
 //estop if lim switch triggered
 
-void ElevatorMech::EmergencyStop(){
+/*void ElevatorMech::EmergencyStop(){
     if ((GetBottomLimSwitch()==1) && bottomLimSwitchHasNotBeenPressed) {
 		ElevatorMotorStop();
 		isMechanismRunning = false;
@@ -291,16 +300,16 @@ void ElevatorMech::EmergencyStop(){
 	else if (GetTopLimSwitch()==0) {
 		topLimSwitchHasNotBeenPressed = true;
     }
-}
+}*/
 //stage 3's highest point is top of stage 2
 
-void ElevatorMech::PutMechanismDown(){
+/*void ElevatorMech::PutMechanismDown(){
     ElevatorMotorDown();
     if (GetBottomLimSwitch()==1){
         ElevatorMotorStop();
         needsToPutDownMechanism = false;
     }
-}
+}*/
 
 /*void ElevatorMech::FindLocation(double amountToMove){
         if (amountToMove > UD_HYSTERESIS_1_POS) {
@@ -337,11 +346,15 @@ void ElevatorMech::Run(){
     avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2; //averages left and right encoders to get one uniform variable
     amountToMove = (desiredHeight - avgEncoderDistance); //finds distance to travel - return changing value by calculating it every time
     desiredHeightPulses = ((((((desiredHeight * 100) / THIRD_STAGE_PRESENT) / UD_CIRCUMFERENCE) / GEAR_RATIO) * UD_PULSES_PER_REVOLUTION) / 100);
-    EnablePID();
     SmartDashboardComments();
+    if ((lmotor -> GetControlMode()) != (ControlMode::PercentOutput)){
+        EnablePID();
+        //lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
+    }
+
    // if (GetBottomLimSwitch()==0 && GetTopLimSwitch()==0){
         //lmotor -> Set(ControlMode::Position, desiredHeightPulses);
-    lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
+
     /*}
     else {
         lmotor -> Set(ControlMode::PercentOutput, 0);
