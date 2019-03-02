@@ -20,7 +20,6 @@ public:
 	float distance;
 	int badDataCounter;
 	int noDataCounter;
-	int goodDataCounter;
 	bool abortBadData;
 	double _speed;
 	frc::DifferentialDrive*chassis;
