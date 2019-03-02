@@ -11,7 +11,7 @@
 #include "Settings.h"
 
 #define STARTING_TIME 0.1 //time for camera to begin capturing 
-#define STOP_DRIVING_DISTANCE 10 
+#define STOP_DRIVING_DISTANCE 30
 #define VISION_DISTANCE "Distance to Tape"
 #define VISION_OFFSET "Offset"
 #define HORIZONTAL_OFFSET_UPPER_BOUND 100
@@ -19,6 +19,7 @@
 #define MAX_BAD_DATA 10
 #define BAD_DATA_DEFAULT (-1)
 #define NO_DATA_DEFAULT (-100)
+#define DATA_RESET_MAX 10
 
 AutoDrive::AutoDrive(frc::DifferentialDrive*drive, double speed, double p, double i, double d) {
 	// TODO Auto-generated constructor stub
@@ -46,6 +47,7 @@ AutoDrive::~AutoDrive() {
 void AutoDrive::Start(){
 	badDataCounter=0;
 	noDataCounter=0;
+	goodDataCounter=0;
 
     //might have to be changed this year depending on vision data
 	pid->SetInputRange(HORIZONTAL_OFFSET_LOW_BOUND, HORIZONTAL_OFFSET_UPPER_BOUND); //bounds for the horizontal offset
@@ -78,11 +80,13 @@ bool AutoDrive::JobDone(){
 
 		if(distance==BAD_DATA_DEFAULT){ //this is default value when vision is unable to detect the tape
 			badDataCounter++;
+			goodDataCounter=0;
 			frc::SmartDashboard::PutNumber("Bad Data Count:", badDataCounter);
 			//printf("Bad Data Count: %f \n", badDataCounter);
 		}
 		else if(distance==NO_DATA_DEFAULT){
 			noDataCounter++;
+			goodDataCounter=0;
 			frc::SmartDashboard::PutNumber("No Data Count:", noDataCounter);
 			//printf("No Data Sent Count: %f \n", noDataCounter);
 		}
@@ -90,9 +94,16 @@ bool AutoDrive::JobDone(){
 			printf("AutoDrive complete! Distance reached! \n");
 			return true;
 		}
+		else{
+			goodDataCounter++;
+		}
 		//TODO: add more bad data cases (ex. if distance is negative or infinite)
 		
-		if(badDataCounter>=MAX_BAD_DATA){
+		if(goodDataCounter>=DATA_RESET_MAX){
+			badDataCounter=0;
+			noDataCounter=0;
+		}
+		else if(badDataCounter>=MAX_BAD_DATA){
 			frc::SmartDashboard::PutString("Reason for AutoDrive exit", "AutoDrive exited because unable to detect the tape");
 			//printf("AutoDrive exited because unable to detect the tape \n");
 			return true;
