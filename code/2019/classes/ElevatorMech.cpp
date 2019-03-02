@@ -35,9 +35,9 @@
 
 //measurements in inches 
 #define INCHES_OFF_GROUND 5.0
-#define ROCKET_LOW_CARGO_HEIGHT 27.5 - INCHES_OFF_GROUND 
-#define ROCKET_MED_CARGO_HEIGHT 55.5 - INCHES_OFF_GROUND 
-#define ROCKET_HIGH_CARGO_HEIGHT 68.0 - INCHES_OFF_GROUND 
+#define ROCKET_LOW_CARGO_HEIGHT 21.0 //27.5 - INCHES_OFF_GROUND 
+#define ROCKET_MED_CARGO_HEIGHT 21.1 //55.5 - INCHES_OFF_GROUND 
+#define ROCKET_HIGH_CARGO_HEIGHT 70.0 - INCHES_OFF_GROUND 
 #define ROCKET_LOW_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 #define ROCKET_MED_HATCH_HEIGHT 47 - INCHES_OFF_GROUND 
 #define ROCKET_HIGH_HATCH_HEIGHT 75 - INCHES_OFF_GROUND 
@@ -46,8 +46,10 @@
 #define CARGO_SHIP_CARGO_HEIGHT 36 - INCHES_OFF_GROUND  // one inch over edge of bay
 #define CARGO_SHIP_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 
-#define AMNT_TO_MOVE_MANUAL_UP 0.10 //In inches
-#define AMNT_TO_MOVE_MANUAL_DOWN -0.10 //In inches
+#define AMNT_TO_MOVE_MANUAL_UP 1.0 //In inches
+#define AMNT_TO_MOVE_MANUAL_DOWN -1.0 //In inches
+#define MAX_HEIGHT 70.0 //Inches
+#define MIN_HEIGHT 0.0 //Inches
 
 bool done = false; //used to determine completion of tasks
 bool hatchPistonsOut = true; //sets up ConditionalRun - if pistons in, class doesn't run
@@ -147,10 +149,12 @@ void ElevatorMech::CalculateDesiredHeight(){
 
 //elevator motor movement functions
 void ElevatorMech::ElevatorMotorUp(){
-    if (desiredHeight < 68 && desiredHeight > 0.09)
+    GetEncoderDistance();
+    avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2;
+    if (avgEncoderDistance < MAX_HEIGHT && (avgEncoderDistance > MIN_HEIGHT || avgEncoderDistance == MIN_HEIGHT))
     {
-        CalculateDesiredHeight();
-        desiredHeight = avgEncoderDistance + AMNT_TO_MOVE_MANUAL_UP;
+        GetEncoderDistance();
+        desiredHeight+=AMNT_TO_MOVE_MANUAL_UP;
         EnablePID();
         isMechanismRunning = true;
         setHeight = "Manual Control";
@@ -161,10 +165,12 @@ void ElevatorMech::ElevatorMotorUp(){
 }
 
 void ElevatorMech::ElevatorMotorDown(){
-    if (desiredHeight < 68 && desiredHeight > 0.09)
+    GetEncoderDistance();
+    avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2;
+    if (avgEncoderDistance < MAX_HEIGHT && (avgEncoderDistance > MIN_HEIGHT || avgEncoderDistance == MIN_HEIGHT))
     {
-        CalculateDesiredHeight();
-        desiredHeight = avgEncoderDistance + AMNT_TO_MOVE_MANUAL_DOWN;
+        GetEncoderDistance();
+        desiredHeight+=AMNT_TO_MOVE_MANUAL_DOWN;
         EnablePID();
         isMechanismRunning = true;
         setHeight = "Manual Control";
@@ -180,6 +186,7 @@ void ElevatorMech::ElevatorMotorStop(){
 }
 
 // lim switch values
+
 /*int ElevatorMech::GetBottomLimSwitch(){
     return bottomLimSwitch -> Get();
 }
