@@ -61,6 +61,7 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
     lmotor = new WPI_TalonSRX(lMotorChannel);
     rmotor = new WPI_TalonSRX(rMotorChannel); 
 
+    StartUpInit();
     //object pid attempt
     /*lmotor -> PIDGet();
     source -> SetPIDSourceType(lmotor);
@@ -149,11 +150,8 @@ void ElevatorMech::CalculateDesiredHeight(){
 
 //elevator motor movement functions
 void ElevatorMech::ElevatorMotorUp(){
-    GetEncoderDistance();
-    avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2;
-    if (avgEncoderDistance < MAX_HEIGHT && (avgEncoderDistance > MIN_HEIGHT || avgEncoderDistance == MIN_HEIGHT))
+    if ((desiredHeight+AMNT_TO_MOVE_MANUAL_UP)<=MAX_HEIGHT)
     {
-        GetEncoderDistance();
         desiredHeight+=AMNT_TO_MOVE_MANUAL_UP;
         EnablePID();
         isMechanismRunning = true;
@@ -165,11 +163,8 @@ void ElevatorMech::ElevatorMotorUp(){
 }
 
 void ElevatorMech::ElevatorMotorDown(){
-    GetEncoderDistance();
-    avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2;
-    if (avgEncoderDistance < MAX_HEIGHT && (avgEncoderDistance > MIN_HEIGHT || avgEncoderDistance == MIN_HEIGHT))
+    if ((desiredHeight+AMNT_TO_MOVE_MANUAL_DOWN)>=MIN_HEIGHT)
     {
-        GetEncoderDistance();
         desiredHeight+=AMNT_TO_MOVE_MANUAL_DOWN;
         EnablePID();
         isMechanismRunning = true;
