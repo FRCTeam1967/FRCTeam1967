@@ -26,6 +26,10 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
   //pid initialization for pivot motor
   kTimeoutMs = 50;
   kPIDLoopIdx = 0;
+  encoderCount = 0.0;
+	encoderAngle = 0.0;
+  //desiredAngle = 0;
+  desiredAnglePulses = 0;
 
   int absolutePosition = pivotMotor -> GetSelectedSensorPosition(0);
   pivotMotor -> SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
@@ -42,7 +46,7 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
 	pivotMotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
   pivotMotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?
 
-    pivotMotor -> Set(ControlMode::Position, desiredAnglePulses);
+  pivotMotor -> Set(ControlMode::Position, desiredAnglePulses);
 
   //pivotMotor-> ConfigSelectedFeedbackSensor(Analog, 0, 0);
   //limSwitchInside = new frc::DigitalInput(limSwitchInsideChannel);
@@ -130,40 +134,33 @@ float CargoManip::GetEncoderAngle(){
   frc::SmartDashboard::PutNumber("Pivot Encoder Angle:", encoderAngle);
 }
 
-double CargoManip::GetDesiredPulses(){
-  GetEncoderAngle();
-  desiredAnglePulses = ((desiredAngle / 360) * ENCODER_COUNTS_PER_REVOLUTION);
+void CargoManip::SetPIDAngle(float pivotangle){
+  desiredAnglePulses = ((pivotangle / 360) * ENCODER_COUNTS_PER_REVOLUTION);
+  pivotMotor -> Set(ControlMode::Position, desiredAnglePulses);
 }
 
 void CargoManip::CargoMechIn(){
   if (GetEncoderAngle() >=80 && GetEncoderAngle() <= 90){ //current angle should be 0 from view, 90 zeroed 
-      desiredAngle = 20;
-      GetDesiredPulses();
+      SetPIDAngle(20);
   }
   else if (GetEncoderAngle() > 20 && GetEncoderAngle() <= 80){ //current angle should be 70
-      desiredAngle = 0;
-      GetDesiredPulses();
+      SetPIDAngle(0);
   }
 }
 
 void CargoManip::CargoMechOut(){
     if (GetEncoderAngle() < 20){ //currently angle should be 90 from view, 0 zeroes
-      desiredAngle = 20;
-      GetDesiredPulses();
+      SetPIDAngle(20);
     }
     else if (GetEncoderAngle() >= 20 && GetEncoderAngle() < 80){ //current angle should be 70
-      desiredAngle = 90;
-      GetDesiredPulses();
+      SetPIDAngle(90);
   }
 }
 
-void CargoManip::StartInit(){
+/*void CargoManip::StartInit(){
   pivotMotor -> GetSensorCollection().SetQuadraturePosition(0,10);
-	encoderCount = 0.0;
-	encoderAngle = 0.0;
-  desiredAngle = 0;
-  desiredAnglePulses = 0;
-}
+
+}*/
 
 float CargoManip::GetHatchPanelDistance(){
   return (pivotMotor->GetSensorCollection().GetAnalogIn());

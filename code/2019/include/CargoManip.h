@@ -19,7 +19,7 @@ public:
     bool isMechRunning;
     //virtual void Run();
 
-    void StartInit(); //starts
+    //void StartInit(); //starts
     void RollersIn(); // brings cargo into bot
     void RollersOut(); // pushes cargo out of bot
     /*void CargoMechInRobot(); // retracts up into robot 
@@ -37,7 +37,7 @@ public:
 
     double GetEncoderCount(); 
     float GetEncoderAngle(); 
-    double GetDesiredPulses();
+    void SetPIDAngle(float pivotangle);
     float GetHatchPanelDistance();
     //void ButtonVals();
 
@@ -50,7 +50,7 @@ private:
     bool cargoMechGoingBackward;
     double encoderCount;
     float encoderAngle;
-    float desiredAngle;
+    //float desiredAngle;
     double desiredAnglePulses;
 
     WPI_VictorSPX * motorRoll;
