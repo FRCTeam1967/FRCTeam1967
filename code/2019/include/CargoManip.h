@@ -21,10 +21,13 @@ public:
     //void StartInit(); //starts
     void RollersIn(); // brings cargo into bot
     void RollersOut(); // pushes cargo out of bot
-    void CargoMechIn(); //brings mechanism 1 phase in (0 -> 70 -> 90)
-    void CargoMechOut(); //brings mechanism 1 phase out (90 -> 70 -> 0)
+    //void CargoMechIn(); //brings mechanism 1 phase in (0 -> 70 -> 90)
+    //void CargoMechOut(); //brings mechanism 1 phase out (90 -> 70 -> 0)
     void RollersStop(); //stops roll
     //void CargoMechStop();
+    void CargoInRobot();
+    void CargoHPAngle();
+    void CargoGroundAngle();
 
     bool GetCargoMechPosition(); //gets if claw is up or down (switch to a string to specify??)
 
