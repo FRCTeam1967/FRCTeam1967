@@ -35,8 +35,9 @@
 
 //measurements in inches 
 #define INCHES_OFF_GROUND 5.0
-#define ROCKET_LOW_CARGO_HEIGHT 21.0 //27.5 - INCHES_OFF_GROUND 
-#define ROCKET_MED_CARGO_HEIGHT 21.1 //55.5 - INCHES_OFF_GROUND 
+#define BALL_HEIGHT 15 - INCHES_OFF_GROUND
+#define ROCKET_LOW_CARGO_HEIGHT 27.5 - INCHES_OFF_GROUND 
+#define ROCKET_MED_CARGO_HEIGHT 55.5 - INCHES_OFF_GROUND 
 #define ROCKET_HIGH_CARGO_HEIGHT 70.0 - INCHES_OFF_GROUND 
 #define ROCKET_LOW_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 #define ROCKET_MED_HATCH_HEIGHT 47 - INCHES_OFF_GROUND 
@@ -197,6 +198,15 @@ bool ElevatorMech::GetTopLimSwitch(){
 //presets 
 
 //rocket presets
+
+void ElevatorMech::BallHeight()
+{
+    desiredHeight = BALL_HEIGHT;
+    EnablePID();
+    isMechanismRunning = true;
+    setHeight = "Rocket Low Cargo Height";
+}
+
 void ElevatorMech::RocketLowCargoHeight(){
     desiredHeight = ROCKET_LOW_CARGO_HEIGHT;
     EnablePID();

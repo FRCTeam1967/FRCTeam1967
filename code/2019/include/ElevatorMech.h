@@ -25,6 +25,7 @@ public:
         virtual ~ElevatorMech(); 
         virtual void Run();
 
+        void BallHeight();
         void RocketLowCargoHeight(); 
         void RocketMedCargoHeight(); 
         void RocketHighCargoHeight(); 

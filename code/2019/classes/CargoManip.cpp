@@ -48,7 +48,7 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
 	pivotMotor -> ConfigPeakOutputReverse(-1.0, kTimeoutMs);
  
 	pivotMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
-	pivotMotor->Config_kP(kPIDLoopIdx, 6, kTimeoutMs); //p val: 0.01 (tune)
+	pivotMotor->Config_kP(kPIDLoopIdx, 1.0, kTimeoutMs); //p val: 0.01 (tune)
 	pivotMotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs); //i val: 0
 	pivotMotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
   pivotMotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?
