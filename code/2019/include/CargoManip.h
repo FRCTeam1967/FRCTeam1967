@@ -39,7 +39,7 @@ private:
     bool cargoMechGoingBackward;
     double encoderCount;
     float encoderAngle;
-    //float desiredAngle;
+    float desiredAngle;
     double desiredAnglePulses;
 
     WPI_VictorSPX * motorRoll;

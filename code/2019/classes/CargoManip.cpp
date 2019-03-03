@@ -29,20 +29,20 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
   kPIDLoopIdx = 0;
   encoderCount = 0.0;
 	encoderAngle = 0.0;
-  //desiredAngle = 0;
+  desiredAngle = 0;
   desiredAnglePulses = 0;
 
   int absolutePosition = pivotMotor -> GetSelectedSensorPosition(0);
   pivotMotor -> SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
 	pivotMotor -> ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
-	pivotMotor -> SetSensorPhase(false);
+	pivotMotor -> SetSensorPhase(true);
   pivotMotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	pivotMotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
 	pivotMotor -> ConfigPeakOutputForward(0.8, kTimeoutMs); //going in? test
 	pivotMotor -> ConfigPeakOutputReverse(-0.8, kTimeoutMs);
  
 	pivotMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
-	pivotMotor->Config_kP(kPIDLoopIdx, 0.1, kTimeoutMs); //p val: 0.01 (tune)
+	pivotMotor->Config_kP(kPIDLoopIdx, 1.5, kTimeoutMs); //p val: 0.01 (tune)
 	pivotMotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs); //i val: 0
 	pivotMotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
   pivotMotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?
@@ -125,7 +125,7 @@ void CargoManip::CargoMechInRobot(){
 }*/
 
 void CargoManip::FindEncoderCount(){
-  pivotMotor -> SetSelectedSensorPosition(0, 0, 10);
+  //pivotMotor -> SetSelectedSensorPosition(0, 0, 10);
   double encoderCount = pivotMotor -> GetSensorCollection().SetQuadraturePosition(0, 10);
   frc::SmartDashboard::PutNumber("Current Encoder Count:", encoderCount);
 }
@@ -144,20 +144,24 @@ void CargoManip::SetPIDAngle(float pivotangle){
 
 void CargoManip::CargoMechIn(){
   FindEncoderAngle();
-  if (encoderAngle >= 60){ //current angle should be 0 from view, 90 zeroed 
-      SetPIDAngle(20);
-  }
-  else if (encoderAngle >= 10 && encoderAngle < 60){ //current angle should be 70, 20 zeroed
+  if (desiredAngle == 20){ //current angle should be 0 from view, 90 zeroed 
+      desiredAngle = 0;
       SetPIDAngle(0);
+  }
+  else if (desiredAngle   == 90){ //current angle should be 70, 20 zeroed
+      desiredAngle = 20;
+      SetPIDAngle(20);
   }
 }
 
 void CargoManip::CargoMechOut(){
   FindEncoderAngle();
-    if (encoderAngle < 15){ //currently angle should be 90 from view, 0 zeroes
+    if (desiredAngle == 0){ //currently angle should be 90 from view, 0 zeroes
+      desiredAngle = 20;
       SetPIDAngle(20);
     }
-    else if (encoderAngle >= 15 && encoderAngle < 85){ //current angle should be 70
+    else if (desiredAngle == 20){ //current angle should be 70
+      desiredAngle = 90;
       SetPIDAngle(90);
   }
 }

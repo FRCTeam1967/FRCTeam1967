@@ -582,7 +582,6 @@ class Robot : public frc::TimedRobot {
       cargomanip -> RollersStop();
     }
     #endif
-
     if (cargoIn && !cargoInPressed){
       cargomanip -> CargoMechIn(); 
       cargoInPressed = true;
