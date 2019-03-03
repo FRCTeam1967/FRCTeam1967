@@ -126,7 +126,7 @@ void ElevatorMech::ResetEncoder(){
 	rmotor -> SetSelectedSensorPosition(0, 0, 10);
 }
 
-double ElevatorMech::GetEncoderCount(){
+void ElevatorMech::GetEncoderCount(){
     leftEncoderCount = lmotor -> GetSensorCollection().GetQuadraturePosition();
     rightEncoderCount = rmotor -> GetSensorCollection().GetQuadraturePosition();
     frc::SmartDashboard::PutNumber("Left Encoder Count", leftEncoderCount);
@@ -275,6 +275,11 @@ bool ElevatorMech::GetIfMechIsRunning(){
 
 // smartdash comments
 void ElevatorMech::SmartDashboardComments(){
+    GetEncoderCount();
+    GetEncoderDistance();
+    frc::SmartDashboard::PutNumber("Encoder Count", leftEncoderCount);
+    frc::SmartDashboard::PutNumber("Encoder Distance", leftEncoderDistance);
+    //frc::SmartDashboard::PutNumber("Right Encoder Distance", rightEncoderDistance);   
     frc::SmartDashboard::PutNumber("Desired Height", desiredHeight);
 	frc::SmartDashboard::PutNumber("Amount To Move", amountToMove);
     frc::SmartDashboard::PutNumber("DH Encoder Pulses", desiredHeightPulses);
@@ -317,9 +322,10 @@ void ElevatorMech::StartUpInit(){
 
 void ElevatorMech::EmergencyStop(){
     if ((GetBottomLimSwitch()==true) && bottomLimSwitchHasNotBeenPressed) {
-		ElevatorMotorStop();
-		isMechanismRunning = false;
-		ResetEncoder();
+		// ElevatorMotorStop();
+		// isMechanismRunning = false;
+		// ResetEncoder();
+        printf("Bottom pressed\n");
 		bottomLimSwitchHasNotBeenPressed = false;
 	}
 	else if (GetBottomLimSwitch()==false) {
@@ -328,9 +334,10 @@ void ElevatorMech::EmergencyStop(){
 
 	if ((GetTopLimSwitch()==true) && topLimSwitchHasNotBeenPressed) {
 		//ElevatorMotorStop();
-        GetEncoderCount();
-        lmotor -> Set(ControlMode::Position, leftEncoderCount);
-		isMechanismRunning = false;
+        // GetEncoderCount();
+        // lmotor -> Set(ControlMode::Position, leftEncoderCount);
+		// isMechanismRunning = false;
+        printf("Top pressed\n");
 		topLimSwitchHasNotBeenPressed = false;
 	}
 	else if (GetTopLimSwitch()==false) {
@@ -382,7 +389,7 @@ void ElevatorMech::Run(){
     EmergencyStop();
     
     //CalculateDesiredHeight();
-    //SmartDashboardComments();
+    SmartDashboardComments();
     // if ((lmotor -> GetControlMode()) != (ControlMode::PercentOutput)){
     //     EnablePID();
     //     //lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);

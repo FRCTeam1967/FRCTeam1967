@@ -42,7 +42,7 @@ public:
         void StartUpInit();
         //void FindLocation(double amountToMove);
 
-        double GetEncoderCount(); 
+        void GetEncoderCount(); 
         void GetEncoderDistance();
         void CalculateDesiredHeight();
 
