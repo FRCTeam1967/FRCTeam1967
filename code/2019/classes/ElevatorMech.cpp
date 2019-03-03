@@ -333,7 +333,7 @@ void ElevatorMech::EmergencyStop(){
 	}
 
 	if ((GetTopLimSwitch()==true) && topLimSwitchHasNotBeenPressed) {
-		ElevatorMotorStop();
+		//ElevatorMotorStop();
         GetEncoderCount();
         lmotor -> Set(ControlMode::Position, leftEncoderCount);
 		isMechanismRunning = false;
