@@ -95,8 +95,8 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
     //lim switches
     //bottomLimSwitch = new frc::DigitalInput(limSwitchBottomChannel);
     //topLimSwitch = new frc::DigitalInput(limSwitchTopChannel);
-    lmotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
-	lmotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+    lmotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
+	lmotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
 
     //pid -> Enable();
     //Start();
@@ -322,9 +322,9 @@ void ElevatorMech::StartUpInit(){
 
 void ElevatorMech::EmergencyStop(){
     if ((GetBottomLimSwitch()==true) && bottomLimSwitchHasNotBeenPressed) {
-		// ElevatorMotorStop();
-		// isMechanismRunning = false;
-		// ResetEncoder();
+		ElevatorMotorStop();
+		isMechanismRunning = false;
+		ResetEncoder();
         printf("Bottom pressed\n");
 		bottomLimSwitchHasNotBeenPressed = false;
 	}
@@ -333,10 +333,10 @@ void ElevatorMech::EmergencyStop(){
 	}
 
 	if ((GetTopLimSwitch()==true) && topLimSwitchHasNotBeenPressed) {
-		//ElevatorMotorStop();
-        // GetEncoderCount();
-        // lmotor -> Set(ControlMode::Position, leftEncoderCount);
-		// isMechanismRunning = false;
+		ElevatorMotorStop();
+        GetEncoderCount();
+        lmotor -> Set(ControlMode::Position, leftEncoderCount);
+		isMechanismRunning = false;
         printf("Top pressed\n");
 		topLimSwitchHasNotBeenPressed = false;
 	}
