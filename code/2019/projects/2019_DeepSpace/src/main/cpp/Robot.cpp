@@ -56,7 +56,7 @@ class Robot : public frc::TimedRobot {
     jankyDrivestick * right;
     frc::ADXRS450_Gyro * gyro;
     VisionStateMachine * vision;
-    //CargoManip * cargomanip;
+    CargoManip * cargomanip;
     HatchIntake * hatch;
     ElevatorMech * elevator;
     Solenoid*fpiston;
@@ -89,7 +89,7 @@ class Robot : public frc::TimedRobot {
     right = NULL;
     gyro = NULL;
     vision = NULL;
-    //cargomanip = NULL;
+    cargomanip = NULL;
     hatch = NULL;
     elevator = NULL;
     fpiston = NULL;
@@ -116,7 +116,7 @@ class Robot : public frc::TimedRobot {
     delete right; 
     delete gyro;
     delete vision;
-    //delete cargomanip;
+    delete cargomanip;
     delete hatch;
     delete elevator; 
     delete fpiston;
@@ -158,7 +158,7 @@ class Robot : public frc::TimedRobot {
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
     gyro = new frc::ADXRS450_Gyro(frc::SPI::Port::kOnboardCS0); //gyro didn't work; maybe try other port options
     vision = new VisionStateMachine(drive, gyro, &(flmotor->GetSensorCollection()), &(frmotor->GetSensorCollection()), flmotor, frmotor, rlmotor, rrmotor);
-    //cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL);
+    cargomanip = new CargoManip(MOTOR_ROLL_CHANNEL, MOTOR_PIVOT_CHANNEL);
     hatch = new HatchIntake(TOP_HATCH_PISTON, BOTTOM_CARGO_PISTON);
     elevator = new ElevatorMech(L_ELEVATOR_MOTOR_CHANNEL, R_ELEVATOR_MOTOR_CHANNEL, ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL, ELEVATOR_LIM_SWITCH_TOP_CHANNEL);
     fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
@@ -181,7 +181,6 @@ class Robot : public frc::TimedRobot {
     chassisFrontButtonPressed=false;
     chassisBackButtonPressed=false;
 
-    //cargomanip -> StartInit();
     //hatch -> Start();
     //elevator -> Start();
     elevator -> StartUpInit();
@@ -336,6 +335,8 @@ class Robot : public frc::TimedRobot {
 
   //cargo
   
+  cargomanip -> FindEncoderAngle();
+
   #ifdef JANKY_BUTTON_PANEL
     if (rollers <= -0.2){
       //printf("rollers in triggered \n");
@@ -361,15 +362,19 @@ class Robot : public frc::TimedRobot {
     }
     #endif
 
-    /*if (cargoIn){
+    if (cargoIn && !cargoInPressed){
       cargomanip -> CargoMechIn(); 
+      cargoInPressed = true;
     }
-    else if (cargoOut){
+    else if (cargoOut && !cargoOutPressed){
       cargomanip -> CargoMechOut();
+      cargoOutPressed = true;
     }
     else {
-      cargomanip -> CargoMechStop();
-    }*/
+      //cargomanip -> CargoMechStop();
+      cargoInPressed = false;
+      cargoOutPressed = false;
+    }
 
   //hatch
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
@@ -558,6 +563,7 @@ class Robot : public frc::TimedRobot {
 
   //cargo
   
+  cargomanip -> FindEncoderAngle();
   #ifdef JANKY_BUTTON_PANEL
     if (rollers <= -0.2){
       //printf("rollers in triggered \n");
@@ -582,19 +588,28 @@ class Robot : public frc::TimedRobot {
       //cargomanip -> RollersStop();
     }
     #endif
+
     if (cargoIn && !cargoInPressed){
-      //cargomanip -> CargoMechIn(); 
+      cargomanip -> CargoMechIn(); 
       cargoInPressed = true;
+      printf("Cargo In Button Just Pressed:\n");
     }
-    else if (cargoOut && !cargoOutPressed){
-      //cargomanip -> CargoMechOut();
-      cargoOutPressed = true;
-    }
-    else {
-      //cargomanip -> CargoMechStop();
+    else if (!cargoIn && cargoInPressed){
       cargoInPressed = false;
-      cargoOutPressed = false;
+      //printf("Cargo In Button Not Pressed:\n");
     }
+
+    if (cargoOut && !cargoOutPressed){
+      cargomanip -> CargoMechOut();
+      cargoOutPressed = true;
+      printf("Cargo Out Button Just Pressed:\n");
+    }
+
+    else if (!cargoOut && cargoOutPressed){
+      cargoOutPressed = false;
+      //printf("Cargo Out Button Not Pressed:\n");
+    }
+
 
   //hatch
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);

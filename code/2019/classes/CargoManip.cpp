@@ -15,10 +15,13 @@
 
 #define MOTOR_ROLL_F_SPEED -1.0   //roller intake speed
 #define MOTOR_ROLL_R_SPEED 1.0   //roller outtake speed
-#define MOTOR_PIVOT_F_SPEED -1.0  //mech out of bot speed
-#define MOTOR_PIVOT_R_SPEED 1.0 //mech in bot speed
+#define MOTOR_PIVOT_F_SPEED -0.5  //mech out of bot speed
+#define MOTOR_PIVOT_R_SPEED 0.5 //mech in bot speed
 #define MOTOR_STOP_SPEED 0.0  // stops motor
-#define ENCODER_COUNTS_PER_REVOLUTION 4096
+#define ENCODER_COUNTS_PER_REVOLUTION (((10*(18/16))*4096))//*100
+#define HP_ANGLE_PULSES -1030
+#define GROUND_PULSES -7000
+#define ROBOT_PULSES -90
 
 CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
   motorRoll = new WPI_VictorSPX(motorRollChannel);
@@ -30,17 +33,17 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
   pivotEncoderCount = 0.0;
 	encoderAngle = 0.0;
   desiredAngle = 0;
-  desiredAnglePulses = 0;
+  desiredAnglePulses = ROBOT_PULSES;
 
   /*int absolutePosition = pivotMotor -> GetSelectedSensorPosition(0);
   pivotMotor -> SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);*/
 	ResetPivotEncoder();
   pivotMotor -> ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
-	pivotMotor -> SetSensorPhase(true);
+	pivotMotor -> SetSensorPhase(false);
   pivotMotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	pivotMotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
-	pivotMotor -> ConfigPeakOutputForward(0.8, kTimeoutMs); //going in? test
-	pivotMotor -> ConfigPeakOutputReverse(-0.8, kTimeoutMs);
+	pivotMotor -> ConfigPeakOutputForward(0.4, kTimeoutMs); //going in? test
+	pivotMotor -> ConfigPeakOutputReverse(-0.4, kTimeoutMs);
  
 	pivotMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
 	pivotMotor->Config_kP(kPIDLoopIdx, 1.5, kTimeoutMs); //p val: 0.01 (tune)
@@ -133,43 +136,44 @@ void CargoManip::CargoMechInRobot(){
 void CargoManip::FindEncoderCount(){
   //pivotMotor -> SetSelectedSensorPosition(0, 0, 10);
   pivotEncoderCount = pivotMotor -> GetSensorCollection().GetQuadraturePosition();
-  frc::SmartDashboard::PutNumber("Current Pivot Angle Pulses:", pivotEncoderCount);
+  frc::SmartDashboard::PutNumber("Current Pivot Encoder Count:", pivotEncoderCount);
 }
 
 void CargoManip::FindEncoderAngle(){
   FindEncoderCount();
-  encoderAngle = ((pivotEncoderCount / ENCODER_COUNTS_PER_REVOLUTION) * 360);
+  encoderAngle = ((pivotEncoderCount / ENCODER_COUNTS_PER_REVOLUTION)/360);
   frc::SmartDashboard::PutNumber("Current Pivot Angle:", encoderAngle);
 }
 
-void CargoManip::SetPIDAngle(float desiredAngle){
-  desiredAnglePulses = ((encoderAngle / 360) * ENCODER_COUNTS_PER_REVOLUTION);
+void CargoManip::SetPIDAngle(float desiredAnglePulses){
+  //desiredAnglePulses = -1*(((desiredAngle / 360) * ENCODER_COUNTS_PER_REVOLUTION));
   pivotMotor -> Set(ControlMode::Position, desiredAnglePulses);
   frc::SmartDashboard::PutNumber("Desired Pivot Angle:", desiredAngle);
   frc::SmartDashboard::PutNumber("Desired Pivot Angle Pulses:", desiredAnglePulses);
 }
 
 void CargoManip::CargoMechIn(){
-  FindEncoderAngle();
-  if (desiredAngle == 20){ //current angle should be 0 from view, 90 zeroed 
-      desiredAngle = 0;
-      SetPIDAngle(0);
+  FindEncoderCount();
+  if (desiredAnglePulses == GROUND_PULSES){ //current angle should be 0 from view, 90 zeroed 
+      //desiredAngle = 0;
+      desiredAnglePulses = HP_ANGLE_PULSES;
+      SetPIDAngle(HP_ANGLE_PULSES);
   }
-  else if (desiredAngle   == 90){ //current angle should be 70, 20 zeroed
-      desiredAngle = 20;
-      SetPIDAngle(20);
+  else if (desiredAnglePulses == HP_ANGLE_PULSES){ //current angle should be 70, 20 zeroed
+      desiredAnglePulses = ROBOT_PULSES;
+      SetPIDAngle(ROBOT_PULSES);
   }
 }
 
 void CargoManip::CargoMechOut(){
   FindEncoderAngle();
-    if (desiredAngle == 0){ //currently angle should be 90 from view, 0 zeroes
-      desiredAngle = 20;
-      SetPIDAngle(20);
+    if (desiredAnglePulses == ROBOT_PULSES){ //currently angle should be 90 from view, 0 zeroes
+      desiredAnglePulses= HP_ANGLE_PULSES;
+      SetPIDAngle(HP_ANGLE_PULSES);
     }
-    else if (desiredAngle == 20){ //current angle should be 70
-      desiredAngle = 90;
-      SetPIDAngle(90);
+    else if (desiredAngle == HP_ANGLE_PULSES){ //current angle should be 70
+      desiredAnglePulses = GROUND_PULSES;
+      SetPIDAngle(GROUND_PULSES);
   }
 }
 

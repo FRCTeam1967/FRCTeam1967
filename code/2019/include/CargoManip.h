@@ -31,7 +31,7 @@ public:
     void FindEncoderCount(); 
     void FindEncoderAngle(); 
     void ResetPivotEncoder();
-    void SetPIDAngle(float newangle);
+    void SetPIDAngle(float desiredAnglePulses);
     float GetHatchPanelDistance();
 
 private:
