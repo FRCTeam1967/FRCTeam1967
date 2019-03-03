@@ -58,8 +58,8 @@ public:
 
 
 protected:
-        int GetBottomLimSwitch(); 
-        int GetTopLimSwitch(); 
+        bool GetBottomLimSwitch(); 
+        bool GetTopLimSwitch(); 
 
 private:
         void EmergencyStop(); 

@@ -92,11 +92,12 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
     rmotor -> SetSelectedSensorPosition(0, 0, 10);
 	rmotor -> GetSensorCollection().SetQuadraturePosition(0,10);*/
 
-
     //lim switches
     //bottomLimSwitch = new frc::DigitalInput(limSwitchBottomChannel);
     //topLimSwitch = new frc::DigitalInput(limSwitchTopChannel);
-    
+    lmotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+	lmotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_NormallyOpen , 6, 0);
+
     //pid -> Enable();
     //Start();
 }
@@ -104,8 +105,8 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 ElevatorMech::~ElevatorMech(){
     delete lmotor;
     delete rmotor;
-    //delete bottomLimSwitch;
-    //delete topLimSwitch;
+    // delete bottomLimSwitch;
+    // delete topLimSwitch;
     //delete pid;
 }
 
@@ -176,19 +177,22 @@ void ElevatorMech::ElevatorMotorDown(){
 }
 
 void ElevatorMech::ElevatorMotorStop(){
+    lmotor -> Set(ControlMode::PercentOutput, MOTOR_STOP_SPEED);
     // lmotor -> Set(MOTOR_STOP_SPEED);
     // controlMode = "PercentOutput, Running on Throttle Power";
 }
 
 // lim switch values
 
-/*int ElevatorMech::GetBottomLimSwitch(){
-    return bottomLimSwitch -> Get();
+bool ElevatorMech::GetBottomLimSwitch(){
+    return lmotor->GetSensorCollection().IsFwdLimitSwitchClosed();
+    //return bottomLimSwitch -> Get();
 }
 
-int ElevatorMech::GetTopLimSwitch(){
-    return topLimSwitch -> Get();
-}*/
+bool ElevatorMech::GetTopLimSwitch(){
+    return lmotor->GetSensorCollection().IsRevLimitSwitchClosed();
+    //return topLimSwitch -> Get();
+}
 
 //presets 
 
@@ -286,7 +290,6 @@ void ElevatorMech::SmartDashboardComments(){
 }
 
 // run + check for hatch piston status
-
 void ElevatorMech::StartUpInit(){
     lmotor -> GetSensorCollection().SetQuadraturePosition(0,10);
 	lmotor -> SetSelectedSensorPosition(0, 0, 10);
@@ -312,26 +315,29 @@ void ElevatorMech::StartUpInit(){
 
 //estop if lim switch triggered
 
-/*void ElevatorMech::EmergencyStop(){
-    if ((GetBottomLimSwitch()==1) && bottomLimSwitchHasNotBeenPressed) {
+void ElevatorMech::EmergencyStop(){
+    if ((GetBottomLimSwitch()==true) && bottomLimSwitchHasNotBeenPressed) {
 		ElevatorMotorStop();
 		isMechanismRunning = false;
 		ResetEncoder();
 		bottomLimSwitchHasNotBeenPressed = false;
 	}
-	else if (GetBottomLimSwitch()==0) {
+	else if (GetBottomLimSwitch()==false) {
 		bottomLimSwitchHasNotBeenPressed = true;
 	}
 
-	if ((GetTopLimSwitch()==1) && topLimSwitchHasNotBeenPressed) {
-		ElevatorMotorStop();
+	if ((GetTopLimSwitch()==true) && topLimSwitchHasNotBeenPressed) {
+		//ElevatorMotorStop();
+        GetEncoderCount();
+        lmotor -> Set(ControlMode::Position, leftEncoderCount);
 		isMechanismRunning = false;
 		topLimSwitchHasNotBeenPressed = false;
 	}
-	else if (GetTopLimSwitch()==0) {
+	else if (GetTopLimSwitch()==false) {
 		topLimSwitchHasNotBeenPressed = true;
     }
-}*/
+}
+
 //stage 3's highest point is top of stage 2
 
 /*void ElevatorMech::PutMechanismDown(){
@@ -373,8 +379,10 @@ void ElevatorMech::StartUpInit(){
 
 //run functions if piston not out
 void ElevatorMech::Run(){ 
+    EmergencyStop();
+    
     //CalculateDesiredHeight();
-    SmartDashboardComments();
+    //SmartDashboardComments();
     // if ((lmotor -> GetControlMode()) != (ControlMode::PercentOutput)){
     //     EnablePID();
     //     //lmotor -> GetSelectedSensorPosition(kPIDLoopIdx);
