@@ -65,6 +65,8 @@ class Robot : public frc::TimedRobot {
     bool hatchPistonsOut;
     bool hatchPistonDeployed;
     string setHeight;
+    bool cargoInPressed;
+    bool cargoOutPressed;
     bool chassisFrontButtonPressed, chassisBackButtonPressed;
 
     #ifdef JANKY_BUTTON_PANEL
@@ -173,6 +175,8 @@ class Robot : public frc::TimedRobot {
     gyro->Calibrate();
     buttonPressed = false;
     hatchPistonDeployed = false;
+    cargoInPressed = false;
+    cargoOutPressed = false;
 
     chassisFrontButtonPressed=false;
     chassisBackButtonPressed=false;
@@ -579,15 +583,19 @@ class Robot : public frc::TimedRobot {
     }
     #endif
 
-    /*if (cargoIn){
+    if (cargoIn && !cargoInPressed){
       cargomanip -> CargoMechIn(); 
+      cargoInPressed = true;
     }
-    else if (cargoOut){
+    else if (cargoOut && !cargoOutPressed){
       cargomanip -> CargoMechOut();
+      cargoOutPressed = true;
     }
     else {
-      cargomanip -> CargoMechStop();
-    }*/
+      //cargomanip -> CargoMechStop();
+      cargoInPressed = false;
+      cargoOutPressed = false;
+    }
 
   //hatch
     //SmartDashboard::PutNumber("Distance to hatch panel", hatchDistance);
