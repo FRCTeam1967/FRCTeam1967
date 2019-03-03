@@ -27,14 +27,15 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
   //pid initialization for pivot motor
   kTimeoutMs = 50;
   kPIDLoopIdx = 0;
-  encoderCount = 0.0;
+  pivotEncoderCount = 0.0;
 	encoderAngle = 0.0;
   desiredAngle = 0;
   desiredAnglePulses = 0;
 
-  int absolutePosition = pivotMotor -> GetSelectedSensorPosition(0);
-  pivotMotor -> SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);
-	pivotMotor -> ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
+  /*int absolutePosition = pivotMotor -> GetSelectedSensorPosition(0);
+  pivotMotor -> SetSelectedSensorPosition(absolutePosition, kPIDLoopIdx, kTimeoutMs);*/
+	ResetPivotEncoder();
+  pivotMotor -> ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, kPIDLoopIdx, kTimeoutMs);
 	pivotMotor -> SetSensorPhase(true);
   pivotMotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	pivotMotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
@@ -69,6 +70,11 @@ CargoManip::~CargoManip(){
 /*void CargoManip::ButtonVals(){
 
 }*/
+
+void CargoManip::ResetPivotEncoder(){
+  pivotMotor -> ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	pivotMotor -> SetSelectedSensorPosition(0, 0, 10);
+}
 
 void CargoManip::RollersIn(){
   motorRoll -> Set(MOTOR_ROLL_F_SPEED);
@@ -126,20 +132,21 @@ void CargoManip::CargoMechInRobot(){
 
 void CargoManip::FindEncoderCount(){
   //pivotMotor -> SetSelectedSensorPosition(0, 0, 10);
-  double encoderCount = pivotMotor -> GetSensorCollection().SetQuadraturePosition(0, 10);
-  frc::SmartDashboard::PutNumber("Current Encoder Count:", encoderCount);
+  pivotEncoderCount = pivotMotor -> GetSensorCollection().GetQuadraturePosition();
+  frc::SmartDashboard::PutNumber("Current Pivot Angle Pulses:", pivotEncoderCount);
 }
 
 void CargoManip::FindEncoderAngle(){
   FindEncoderCount();
-  float encoderAngle = ((encoderCount / ENCODER_COUNTS_PER_REVOLUTION) * 360);
+  encoderAngle = ((pivotEncoderCount / ENCODER_COUNTS_PER_REVOLUTION) * 360);
   frc::SmartDashboard::PutNumber("Current Pivot Angle:", encoderAngle);
 }
 
-void CargoManip::SetPIDAngle(float pivotangle){
-  desiredAnglePulses = ((pivotangle / 360) * ENCODER_COUNTS_PER_REVOLUTION);
+void CargoManip::SetPIDAngle(float desiredAngle){
+  desiredAnglePulses = ((encoderAngle / 360) * ENCODER_COUNTS_PER_REVOLUTION);
   pivotMotor -> Set(ControlMode::Position, desiredAnglePulses);
-  frc::SmartDashboard::PutNumber("Desired Pivot Angle:", pivotangle);
+  frc::SmartDashboard::PutNumber("Desired Pivot Angle:", desiredAngle);
+  frc::SmartDashboard::PutNumber("Desired Pivot Angle Pulses:", desiredAnglePulses);
 }
 
 void CargoManip::CargoMechIn(){

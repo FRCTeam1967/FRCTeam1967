@@ -30,14 +30,15 @@ public:
 
     void FindEncoderCount(); 
     void FindEncoderAngle(); 
-    void SetPIDAngle(float pivotangle);
+    void ResetPivotEncoder();
+    void SetPIDAngle(float newangle);
     float GetHatchPanelDistance();
 
 private:
     //double encoderCount;
     bool cargoMechGoingForward;
     bool cargoMechGoingBackward;
-    double encoderCount;
+    double pivotEncoderCount;
     float encoderAngle;
     float desiredAngle;
     double desiredAnglePulses;

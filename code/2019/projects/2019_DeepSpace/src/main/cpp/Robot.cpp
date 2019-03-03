@@ -118,7 +118,7 @@ class Robot : public frc::TimedRobot {
     delete vision;
     delete cargomanip;
     delete hatch;
-    delete elevator; //nyoon
+    delete elevator; 
     delete fpiston;
     delete bpiston;
     
