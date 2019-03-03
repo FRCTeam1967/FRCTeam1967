@@ -29,7 +29,7 @@ JankyTask::~JankyTask(){
 void* JankyTask::JankyPrivateStarterTask(void* vtask) {
 	JankyTask*task= (JankyTask*)vtask;
   while (task->running_) {
-    if (task->enabled_) {
+    if (task->enabled_ && frc::RobotState::IsEnabled()) {
       task->Run();
       frc::Wait(0.002);  // Only wait 2ms when task is active.
     }
