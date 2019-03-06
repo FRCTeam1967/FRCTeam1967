@@ -15,6 +15,8 @@
 #include <opencv2/core/core.hpp>
 #include "HatchIntake.h"
 #include "ElevatorMech.h"
+#include "LightsController.h"
+#include "LightsKey.h"
 
 using namespace std;
 using namespace frc;
@@ -68,6 +70,7 @@ class Robot : public frc::TimedRobot {
     bool cargoInPressed;
     bool cargoOutPressed;
     bool chassisFrontButtonPressed, chassisBackButtonPressed;
+    LightsController*leds;
 
     #ifdef JANKY_BUTTON_PANEL
     jankyButtonPanel * buttonpanel;
@@ -94,6 +97,7 @@ class Robot : public frc::TimedRobot {
     elevator = NULL;
     fpiston = NULL;
     bpiston = NULL;
+    leds = NULL;
     
     #ifdef JANKY_BUTTON_PANEL
     buttonpanel = NULL;
@@ -121,6 +125,7 @@ class Robot : public frc::TimedRobot {
     delete elevator; 
     delete fpiston;
     delete bpiston;
+    delete leds;
     
     #ifdef JANKY_BUTTON_PANEL
     delete buttonpanel;
@@ -162,7 +167,8 @@ class Robot : public frc::TimedRobot {
     hatch = new HatchIntake(TOP_HATCH_PISTON, BOTTOM_CARGO_PISTON);
     elevator = new ElevatorMech(L_ELEVATOR_MOTOR_CHANNEL, R_ELEVATOR_MOTOR_CHANNEL, ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL, ELEVATOR_LIM_SWITCH_TOP_CHANNEL);
     fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
-    bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);    
+    bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);
+    leds = new LightsController(3);
     
     #ifdef JANKY_BUTTON_PANEL
     buttonpanel = new jankyButtonPanel(CARGO_SIDE_CHANNEL, HATCH_SIDE_CHANNEL);
@@ -211,6 +217,11 @@ class Robot : public frc::TimedRobot {
     if(left->Get2()){
       vision->Cancel();
     }
+
+    distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
+	  horizontalOffset=(frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)) + 10;
+    if(distance != -1 && distance !=100 && horizontalOffset == -100)
+      leds->SetColor(GREEN, FLASHING);
     
     //gc logic
     //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
@@ -278,52 +289,62 @@ class Robot : public frc::TimedRobot {
     else */if (cargoShipCargo){ 
       //flip arm to be vertical
       //printf("cargo ship cargo button pressed \n");
+      leds->SetColor(YELLOW, SOLID);
       elevator -> ShipCargoHeight();
     }
 
     else if (rocketLowCargo){
       //printf("rocket low cargo button pressed \n");
+      leds->SetColor(YELLOW, SOLID);
       elevator -> RocketLowCargoHeight();
     }
 
     else if (rocketHighCargo){
       //printf("rocket high cargo button pressed \n");
+      leds->SetColor(PURPLE, SOLID);
       elevator -> RocketHighCargoHeight();
     }
 
     else if (rocketLowHatchHPShipHatch){
       //printf("rocket low hatch button pressed \n");
+      leds->SetColor(YELLOW, SOLID);
       elevator -> RocketLowHatchHeight();
     }
    
     else if (rocketHighHatch){
       //printf("rocket high hatch button pressed \n");
+      leds->SetColor(PURPLE, SOLID);
       elevator -> RocketHighHatchHeight();
     }  
    
     else if (rocketMedCargo){
       //printf("rocket medium cargo button pressed \n");
+      leds->SetColor(LIGHT_BLUE, SOLID);
       elevator -> RocketMedCargoHeight();
     }
    
     else if (rocketMedHatch){
       //printf("rocket medium hatch button pressed \n");
+      leds->SetColor(LIGHT_BLUE, SOLID);
       elevator -> RocketMedHatchHeight();
     }
 
     else if (groundHeight){
       //printf("ground button pressed \n");
+      leds->SetColor(BLACK, SOLID);
       elevator -> GroundHeight();
     }
 
    //manual controls
     else { 
       if (manualElevator <= -0.2){
+        leds->SetColor(DARK_BLUE, CHASING);
         elevator -> ElevatorMotorDown();
         //printf("elevator down triggered \n");
         // setHeight = "None";
       }
       else if (manualElevator >= 0.2){
+        leds->SetColor(RED, FLASHING);
         elevator -> ElevatorMotorUp();
         //printf("elevator up triggered \n");
         // setHeight = "None";
@@ -334,30 +355,35 @@ class Robot : public frc::TimedRobot {
       // }
     }
 
-
     //cargo
   
   #ifdef JANKY_BUTTON_PANEL
     if (rollers <= -0.2){
       //printf("rollers in triggered \n");
+      leds->SetColor(ORANGE, FLASHING);
       cargomanip -> RollersIn();
     }
     else if (rollers >= 0.2){
       //printf("rollers out triggered \n");
+      leds->SetColor(PINK, FLASHING);
       cargomanip -> RollersOut();
     }
     else if (rollers < 0.2 && rollers > -0.2){
+      leds->SetColor(BLACK, SOLID);
       cargomanip -> RollersStop();
     }
 
   #else
     if (rollersOut){
+      leds->SetColor(PINK, FLASHING);
       cargomanip -> RollersOut();
     }
     else if (rollersIn){
+      leds->SetColor(ORANGE, FLASHING);
       cargomanip -> RollersIn();
     }
     else {
+      leds->SetColor(BLACK, SOLID); 
       cargomanip -> RollersStop();
     }
     #endif
