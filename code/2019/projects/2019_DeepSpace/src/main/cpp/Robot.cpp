@@ -71,6 +71,8 @@ class Robot : public frc::TimedRobot {
     bool cargoOutPressed;
     bool chassisFrontButtonPressed, chassisBackButtonPressed;
     LightsController*leds;
+    float distance;
+    float horizontalOffset;
 
     #ifdef JANKY_BUTTON_PANEL
     jankyButtonPanel * buttonpanel;
@@ -218,11 +220,11 @@ class Robot : public frc::TimedRobot {
       vision->Cancel();
     }
 
-    distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
-	  horizontalOffset=(frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)) + 10;
-    if(distance != -1 && distance !=100 && horizontalOffset == -100)
+    distance=frc::SmartDashboard::GetNumber("Distance to Tape", -100); 
+	  horizontalOffset=(frc::SmartDashboard::GetNumber("Offset", -100)) + 10;
+    if((distance != -1) && (distance !=-100) && (horizontalOffset != -100)){
       leds->SetColor(GREEN, FLASHING);
-    
+    }
     //gc logic
     //buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
       bool chassisFront = right->Get3();
