@@ -196,7 +196,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousInit() override {
     gyro->Reset();
-    hatch->BottomPistonOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
+    //hatch->BottomPistonOut(); //THIS IS SO THAT THE ELEVATOR CAN GO UP
     flmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     frmotor->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
     flmotor->SetSelectedSensorPosition(0, 0, 10);
@@ -458,7 +458,7 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void TeleopInit() override {
-    hatch->BottomPistonOut();
+    //hatch->BottomPistonOut();
   }
 
   virtual void TeleopPeriodic() override {
