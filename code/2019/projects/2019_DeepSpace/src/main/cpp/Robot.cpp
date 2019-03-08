@@ -191,7 +191,7 @@ class Robot : public frc::TimedRobot {
 
     //cargomanip -> StartInit();
     //hatch -> Start();
-    //elevator -> Start();
+    elevator -> Start();
     elevator -> StartUpInit();
     elevator -> ResetEncoder();
   }
@@ -524,6 +524,8 @@ class Robot : public frc::TimedRobot {
     hatchPistonsOut = hatch -> GetBottomPistonStatus();
 
     frc::SmartDashboard::PutBoolean("Bottom Piston Out:", hatchPistonsOut);
+
+    elevator -> GetEncoderDistance();
 
     // if (!hatchPistonsOut){
     //   elevator -> Pause();

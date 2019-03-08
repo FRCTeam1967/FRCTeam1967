@@ -19,9 +19,9 @@
 #define MOTOR_PIVOT_R_SPEED 1.0 //mech in bot speed
 #define MOTOR_STOP_SPEED 0.0  // stops motor
 #define ENCODER_COUNTS_PER_REVOLUTION (((10*(18/16))*4096))
-#define HP_ANGLE_PULSES -1030
+#define HP_ANGLE_PULSES -1000
 #define GROUND_PULSES -7000
-#define ROBOT_PULSES -90
+#define ROBOT_PULSES 1000
 
 
 CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
@@ -45,7 +45,7 @@ CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
 	pivotMotor -> ConfigPeakOutputReverse(-1.0, kTimeoutMs);
  
 	pivotMotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
-	pivotMotor->Config_kP(kPIDLoopIdx, 1.0, kTimeoutMs); //p val: 0.01 (tune)
+	pivotMotor->Config_kP(kPIDLoopIdx, 3, kTimeoutMs); //p val: 0.01 (tune)
 	pivotMotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs); //i val: 0
 	pivotMotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //d val: 0 (use if needed while tuning p)
   pivotMotor -> SelectProfileSlot(0, kPIDLoopIdx); //kpidloopidx = pidloopidx?

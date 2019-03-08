@@ -1,4 +1,4 @@
-/*     ElevatorMech.cpp
+ /*     ElevatorMech.cpp
 *   created on: Jan 25, 2019
 *    by: Sandhya, Isha, GC2 */
 
@@ -60,11 +60,11 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 	lmotor -> SetSensorPhase(false);
     lmotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	lmotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
-	lmotor -> ConfigPeakOutputForward(0.7, kTimeoutMs);
-	lmotor -> ConfigPeakOutputReverse(-0.3, kTimeoutMs);
+	lmotor -> ConfigPeakOutputForward(0.4, kTimeoutMs);
+	lmotor -> ConfigPeakOutputReverse(-0.05, kTimeoutMs);
  
 	lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
-	lmotor->Config_kP(kPIDLoopIdx, 0.2, kTimeoutMs); 
+	lmotor->Config_kP(kPIDLoopIdx, 0.5, kTimeoutMs); 
 	lmotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
 	lmotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //needs to be tuned
     lmotor -> SelectProfileSlot(0, kPIDLoopIdx); 
@@ -114,7 +114,7 @@ void ElevatorMech::CalculateDesiredHeight(){
     GetEncoderDistance();
     avgEncoderDistance = (leftEncoderDistance + rightEncoderDistance) / 2; 
     amountToMove = (desiredHeight - avgEncoderDistance); 
-    desiredHeightPulses = ((((((desiredHeight * 100) / THIRD_STAGE_PRESENT) / UD_CIRCUMFERENCE) * GEAR_RATIO) * UD_PULSES_PER_REVOLUTION) / 100);
+    desiredHeightPulses = (((((desiredHeight * 100) / THIRD_STAGE_PRESENT) / UD_CIRCUMFERENCE) * (GEAR_RATIO * UD_PULSES_PER_REVOLUTION) / 100));
     frc::SmartDashboard::PutNumber("Desired Height Pulses", desiredHeightPulses);
 }
 
