@@ -39,7 +39,7 @@
 #define CARGO_SHIP_HATCH_HEIGHT 19 - INCHES_OFF_GROUND 
 
 //manual movement + max heights in inches
-#define AMNT_TO_MOVE_MANUAL_UP 1.0 
+#define AMNT_TO_MOVE_MANUAL_UP 0.6
 #define AMNT_TO_MOVE_MANUAL_DOWN -1.0 
 #define MAX_HEIGHT 70.0 
 #define MIN_HEIGHT 0.0 
@@ -60,8 +60,8 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 	lmotor -> SetSensorPhase(false);
     lmotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	lmotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
-	lmotor -> ConfigPeakOutputForward(0.4, kTimeoutMs);
-	lmotor -> ConfigPeakOutputReverse(-0.05, kTimeoutMs);
+	lmotor -> ConfigPeakOutputForward(0.6, kTimeoutMs);
+	lmotor -> ConfigPeakOutputReverse(-0.08, kTimeoutMs);
  
 	lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
 	lmotor->Config_kP(kPIDLoopIdx, 0.5, kTimeoutMs); 
