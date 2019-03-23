@@ -195,15 +195,26 @@ class Robot : public frc::TimedRobot {
     {
       // Vision Code
       if(left->Get3()){ 
-        vision->StartSequence(); 
+        vision->StartSequence();
+        leds->SetColor(GREEN, SOLID);
       }
       else if(vision->IsIdle()){ 
         drive->TankDrive(-left->GetY(), -right->GetY());
       }
+      leds->SetColor(BLACK, SOLID);
 
       if(left->Get2()){
         vision->Cancel();
+        leds->SetColor(DARK BLUE, SOLID);
       }
+      leds->SetColor(BLACK, SOLID);
+
+      distance=SmartDashboard::GetNumber("Distance to Tape", -100);
+      horizontalOffset=(SmartDashboard::GetNumber("Offset", -100)) + 10;
+      if((distance != -1) && (distance != -100) && (horizontalOffset != -1))
+        leds->SetColor(GREEN, FLASHING);
+      else
+        leds->SetColor(RED, SOLID);
 
       // Buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
       bool chassisFront = right->Get3();
@@ -306,11 +317,13 @@ class Robot : public frc::TimedRobot {
       else { 
         if (manualElevator <= -0.2){
           elevator -> ElevatorMotorDown();
+          leds->SetColor(DARK BLUE, CHASING);
           //printf("elevator down triggered \n");
           // setHeight = "None";
         }
         else if (manualElevator >= 0.2){
           elevator -> ElevatorMotorUp();
+          leds->SetColor(RED, FLASHING);
           //printf("elevator up triggered \n");
           // setHeight = "None";
         }
@@ -358,7 +371,6 @@ class Robot : public frc::TimedRobot {
         cargomanip -> CargoInRobot();
       }
 
-
       // Hatch
       //Top pistons
       if (hatchPistons && !hatchPistonDeployed)
@@ -372,6 +384,11 @@ class Robot : public frc::TimedRobot {
       {
         hatchPistonDeployed = false;
       }
+      
+      if(hatch->GetTopPistonStatus())
+        leds->SetColor(ORANGE, FLASHING);
+      else
+        leds->SetColor(PINK, FLASHING);
 
       //Bottom pistons
       if (cargoPistons && !buttonPressed)
