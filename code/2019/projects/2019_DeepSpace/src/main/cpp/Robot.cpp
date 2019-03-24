@@ -205,7 +205,7 @@ class Robot : public frc::TimedRobot {
 
       if(left->Get2()){
         vision->Cancel();
-        leds->SetColor(DARK BLUE, SOLID);
+        leds->SetColor(DARK_BLUE, SOLID);
       }
       leds->SetColor(BLACK, SOLID);
 
@@ -317,7 +317,7 @@ class Robot : public frc::TimedRobot {
       else { 
         if (manualElevator <= -0.2){
           elevator -> ElevatorMotorDown();
-          leds->SetColor(DARK BLUE, CHASING);
+          leds->SetColor(DARK_BLUE, CHASING);
           //printf("elevator down triggered \n");
           // setHeight = "None";
         }
