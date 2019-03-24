@@ -123,7 +123,7 @@ void AutoDrive::End(){
 
 double AutoDrive::PIDGet(){
     //TODO: make sure these are the right names for what vision is sending to the dashboard
-	distance=frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
+	distance=(frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT) -13 ); 
 	horizontalOffset=(frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT));
 
 	//filtering out bad horizontal offset data here outside of the (-100, 100) range before returning
