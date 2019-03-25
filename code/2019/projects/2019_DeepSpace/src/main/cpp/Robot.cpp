@@ -194,27 +194,34 @@ class Robot : public frc::TimedRobot {
     virtual void RobotCode() 
     {
       // Vision Code
-      if(left->Get3()){ 
+      if(left->Get3())
+      { 
         vision->StartSequence();
-        // leds->SetColor(GREEN, SOLID);
       }
-      else if(vision->IsIdle()){ 
+      else if(vision->IsIdle())
+      { 
         drive->TankDrive(-left->GetY(), -right->GetY());
       }
-      // leds->SetColor(BLACK, SOLID);
 
-      if(left->Get2()){
+      if(left->Get2())
+      {
         vision->Cancel();
-        // leds->SetColor(DARK_BLUE, SOLID);
       }
-      // leds->SetColor(BLACK, SOLID);
 
+      // Vision LEDs
+      if(!vision->isIdle())
+      {
+        leds->SetColor(GREEN, SOLID);
+      }
+
+      /*
       distance=SmartDashboard::GetNumber("Distance to Tape", -100);
       horizontalOffset=(SmartDashboard::GetNumber("Offset", -100)) + 10;
       if((distance != -1) && (distance != -100) && (horizontalOffset != -100))
-        // leds->SetColor(GREEN, FLASHING);
-      //else
-        // leds->SetColor(RED, SOLID);
+        leds->SetColor(GREEN, FLASHING);
+      else
+        leds->SetColor(RED, SOLID);
+      */
 
       // Buttons -- joystick 1: hatch + cargo + chassis pistons, joystick 2: chassis + elevator
       bool chassisFront = right->Get3();
@@ -386,11 +393,11 @@ class Robot : public frc::TimedRobot {
       }
       
       // Side Piston LEDs
-      if(hatch->GetTopPistonStatus())
+      if((hatch->GetTopPistonStatus()) && (vision->IsIdle()))
       {
         leds->SetColor(ORANGE, FLASHING);
       }
-      else
+      else if ((!hatch->GetTopPistonStatus()) && (vision->IsIdle()))
       {
         leds->SetColor(PINK, FLASHING);
       }

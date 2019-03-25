@@ -44,6 +44,12 @@
 #define MAX_HEIGHT 77.0 
 #define MIN_HEIGHT 0.0 
 
+//variables for pid loop
+#define PEAK_OUTPUT_FWD 0.6
+#define PEAK_OUTPUT_REVERSE -0.08
+#define K_P 0.5
+#define K_I 0.0
+#define K_D 0.0
 
 ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBottomChannel, int limSwitchTopChannel) {
     kTimeoutMs = 50;
@@ -60,13 +66,13 @@ ElevatorMech::ElevatorMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 	lmotor -> SetSensorPhase(false);
     lmotor -> ConfigNominalOutputForward(0, kTimeoutMs);
 	lmotor -> ConfigNominalOutputReverse(0, kTimeoutMs);
-	lmotor -> ConfigPeakOutputForward(0.6, kTimeoutMs);
-	lmotor -> ConfigPeakOutputReverse(-0.08, kTimeoutMs);
+	lmotor -> ConfigPeakOutputForward(PEAK_OUTPUT_FWD, kTimeoutMs);
+	lmotor -> ConfigPeakOutputReverse(PEAK_OUTPUT_REVERSE, kTimeoutMs);
  
 	lmotor->Config_kF(kPIDLoopIdx, 0.0, kTimeoutMs); //not using feedforward
-	lmotor->Config_kP(kPIDLoopIdx, 0.5, kTimeoutMs); 
-	lmotor->Config_kI(kPIDLoopIdx, 0, kTimeoutMs);
-	lmotor->Config_kD(kPIDLoopIdx, 0, kTimeoutMs); //needs to be tuned
+	lmotor->Config_kP(kPIDLoopIdx, K_P, kTimeoutMs); 
+	lmotor->Config_kI(kPIDLoopIdx, K_I, kTimeoutMs);
+	lmotor->Config_kD(kPIDLoopIdx, K_D, kTimeoutMs); //needs to be tuned
     lmotor -> SelectProfileSlot(0, kPIDLoopIdx); 
 
     rmotor -> Set(ControlMode::Follower, lMotorChannel);
