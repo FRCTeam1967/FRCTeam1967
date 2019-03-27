@@ -209,7 +209,7 @@ class Robot : public frc::TimedRobot {
       }
 
       // Vision LEDs
-      if(!vision->isIdle())
+      if(!vision->IsIdle())
       {
         leds->SetColor(GREEN, SOLID);
       }
