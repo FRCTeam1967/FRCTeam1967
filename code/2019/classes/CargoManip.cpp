@@ -29,7 +29,8 @@
 //variables for pid loop
 #define PEAK_OUTPUT_FWD 1.0
 #define PEAK_OUTPUT_REVERSE -1.0
-#define K_P 1.6
+
+#define K_P 0.5
 #define K_I 0.0
 #define K_D 0.0
 
