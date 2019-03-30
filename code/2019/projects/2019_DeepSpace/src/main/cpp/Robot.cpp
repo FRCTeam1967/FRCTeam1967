@@ -134,10 +134,14 @@ class Robot : public frc::TimedRobot {
     virtual void RobotInit() override {
       #ifdef DRIVE_TEAM_CAM
       //Run drive team camera
+      //frc::CameraServer cs;
+      //driveCam = cs::UsbCamera("USB Camera 0", 0);
       cs::UsbCamera driveCam;
+      //driveCam.AddCamera(cam);
       driveCam = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
-      driveCam.SetResolution(360,240);
-      driveCam.SetFPS(15);
+      driveCam.SetResolution(160,120);
+      driveCam.SetFPS(5);
+      driveCam.GetProperty("compression").Set(100);
       #endif
 
       //Motors for driving
