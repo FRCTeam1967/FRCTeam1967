@@ -27,6 +27,7 @@ public:
     void CargoInRobot();
     void CargoHPAngle();
     void CargoGroundAngle();
+    void CargoFiveDegAngle();
 
     void FindEncoderCount(); 
     void FindEncoderAngle(); 
@@ -34,6 +35,8 @@ public:
     void SetPIDAngle(float desiredAnglePulses);
     
     float GetHatchPanelDistance();
+    bool HasElevatorGoneUp();
+    void SetElevatorVar(bool state);
 
 private:
     //double encoderCount;
@@ -43,6 +46,7 @@ private:
     float encoderAngle;
     float desiredAngle;
     double desiredAnglePulses;
+    bool elevatorHasGoneUp;
 
     WPI_VictorSPX * motorRoll;
     WPI_TalonSRX * pivotMotor;

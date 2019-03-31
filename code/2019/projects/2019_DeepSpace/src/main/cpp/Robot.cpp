@@ -168,8 +168,7 @@ class Robot : public frc::TimedRobot {
       elevator = new ElevatorMech(L_ELEVATOR_MOTOR_CHANNEL, R_ELEVATOR_MOTOR_CHANNEL, ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL, ELEVATOR_LIM_SWITCH_TOP_CHANNEL);
       fpiston = new Solenoid(10, PISTON_FRONT_CHANNEL);
       bpiston = new Solenoid(10, PISTON_BACK_CHANNEL);
-      leds = new LightsController(3);
-      
+      leds = new LightsController(3);      
       //Button Panel
       #ifdef JANKY_BUTTON_PANEL
       buttonpanel = new jankyButtonPanel(CARGO_SIDE_CHANNEL, HATCH_SIDE_CHANNEL);
@@ -185,8 +184,8 @@ class Robot : public frc::TimedRobot {
       cargoInPressed = false;
       cargoOutPressed = false;
 
-      chassisFrontButtonPressed=false;
-      chassisBackButtonPressed=false;
+      chassisFrontButtonPressed = false;
+      chassisBackButtonPressed = false;
 
       //cargomanip -> StartInit();
       //hatch -> Start();
@@ -294,46 +293,86 @@ class Robot : public frc::TimedRobot {
       if (cargoShipCargo){ 
         //printf("cargo ship cargo button pressed \n");
         elevator -> ShipCargoHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }
       else if (rocketLowCargo){
         //printf("rocket low cargo button pressed \n");
         elevator -> RocketLowCargoHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }
       else if (rocketHighCargo){
         //printf("rocket high cargo button pressed \n");
         elevator -> RocketHighCargoHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }
       else if (rocketLowHatchHPShipHatch){
         //printf("rocket low hatch button pressed \n");
         elevator -> RocketLowHatchHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }
       else if (rocketHighHatch){
         //printf("rocket high hatch button pressed \n");
         elevator -> RocketHighHatchHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }  
       else if (rocketMedCargo){
         //printf("rocket medium cargo button pressed \n");
         elevator -> RocketMedCargoHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }
       else if (rocketMedHatch){
         //printf("rocket medium hatch button pressed \n");
         elevator -> RocketMedHatchHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }
       else if (groundHeight){
         //printf("ground button pressed \n");
         elevator -> GroundHeight();
+        if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
       }
 
       // Manual Elevator Controls
       else { 
         if (manualElevator <= -0.2){
           elevator -> ElevatorMotorDown();
+          if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
           // leds->SetColor(DARK_BLUE, CHASING);
           //printf("elevator down triggered \n");
           // setHeight = "None";
         }
         else if (manualElevator >= 0.2){
           elevator -> ElevatorMotorUp();
+          if(!cargomanip->HasElevatorGoneUp())
+        {
+          cargomanip->SetElevatorVar(true);
+        }
           // leds->SetColor(RED, FLASHING);
           //printf("elevator up triggered \n");
           // setHeight = "None";

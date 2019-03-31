@@ -22,19 +22,21 @@
 
 //encoder information
 #define ENCODER_COUNTS_PER_REVOLUTION (((10*(18/16))*4096))
-#define HP_ANGLE_PULSES -4500 //at a 45º angle
+#define HP_ANGLE_PULSES -4900 //at a 45º angle
 #define GROUND_PULSES -7000 //at a 90º angle
 #define ROBOT_PULSES -1000 //at a 0º angle
+#define FIVE_DEG_PULSES -2000 //at 5 deg angle
 
 //variables for pid loop
 #define PEAK_OUTPUT_FWD 1.0
 #define PEAK_OUTPUT_REVERSE -1.0
 
-#define K_P 0.5
+#define K_P 1.1
 #define K_I 0.0
 #define K_D 0.0
 
 CargoManip::CargoManip(int motorRollChannel, int motorPivotChannel){
+  elevatorHasGoneUp = false;
   motorRoll = new WPI_VictorSPX(motorRollChannel);
   pivotMotor = new WPI_TalonSRX(motorPivotChannel);
   ResetPivotEncoder();
@@ -130,8 +132,15 @@ void CargoManip::CargoMechOut(){
 }*/
 
 void CargoManip::CargoInRobot(){
+  if(!elevatorHasGoneUp)
+  {
     desiredAnglePulses = ROBOT_PULSES;
     SetPIDAngle(ROBOT_PULSES);
+  } 
+  else
+  {
+    CargoFiveDegAngle();
+  }
 }
 
 void CargoManip::CargoHPAngle(){
@@ -140,10 +149,26 @@ void CargoManip::CargoHPAngle(){
 }
 
 void CargoManip::CargoGroundAngle(){
-    desiredAnglePulses = GROUND_PULSES;
-    SetPIDAngle(GROUND_PULSES);
+    
+      desiredAnglePulses = GROUND_PULSES;
+      SetPIDAngle(GROUND_PULSES);
+}
+
+void CargoManip::CargoFiveDegAngle()
+{
+  desiredAnglePulses = FIVE_DEG_PULSES;
+  SetPIDAngle(FIVE_DEG_PULSES);
 }
 
 float CargoManip::GetHatchPanelDistance(){
   return (pivotMotor -> GetSensorCollection().GetAnalogIn());
+}
+
+void CargoManip::SetElevatorVar(bool state){
+  elevatorHasGoneUp = state;
+}
+
+bool CargoManip::HasElevatorGoneUp()
+{
+  return elevatorHasGoneUp;
 }
