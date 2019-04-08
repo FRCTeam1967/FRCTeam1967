@@ -359,10 +359,6 @@ class Robot : public frc::TimedRobot {
       else { 
         if (manualElevator <= -0.2){
           elevator -> ElevatorMotorDown();
-          if(!cargomanip->HasElevatorGoneUp())
-        {
-          cargomanip->SetElevatorVar(true);
-        }
           // leds->SetColor(DARK_BLUE, CHASING);
           //printf("elevator down triggered \n");
           // setHeight = "None";
