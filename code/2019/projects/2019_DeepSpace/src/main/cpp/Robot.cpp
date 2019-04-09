@@ -349,10 +349,6 @@ class Robot : public frc::TimedRobot {
       else if (groundHeight){
         //printf("ground button pressed \n");
         elevator -> GroundHeight();
-        if(!cargomanip->HasElevatorGoneUp())
-        {
-          cargomanip->SetElevatorVar(true);
-        }
       }
 
       // Manual Elevator Controls
