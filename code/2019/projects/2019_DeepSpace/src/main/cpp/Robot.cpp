@@ -57,7 +57,8 @@ class Robot : public frc::TimedRobot {
     ElevatorMech * elevator;
     Solenoid*fpiston;
     Solenoid*bpiston;
-    bool buttonPressed;
+    bool buttonPressedOpen;
+    bool buttonPressedClose;
     bool hatchPistonsOut;
     bool hatchPistonDeployed;
     string setHeight;
@@ -179,7 +180,8 @@ class Robot : public frc::TimedRobot {
 
       drive->SetSafetyEnabled(false); 
       gyro->Calibrate();
-      buttonPressed = false;
+      buttonPressedOpen = false;
+      buttonPressedClose = false;
       hatchPistonDeployed = false;
       cargoInPressed = false;
       cargoOutPressed = false;
@@ -236,8 +238,12 @@ class Robot : public frc::TimedRobot {
       bool cargoInBot = buttonpanel -> GetCargoIn();
       bool cargoHPAngle = buttonpanel -> GetCargoOut();
 
-      bool cargoPistons = buttonpanel -> GetBottomPistons();
-      bool hatchPistons = buttonpanel -> GetTopPistons(); 
+
+      bool pistonsOpen = buttonpanel -> GetBottomPistons();
+      bool pistonsClose = buttonpanel -> GetTopPistons(); 
+
+      // bool cargoPistons = buttonpanel -> GetBottomPistons();
+      // bool hatchPistons = buttonpanel -> GetTopPistons(); 
 
       float manualElevator = buttonpanel -> GetElevatorYAxis();
       bool rocketLowHatchHPShipHatch = buttonpanel -> GetRocketHatchLow(); //rocket low hatch height + hp station + cargo ship hatch god i hate this name so much
@@ -255,8 +261,12 @@ class Robot : public frc::TimedRobot {
       bool cargoIn = joystick -> GetButtonA(); 
       bool cargoOut = joystick -> GetButtonY(); 
 
-      bool cargoPistons = joystick -> GetButtonLB(); 
-      bool hatchPistons = joystick -> GetButtonRB(); 
+
+      bool pistonsOpen = joystick -> GetButtonLB(); 
+      bool pistonsClose = joystick -> GetButtonRB(); 
+
+      // bool cargoPistons = joystick -> GetButtonLB(); 
+      // bool hatchPistons = joystick -> GetButtonRB(); 
 
       float manualElevator = joystick2 -> GetRightYAxis(); 
       bool rocketLowHatchHPShipHatch = joystick2 -> GetButtonB(); //rocket low hatch height + hp station + cargo ship hatch god i hate this name so much
@@ -415,38 +425,60 @@ class Robot : public frc::TimedRobot {
 
       // Hatch
       // Side Pistons
-      if (hatchPistons && !hatchPistonDeployed)
-      {
-        hatch->TopPistonSwitch();
-        hatchPistonDeployed = true;
-        //printf("hatch top pistons button pressed \n");
-        //hatch->Go();
-      }
-      else if (!hatchPistons && hatchPistonDeployed)
-      {
-        hatchPistonDeployed = false;
-      }
+      // if (hatchPistons && !hatchPistonDeployed)
+      // {
+      //   hatch->TopPistonSwitch();
+      //   hatchPistonDeployed = true;
+      //   //printf("hatch top pistons button pressed \n");
+      //   //hatch->Go();
+      // }
+      // else if (!hatchPistons && hatchPistonDeployed)
+      // {
+      //   hatchPistonDeployed = false;
+      // }
       
-      // Side Piston LEDs
-      if((hatch->GetTopPistonStatus()) && (vision->IsIdle()))
-      {
-        leds->SetColor(ORANGE, FLASHING);
-      }
-      else if ((!hatch->GetTopPistonStatus()) && (vision->IsIdle()))
-      {
-        leds->SetColor(PINK, FLASHING);
-      }
+      // // Side Piston LEDs
+      // if((hatch->GetTopPistonStatus()) && (vision->IsIdle()))
+      // {
+      //   leds->SetColor(ORANGE, FLASHING);
+      // }
+      // else if ((!hatch->GetTopPistonStatus()) && (vision->IsIdle()))
+      // {
+      //   leds->SetColor(PINK, FLASHING);
+      // }
 
       //Bottom pistons
-      if (cargoPistons && !buttonPressed)
+      // if (cargoPistons && !buttonPressed)
+      // {
+      //   //printf("cargo/hatch bottom pistons button pressed \n");
+      //   hatch->BottomPistonSwitch();
+      //   buttonPressed = true;
+      // }
+      // else if (!cargoPistons && buttonPressed)
+      // {
+      //   buttonPressed = false;
+      // }
+
+      //Pistons open
+      if(pistonsOpen && !buttonPressedOpen)
       {
-        //printf("cargo/hatch bottom pistons button pressed \n");
-        hatch->BottomPistonSwitch();
-        buttonPressed = true;
+        hatch->TopPistonOut();
+        buttonPressedOpen = true;
       }
-      else if (!cargoPistons && buttonPressed)
+      else if (!pistonsOpen && buttonPressedOpen)
       {
-        buttonPressed = false;
+        buttonPressedOpen = false;
+      }
+
+      //Pistons close
+      if(pistonsClose && !buttonPressedClose)
+      {
+        hatch->TopPistonIn();
+        buttonPressedClose = true;
+      }
+      else if (!pistonsClose && buttonPressedClose)
+      {
+        buttonPressedClose = false;
       }
 
       //chassis lifting pistons
