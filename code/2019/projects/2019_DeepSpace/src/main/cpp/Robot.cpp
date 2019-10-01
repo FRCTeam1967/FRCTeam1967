@@ -236,8 +236,8 @@ class Robot : public frc::TimedRobot {
       #ifdef JANKY_BUTTON_PANEL
       float rollers = buttonpanel -> GetRollersYAxis();
       bool cargoInBot = buttonpanel -> GetCargoIn();
+      
       bool cargoHPAngle = buttonpanel -> GetCargoOut();
-
 
       bool pistonsOpen = buttonpanel -> GetBottomPistons();
       bool pistonsClose = buttonpanel -> GetTopPistons(); 
@@ -412,16 +412,17 @@ class Robot : public frc::TimedRobot {
 
       cargomanip -> FindEncoderAngle();
 
-      if (cargoGround){
-        cargomanip -> CargoGroundAngle();
-        //elevator->BallHeight();
+      // if (cargoGround){
+      //   cargomanip -> CargoGroundAngle();
+      //   //elevator->BallHeight();
+      // }
+      if (cargoHPAngle){
+        elevator->HPHeight();
+        //cargomanip -> CargoHPAngle();
       }
-      else if (cargoHPAngle){
-        cargomanip -> CargoHPAngle();
-      }
-      else if (cargoInBot){
-        cargomanip -> CargoInRobot();
-      }
+      // else if (cargoInBot){
+      //   cargomanip -> CargoInRobot();
+      // }
 
       // Hatch
       // Side Pistons
