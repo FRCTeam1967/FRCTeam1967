@@ -43,6 +43,8 @@
 #define AMNT_TO_MOVE_MANUAL_DOWN -1.0 
 #define MAX_HEIGHT 77.0 
 #define MIN_HEIGHT 0.0 
+#define AMNT_TO_MOVE_HP 6.0
+#define AMNT_TO_MOVE_DOWN -0.75
 
 //variables for pid loop
 #define PEAK_OUTPUT_FWD .7 //.6
@@ -242,6 +244,20 @@ void ElevatorMech::ShipCargoHeight(){
 
 void ElevatorMech::ShipHatchHeight(){
     desiredHeight = CARGO_SHIP_HATCH_HEIGHT;
+    EnablePID();
+    isMechanismRunning = true;
+    setHeight = "Cargo Ship Hatch Hatch Height";
+}
+
+void ElevatorMech::UpHP(){
+    desiredHeight = HP_HEIGHT + AMNT_TO_MOVE_HP;
+    EnablePID();
+    isMechanismRunning = true;
+    setHeight = "Cargo Ship Hatch Hatch Height";
+}
+
+void ElevatorMech::DownHatch(){
+    desiredHeight += AMNT_TO_MOVE_DOWN;
     EnablePID();
     isMechanismRunning = true;
     setHeight = "Cargo Ship Hatch Hatch Height";

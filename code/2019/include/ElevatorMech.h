@@ -34,6 +34,8 @@ public:
         void RocketHighHatchHeight(); 
         void GroundHeight(); 
         void HPHeight();
+        void UpHP();
+        void DownHatch();
         void ShipCargoHeight();
         void ShipHatchHeight();
 

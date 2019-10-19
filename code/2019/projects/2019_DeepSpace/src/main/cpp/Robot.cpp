@@ -360,6 +360,14 @@ class Robot : public frc::TimedRobot {
         //printf("ground button pressed \n");
         elevator -> GroundHeight();
       }
+      else if(left->Get10())
+      {
+        elevator->UpHP();
+      }
+      else if(left->Get7())
+      {
+        elevator->DownHatch();
+      }
 
       // Manual Elevator Controls
       else { 
