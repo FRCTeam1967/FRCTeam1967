@@ -51,15 +51,7 @@ void HatchIntake::BottomPistonIn()
 
 bool HatchIntake::GetBottomPistonStatus()
 {
-    if (pistonBottom->Get()==true)
-    {
-        hatchPistonsIn = true;
-    }
-    else if (pistonBottom->Get()==false)
-    {
-        hatchPistonsIn = false;
-    }
-    return(hatchPistonsIn);
+    return(pistonBottom->Get());
 }
 
 // Top Pistons
@@ -87,15 +79,7 @@ void HatchIntake::TopPistonIn()
 
 bool HatchIntake::GetTopPistonStatus()
 {
-    if (pistonTop->Get()==true)
-    {
-        topPistonIn = true;
-    }
-    else if (pistonTop->Get()==false)
-    {
-        topPistonIn = false;
-    }
-    return(topPistonIn);
+    return(pistonTop->Get());
 }
 
 //Unused

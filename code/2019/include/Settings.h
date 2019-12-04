@@ -14,8 +14,8 @@
 #define MOTOR_PIVOT_CHANNEL 7 // might be switched w/ motor_roll_channel
 #define L_ELEVATOR_MOTOR_CHANNEL 0
 #define R_ELEVATOR_MOTOR_CHANNEL 5 
-#define ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL 2 //might be 0
-#define ELEVATOR_LIM_SWITCH_TOP_CHANNEL 3 //might be 0
+#define ELEVATOR_LIM_SWITCH_BOTTOM_CHANNEL 0 
+#define ELEVATOR_LIM_SWITCH_TOP_CHANNEL 0 
 #define TOP_HATCH_PISTON 0
 #define BOTTOM_CARGO_PISTON 1
 #define PISTON_FRONT_CHANNEL 2 //change for real robot

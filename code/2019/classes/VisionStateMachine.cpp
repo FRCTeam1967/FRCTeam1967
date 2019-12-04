@@ -20,7 +20,7 @@
 
 //P, I, and D values for the AutoDrive in which the robot turns to get horizontal offset to zero
 // THESE VALUES NEED TO BE TUNED
-float vision_kP = 0.05;
+float vision_kP = 0.07;
 float vision_kI = 0.0;
 float vision_kD = 0.0;
 

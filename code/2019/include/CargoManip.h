@@ -3,6 +3,7 @@
 *    by: Sandhya, Isha, GC2 
 *  logic creds to Maddie (2018)  
 */
+
 #include "Settings.h"
 #include "frc/WPILib.h"
 #include "ctre/Phoenix.h"
@@ -17,43 +18,38 @@ public:
     CargoManip(int motorRollChannel, int motorPivotChannel);
     virtual ~CargoManip();
     bool isMechRunning;
-    //virtual void Run();
 
-    void StartInit(); //starts
-    void RollersIn(); // brings cargo into bot
-    void RollersOut(); // pushes cargo out of bot
-    void CargoMechInRobot(); // retracts up into robot 
-    void CargoMechOutRobot(); // extends down out of robot 
-    void RollersStop(); //stops roll
-    void CargoMechStop();
-    //void CargoMechStopWithLimSwitch(); //uses lim switch value to stop mech
+    void RollersIn();
+    void RollersOut(); 
+    //void CargoMechIn(); //brings mechanism 1 phase in (0 -> 70 -> 90)
+    //void CargoMechOut(); //brings mechanism 1 phase out (90 -> 70 -> 0)
+    void RollersStop(); 
+    void CargoInRobot();
+    void CargoHPAngle();
+    void CargoGroundAngle();
+    void CargoFiveDegAngle();
 
-    bool getCargoMechPosition(); //gets if claw is up or down (switch to a string to specify??)
-
-	/*int GetLimSwitchOutside(); //get the value of the limit switch for when the claw goes outside the robot(true/false)
-	int GetLimSwitchInside();*/ //get the value of the limit switch for when the claw goes inside the robot(true/false)
-
-    double getEncoderCount(); 
-    float GetEncoderAngle(); //returns angle movement - type uncertain??
+    void FindEncoderCount(); 
+    void FindEncoderAngle(); 
+    void ResetPivotEncoder();
+    void SetPIDAngle(float desiredAnglePulses);
+    
     float GetHatchPanelDistance();
-    //void ButtonVals();
-
-   // void PIDSetUp(); //for PID? try for elevator!
+    bool HasElevatorGoneUp();
+    void SetElevatorVar(bool state);
 
 private:
     //double encoderCount;
-    bool cargoMechExtended; 
     bool cargoMechGoingForward;
     bool cargoMechGoingBackward;
-    double encoderCount;
+    double pivotEncoderCount;
     float encoderAngle;
+    float desiredAngle;
+    double desiredAnglePulses;
+    bool elevatorHasGoneUp;
 
     WPI_VictorSPX * motorRoll;
     WPI_TalonSRX * pivotMotor;
-    //frc::DigitalInput * limSwitchInside;
-    //frc::DigitalInput * limSwitchOutside;
-    frc::Encoder * pivotEncoder;
-
+    float kPIDLoopIdx;
+    float kTimeoutMs;
 }; 
-
-//bool mechExtended: true is out of robot, false is in bot

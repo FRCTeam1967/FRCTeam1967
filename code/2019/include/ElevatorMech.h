@@ -1,6 +1,8 @@
 /*      ElevatorMech.h
 *   created on: Jan 25, 2019
 *    by: Sandhya, Isha, GC2 */
+
+
 #include "Settings.h"
 #include "frc/WPILib.h" 
 #include "jankyTask.h"
@@ -23,6 +25,7 @@ public:
         virtual ~ElevatorMech(); 
         virtual void Run();
 
+        void BallHeight();
         void RocketLowCargoHeight(); 
         void RocketMedCargoHeight(); 
         void RocketHighCargoHeight(); 
@@ -31,6 +34,8 @@ public:
         void RocketHighHatchHeight(); 
         void GroundHeight(); 
         void HPHeight();
+        void UpHP();
+        void DownHatch();
         void ShipCargoHeight();
         void ShipHatchHeight();
 
@@ -38,30 +43,29 @@ public:
         void SmartDashboardComments(); 
         bool GetIfMechIsRunning(); 
         void StartUpInit();
-        //void FindLocation(double amountToMove);
 
-        double GetEncoderCount(); 
-        double GetEncoderDistance(); 
+        void GetEncoderCount(); 
+        void GetEncoderDistance();
+        void CalculateDesiredHeight();
 
         void ElevatorMotorUp(); 
         void ElevatorMotorDown();
         void ElevatorMotorStop(); 
-        //PID
-        //void PIDSetup(); //only if required at the moment not sure yet
+
+        void EnablePID();
+
 
 protected:
-        int GetBottomLimSwitch(); 
-        int GetTopLimSwitch(); 
+        bool GetBottomLimSwitch(); 
+        bool GetTopLimSwitch(); 
 
 private:
         void EmergencyStop(); 
         void PutMechanismDown(); 
 
         double desiredHeight;
+        int desiredHeightPulses;
         double amountToMove; 
-        bool reachedMaxHeight;
-        bool reachedMinHeight;
-        bool needsToPutDownMechanism; 
         int leftEncoderCount;
         int rightEncoderCount;
         double leftEncoderDistance;
@@ -69,12 +73,12 @@ private:
         double avgEncoderDistance;
         bool bottomLimSwitchHasNotBeenPressed;
         bool topLimSwitchHasNotBeenPressed;
-        bool done;
-        bool hatchPistonsIn;
         string setHeight;
+        string controlMode;
+
+        float kPIDLoopIdx;
+        float kTimeoutMs;
 
         WPI_TalonSRX * lmotor;
         WPI_TalonSRX * rmotor;
-        frc::DigitalInput * bottomLimSwitch;
-        frc::DigitalInput * topLimSwitch;
 };
