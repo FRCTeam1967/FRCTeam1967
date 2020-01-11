@@ -12,6 +12,9 @@
 	],
 	"settings": {
 		"java.configuration.updateBuildConfiguration": "disabled",
-		"java.import.gradle.enabled": false
+		"java.import.gradle.enabled": false,
+		"files.associations": {
+			"iostream": "cpp"
+		}
 	}
 }

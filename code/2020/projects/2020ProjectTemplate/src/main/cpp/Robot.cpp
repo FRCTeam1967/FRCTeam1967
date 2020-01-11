@@ -2,6 +2,10 @@
 #include <iostream>
 #include <frc/smartdashboard/SmartDashboard.h>
 
+
+using namespace std;
+using namespace frc;
+
 class Robot : public frc::TimedRobot {
   public:
   //constructor
@@ -37,6 +41,7 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
+    cout << "hello" << endl;
 
   }
 
