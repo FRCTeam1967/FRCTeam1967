@@ -60,10 +60,14 @@ model {
             sources.cpp {
                 source {
                     srcDir 'src/main/cpp'
+                    srcDir '../../classes'
+                    srcDir '../../../jankyLib/classes'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
                     srcDir 'src/main/include'
+                    srcDir '../../include'
+                    srcDir '../../../jankyLib/include'
                     if (includeSrcInIncludeRoot) {
                         srcDir 'src/main/cpp'
                     }
