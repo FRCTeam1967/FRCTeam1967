@@ -23,8 +23,8 @@ using namespace std;
 using namespace cv;
 
 // Constants
-const float OFFSET_OF_CAM = -3.5; // In inches, how far the camera is offset left/right
-const float ROBOT_OFFSET = 13.5;   // In inches, how far is the camera into the robot (from the edge of bumpers)
+const float OFFSET_OF_CAM = 0; // In inches, how far the camera is offset left/right
+const float ROBOT_OFFSET = 0;   // In inches, how far is the camera into the robot (from the edge of bumpers)
 const float T_INCHES_HEIGHT = 5.5; // Height of tape in inches
 const float T_INCHES_WIDTH = 2;    // Width of tape in inches
 const float T_INCHES_LEFT_WIDTH = 11.75;

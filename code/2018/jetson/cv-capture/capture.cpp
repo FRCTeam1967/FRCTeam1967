@@ -160,6 +160,10 @@ int main(int argc, char **argv)
         return -1;
     }
 
+    //SET RES
+    cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
+    cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
+
     auto start = chrono::high_resolution_clock::now();
     float frames = 0;
     vector<Point> maxContour;
@@ -338,12 +342,17 @@ int main(int argc, char **argv)
             }
             
             //Send Offset & distance to Smart Dashboard
-            if(contourPairs.size() > 0)
+            //if(contourPairs.size() > 0)
+	    if(contourPairs.size() == 0)
+	    {
+	        cout << "Skipped a frame with zero contourPairs" << endl;
+		continue;
+	    }
             {
             	smallestOffset = fabs(contourPairs[0].returnOffset());
             	distToSend = contourPairs[0].returnDist();
             	indexOfOffset = 0;
-			}
+	    }
 			
             for (int a = 1; a < contourPairs.size(); a++)
             {
@@ -412,6 +421,8 @@ int main(int argc, char **argv)
         auto end = chrono::high_resolution_clock::now();
         auto msec_duration = chrono::duration_cast<chrono::milliseconds>(end - start);
         float fps = (frames / msec_duration.count()) * 1000;
+	//cout << "FPS" << endl;
+	//cout << fps << endl;
     }
 
     cap.release();

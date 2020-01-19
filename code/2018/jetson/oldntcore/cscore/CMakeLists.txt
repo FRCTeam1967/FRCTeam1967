@@ -41,6 +41,7 @@ LIST(APPEND ALL_SRC_FILES ${SRC_FILES})
 
 include_directories(src/main/native/include src/main/native/cpp)
 include_directories(java/arm-linuxsrc/main/native/include src/main/native/cpp)
+include_directories(/usr/include/opencv4)
 
 include_directories(wpiutil/include)
 
