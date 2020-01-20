@@ -17,6 +17,9 @@
 #include "Contour.h"
 #include "ContourPair.h"
 #include <ntcore.h>
+//#include <opencv/cv.h>
+//#include <opencv/highgui.h>
+
 //#include <cscore>
 
 // Namespaces
@@ -36,9 +39,9 @@ float distToSend;
 float indexOfOffset;
 
 // Set our HSV values
-double hue[] = {62, 84};   //{63, 96};
-double sat[] = {100, 255}; //{112, 255};
-double val[] = {111, 215}; //{80, 255};
+double hue[] = {80, 86}; //{62, 84};
+double sat[] = {188, 255}; //{100, 255};
+double val[] = {218, 255}; //{111, 215};
 
 void changeKey(double hsv[], char key, bool plus)
 {
@@ -134,11 +137,11 @@ int main(int argc, char **argv)
     vector<ContourPair> contourPairs;
 
     //Network tables send data to the roboRIO
-    NetworkTable::SetTeam(1967); //set team number
+    /*NetworkTable::SetTeam(1967); //set team number
     NetworkTable::SetClientMode();
     NetworkTable::Initialize();
     shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
-
+    */
     // Checks if argument passed
     bool argPassed = true;
 
@@ -163,7 +166,7 @@ int main(int argc, char **argv)
     //SET RES
     cap.set(cv::CAP_PROP_FRAME_WIDTH, 640);
     cap.set(cv::CAP_PROP_FRAME_HEIGHT, 480);
-
+    
     auto start = chrono::high_resolution_clock::now();
     float frames = 0;
     vector<Point> maxContour;
@@ -182,6 +185,10 @@ int main(int argc, char **argv)
     {
         Mat frame, green, outline;
         cap >> frame;
+	
+	//rotate image
+	cv::transpose(frame, frame); // swaps the x & y axis of image, producing a reversed & rotated image
+	cv::flip(frame, frame, 1); //flip to correct for the reversal from the transpose
 
         float frameHeight = frame.size().height;
         float frameWidth = frame.size().width;
@@ -345,7 +352,7 @@ int main(int argc, char **argv)
             //if(contourPairs.size() > 0)
 	    if(contourPairs.size() == 0)
 	    {
-	        cout << "Skipped a frame with zero contourPairs" << endl;
+	        //cout << "Skipped a frame with zero contourPairs" << endl;
 		continue;
 	    }
             {
@@ -367,7 +374,7 @@ int main(int argc, char **argv)
             smallestOffset = (contourPairs[indexOfOffset].returnOffset());
 
             //Print out distances & offsets
-            for(int b = 0; b < contourPairs.size(); b++)
+            /*for(int b = 0; b < contourPairs.size(); b++)
             {
             	cout << "Distance of " << b << ": " << contourPairs[b].returnDist() << endl;
      			cout << "Offset of " << b << ": " << contourPairs[b].returnOffset() << endl;       		
@@ -378,14 +385,14 @@ int main(int argc, char **argv)
             if(!isinf(distToSend))
             {
             	//Send data to smart dashboard
-            	vTable->PutNumber("Offset", smallestOffset);
-            	vTable->PutNumber("Distance to Tape", distToSend);
-            }
+            	//vTable->PutNumber("Offset", smallestOffset);
+            	//vTable->PutNumber("Distance to Tape", distToSend);
+            }*/
         }
         //If not calculating distance to tape
         else
         {
-            cout << "no dist" << endl;
+            //cout << "no dist" << endl;
             // Start the clock if not started
             if (duration == 0)
             {
@@ -402,8 +409,8 @@ int main(int argc, char **argv)
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
                 if (duration >= NO_VALUE_TIME)
                 {
-                    vTable->PutNumber("Offset", -100);
-            	    vTable->PutNumber("Distance to Tape", -1);
+                    //vTable->PutNumber("Offset", -100);
+            	    //vTable->PutNumber("Distance to Tape", -1);
                 }
             }
         }
