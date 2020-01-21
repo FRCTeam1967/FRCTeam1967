@@ -39,9 +39,13 @@ float distToSend;
 float indexOfOffset;
 
 // Set our HSV values
-double hue[] = {80, 86}; //{62, 84};
-double sat[] = {188, 255}; //{100, 255};
-double val[] = {218, 255}; //{111, 215};
+//double hue[] = {80, 86}; //{62, 84};
+//double sat[] = {188, 255}; //{100, 255};
+//double val[] = {218, 255}; //{111, 215};
+
+double hue[] = {73, 84}; //{62, 84};
+double sat[] = {212, 255}; //{100, 255};
+double val[] = {135, 255}; //{111, 215};
 
 void changeKey(double hsv[], char key, bool plus)
 {
@@ -152,7 +156,7 @@ int main(int argc, char **argv)
     }
 	
     // Change exposure & brightness of camera
-    system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=1"); // KEEP
+    system("v4l2-ctl -d /dev/video0 -c exposure_auto=1 -c exposure_absolute=1 -c brightness=0"); // KEEP
     
     // Opens the camera stream
     VideoCapture cap(0);
@@ -352,7 +356,7 @@ int main(int argc, char **argv)
             //if(contourPairs.size() > 0)
 	    if(contourPairs.size() == 0)
 	    {
-	        //cout << "Skipped a frame with zero contourPairs" << endl;
+	        cout << "Skipped a frame with zero contourPairs" << endl;
 		continue;
 	    }
             {
@@ -374,7 +378,7 @@ int main(int argc, char **argv)
             smallestOffset = (contourPairs[indexOfOffset].returnOffset());
 
             //Print out distances & offsets
-            /*for(int b = 0; b < contourPairs.size(); b++)
+            for(int b = 0; b < contourPairs.size(); b++)
             {
             	cout << "Distance of " << b << ": " << contourPairs[b].returnDist() << endl;
      			cout << "Offset of " << b << ": " << contourPairs[b].returnOffset() << endl;       		
@@ -387,12 +391,12 @@ int main(int argc, char **argv)
             	//Send data to smart dashboard
             	//vTable->PutNumber("Offset", smallestOffset);
             	//vTable->PutNumber("Distance to Tape", distToSend);
-            }*/
+            }
         }
         //If not calculating distance to tape
         else
         {
-            //cout << "no dist" << endl;
+            cout << "no dist" << endl;
             // Start the clock if not started
             if (duration == 0)
             {
