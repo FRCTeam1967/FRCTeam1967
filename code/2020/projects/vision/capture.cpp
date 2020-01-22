@@ -139,13 +139,18 @@ int main(int argc, char **argv)
     // Initialize sortedContours & contourPairs vectors
     vector<Contour> sortedContours;
     vector<ContourPair> contourPairs;
+    bool sendDataToSD = false;
+    bool printCalculations = true;
 
-    //Network tables send data to the roboRIO
-    /*NetworkTable::SetTeam(1967); //set team number
-    NetworkTable::SetClientMode();
-    NetworkTable::Initialize();
+
+    if(sendDataToSD) {
+        //Network tables send data to the roboRIO
+        NetworkTable::SetTeam(1967); //set team number
+        NetworkTable::SetClientMode();
+        NetworkTable::Initialize();
+    }
     shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
-    */
+
     // Checks if argument passed
     bool argPassed = true;
 
@@ -380,23 +385,29 @@ int main(int argc, char **argv)
             //Print out distances & offsets
             for(int b = 0; b < contourPairs.size(); b++)
             {
-            	cout << "Distance of " << b << ": " << contourPairs[b].returnDist() << endl;
-     			cout << "Offset of " << b << ": " << contourPairs[b].returnOffset() << endl;       		
+		if(printCalculations) {
+            	    cout << "Distance of " << b << ": " << contourPairs[b].returnDist() << endl;
+     		    cout << "Offset of " << b << ": " << contourPairs[b].returnOffset() << endl;       
+		}		
             }
-            cout << "Smallest offset (Target # " << indexOfOffset << "): " << smallestOffset << endl;
-     		cout << "Distance to send (Target # " << indexOfOffset << "): " << distToSend << endl;
-     		cout << endl;
-            if(!isinf(distToSend))
+	    if(printCalculations) {
+                cout << "Smallest offset (Target # " << indexOfOffset << "): " << smallestOffset << endl;
+                cout << "Distance to send (Target # " << indexOfOffset << "): " << distToSend << endl;
+     	        cout << endl;
+	    }
+            if(!isinf(distToSend) && sendDataToSD)
             {
             	//Send data to smart dashboard
-            	//vTable->PutNumber("Offset", smallestOffset);
-            	//vTable->PutNumber("Distance to Tape", distToSend);
+                vTable->PutNumber("Offset", smallestOffset);
+            	vTable->PutNumber("Distance to Tape", distToSend);
             }
         }
         //If not calculating distance to tape
         else
         {
-            cout << "no dist" << endl;
+	    if(printCalculations) {
+                cout << "no dist" << endl;
+	    }
             // Start the clock if not started
             if (duration == 0)
             {
@@ -411,10 +422,10 @@ int main(int argc, char **argv)
                 duration = valueDuration.count() * 1000;
 
                 // Send -1 to distance if time not calculating new values is more than 2 seconds
-                if (duration >= NO_VALUE_TIME)
+                if ((duration >= NO_VALUE_TIME) && sendDataToSD && printCalculations)
                 {
-                    //vTable->PutNumber("Offset", -100);
-            	    //vTable->PutNumber("Distance to Tape", -1);
+                    vTable->PutNumber("Offset", -100);
+            	    vTable->PutNumber("Distance to Tape", -1);
                 }
             }
         }
