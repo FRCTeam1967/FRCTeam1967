@@ -17,6 +17,7 @@
 #include "Contour.h"
 #include "ContourPair.h"
 #include <ntcore.h>
+#include "HSV.h"
 //#include <opencv/cv.h>
 //#include <opencv/highgui.h>
 
@@ -37,68 +38,6 @@ int widthThreshold = DEFAULT_WIDTH_THRESHOLD;
 float smallestOffset;
 float distToSend;
 float indexOfOffset;
-
-// Set our HSV values
-//double hue[] = {80, 86}; //{62, 84};
-//double sat[] = {188, 255}; //{100, 255};
-//double val[] = {218, 255}; //{111, 215};
-
-double hue[] = {73, 84}; //{62, 84};
-double sat[] = {212, 255}; //{100, 255};
-double val[] = {135, 255}; //{111, 215};
-
-void changeKey(double hsv[], char key, bool plus)
-{
-    // Determines whether to change the upper or lower bounds of the hsv value + chagnes it
-    int upper = 0;
-    if (isupper(key))
-        upper = 1;
-    if (plus == true)
-        hsv[upper]++;
-    else
-        hsv[upper]--;
-}
-
-void callibrateHSV(char key)
-{
-    // Gets the +/- (which determines if hsv is added/subtracted) and upper/lower case
-    // Letter (upper/lower bound + hue/sat/val) from user input and passes it to changeKey
-    static bool plus;
-
-    switch (key)
-    {
-    case '+': // Increase vale
-        plus = true;
-        break;
-    case '-': // Decrease value
-        plus = false;
-        break;
-    case 'h':
-    case 'H': // For hue
-        changeKey(hue, key, plus);
-        break;
-    case 's':
-    case 'S': // For saturation
-        changeKey(sat, key, plus);
-        break;
-    case 'v':
-    case 'V': // For value
-        changeKey(val, key, plus);
-        break;
-    case 'r': // For reset
-        hue[0] = 0;
-        hue[1] = 255;
-        sat[0] = 0;
-        sat[1] = 255;
-        val[0] = 0;
-        val[1] = 255;
-        break;
-    }
-    // Print out the HSV values
-    cout << "hue: [" << hue[0] << ", " << hue[1] << "]" << endl;
-    cout << "sat: [" << sat[0] << ", " << sat[1] << "]" << endl;
-    cout << "val: [" << val[0] << ", " << val[1] << "]" << endl;
-}
 
 //sorting
 void sortContours(vector<Contour> &sortedContours, vector<vector<Point>> contours)
@@ -141,7 +80,7 @@ int main(int argc, char **argv)
     vector<ContourPair> contourPairs;
     bool sendDataToSD = false;
     bool printCalculations = true;
-
+    HSV hsv = HSV();
 
     if(sendDataToSD) {
         //Network tables send data to the roboRIO
@@ -205,7 +144,9 @@ int main(int argc, char **argv)
         // Convert from brg to hsv
         cvtColor(frame, green, COLOR_BGR2HSV);
         // Filter green taperobot distance: 16.6748
-        inRange(green, Scalar(hue[0], sat[0], val[0]), Scalar(hue[1], sat[1], val[1]), green);
+        inRange(green, Scalar(hsv.getHue(HSV_LOWERBOUND), hsv.getSat(HSV_LOWERBOUND), \
+	    hsv.getVal(HSV_LOWERBOUND)), Scalar(hsv.getHue(HSV_UPPERBOUND), \
+	    hsv.getSat(HSV_UPPERBOUND), hsv.getVal(HSV_UPPERBOUND)), green);
         // Blurs image
         GaussianBlur(green, outline, Size(9, 9), 2, 2);
         // Finds contours
@@ -234,7 +175,7 @@ int main(int argc, char **argv)
 
         if (calibrateHSVOn)
         {
-            callibrateHSV(key);
+            hsv.callibrateHSV(key);
         }
 
         // Loops through each contour - does more processing if contour area is greater than MIN_AREA
@@ -271,6 +212,12 @@ int main(int argc, char **argv)
             {
                 rectangle(frame, boundRect[c].tl(), boundRect[c].br(), color);
             }
+
+	    cout << "Rect Height: " << boundRect[c].height << endl;
+	    cout << "Rect Width: " << boundRect[c].width << endl;
+	    cout << endl << endl;
+
+	    // cout << "Contours Size: " << contours.size() << endl;
 
             // Finds largest and second largest contours
             if (largestContour == -1)
@@ -309,7 +256,6 @@ int main(int argc, char **argv)
 
             // Resets timer because calculating distance to tape again
             duration = 0;
-
             for (int k = 0; k < sortedContours.size() - 1; k++)
             {
                 if (sortedContours[k].getLeftOrRight() != LEFT)
@@ -330,6 +276,9 @@ int main(int argc, char **argv)
                 float finalDistInInches;
                 int rectHeight = boundRect[k].height;
                 int rectWidth = boundRect[k].width;
+
+		cout << "Rect Height: " << boundRect[k].height << endl;
+		cout << "Rect Width: " << boundRect[k].height << endl;
 
                 Rect largestRect = boundRect[k];
                 Rect largestRect2 = boundRect[k + 1];
@@ -406,7 +355,7 @@ int main(int argc, char **argv)
         else
         {
 	    if(printCalculations) {
-                cout << "no dist" << endl;
+                //cout << "no dist" << endl;
 	    }
             // Start the clock if not started
             if (duration == 0)
@@ -430,6 +379,7 @@ int main(int argc, char **argv)
             }
         }
 
+	// Decides whether or not to run the camera streams
         if (argPassed)
         {
             circle(frame, Point(0, 0), 3, Scalar(255, 0, 0), 10);
