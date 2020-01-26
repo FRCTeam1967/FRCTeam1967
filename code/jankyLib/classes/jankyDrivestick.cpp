@@ -1,6 +1,7 @@
-#include "frc/WPILib.h"
+//#include "frc/WPILib.h"
 #include <math.h>
 #include "jankyDrivestick.h"
+#include "frc/Joystick.h"
 #define DEADBAND_SIZE 0.05
 
 jankyDrivestick::jankyDrivestick(int portNumber) : Joystick (portNumber)

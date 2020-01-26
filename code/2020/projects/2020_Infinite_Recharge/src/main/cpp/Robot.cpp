@@ -1,14 +1,18 @@
-#include "frc/WPILib.h"
 #include <iostream>
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "ctre/Phoenix.h"
 #include "jankyXboxJoystick.h"
 #include "jankyDrivestick.h"
 #include <frc/drive/DifferentialDrive.h>
+#include "rev/ColorSensorV3.h"
+#include "ColorSensorInfiniteRecharge.h"
+#include "frc/TimedRobot.h"
+#include "frc/SpeedControllerGroup.h"
 
 #define PROG_BOT
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
+#define COLOR_SENSOR_PORT 0x52
 
 #ifdef PROG_BOT
 #define FRONT_LEFT_MOTOR_CHANNEL 1
@@ -19,6 +23,7 @@
 
 using namespace std;
 using namespace frc;
+using namespace rev;
 
 class Robot : public frc::TimedRobot {
   WPI_TalonSRX*flmotor;
@@ -31,6 +36,7 @@ class Robot : public frc::TimedRobot {
   jankyDrivestick*left;
   jankyDrivestick*right;
   bool shootingSideFront;
+  ColorSensorInfiniteRecharge*sensor_fake;
 
   public:
   //constructor
@@ -45,6 +51,7 @@ class Robot : public frc::TimedRobot {
     rightDrive = NULL;
     left = NULL;
     right = NULL;
+    sensor_fake = NULL;
   }
   //deconstructor
   ~Robot()
@@ -58,6 +65,7 @@ class Robot : public frc::TimedRobot {
     delete rightDrive;
     delete left;
     delete right;
+    delete sensor_fake;
   }
   
   virtual void RobotInit() override
@@ -71,6 +79,7 @@ class Robot : public frc::TimedRobot {
     drive = new DifferentialDrive(*leftDrive, *rightDrive);
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
+    sensor_fake = new ColorSensorInfiniteRecharge();
 
     drive -> SetSafetyEnabled(false);
 
@@ -116,6 +125,23 @@ class Robot : public frc::TimedRobot {
       drive -> TankDrive(left->GetY(), right->GetY());
     }
     
+    std::string colorString;
+    switch (sensor_fake -> ReadColor())
+    {
+      case 0: colorString = "red";
+        break;
+      case 1: colorString = "yellow";
+        break;
+      case 2: colorString = "blue";
+        break;
+      case 3: colorString = "green";
+        break;
+      case 4: colorString = "unknown";
+        break;
+      default: colorString = "invalid";
+    }
+
+    frc::SmartDashboard::PutString("Color", colorString);
   }
 
   virtual void TestPeriodic() override

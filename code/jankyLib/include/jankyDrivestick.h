@@ -1,6 +1,7 @@
 #ifndef _JANKYDRIVESTICK_H
 #define _JANKYDRIVESTICK_H
-#include "frc/WPILib.h"
+//#include "frc/WPILib.h"
+#include "frc/Joystick.h"
 
 #define BUTTON_TRIG_PORT 1
 #define BUTTON_3_PORT 3
