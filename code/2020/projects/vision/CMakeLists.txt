@@ -8,7 +8,7 @@ message (${OpenCV_INCLUDE_DIRS})
 include_directories(${OpenCV_INCLUDE_DIRS})
 # include_directories(${CMAKE_SOURCE_DIR}/../ntcore/wpiutil/include)
 
-add_executable(cv_capture capture.cpp Contour.cpp ContourPair.cpp HSV.cpp) # also will need HSV.cpp once it's created & good
+add_executable(cv_capture capture.cpp Contour.cpp ContourPair.cpp HSV.cpp VisionCalculations.cpp)
 
 SET(GCC_ADDITIONAL_FLAGS "-std=c++17 -g")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${GCC_ADDITIONAL_FLAGS}" )
