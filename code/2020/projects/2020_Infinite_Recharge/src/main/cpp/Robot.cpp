@@ -108,6 +108,8 @@ class Robot : public frc::TimedRobot {
     bool drivingToggle = left -> Get10();
     #endif
 
+    //double confidence = 0.0;
+
     if (drivingToggle && shootingSideFront)
     {
       shootingSideFront = false;
@@ -124,24 +126,9 @@ class Robot : public frc::TimedRobot {
     {
       drive -> TankDrive(left->GetY(), right->GetY());
     }
-    
-    std::string colorString;
-    switch (sensor_fake -> ReadColor())
-    {
-      case 0: colorString = "red";
-        break;
-      case 1: colorString = "yellow";
-        break;
-      case 2: colorString = "blue";
-        break;
-      case 3: colorString = "green";
-        break;
-      case 4: colorString = "unknown";
-        break;
-      default: colorString = "invalid";
-    }
 
-    frc::SmartDashboard::PutString("Color", colorString);
+    frc::SmartDashboard::PutString("Color", sensor_fake -> ReadColor());
+    //frc::SmartDashboard::PutNumber("Confidence", confidence);
   }
 
   virtual void TestPeriodic() override

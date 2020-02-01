@@ -18,8 +18,8 @@ class ColorSensorInfiniteRecharge
             kUnknown,
             kInvalid
         };
-        ColorSensorInfiniteRecharge::InfiniteRechargeColors ReadColor();
-        ColorSensorInfiniteRecharge::InfiniteRechargeColors ReadRawColor(double &confidence);
+        std::string ReadColor();
+        std::string ReadRawColor(double &confidence);
 
     private:
         //bool detected;
