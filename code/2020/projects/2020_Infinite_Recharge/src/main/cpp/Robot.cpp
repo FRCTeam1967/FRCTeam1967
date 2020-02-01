@@ -8,18 +8,7 @@
 #include "ColorSensorInfiniteRecharge.h"
 #include "frc/TimedRobot.h"
 #include "frc/SpeedControllerGroup.h"
-
-#define PROG_BOT
-#define LEFT_JOYSTICK_CHANNEL 0
-#define RIGHT_JOYSTICK_CHANNEL 1
-#define COLOR_SENSOR_PORT 0x52
-
-#ifdef PROG_BOT
-#define FRONT_LEFT_MOTOR_CHANNEL 1
-#define REAR_LEFT_MOTOR_CHANNEL 2
-#define FRONT_RIGHT_MOTOR_CHANNEL 4
-#define REAR_RIGHT_MOTOR_CHANNEL 3
-#endif
+#include "Settings.h"
 
 using namespace std;
 using namespace frc;
@@ -38,6 +27,9 @@ class Robot : public frc::TimedRobot {
   bool shootingSideFront;
   ColorSensorInfiniteRecharge*sensor_fake;
 
+  float distanceToVisionTarget;
+  float offsetFromVisionTarget;
+
   public:
   //constructor
   Robot()
@@ -53,6 +45,7 @@ class Robot : public frc::TimedRobot {
     right = NULL;
     sensor_fake = NULL;
   }
+
   //deconstructor
   ~Robot()
   {
@@ -70,6 +63,25 @@ class Robot : public frc::TimedRobot {
   
   virtual void RobotInit() override
   {
+
+    #ifdef DRIVE_TEAM_CAM_1
+      //Run drive team camera
+      cs::UsbCamera driveCam1;
+      driveCam1 = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+      driveCam1.SetResolution(160,120);
+      driveCam1.SetFPS(5);
+      driveCam1.GetProperty("compression").Set(100);
+    #endif
+
+    #ifdef DRIVE_TEAM_CAM_2
+      //Run drive team camera
+      cs::UsbCamera driveCam2;
+      driveCam2 = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+      driveCam2.SetResolution(160,120);
+      driveCam2.SetFPS(5);
+      driveCam2.GetProperty("compression").Set(100);
+    #endif
+
     flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
@@ -84,6 +96,9 @@ class Robot : public frc::TimedRobot {
     drive -> SetSafetyEnabled(false);
 
     shootingSideFront = true;
+
+    frc::SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
+	  frc::SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
   }
 
   virtual void AutonomousInit() override
@@ -126,6 +141,10 @@ class Robot : public frc::TimedRobot {
     {
       drive -> TankDrive(left->GetY(), right->GetY());
     }
+
+    // Set distance & offset --> to give to turret & shooter
+    distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
+	  offsetFromVisionTarget = (frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
 
     frc::SmartDashboard::PutString("Color", sensor_fake -> ReadColor());
     //frc::SmartDashboard::PutNumber("Confidence", confidence);
