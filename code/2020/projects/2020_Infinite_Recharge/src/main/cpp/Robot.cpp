@@ -49,6 +49,7 @@ enum Constants {
 #define SHOOTING_RIGHT_MOTOR_CHANNEL 1
 #define INTAKE_RIGHT_MOTOR_CHANNEL 3
 #endif
+#include "Settings.h"
 
 using namespace std;
 using namespace frc;
@@ -72,6 +73,9 @@ class Robot : public frc::TimedRobot {
 	int _loops = 0;
 
 
+  float distanceToVisionTarget;
+  float offsetFromVisionTarget;
+
   public:
   //constructor
   Robot()
@@ -88,6 +92,7 @@ class Robot : public frc::TimedRobot {
     sensor_fake = NULL;
     _joy = NULL;
   }
+
   //deconstructor
   ~Robot()
   {
@@ -110,6 +115,29 @@ class Robot : public frc::TimedRobot {
     rlmotor = new WPI_TalonSRX(INTAKE_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(SHOOTING_RIGHT_MOTOR_CHANNEL);
     rrmotor = new WPI_VictorSPX(INTAKE_RIGHT_MOTOR_CHANNEL);
+
+    #ifdef DRIVE_TEAM_CAM_1
+      //Run drive team camera
+      cs::UsbCamera driveCam1;
+      driveCam1 = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+      driveCam1.SetResolution(160,120);
+      driveCam1.SetFPS(5);
+      driveCam1.GetProperty("compression").Set(100);
+    #endif
+
+    #ifdef DRIVE_TEAM_CAM_2
+      //Run drive team camera
+      cs::UsbCamera driveCam2;
+      driveCam2 = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+      driveCam2.SetResolution(160,120);
+      driveCam2.SetFPS(5);
+      driveCam2.GetProperty("compression").Set(100);
+    #endif
+
+    flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
+    rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
+    frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
+    rrmotor = new WPI_VictorSPX(REAR_RIGHT_MOTOR_CHANNEL);
     leftDrive = new SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new SpeedControllerGroup(*frmotor, *rrmotor);
     drive = new DifferentialDrive(*leftDrive, *rightDrive);
@@ -136,6 +164,8 @@ class Robot : public frc::TimedRobot {
 		_talon->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
 		_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
 		_talon->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+    frc::SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
+	  frc::SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
   }
 
   virtual void AutonomousInit() override
@@ -167,6 +197,9 @@ class Robot : public frc::TimedRobot {
     bool buttonPressed = false;
 
     if (drivingToggle && !buttonPressed && shootingSideFront)
+    //double confidence = 0.0;
+
+    if (drivingToggle && shootingSideFront)
     {
       shootingSideFront = false;
       buttonPressed = true;
@@ -257,6 +290,14 @@ class Robot : public frc::TimedRobot {
 			printf("%s\n",_sb.c_str());
 		}
 		_sb.clear();
+
+    // Set distance & offset --> to give to turret & shooter
+    distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
+	  offsetFromVisionTarget = (frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
+
+    std::string string = "hi";
+    frc::SmartDashboard::PutString("Color", string);
+    //frc::SmartDashboard::PutNumber("Confidence", confidence);
   }
 
   virtual void TestPeriodic() override

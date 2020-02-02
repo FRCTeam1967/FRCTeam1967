@@ -29,57 +29,93 @@ ColorSensorInfiniteRecharge::~ColorSensorInfiniteRecharge()
 
 }
 
-ColorSensorInfiniteRecharge::InfiniteRechargeColors ColorSensorInfiniteRecharge::ReadColor()
+std::string ColorSensorInfiniteRecharge::ReadColor()
 {
     double confidence = 0.0;
     frc::Color detectedColor = sensor.GetColor();
     frc::Color matchedColor = colorMatcher.MatchClosestColor(detectedColor, confidence);
+    std::string colorString;
+    int color=9;
 
-    if(confidence < 0.9)
+    if(confidence < 0.92)
     {
-        return ColorSensorInfiniteRecharge::kUnknown;
+        color = ColorSensorInfiniteRecharge::kUnknown;
     }
     else if(matchedColor == kRedTarget)
     {
-        return ColorSensorInfiniteRecharge::kRed;
+        color = ColorSensorInfiniteRecharge::kRed;
     }
     else if(matchedColor == kYellowTarget)
     {
-        return ColorSensorInfiniteRecharge::kYellow;
+        color = ColorSensorInfiniteRecharge::kYellow;
     }
     else if(matchedColor == kBlueTarget)
     {
-        return ColorSensorInfiniteRecharge::kBlue;
+        color = ColorSensorInfiniteRecharge::kBlue;
     }
     else if(matchedColor == kGreenTarget)
     {
-        return ColorSensorInfiniteRecharge::kGreen;
+        color = ColorSensorInfiniteRecharge::kGreen;
+    }
+    else
+    {
+        color = ColorSensorInfiniteRecharge::kInvalid;
     }
 
-    return ColorSensorInfiniteRecharge::kInvalid;
+    switch (color)
+    {
+      case ColorSensorInfiniteRecharge::kRed: colorString = "red";
+        break;
+      case ColorSensorInfiniteRecharge::kYellow: colorString = "yellow";
+        break;
+      case ColorSensorInfiniteRecharge::kBlue: colorString = "blue";
+        break;
+      case ColorSensorInfiniteRecharge::kGreen: colorString = "green";
+        break;
+      case ColorSensorInfiniteRecharge::kUnknown: colorString = "unknown";
+        break;
+      default: colorString = "invalid";
+    }
+
+    return colorString;
 }
 
-ColorSensorInfiniteRecharge::InfiniteRechargeColors ColorSensorInfiniteRecharge::ReadRawColor(double &confidence)
+std::string ColorSensorInfiniteRecharge::ReadRawColor(double &confidence)
 {
     frc::Color detectedColor = sensor.GetColor();
     frc::Color matchedColor = colorMatcher.MatchClosestColor(detectedColor, confidence);
+    int color=9;
+    std::string colorString;
 
     if(matchedColor == kRedTarget)
     {
-        return ColorSensorInfiniteRecharge::kRed;
+        color = ColorSensorInfiniteRecharge::kRed;
     }
     else if(matchedColor == kYellowTarget)
     {
-        return ColorSensorInfiniteRecharge::kYellow;
+        color = ColorSensorInfiniteRecharge::kYellow;
     }
     else if(matchedColor == kBlueTarget)
     {
-        return ColorSensorInfiniteRecharge::kBlue;
+        color = ColorSensorInfiniteRecharge::kBlue;
     }
     else if(matchedColor == kGreenTarget)
     {
-        return ColorSensorInfiniteRecharge::kGreen;
+        color = ColorSensorInfiniteRecharge::kGreen;
     }
 
-    return ColorSensorInfiniteRecharge::kInvalid;
+    switch (color)
+    {
+      case ColorSensorInfiniteRecharge::kRed: colorString = "red";
+        break;
+      case ColorSensorInfiniteRecharge::kYellow: colorString = "yellow";
+        break;
+      case ColorSensorInfiniteRecharge::kBlue: colorString = "blue";
+        break;
+      case ColorSensorInfiniteRecharge::kGreen: colorString = "green";
+        break;
+      default: colorString = "invalid";
+    }
+
+    return colorString;
 }
