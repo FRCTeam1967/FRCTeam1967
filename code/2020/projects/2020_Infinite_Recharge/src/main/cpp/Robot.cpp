@@ -29,26 +29,6 @@ enum Constants {
 	 */
 	kTimeoutMs = 30
 };
-
-//#define PROG_BOT
-#define JANKYCHASSIS
-#define LEFT_JOYSTICK_CHANNEL 0
-#define RIGHT_JOYSTICK_CHANNEL 1
-#define COLOR_SENSOR_PORT 0x52
-
-#ifdef PROG_BOT
-#define FRONT_LEFT_MOTOR_CHANNEL 1
-#define REAR_LEFT_MOTOR_CHANNEL 2
-#define FRONT_RIGHT_MOTOR_CHANNEL 3
-#define REAR_RIGHT_MOTOR_CHANNEL 4
-#endif
-
-#ifdef JANKYCHASSIS
-#define SHOOTING_LEFT_MOTOR_CHANNEL 4
-#define INTAKE_LEFT_MOTOR_CHANNEL 0
-#define SHOOTING_RIGHT_MOTOR_CHANNEL 1
-#define INTAKE_RIGHT_MOTOR_CHANNEL 3
-#endif
 #include "Settings.h"
 
 using namespace std;
@@ -134,10 +114,10 @@ class Robot : public frc::TimedRobot {
       driveCam2.GetProperty("compression").Set(100);
     #endif
 
-    flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
-    rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
-    frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
-    rrmotor = new WPI_VictorSPX(REAR_RIGHT_MOTOR_CHANNEL);
+    // flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
+    // rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
+    // frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
+    // rrmotor = new WPI_VictorSPX(REAR_RIGHT_MOTOR_CHANNEL);
     leftDrive = new SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new SpeedControllerGroup(*frmotor, *rrmotor);
     drive = new DifferentialDrive(*leftDrive, *rightDrive);
@@ -196,8 +176,8 @@ class Robot : public frc::TimedRobot {
 
     bool buttonPressed = false;
 
-    if (drivingToggle && !buttonPressed && shootingSideFront)
-    //double confidence = 0.0;
+    // if (drivingToggle && !buttonPressed && shootingSideFront)
+    // //double confidence = 0.0;
 
     if (drivingToggle && shootingSideFront)
     {
@@ -227,20 +207,22 @@ class Robot : public frc::TimedRobot {
     frc::SmartDashboard::PutNumber("right y axis", right -> GetY());
   
     std::string colorString;
-    switch (sensor_fake -> ReadColor())
-    {
-      case 0: colorString = "red";
-        break;
-      case 1: colorString = "yellow";
-        break;
-      case 2: colorString = "blue";
-        break;
-      case 3: colorString = "green";
-        break;
-      case 4: colorString = "unknown";
-        break;
-      default: colorString = "invalid";
-    }
+    
+    // COMMENTED OUT DUE TO ERRORS --> needs troubleshooting by color sensor group :)
+    // switch (sensor_fake -> ReadColor())
+    // {
+    //   case 0: colorString = "red";
+    //     break;
+    //   case 1: colorString = "yellow";
+    //     break;
+    //   case 2: colorString = "blue";
+    //     break;
+    //   case 3: colorString = "green";
+    //     break;
+    //   case 4: colorString = "unknown";
+    //     break;
+    //   default: colorString = "invalid";
+    // }
 
     frc::SmartDashboard::PutString("Color", colorString);
 
@@ -294,6 +276,9 @@ class Robot : public frc::TimedRobot {
     // Set distance & offset --> to give to turret & shooter
     distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
 	  offsetFromVisionTarget = (frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
+    cout << "Distance to vision target: " << distanceToVisionTarget << endl;
+    cout << "offset: " << offsetFromVisionTarget << endl;
+    cout << endl;
 
     std::string string = "hi";
     frc::SmartDashboard::PutString("Color", string);
