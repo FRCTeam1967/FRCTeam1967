@@ -106,7 +106,7 @@ bool jankyXboxJoystick::GetButtonStart()
 float jankyXboxJoystick::GetLeftThrottle() 
 {
 	float leftThrottle = GetTwist();
-	if (leftThrottle > 0) {
+	if (leftThrottle > 0.2) {
 		return leftThrottle;
 	}
 	else return 0;
