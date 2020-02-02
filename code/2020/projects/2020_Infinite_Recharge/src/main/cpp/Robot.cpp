@@ -8,6 +8,27 @@
 #include "ColorSensorInfiniteRecharge.h"
 #include "frc/TimedRobot.h"
 #include "frc/SpeedControllerGroup.h"
+//#include "Constants.h"
+
+//move these values into a Constants.h
+enum Constants {
+	/**
+	 * Which PID slot to pull gains from.  Starting 2018, you can choose
+	 * from 0,1,2 or 3.  Only the first two (0,1) are visible in web-based configuration.
+	 */
+	kSlotIdx = 0,
+
+	/* Talon SRX/ Victor SPX will supported multiple (cascaded) PID loops.
+	 * For now we just want the primary one.
+	 */
+	kPIDLoopIdx = 0,
+
+	/*
+	 * set to zero to skip waiting for confirmation, set to nonzero to wait
+	 * and report to DS if action fails.
+	 */
+	kTimeoutMs = 30
+};
 #include "Settings.h"
 
 using namespace std;
@@ -15,9 +36,9 @@ using namespace frc;
 using namespace rev;
 
 class Robot : public frc::TimedRobot {
-  WPI_TalonSRX*flmotor;
+  WPI_VictorSPX*flmotor;
   WPI_TalonSRX*frmotor;
-  WPI_VictorSPX*rlmotor;
+  WPI_TalonSRX*rlmotor;
   WPI_VictorSPX*rrmotor;
   DifferentialDrive*drive;
   SpeedControllerGroup*leftDrive;
@@ -26,6 +47,11 @@ class Robot : public frc::TimedRobot {
   jankyDrivestick*right;
   bool shootingSideFront;
   ColorSensorInfiniteRecharge*sensor_fake;
+  TalonFX * _talon = new TalonFX(0); //change the channel number on here and id
+	jankyXboxJoystick * _joy;  
+	std::string _sb;
+	int _loops = 0;
+
 
   float distanceToVisionTarget;
   float offsetFromVisionTarget;
@@ -44,6 +70,7 @@ class Robot : public frc::TimedRobot {
     left = NULL;
     right = NULL;
     sensor_fake = NULL;
+    _joy = NULL;
   }
 
   //deconstructor
@@ -59,10 +86,15 @@ class Robot : public frc::TimedRobot {
     delete left;
     delete right;
     delete sensor_fake;
+    delete _joy;
   }
   
   virtual void RobotInit() override
   {
+    flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
+    rlmotor = new WPI_TalonSRX(INTAKE_LEFT_MOTOR_CHANNEL);
+    frmotor = new WPI_TalonSRX(SHOOTING_RIGHT_MOTOR_CHANNEL);
+    rrmotor = new WPI_VictorSPX(INTAKE_RIGHT_MOTOR_CHANNEL);
 
     #ifdef DRIVE_TEAM_CAM_1
       //Run drive team camera
@@ -82,21 +114,36 @@ class Robot : public frc::TimedRobot {
       driveCam2.GetProperty("compression").Set(100);
     #endif
 
-    flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
-    rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
-    frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
-    rrmotor = new WPI_VictorSPX(REAR_RIGHT_MOTOR_CHANNEL);
+    // flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
+    // rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
+    // frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
+    // rrmotor = new WPI_VictorSPX(REAR_RIGHT_MOTOR_CHANNEL);
     leftDrive = new SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new SpeedControllerGroup(*frmotor, *rrmotor);
     drive = new DifferentialDrive(*leftDrive, *rightDrive);
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
     sensor_fake = new ColorSensorInfiniteRecharge();
+    _joy = new jankyXboxJoystick(2);
 
-    drive -> SetSafetyEnabled(false);
+    //drive -> SetSafetyEnabled(false);
 
     shootingSideFront = true;
 
+    _talon->ConfigFactoryDefault();
+     /* first choose the sensor */
+		_talon->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, kTimeoutMs);
+		_talon->SetSensorPhase(true);
+		/* set the peak and nominal outputs */
+		_talon->ConfigNominalOutputForward(0, kTimeoutMs);
+		_talon->ConfigNominalOutputReverse(0, kTimeoutMs);
+		_talon->ConfigPeakOutputForward(1, kTimeoutMs);
+		_talon->ConfigPeakOutputReverse(-1, kTimeoutMs);
+		/* set closed loop gains in slot0 */
+		_talon->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
+		_talon->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+		_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+		_talon->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
     frc::SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
 	  frc::SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
   }
@@ -123,16 +170,30 @@ class Robot : public frc::TimedRobot {
     bool drivingToggle = left -> Get10();
     #endif
 
-    //double confidence = 0.0;
+    #ifdef JANKYCHASSIS
+    bool drivingToggle = left -> Get10();
+    #endif
+
+    bool buttonPressed = false;
+
+    // if (drivingToggle && !buttonPressed && shootingSideFront)
+    // //double confidence = 0.0;
 
     if (drivingToggle && shootingSideFront)
     {
       shootingSideFront = false;
+      buttonPressed = true;
     }
-    else if (drivingToggle && !shootingSideFront)
+    else if(drivingToggle && !buttonPressed && !shootingSideFront)
     {
       shootingSideFront = true;
+      buttonPressed = true;
     }
+    else if (!drivingToggle && buttonPressed)
+    {
+      buttonPressed = false;
+    }
+
     if (shootingSideFront)
     {
       drive -> TankDrive(-left->GetY(), -right->GetY());
@@ -142,11 +203,85 @@ class Robot : public frc::TimedRobot {
       drive -> TankDrive(left->GetY(), right->GetY());
     }
 
+    frc::SmartDashboard::PutNumber("left y axis", left -> GetY());
+    frc::SmartDashboard::PutNumber("right y axis", right -> GetY());
+  
+    std::string colorString;
+    
+    // COMMENTED OUT DUE TO ERRORS --> needs troubleshooting by color sensor group :)
+    // switch (sensor_fake -> ReadColor())
+    // {
+    //   case 0: colorString = "red";
+    //     break;
+    //   case 1: colorString = "yellow";
+    //     break;
+    //   case 2: colorString = "blue";
+    //     break;
+    //   case 3: colorString = "green";
+    //     break;
+    //   case 4: colorString = "unknown";
+    //     break;
+    //   default: colorString = "invalid";
+    // }
+
+    frc::SmartDashboard::PutString("Color", colorString);
+
+    /* get gamepad axis */
+		double leftYstick = _joy->GetLeftThrottle();
+		double motorOutput = _talon->GetMotorOutputPercent();
+		/* prepare line to print */
+		_sb.append("\tout:");
+		_sb.append(std::to_string(motorOutput));
+		_sb.append("\tspd:");
+		_sb.append(std::to_string(_talon->GetSelectedSensorVelocity(kPIDLoopIdx)));
+		/* while button1 is held down, closed-loop on target velocity */
+		std::string button_status;
+    double targetVelocity_UnitsPer100ms = 0;
+    if (_joy->GetButtonA()) 
+    {
+        	/* Speed mode */
+			/* Convert 500 RPM to units / 100ms.
+			 * 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
+			 * velocity setpoint is in units/100ms
+			 */
+      button_status = "pushed";
+			targetVelocity_UnitsPer100ms = leftYstick * 5000.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
+      //double targetVelocity_UnitsPer100ms = 0.75 * 500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
+			/* 500 RPM in either direction */
+			/* append more signals to print when in speed mode. */
+			_sb.append("\terrNative:");
+			_sb.append(std::to_string(_talon->GetClosedLoopError(kPIDLoopIdx)));
+			_sb.append("\ttrg:");
+			_sb.append(std::to_string(targetVelocity_UnitsPer100ms));
+      } 
+      else
+      {
+        button_status = "not pushed";
+      }
+      _talon->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms); 
+
+      //else {
+			/* Percent voltage mode */
+		//_talon->Set(ControlMode::PercentOutput, leftYstick);
+		//}
+		/* print every ten loops, printing too much too fast is generally bad for performance */
+		frc::SmartDashboard::PutString("button a: ", button_status);
+
+    if (++_loops >= 10) {
+			_loops = 0;
+			printf("%s\n",_sb.c_str());
+		}
+		_sb.clear();
+
     // Set distance & offset --> to give to turret & shooter
     distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
 	  offsetFromVisionTarget = (frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
+    cout << "Distance to vision target: " << distanceToVisionTarget << endl;
+    cout << "offset: " << offsetFromVisionTarget << endl;
+    cout << endl;
 
-    frc::SmartDashboard::PutString("Color", sensor_fake -> ReadColor());
+    std::string string = "hi";
+    frc::SmartDashboard::PutString("Color", string);
     //frc::SmartDashboard::PutNumber("Confidence", confidence);
   }
 
