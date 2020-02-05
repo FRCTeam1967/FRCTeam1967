@@ -8,6 +8,8 @@
 #include "ColorSensorInfiniteRecharge.h"
 #include "frc/TimedRobot.h"
 #include "frc/SpeedControllerGroup.h"
+#include "AutoDrive.h"
+#include "AutoSelector.h"
 //#include "Constants.h"
 
 //move these values into a Constants.h
