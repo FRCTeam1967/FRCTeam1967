@@ -7,39 +7,33 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <math.h>
 #include <frc/Encoder.h>
-//#include "jankyTask.h"
-
+#include <ClimbingMech.h>
+#include "jankyTask.h"
 
 using namespace std;
 using namespace frc;
 
+#define L_MOTOR_CHANNEL 6 //find real numbers for these later
+#define R_MOTOR_CHANNEL 1
+#define GAME_JOYSTICK_CHANNEL 2
+
 class Robot : public frc::TimedRobot {
   WPI_TalonSRX * lmotor;
   WPI_TalonSRX * rmotor;
-  climbingMech * climbing;
+  ClimbingMech * climbing;
   jankyXboxJoystick * joystick;
-  Solenoid * rpiston;
-  Solenoid * lpiston;
-  Encoder * zero;
-  Encoder * level;
-  Encoder * highest;
   string setHeight;
   
   public:
   //constructor
   Robot()
+  {
     lmotor = NULL;
     rmotor = NULL;
     climbing = NULL;
     joystick = NULL;
-    rpiston = NULL;
-    lpiston = NULL;
-    zero = NULL;
-    level = NULL;
-    highest = NULL;
-  {
-
   }
+
   //deconstructor
   ~Robot()
   {
@@ -47,24 +41,12 @@ class Robot : public frc::TimedRobot {
     delete rmotor;
     delete climbing;
     delete joystick;
-    delete rpiston;
-    delete lpiston;
-    delete zero;
-    delete level;
-    delete highest;
   }
   
   virtual void RobotInit() override
   {
-    lmotor = new WPI_TalonSRX(1);//name these later
-    rmotor = new WPI_TalonSRX(2);
-    climbing = new climbingMech(3);
+    climbing = new ClimbingMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, 1, 2);
     joystick = new jankyXboxJoystick(4);
-    rpiston = new Solenoid(5);
-    lpiston = new Solenoid(6);
-    zero = new Encoder(7);
-    level = new Encoder(8);
-    highest = new Encoder(9);
     climbing -> StartUpInit();
   }
 
@@ -89,6 +71,7 @@ class Robot : public frc::TimedRobot {
     bool buttonB = joystick -> GetButtonB();
     bool buttonY = joystick -> GetButtonY();
     bool buttonX = joystick -> GetButtonX();
+    float rightVal = joystick -> GetRightYAxis();
 
   if(buttonX){
     climbing -> ClimbingMotorStop();
@@ -113,13 +96,13 @@ class Robot : public frc::TimedRobot {
       setHeight = "None";
     }
     else if (rightVal < 0.2 && rightVal > -0.2){
-      climbing -> ClimbingMotorStopp();
+      climbing -> ClimbingMotorStop();
       setHeight = "None";
     }
-  }
+    }
   }
 
-  virtual void TestPeriodic() override
+    virtual void TestPeriodic() override
   {
 
   }
