@@ -1,0 +1,3 @@
+/home/team1967/FRCTeam1967/code/2020/projects/vision/build/CMakeFiles/rebuild_cache.dir
+/home/team1967/FRCTeam1967/code/2020/projects/vision/build/CMakeFiles/cv_capture.dir
+/home/team1967/FRCTeam1967/code/2020/projects/vision/build/CMakeFiles/edit_cache.dir
