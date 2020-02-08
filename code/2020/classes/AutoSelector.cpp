@@ -28,6 +28,7 @@
 // step 1
 #define CROSS_INITITATION_LINE_FORWARD 1
 #define CROSS_INITIATION_LINE_BACKWARD 2
+#define SHOOT_PRELOADED_BALLS_FIRST 3
 
 // step 2
 #define SHOOT_PRELOADED_BALLS 1
@@ -37,6 +38,8 @@
 // step 3
 #define PICK_UP_BALLS_TRENCH 1
 #define PICK_UP_BALLS_RONDEVOUS_POINT 2
+#define DRIVE_TO_TRENCH_3 3
+#define DRIVE_TO_RONDEZVOUSPT_3 4
 
 // step 4
 #define SHOOT_PICKED_UP_BALLS 1
@@ -62,6 +65,7 @@ int rightOfCenterStart = START_RIGHT_OF_CENTER_FIELD;
 // step 1
 int crossLineForward = CROSS_INITITATION_LINE_FORWARD;
 int crossLineBackward = CROSS_INITIATION_LINE_BACKWARD;
+int shootPreloadedBallsFirst = SHOOT_PRELOADED_BALLS_FIRST;
 int doNothing1 = DO_NOTHING;
 
 // step 2
@@ -73,6 +77,8 @@ int doNothing2 = DO_NOTHING;
 // step 3
 int pickUpBallsT = PICK_UP_BALLS_TRENCH;
 int pickUpBallsRP = PICK_UP_BALLS_RONDEVOUS_POINT;
+int driveToRP3 = DRIVE_TO_RONDEZVOUSPT_3;
+int driveToT3 = DRIVE_TO_TRENCH_3;
 int doNothing3 = DO_NOTHING;
 
 // step 4
@@ -116,25 +122,28 @@ void AutoSelector::DisplayAutoOptions() {
     // step 1
     actionStep1.SetDefaultOption("Cross Line Forward", &crossLineForward);
 	actionStep1.AddOption("Cross Line Backward", &crossLineBackward);
-	actionStep1.AddOption("Do Nothing (1)", &doNothing1);
+	actionStep1.AddOption("Shoot Preloaded Balls", &shootPreloadedBallsFirst);
+	actionStep1.AddOption("Do Nothing", &doNothing1);
 	frc::SmartDashboard::PutData("Action: Step 1", &actionStep1);
 
     // step 2
     actionStep2.SetDefaultOption("Shoot Preloaded Balls", &shootPreloadedBalls);
 	actionStep2.AddOption("Drive to Rondezvous Point", &driveToRP);
-	actionStep2.AddOption("Do Nothing (2)", &doNothing2);
+	actionStep2.AddOption("Do Nothing", &doNothing2);
     actionStep2.AddOption("Drive to Trench", &driveToTrench);
 	frc::SmartDashboard::PutData("Action: Step 2", &actionStep2);
 
     // step 3
     actionStep3.SetDefaultOption("Pick Up Balls From the Trench", &pickUpBallsT);
 	actionStep3.AddOption("Pick Up Balls From the Rondezvous Point", &pickUpBallsRP);
-	actionStep3.AddOption("Do Nothing (3)", &doNothing3);
+	actionStep3.AddOption("Do Nothing", &doNothing3);
+	actionStep3.AddOption("Drive to Trench", &driveToT3);
+	actionStep3.AddOption("Drive to Rondezvous Point", &driveToRP3);
 	frc::SmartDashboard::PutData("Action: Step 3", &actionStep3);
 
     // step 4
     actionStep4.SetDefaultOption("Shoot Picked Up Balls", &shootPickedUpBalls);
-	actionStep4.AddOption("Do Nothing (4)", &doNothing4);
+	actionStep4.AddOption("Do Nothing", &doNothing4);
 	frc::SmartDashboard::PutData("Action: Step 4", &actionStep4);
 }
 
@@ -178,6 +187,7 @@ void AutoSelector::PrintValues() {
 	// step 1
 	printf("crossLineForward: %d \n", crossLineForward);
 	printf("crossLineBackward: %d \n", crossLineBackward);
+	printf("shootPreloadedBallsFirst: %d \n", shootPreloadedBallsFirst);
 	printf("doNothing1: %d \n", doNothing1);
 
 	// step 2
@@ -190,6 +200,8 @@ void AutoSelector::PrintValues() {
 	printf("pickUpBallsT: %d \n", pickUpBallsT);
 	printf("pickUpBallsRP: %d \n", pickUpBallsRP);
 	printf("doNothing3: %d \n", doNothing3);
+	printf("driveToT3: %d \n", driveToT3);
+	printf("driveToRP3: %d \n", driveToRP3);
 
 	// step 4
 	printf("shootPickedUpBalls: %d \n", shootPickedUpBalls);
