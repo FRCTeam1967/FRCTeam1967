@@ -1,3 +1,10 @@
+/*
+    AutoSelector.h
+
+    Modified on: February 8, 2020
+    Authors: Maddie, Kara
+*/
+
 #include <iostream>
 #include "frc/WPILib.h"
 
@@ -7,8 +14,8 @@
 class AutoSelector
 {
     public:
-        AutoSelector();
-        ~AutoSelector();
+        AutoSelector(); // constructor
+        ~AutoSelector(); // deconstructor
 
         // Methods
         void DisplayAutoOptions(); // displays different options for auto modes on Smart Dashboard

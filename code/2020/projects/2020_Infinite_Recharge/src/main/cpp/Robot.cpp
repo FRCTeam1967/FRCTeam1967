@@ -10,6 +10,8 @@
 #include "frc/SpeedControllerGroup.h"
 #include "AutoDrive.h"
 #include "AutoSelector.h"
+#include "Settings.h"
+
 //#include "Constants.h"
 
 //move these values into a Constants.h
@@ -31,13 +33,13 @@ enum Constants {
 	 */
 	kTimeoutMs = 30
 };
-#include "Settings.h"
 
 using namespace std;
 using namespace frc;
 using namespace rev;
 
 class Robot : public frc::TimedRobot {
+  AutoSelector*autoSelector;
   WPI_VictorSPX*flmotor;
   WPI_TalonSRX*frmotor;
   WPI_TalonSRX*rlmotor;
@@ -62,6 +64,7 @@ class Robot : public frc::TimedRobot {
   //constructor
   Robot()
   {
+    autoSelector = NULL;
     flmotor = NULL;
     rlmotor = NULL;
     frmotor = NULL;
@@ -78,6 +81,7 @@ class Robot : public frc::TimedRobot {
   //deconstructor
   ~Robot()
   {
+    delete autoSelector;
     delete flmotor;
     delete rlmotor;
     delete frmotor;
@@ -93,6 +97,10 @@ class Robot : public frc::TimedRobot {
   
   virtual void RobotInit() override
   {
+    // auto
+    autoSelector = new AutoSelector();
+    autoSelector->DisplayAutoOptions();
+
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_TalonSRX(INTAKE_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(SHOOTING_RIGHT_MOTOR_CHANNEL);
@@ -157,7 +165,8 @@ class Robot : public frc::TimedRobot {
 
   virtual void AutonomousPeriodic() override
   {
-    
+    // print values
+    autoSelector->PrintValues();
   }
 
   virtual void TeleopInit() override

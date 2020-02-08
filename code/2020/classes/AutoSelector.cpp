@@ -1,3 +1,10 @@
+/*
+    AutoSelector.cpp
+
+    Modified on: February 8, 2020
+    Authors: Maddie, Kara
+*/
+
 // includes
 #include <iostream>
 #include "frc/WPILib.h"
@@ -34,6 +41,8 @@
 // step 4
 #define SHOOT_PICKED_UP_BALLS 1
 
+#define DO_NOTHING 6
+
 // delay times
 int delayTime = 0;
 int zero_sec = ZERO_SEC;
@@ -53,18 +62,22 @@ int rightOfCenterStart = START_RIGHT_OF_CENTER_FIELD;
 // step 1
 int crossLineForward = CROSS_INITITATION_LINE_FORWARD;
 int crossLineBackward = CROSS_INITIATION_LINE_BACKWARD;
+int doNothing1 = DO_NOTHING;
 
 // step 2
 int shootPreloadedBalls = SHOOT_PRELOADED_BALLS;
 int driveToRP = DRIVE_TO_RONDEVOUS_POINT;
 int driveToTrench = DRIVE_TO_TRENCH;
+int doNothing2 = DO_NOTHING;
 
 // step 3
 int pickUpBallsT = PICK_UP_BALLS_TRENCH;
 int pickUpBallsRP = PICK_UP_BALLS_RONDEVOUS_POINT;
+int doNothing3 = DO_NOTHING;
 
 // step 4
 int shootPickedUpBalls = SHOOT_PICKED_UP_BALLS;
+int doNothing4 = DO_NOTHING;
 
 // create sendable chooser
 frc::SendableChooser<int*> startingPosition;
@@ -103,26 +116,26 @@ void AutoSelector::DisplayAutoOptions() {
     // step 1
     actionStep1.SetDefaultOption("Cross Line Forward", &crossLineForward);
 	actionStep1.AddOption("Cross Line Backward", &crossLineBackward);
+	actionStep1.AddOption("Do Nothing (1)", &doNothing1);
 	frc::SmartDashboard::PutData("Action: Step 1", &actionStep1);
 
     // step 2
     actionStep2.SetDefaultOption("Shoot Preloaded Balls", &shootPreloadedBalls);
 	actionStep2.AddOption("Drive to Rondezvous Point", &driveToRP);
+	actionStep2.AddOption("Do Nothing (2)", &doNothing2);
     actionStep2.AddOption("Drive to Trench", &driveToTrench);
 	frc::SmartDashboard::PutData("Action: Step 2", &actionStep2);
 
     // step 3
     actionStep3.SetDefaultOption("Pick Up Balls From the Trench", &pickUpBallsT);
 	actionStep3.AddOption("Pick Up Balls From the Rondezvous Point", &pickUpBallsRP);
+	actionStep3.AddOption("Do Nothing (3)", &doNothing3);
 	frc::SmartDashboard::PutData("Action: Step 3", &actionStep3);
 
     // step 4
-    actionStep4.SetDefaultOption("Pick Up Balls From the Trench", &shootPickedUpBalls);
+    actionStep4.SetDefaultOption("Shoot Picked Up Balls", &shootPickedUpBalls);
+	actionStep4.AddOption("Do Nothing (4)", &doNothing4);
 	frc::SmartDashboard::PutData("Action: Step 4", &actionStep4);
-}
-
-int AutoSelector::GetAutoMode() {
-    return 0; // change later
 }
 
 int AutoSelector::GetDelayTime() {
@@ -147,5 +160,60 @@ int AutoSelector::GetDelayTime() {
 }
 
 void AutoSelector::PrintValues() {
+	// delay times
+	printf("zero_sec: %d \n", zero_sec);
+	printf("one_sec: %d \n", one_sec);
+	printf("two_sec: %d \n", two_sec);
+	printf("three_sec: %d \n", three_sec);
+	printf("four_sec: %d \n", four_sec);
+	printf("five_sec: %d \n", five_sec);
 
+	// starting positions
+	printf("leftStart: %d \n", leftStart);
+	printf("rightStart: %d \n", rightStart);
+	printf("centerStart: %d \n", centerStart);
+	printf("leftOfCenterStart: %d \n", leftOfCenterStart);
+	printf("rightOfCenterStart: %d \n", rightOfCenterStart);
+	
+	// step 1
+	printf("crossLineForward: %d \n", crossLineForward);
+	printf("crossLineBackward: %d \n", crossLineBackward);
+	printf("doNothing1: %d \n", doNothing1);
+
+	// step 2
+	printf("shootPreloadedBalls: %d \n", shootPreloadedBalls);
+	printf("driveToRP: %d \n", driveToRP);
+	printf("driveToTrench: %d \n", driveToTrench);
+	printf("doNothing2: %d \n", doNothing2);
+
+	// step 3
+	printf("pickUpBallsT: %d \n", pickUpBallsT);
+	printf("pickUpBallsRP: %d \n", pickUpBallsRP);
+	printf("doNothing3: %d \n", doNothing3);
+
+	// step 4
+	printf("shootPickedUpBalls: %d \n", shootPickedUpBalls);
+	printf("doNothing4: %d \n", doNothing4);
+}
+
+int AutoSelector::GetAutoMode() {
+	// variables for selected positions
+	int* selectedPosition = startingPosition.GetSelected();
+	int* selectedDelay = delay.GetSelected();
+	int* selectedAction1 = actionStep1.GetSelected();
+	int* selectedAction2 = actionStep2.GetSelected();
+	int* selectedAction3 = actionStep3.GetSelected();
+	int* selectedAction4 = actionStep4.GetSelected();
+
+	// print values
+	printf("selected position: %d \n", *selectedPosition);
+	printf("selected delay: %d \n", *selectedDelay);
+	printf("selected action 1: %d \n", *selectedAction1);
+	printf("selected action 2: %d \n", *selectedAction2);
+	printf("selected action 3: %d \n", *selectedAction3);
+	printf("selected action 4: %d \n", *selectedAction4);
+
+	// decide what auto mode will be
+
+    return 0; // change later
 }
