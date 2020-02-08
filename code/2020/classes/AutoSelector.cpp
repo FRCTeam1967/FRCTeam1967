@@ -2,7 +2,7 @@
     AutoSelector.cpp
 
     Modified on: February 8, 2020
-    Authors: Maddie, Kara
+    Authors: Maddie, Kara, Angela, Sofia
 */
 
 // includes
