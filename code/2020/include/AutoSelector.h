@@ -24,6 +24,7 @@ class AutoSelector
         void PrintValues(); // print values of auto selector for debugging purposes
 
     private:
+    int autoMode;
 
 };
 #endif 

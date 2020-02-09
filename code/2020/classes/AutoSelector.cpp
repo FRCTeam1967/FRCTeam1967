@@ -10,6 +10,22 @@
 #include "frc/WPILib.h"
 #include "AutoSelector.h"
 
+// auto modes
+#define STAY_STILL 0
+#define FORWARD_STILL 1
+#define BACKWARD_STILL 2
+#define CENTER_SHOOT 3
+#define CENTER_FORWARD_SHOOT 4
+#define CENTER_BACKWARD_SHOOT 5
+#define CENTER_SHOOT_RONDEZVOUS 6
+#define CENTER_SHOOT_TRENCH 7
+#define FORWARD_RONDEZVOUS 8
+#define BACKWARD_RONDEZVOUS 9
+#define FORWARD_TRENCH 10
+#define BACKWARD_TRENCH 11
+#define BACKWARD_SHOOT_RONDEZVOUS 12
+#define BACKWARD_SHOOT_TRENCH 13
+
 //delay times
 #define ZERO_SEC 0
 #define ONE_SEC 1
@@ -94,7 +110,7 @@ frc::SendableChooser<int*> actionStep3;
 frc::SendableChooser<int*> actionStep4;
 
 AutoSelector::AutoSelector() {
-
+	autoMode = STAY_STILL; //set default mode to do nothing
 }
 
 AutoSelector::~AutoSelector() {
@@ -226,6 +242,63 @@ int AutoSelector::GetAutoMode() {
 	printf("selected action 4: %d \n", *selectedAction4);
 
 	// decide what auto mode will be
+
+	if((selectedAction1 == &doNothing1) && (selectedAction2 == &doNothing2) &&  (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	{
+		autoMode = STAY_STILL;
+	}
+	else if((selectedAction1 == &crossLineForward) && (selectedAction2 == &doNothing2) &&  (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4)) 
+	{
+		autoMode = FORWARD_STILL;
+	}
+	else if((selectedAction1 == &crossLineBackward) && (selectedAction2 == &doNothing2) &&  (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	{
+		autoMode = BACKWARD_STILL;
+	}
+	else if((selectedPosition == &centerStart) && (selectedAction1 == &shootPreloadedBalls) && (selectedAction2 == &doNothing2) && (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	{
+		autoMode = CENTER_SHOOT;
+	}
+	else if((selectedPosition == &centerStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	{
+		autoMode = CENTER_FORWARD_SHOOT;
+	}
+	else if((selectedPosition == &centerStart) && (selectedAction1 == &crossLineBackward) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	{
+		autoMode = CENTER_BACKWARD_SHOOT;
+	}
+	else if((selectedPosition == &centerStart) && (selectedAction1 == &shootPreloadedBallsFirst) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
+	{
+		autoMode = CENTER_SHOOT_RONDEZVOUS;
+	}
+	else if((selectedPosition == &centerStart) && (selectedAction1 == &shootPreloadedBallsFirst) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
+	{
+		autoMode = CENTER_SHOOT_TRENCH;
+	}
+	else if((selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
+	{
+		autoMode = FORWARD_RONDEZVOUS;
+	}
+	else if((selectedAction1 == &crossLineBackward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
+	{
+		autoMode = BACKWARD_RONDEZVOUS;
+	}
+	else if((selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
+	{
+		autoMode = FORWARD_TRENCH;
+	}
+	// else if()
+	// {
+	// 	autoMode = BACKWARD_TRENCH;
+	// }
+	// else if()
+	// {
+	// 	autoMode = BACKWARD_SHOOT_RONDEZVOUS;
+	// }
+	// else if()
+	// {
+	// 	autoMode = BACKWARD_SHOOT_TRENCH;
+	// }
 
     return 0; // change later
 }
