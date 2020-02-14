@@ -20,7 +20,7 @@ using namespace std;
 using namespace frc;
 using namespace rev;
 
-class Robot : public frc::TimedRobot {
+class Robot : public TimedRobot {
   AutoSelector*autoSelector;
   WPI_VictorSPX*flmotor;
   WPI_TalonSRX*frmotor;
@@ -35,7 +35,7 @@ class Robot : public frc::TimedRobot {
   ColorSensorInfiniteRecharge*sensor_fake;
   TalonFX * _talon = new TalonFX(0); //change the channel number on here and id
 	jankyXboxJoystick * _joy;  
-	std::string _sb;
+	string _sb;
 	int _loops = 0;
 
 
@@ -91,7 +91,7 @@ class Robot : public frc::TimedRobot {
     #ifdef DRIVE_TEAM_CAM_1
       //Run drive team camera
       cs::UsbCamera driveCam1;
-      driveCam1 = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+      driveCam1 = CameraServer::GetInstance()->StartAutomaticCapture(0);
       driveCam1.SetResolution(160,120);
       driveCam1.SetFPS(5);
       driveCam1.GetProperty("compression").Set(100);
@@ -100,7 +100,7 @@ class Robot : public frc::TimedRobot {
     #ifdef DRIVE_TEAM_CAM_2
       //Run drive team camera
       cs::UsbCamera driveCam2;
-      driveCam2 = frc::CameraServer::GetInstance()->StartAutomaticCapture(0);
+      driveCam2 = CameraServer::GetInstance()->StartAutomaticCapture(0);
       driveCam2.SetResolution(160,120);
       driveCam2.SetFPS(5);
       driveCam2.GetProperty("compression").Set(100);
@@ -136,8 +136,8 @@ class Robot : public frc::TimedRobot {
 		_talon->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
 		_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
 		_talon->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
-    frc::SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
-	  frc::SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
+    SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
+	  SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
   }
 
   virtual void AutonomousInit() override
@@ -196,10 +196,10 @@ class Robot : public frc::TimedRobot {
       drive -> TankDrive(left->GetY(), right->GetY());
     }
 
-    frc::SmartDashboard::PutNumber("left y axis", left -> GetY());
-    frc::SmartDashboard::PutNumber("right y axis", right -> GetY());
+    SmartDashboard::PutNumber("left y axis", left -> GetY());
+    SmartDashboard::PutNumber("right y axis", right -> GetY());
   
-    std::string colorString;
+    string colorString;
     
     // COMMENTED OUT DUE TO ERRORS --> needs troubleshooting by color sensor group :)
     // switch (sensor_fake -> ReadColor())
@@ -217,18 +217,18 @@ class Robot : public frc::TimedRobot {
     //   default: colorString = "invalid";
     // }
 
-    frc::SmartDashboard::PutString("Color", colorString);
+    SmartDashboard::PutString("Color", colorString);
 
     /* get gamepad axis */
 		double leftYstick = _joy->GetLeftThrottle();
 		double motorOutput = _talon->GetMotorOutputPercent();
 		/* prepare line to print */
 		_sb.append("\tout:");
-		_sb.append(std::to_string(motorOutput));
+		_sb.append(to_string(motorOutput));
 		_sb.append("\tspd:");
-		_sb.append(std::to_string(_talon->GetSelectedSensorVelocity(kPIDLoopIdx)));
+		_sb.append(to_string(_talon->GetSelectedSensorVelocity(kPIDLoopIdx)));
 		/* while button1 is held down, closed-loop on target velocity */
-		std::string button_status;
+		string button_status;
     double targetVelocity_UnitsPer100ms = 0;
     if (_joy->GetButtonA()) 
     {
@@ -243,9 +243,9 @@ class Robot : public frc::TimedRobot {
 			/* 500 RPM in either direction */
 			/* append more signals to print when in speed mode. */
 			_sb.append("\terrNative:");
-			_sb.append(std::to_string(_talon->GetClosedLoopError(kPIDLoopIdx)));
+			_sb.append(to_string(_talon->GetClosedLoopError(kPIDLoopIdx)));
 			_sb.append("\ttrg:");
-			_sb.append(std::to_string(targetVelocity_UnitsPer100ms));
+			_sb.append(to_string(targetVelocity_UnitsPer100ms));
       } 
       else
       {
@@ -258,7 +258,7 @@ class Robot : public frc::TimedRobot {
 		//_talon->Set(ControlMode::PercentOutput, leftYstick);
 		//}
 		/* print every ten loops, printing too much too fast is generally bad for performance */
-		frc::SmartDashboard::PutString("button a: ", button_status);
+		SmartDashboard::PutString("button a: ", button_status);
 
     if (++_loops >= 10) {
 			_loops = 0;
@@ -267,15 +267,15 @@ class Robot : public frc::TimedRobot {
 		_sb.clear();
 
     // Set distance & offset --> to give to turret & shooter
-    distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
-	  offsetFromVisionTarget = (frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
+    distanceToVisionTarget = SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
+	  offsetFromVisionTarget = (SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
     cout << "Distance to vision target: " << distanceToVisionTarget << endl;
     cout << "offset: " << offsetFromVisionTarget << endl;
     cout << endl;
 
-    std::string string = "hi";
-    frc::SmartDashboard::PutString("Color", string);
-    //frc::SmartDashboard::PutNumber("Confidence", confidence);
+    string string = "hi";
+    SmartDashboard::PutString("Color", string);
+    //SmartDashboard::PutNumber("Confidence", confidence);
   }
 
   virtual void TestPeriodic() override
@@ -287,5 +287,5 @@ private:
 };
 int main() 
 { 
-  return frc::StartRobot<Robot>(); 
+  return StartRobot<Robot>(); 
 }
