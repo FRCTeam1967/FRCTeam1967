@@ -1,0 +1,62 @@
+/* DEFINES FOR AUTO SELECTOR */
+// auto modes
+#define STAY_STILL 0
+#define FORWARD_STILL 1
+#define BACKWARD_STILL 2
+#define CENTER_SHOOT 3
+#define CENTER_FORWARD_SHOOT 4
+#define CENTER_BACKWARD_SHOOT 5
+#define CENTER_SHOOT_RONDEZVOUS 6
+#define CENTER_SHOOT_TRENCH 7
+#define FORWARD_RONDEZVOUS 8
+#define BACKWARD_RONDEZVOUS 9
+#define FORWARD_TRENCH 10
+#define BACKWARD_TRENCH 11
+#define BACKWARD_SHOOT_RONDEZVOUS 12
+#define BACKWARD_SHOOT_TRENCH 13
+#define DONE 14
+
+// delay times
+#define ZERO_SEC 0
+#define ONE_SEC 1
+#define TWO_SEC 2
+#define THREE_SEC 3
+#define FOUR_SEC 4
+#define FIVE_SEC 5
+
+// starting places
+#define START_LEFT_WALL 1
+#define START_RIGHT_WALL 2
+#define START_CENTER_FIELD 3
+#define START_RIGHT_OF_CENTER_FIELD 4 // centered with target
+#define START_LEFT_OF_CENTER_FIELD 5
+
+// step 1
+#define CROSS_INITITATION_LINE_FORWARD 1
+#define CROSS_INITIATION_LINE_BACKWARD 2
+#define SHOOT_PRELOADED_BALLS_FIRST 3
+
+// step 2
+#define SHOOT_PRELOADED_BALLS 1
+#define DRIVE_TO_RONDEVOUS_POINT 2
+#define DRIVE_TO_TRENCH 3
+
+// step 3
+#define PICK_UP_BALLS_TRENCH 1
+#define PICK_UP_BALLS_RONDEVOUS_POINT 2
+#define DRIVE_TO_TRENCH_3 3
+#define DRIVE_TO_RONDEZVOUSPT_3 4
+
+// step 4
+#define SHOOT_PICKED_UP_BALLS 1
+
+// do nothing
+#define DO_NOTHING 6
+
+// motor speeds
+#define VISION_DRIVE_SPEED 0.4
+#define TURN_SPEED 0.4
+#define DRIVE_SPEED 0.5
+#define FAST_DRIVE_SPEED 0.7
+#define DRIVE_BACK_SPEED -0.4
+#define FAST_DRIVE_BACK_SPEED -0.6
