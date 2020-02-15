@@ -239,18 +239,20 @@ int AutoSelector::GetAutoMode() {
 	{
 		autoMode = FORWARD_TRENCH;
 	}
-	// else if()
-	// {
-	// 	autoMode = BACKWARD_TRENCH;
-	// }
-	// else if()
-	// {
-	// 	autoMode = BACKWARD_SHOOT_RONDEZVOUS;
-	// }
-	// else if()
-	// {
-	// 	autoMode = BACKWARD_SHOOT_TRENCH;
-	// }
+	else if((selectedAction1 == &crossLineBackward) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &pickUpBallsRP))
+	{
+		autoMode = BACKWARD_TRENCH;
+	}
+	else if((selectedAction1 == &crossLineBackward) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToRP3) && (selectedAction4 == &pickUpBallsRP))
+	{
+		autoMode = BACKWARD_SHOOT_RONDEZVOUS;
+	}
+	else if((selectedAction1 == &crossLineBackward) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToT3) && (selectedAction4 == &pickUpBallsT))
+	{
+		autoMode = BACKWARD_SHOOT_TRENCH;
+	}
 
-    return 0; // change later
+	printf("selected auto mode: %d \n", autoMode);
+
+    return autoMode;
 }

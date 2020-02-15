@@ -148,7 +148,10 @@ class Robot : public TimedRobot {
   virtual void AutonomousPeriodic() override
   {
     // print values
-    autoSelector->PrintValues();
+    //autoSelector->PrintValues();
+
+    // get auto mode
+    autoSelector -> GetAutoMode();
   }
 
   virtual void TeleopInit() override
