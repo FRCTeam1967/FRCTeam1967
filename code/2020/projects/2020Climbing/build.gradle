@@ -60,7 +60,7 @@ model {
             sources.cpp {
                 source {
                     srcDir 'src/main/cpp'
-                    srcDir '../../classes'
+                    //srcDir '../../classes/'
                     srcDir '../../../jankyLib/classes'
                     include '**/*.cpp', '**/*.cc'
                 }

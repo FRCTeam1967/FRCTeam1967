@@ -1,3 +1,6 @@
+#ifndef CLIMBING_MECH_H
+#define CLIMBING_MECH_H
+
 #include "Settings.h"
 #include "frc/WPILib.h" 
 #include "jankyTask.h"
@@ -9,6 +12,7 @@
 #include "hal/Constants.h"
 #include <jankyXboxJoystick.h>
 #include "ctre/phoenix/motorcontrol/SensorCollection.h"
+
 
 using namespace std;
 
@@ -66,3 +70,4 @@ private:
         WPI_TalonSRX * lmotor;
         WPI_TalonSRX * rmotor;
 };
+#endif

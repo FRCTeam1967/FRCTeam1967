@@ -80,9 +80,9 @@ void ClimbingMech::EnablePID(){
 
 //encoder functions
 void ClimbingMech::ResetEncoder(){
-	lmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+	lmotor ->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
 	lmotor -> SetSelectedSensorPosition(0, 0, 10);
-    rmotor ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
+    rmotor ->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
 	rmotor -> SetSelectedSensorPosition(0, 0, 10);
 }
 
@@ -247,6 +247,6 @@ void ClimbingMech::EmergencyStop(){
 
 
 void ClimbingMech::Run(){ 
-    EmergencyStop();
+    //EmergencyStop(); ---> TODO- ushoshi- implement this
     SmartDashboardComments();
 }
