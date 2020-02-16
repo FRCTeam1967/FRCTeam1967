@@ -1,7 +1,5 @@
 #include "frc/WPILib.h"
-#include "ctre/Phoenix.h"
 #include <iostream>
-#include <frc/smartdashboard/SmartDashboard.h>
 #include <frc/Filesystem.h>
 #include <frc/trajectory/TrajectoryUtil.h>
 #include <wpi/Path.h>
@@ -12,8 +10,8 @@
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
 
-#include "Constants.h"
-#include "DriveSubsystem.h"
+#include "AutoConstants.h"
+#include "AutoDriveSubsystems.h"
 #include "frc2/command/RamseteCommand.h"
 #include <frc2/command/InstantCommand.h>
 
@@ -24,12 +22,12 @@
 
 using namespace std;
 using namespace frc;
-using namespace DriveConstants;
+using namespace AutoDriveConstants;
 
 class Robot : public frc::TimedRobot {
   public:
   // declare m_drive
-  DriveSubsystem m_drive;
+  AutoDriveSubsystem m_drive;
   frc2::RamseteCommand * rc;
 
   
@@ -54,11 +52,11 @@ class Robot : public frc::TimedRobot {
     // Create a voltage constraint to ensure we don't accelerate too fast
     frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
         frc::SimpleMotorFeedforward<units::meters>(
-            DriveConstants::ks,
-            DriveConstants::kv,
-            DriveConstants::ka
+            AutoDriveConstants::ks,
+            AutoDriveConstants::kv,
+            AutoDriveConstants::ka
           ),
-          DriveConstants::kDriveKinematics,
+          AutoDriveConstants::kDriveKinematics,
           10_V
         );
 
@@ -66,7 +64,7 @@ class Robot : public frc::TimedRobot {
     // Set up config for trajectory
     frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration);
     // Add kinematics to ensure max speed is actually obeyed
-    config.SetKinematics(DriveConstants::kDriveKinematics);
+    config.SetKinematics(AutoDriveConstants::kDriveKinematics);
     // Apply the voltage constraint
     config.AddConstraint(autoVoltageConstraint);
 
@@ -79,8 +77,8 @@ class Robot : public frc::TimedRobot {
     frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
     // CREATE PID CONTROLLER
-    frc2::PIDController leftController(DriveConstants::kPDriveVel, 0,0);
-    frc2::PIDController rightController(DriveConstants::kPDriveVel, 0,0);
+    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0,0);
+    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0,0);
 
     leftController.SetTolerance(0.0);
     rightController.SetTolerance(0.0);
@@ -90,11 +88,11 @@ class Robot : public frc::TimedRobot {
       frc::RamseteController(AutoConstants::kRamseteB,
                             AutoConstants::kRamseteZeta),
       frc::SimpleMotorFeedforward<units::meters>(
-          DriveConstants::ks, DriveConstants::kv, DriveConstants::ka),
-      DriveConstants::kDriveKinematics,
+          AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
+      AutoDriveConstants::kDriveKinematics,
       [this] { return m_drive.GetWheelSpeeds(); },
-      frc2::PIDController(DriveConstants::kPDriveVel, 0, 0),
-      frc2::PIDController(DriveConstants::kPDriveVel, 0, 0),
+      frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
+      frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
       {&m_drive});
   }
