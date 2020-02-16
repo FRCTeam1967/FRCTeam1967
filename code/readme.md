@@ -63,6 +63,18 @@ Once you have created the project and set up the workspace, please follow these 
 * These steps should make sure that all of your header and source files are found by the compiler.
 * Save the `build.gradle` file, and build your project.
 
+### Workspace setup
+
+On the left pane, there are 'include' and 'classes' "folders" - these are defined in the workspace file. Unfortunately, the location of the folder is given in an absolute path which often contains a user name making it non-functional for multiple users loading workspaces. The workspace should instead have these are relative paths:
+`
+        {
+            "path": "../../classes"
+        },
+        {
+            "path": "../../include"
+        }
+`
+
 ## Common Include Problems
 
 ### Cannot find "ctre/Phoenix.h"
