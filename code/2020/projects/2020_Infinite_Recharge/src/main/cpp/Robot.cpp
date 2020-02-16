@@ -15,6 +15,7 @@
 #include "AutoSelector.h"
 #include "AutoEntry.h"
 #include "AutoSequencer.h"
+#include "IntakeMech.h"
 
 using namespace std;
 using namespace frc;
@@ -34,6 +35,10 @@ class Robot : public TimedRobot {
   bool shootingSideFront;
   ColorSensorInfiniteRecharge*sensor_fake;
   TalonFX * _talon = new TalonFX(0); //change the channel number on here and id
+  IntakeMech * intakemech;
+  WPI_VictorSPX * conveyorBeltMotor;
+  WPI_VictorSPX * bridgeMotor;
+  
 	jankyXboxJoystick * _joy;  
 	string _sb;
 	int _loops = 0;
@@ -57,6 +62,9 @@ class Robot : public TimedRobot {
     left = NULL;
     right = NULL;
     sensor_fake = NULL;
+    intakemech = NULL;
+    conveyorBeltMotor = NULL;
+    bridgeMotor = NULL;
     _joy = NULL;
   }
 
@@ -74,20 +82,25 @@ class Robot : public TimedRobot {
     delete left;
     delete right;
     delete sensor_fake;
+    delete intakemech;
+    delete conveyorBeltMotor;
+    delete bridgeMotor;
     delete _joy;
   }
   
   virtual void RobotInit() override
   {
-    // auto
+    // AUTO
     autoSelector = new AutoSelector();
     autoSelector->DisplayAutoOptions();
 
+    // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_TalonSRX(INTAKE_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(SHOOTING_RIGHT_MOTOR_CHANNEL);
     rrmotor = new WPI_VictorSPX(INTAKE_RIGHT_MOTOR_CHANNEL);
 
+    // CAMERAS
     #ifdef DRIVE_TEAM_CAM_1
       //Run drive team camera
       cs::UsbCamera driveCam1;
@@ -106,22 +119,20 @@ class Robot : public TimedRobot {
       driveCam2.GetProperty("compression").Set(100);
     #endif
 
-    // flmotor = new WPI_TalonSRX(FRONT_LEFT_MOTOR_CHANNEL);
-    // rlmotor = new WPI_VictorSPX(REAR_LEFT_MOTOR_CHANNEL);
-    // frmotor = new WPI_TalonSRX(FRONT_RIGHT_MOTOR_CHANNEL);
-    // rrmotor = new WPI_VictorSPX(REAR_RIGHT_MOTOR_CHANNEL);
+    // CHASSIS
     leftDrive = new SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new SpeedControllerGroup(*frmotor, *rrmotor);
     drive = new DifferentialDrive(*leftDrive, *rightDrive);
     left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
     right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
-    sensor_fake = new ColorSensorInfiniteRecharge();
-    _joy = new jankyXboxJoystick(2);
+
+    sensor_fake = new ColorSensorInfiniteRecharge(); // color sensor
+    _joy = new jankyXboxJoystick(2); // joystick
 
     //drive -> SetSafetyEnabled(false);
 
+    // SHOOTER
     shootingSideFront = true;
-
     _talon->ConfigFactoryDefault();
      /* first choose the sensor */
 		_talon->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, kTimeoutMs);
@@ -136,8 +147,15 @@ class Robot : public TimedRobot {
 		_talon->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
 		_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
 		_talon->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+
+    // GET VISION DATA
     SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
 	  SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
+
+    // INTAKE & CONVEYOR BELT & BRIDGE
+    intakemech = new IntakeMech(MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL);
+    conveyorBeltMotor = new WPI_VictorSPX(CONVEYOR_BELT_CHANNEL);
+    bridgeMotor = new WPI_VictorSPX(BRIDGE_CHANNEL);
   }
 
   virtual void AutonomousInit() override
@@ -161,7 +179,7 @@ class Robot : public TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
-    //Driving code
+    // CHASSIS
     #ifdef PROG_BOT
     bool drivingToggle = left -> Get10();
     #endif
@@ -171,9 +189,6 @@ class Robot : public TimedRobot {
     #endif
 
     bool buttonPressed = false;
-
-    // if (drivingToggle && !buttonPressed && shootingSideFront)
-    // //double confidence = 0.0;
 
     if (drivingToggle && shootingSideFront)
     {
@@ -199,9 +214,10 @@ class Robot : public TimedRobot {
       drive -> TankDrive(left->GetY(), right->GetY());
     }
 
-    SmartDashboard::PutNumber("left y axis", left -> GetY());
-    SmartDashboard::PutNumber("right y axis", right -> GetY());
+    //SmartDashboard::PutNumber("left y axis", left -> GetY());
+    //SmartDashboard::PutNumber("right y axis", right -> GetY());
   
+    // COLOR SENSOR
     string colorString;
     
     // COMMENTED OUT DUE TO ERRORS --> needs troubleshooting by color sensor group :)
@@ -222,6 +238,7 @@ class Robot : public TimedRobot {
 
     SmartDashboard::PutString("Color", colorString);
 
+    // SHOOTING
     /* get gamepad axis */
 		double leftYstick = _joy->GetLeftThrottle();
 		double motorOutput = _talon->GetMotorOutputPercent();
@@ -278,7 +295,52 @@ class Robot : public TimedRobot {
 
     string string = "hi";
     SmartDashboard::PutString("Color", string);
-    //SmartDashboard::PutNumber("Confidence", confidence);
+
+    //INTAKE
+    bool buttonBack = _joy -> GetButtonBack();
+    bool buttonStart = _joy -> GetButtonStart();
+    bool buttonRB = _joy -> GetButtonRB();
+    bool buttonLB = _joy -> GetButtonLB();
+
+    if(buttonBack){
+      intakemech -> RollersIn();
+    }
+    else if(buttonStart){
+      intakemech -> RollersOut(); 
+    }
+    else{
+      intakemech -> RollersStop();
+    }
+    //check with someone to see if this makes sense 
+    if(buttonLB){
+      intakemech -> MechInRobot();
+    }
+    else if(buttonRB){
+      intakemech -> MechOutRobot();
+    }
+
+    // INTAKE TO TURRET TRANSPORTATION --> for testing; will need changed by intake group
+    bool buttonX = _joy -> GetButtonX(); // conveyor belt
+    bool buttonY = _joy -> GetButtonY(); // bridge
+
+    if (buttonX) {
+      // run conveyor belt
+      conveyorBeltMotor->Set(0.6);
+    }
+    else {
+      // stop conveyor belt
+      conveyorBeltMotor->Set(0);
+    }
+
+    if (buttonY) {
+      // run bridge motor
+      conveyorBeltMotor->Set(0.6);
+    }
+    else {
+      // stop bridge motor
+      conveyorBeltMotor->Set(0);
+    }
+
   }
 
   virtual void TestPeriodic() override

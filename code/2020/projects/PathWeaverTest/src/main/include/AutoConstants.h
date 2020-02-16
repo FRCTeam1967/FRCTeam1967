@@ -5,22 +5,33 @@
 
 #pragma once
 
+#define SHOOTING_LEFT_MOTOR_CHANNEL 4
+#define INTAKE_LEFT_MOTOR_CHANNEL 0
+#define SHOOTING_RIGHT_MOTOR_CHANNEL 1
+#define INTAKE_RIGHT_MOTOR_CHANNEL 3
+
+#define CHASSIS_LEFT_ENCODER_CHANNEL 0
+#define CHASSIS_RIGHT_ENCODER_CHANNEL 1
+
+#define CHASSIS_WIDTH 0.69_m
+#define WHEEL_DIAMETER_INCHES 6
+
 namespace AutoDriveConstants {
-constexpr int kLeftMotor1Port = 0;
-constexpr int kLeftMotor2Port = 1;
-constexpr int kRightMotor1Port = 2;
-constexpr int kRightMotor2Port = 3;
+constexpr int kLeftMotor1Port = SHOOTING_LEFT_MOTOR_CHANNEL;
+constexpr int kLeftMotor2Port = INTAKE_LEFT_MOTOR_CHANNEL;
+constexpr int kRightMotor1Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
+constexpr int kRightMotor2Port = INTAKE_RIGHT_MOTOR_CHANNEL;
 
 constexpr int kLeftEncoderPorts[]{0, 1};
 constexpr int kRightEncoderPorts[]{2, 3};
 constexpr bool kLeftEncoderReversed = false;
 constexpr bool kRightEncoderReversed = true;
 
-constexpr auto kTrackwidth = 0.69_m;
+constexpr auto kTrackwidth = 0.CHASSIS_WIDTH;
 extern const frc::DifferentialDriveKinematics kDriveKinematics;
 
 constexpr int kEncoderCPR = 1024;
-constexpr double kWheelDiameterInches = 6;
+constexpr double kWheelDiameterInches = WHEEL_DIAMETER_INCHES;
 constexpr double kEncoderDistancePerPulse =
     // Assumes the encoders are directly mounted on the wheel shafts
     (kWheelDiameterInches * wpi::math::pi) / static_cast<double>(kEncoderCPR);

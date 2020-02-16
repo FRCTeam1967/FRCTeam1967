@@ -18,7 +18,7 @@
 // custom classes
 #include "AutoConstants.h"
 #include "AutoDriveSubsystems.h"
-#include "JankyPathWeaver.h"
+//#include "JankyPathWeaver.h"
 
 // NAMESPACES
 using namespace std;
@@ -27,20 +27,20 @@ using namespace AutoDriveConstants;
 
 class Robot : public frc::TimedRobot {
   public:
-  JankyPathWeaver * pathweaver;
+  //JankyPathWeaver * pathweaver;
   AutoDriveSubsystem m_drive;
   frc2::RamseteCommand * rc;
 
   //constructor
   Robot()
   {
-    pathweaver = NULL;
+    //pathweaver = NULL;
     rc = NULL;
   }
   //deconstructor
   ~Robot()
   {
-    delete pathweaver;
+    //delete pathweaver;
     delete rc;
   }
   

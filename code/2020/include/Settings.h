@@ -29,3 +29,11 @@
 #define VISION_DISTANCE "Distance to Tape"
 #define VISION_OFFSET "Offset"
 #define NO_DATA_DEFAULT -1000
+
+//Intake
+#define MOTOR_ROLL_CHANNEL 5 //change the channel accordingly 
+#define LEFT_PISTON_CHANNEL 6
+#define RIGHT_PISTON_CHANNEL 7
+//Intake to turret transportation
+#define CONVEYOR_BELT_CHANNEL 8
+#define BRIDGE_CHANNEL 9
