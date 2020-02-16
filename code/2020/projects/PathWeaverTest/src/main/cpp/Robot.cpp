@@ -1,44 +1,46 @@
-#include "frc/WPILib.h"
+//INCLUDES
 #include <iostream>
+// frc
 #include <frc/Filesystem.h>
-#include <frc/trajectory/TrajectoryUtil.h>
-#include <wpi/Path.h>
-#include <wpi/SmallString.h>
 #include "frc/kinematics/DifferentialDriveKinematics.h"
-#include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
-#include <frc/trajectory/TrajectoryConfig.h>
-#include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
-
-#include "AutoConstants.h"
-#include "AutoDriveSubsystems.h"
+#include <frc/trajectory/TrajectoryConfig.h>
+#include <frc/trajectory/TrajectoryUtil.h>
+#include <frc/trajectory/TrajectoryGenerator.h>
+#include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
+#include "frc/WPILib.h"
+//frc2
 #include "frc2/command/RamseteCommand.h"
 #include <frc2/command/InstantCommand.h>
+// wpi
+#include <wpi/Path.h>
+#include <wpi/SmallString.h>
+// custom classes
+#include "AutoConstants.h"
+#include "AutoDriveSubsystems.h"
+#include "JankyPathWeaver.h"
 
-#define SHOOTING_LEFT_MOTOR_CHANNEL 4
-#define INTAKE_LEFT_MOTOR_CHANNEL 0
-#define SHOOTING_RIGHT_MOTOR_CHANNEL 1
-#define INTAKE_RIGHT_MOTOR_CHANNEL 3
-
+// NAMESPACES
 using namespace std;
 using namespace frc;
 using namespace AutoDriveConstants;
 
 class Robot : public frc::TimedRobot {
   public:
-  // declare m_drive
+  JankyPathWeaver * pathweaver;
   AutoDriveSubsystem m_drive;
   frc2::RamseteCommand * rc;
 
-  
   //constructor
   Robot()
   {
+    pathweaver = NULL;
     rc = NULL;
   }
   //deconstructor
   ~Robot()
   {
+    delete pathweaver;
     delete rc;
   }
   

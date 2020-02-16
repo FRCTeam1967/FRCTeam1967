@@ -10,7 +10,7 @@
 #include <frc2/command/SubsystemBase.h>
 #include <units/units.h>
 
-#include "Constants.h"
+#include "AutoConstants.h"
 
 class AutoDriveSubsystem : public frc2::SubsystemBase {
  public:
