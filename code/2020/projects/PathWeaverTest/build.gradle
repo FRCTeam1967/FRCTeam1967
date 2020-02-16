@@ -60,22 +60,12 @@ model {
             sources.cpp {
                 source {
                     srcDir 'src/main/cpp'
-                    //srcDir '../../classes/'
-                    //srcDir '../../../jankyLib/classes'
-                    //srcDir '../../classes/rev'
                     srcDir '../vision/allwpilib/wpiLibNewCommands/src/main/native/cpp/'
-                    // srcDir '../vision/allwpilib/wpiLibcExamples/src/main/cpp/examples/RamseteCommand/cpp'
-                    // srcDir '../vision/allwpilib/wpiLibcExamples/src/main/cpp/examples/RamseteCommand/cpp/subsystems'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
                     srcDir 'src/main/include'
-                    //srcDir '../../include/'
-                    //srcDir '../../../jankyLib/include'
-                    //srcDir '../../include/rev'
                     srcDir '../vision/allwpilib/wpiLibNewCommands/src/main/native/include/'
-                    // srcDir '../vision/allwpilib/wpiLibcExamples/src/main/cpp/examples/RamseteCommand/include'
-                    // srcDir '../vision/allwpilib/wpiLibcExamples/src/main/cpp/examples/RamseteCommand/include/subsystems'
                     if (includeSrcInIncludeRoot) {
                         srcDir 'src/main/cpp'
                     }
