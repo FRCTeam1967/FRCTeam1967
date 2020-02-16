@@ -38,6 +38,7 @@ class Robot : public TimedRobot {
   IntakeMech * intakemech;
   WPI_VictorSPX * conveyorBeltMotor;
   WPI_VictorSPX * bridgeMotor;
+  WPI_TalonSRX * turretMotor;
   
 	jankyXboxJoystick * _joy;  
 	string _sb;
@@ -65,6 +66,7 @@ class Robot : public TimedRobot {
     intakemech = NULL;
     conveyorBeltMotor = NULL;
     bridgeMotor = NULL;
+    turretMotor = NULL;
     _joy = NULL;
   }
 
@@ -85,6 +87,7 @@ class Robot : public TimedRobot {
     delete intakemech;
     delete conveyorBeltMotor;
     delete bridgeMotor;
+    delete turretMotor;
     delete _joy;
   }
   
@@ -156,6 +159,9 @@ class Robot : public TimedRobot {
     intakemech = new IntakeMech(MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL);
     conveyorBeltMotor = new WPI_VictorSPX(CONVEYOR_BELT_CHANNEL);
     bridgeMotor = new WPI_VictorSPX(BRIDGE_CHANNEL);
+
+    // TURRET 
+    turretMotor = new WPI_TalonSRX(TURRET_MOTOR_CHANNEL);
   }
 
   virtual void AutonomousInit() override
@@ -340,6 +346,36 @@ class Robot : public TimedRobot {
       // stop bridge motor
       conveyorBeltMotor->Set(0);
     }
+
+
+    // TURRET TESTING CODE
+    // with vision
+    #ifdef TURRET_USING_VISION
+      if (offsetFromVisionTarget < LOWER_BOUND) {
+        turretMotor -> Set(0.6); // run motor to right
+      }
+      else if (offsetFromVisionTarget > UPPER_BOUND)
+      {
+        turretMotor -> Set(-0.6); // run motor to left
+      }
+      else {
+        turretMotor -> Set(0); // within bounds
+      }
+    #endif
+
+    // manual testing
+    #ifndef TURRET_USING_VISION
+      bool turretJoystick = _joy->GetLeftYAxis();
+      if (turretJoystick > 0.2) {
+        turretMotor -> Set(0.6); // run to right
+      }
+      else if (turretJoystick < -0.2) {
+        turretMotor -> Set(-0.6); // run to left
+      }
+      else {
+        turretMotor -> Set(0); //stop
+      }
+    #endif
 
   }
 

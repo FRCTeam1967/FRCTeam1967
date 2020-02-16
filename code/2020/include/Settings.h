@@ -37,3 +37,9 @@
 //Intake to turret transportation
 #define CONVEYOR_BELT_CHANNEL 8
 #define BRIDGE_CHANNEL 9
+
+// Turret
+#define TURRET_MOTOR_CHANNEL 10
+#define LOWER_BOUND -3
+#define UPPER_BOUND 3
+//#define TURRET_USING_VISION
