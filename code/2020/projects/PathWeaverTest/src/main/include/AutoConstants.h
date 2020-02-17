@@ -5,15 +5,20 @@
 
 #pragma once
 
-#define SHOOTING_LEFT_MOTOR_CHANNEL 4
-#define INTAKE_LEFT_MOTOR_CHANNEL 0
-#define SHOOTING_RIGHT_MOTOR_CHANNEL 1
-#define INTAKE_RIGHT_MOTOR_CHANNEL 3
+#define SHOOTING_LEFT_MOTOR_CHANNEL 1
+#define INTAKE_LEFT_MOTOR_CHANNEL 2
+#define SHOOTING_RIGHT_MOTOR_CHANNEL 3
+#define INTAKE_RIGHT_MOTOR_CHANNEL 4
+
+// #define FRONT_LEFT_MOTOR_CHANNEL 1
+// #define REAR_LEFT_MOTOR_CHANNEL 2
+// #define FRONT_RIGHT_MOTOR_CHANNEL 3
+// #define REAR_RIGHT_MOTOR_CHANNEL 4
 
 #define CHASSIS_LEFT_ENCODER_CHANNEL 0
 #define CHASSIS_RIGHT_ENCODER_CHANNEL 1
 
-#define CHASSIS_WIDTH 0.69_m
+#define CHASSIS_WIDTH 25.25_in //0.69_m
 #define WHEEL_DIAMETER_INCHES 6
 
 namespace AutoDriveConstants {
@@ -22,12 +27,12 @@ constexpr int kLeftMotor2Port = INTAKE_LEFT_MOTOR_CHANNEL;
 constexpr int kRightMotor1Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
 constexpr int kRightMotor2Port = INTAKE_RIGHT_MOTOR_CHANNEL;
 
-constexpr int kLeftEncoderPorts[]{0, 1};
-constexpr int kRightEncoderPorts[]{2, 3};
+//constexpr int kLeftEncoderPorts[]{0, 1};
+//constexpr int kRightEncoderPorts[]{2, 3};
 constexpr bool kLeftEncoderReversed = false;
 constexpr bool kRightEncoderReversed = true;
 
-constexpr auto kTrackwidth = 0.CHASSIS_WIDTH;
+constexpr auto kTrackwidth = CHASSIS_WIDTH;
 extern const frc::DifferentialDriveKinematics kDriveKinematics;
 
 constexpr int kEncoderCPR = 1024;
@@ -52,8 +57,8 @@ constexpr double kPDriveVel = 8.5;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 3_mps;
-constexpr auto kMaxAcceleration = 3_mps_sq;
+constexpr auto kMaxSpeed = 15_fps;
+constexpr auto kMaxAcceleration = 15_fps_sq;
 
 // Reasonable baseline values for a RAMSETE follower in units of meters and
 // seconds
@@ -64,3 +69,9 @@ constexpr double kRamseteZeta = 0.7;
 namespace OIConstants {
 constexpr int kDriverControllerPort = 1;
 }  // namespace OIConstants
+
+
+// constants for distance calculation
+#define PULSES_PER_REVOLUTION 4096
+#define WHEEL_DIAMETER 6
+#define WHEEL_CIRCUMFERENCE WHEEL_DIAMETER * wpi::math::pi

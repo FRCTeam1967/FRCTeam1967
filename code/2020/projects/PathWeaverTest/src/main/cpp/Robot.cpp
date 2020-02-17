@@ -18,12 +18,13 @@
 // custom classes
 #include "AutoConstants.h"
 #include "AutoDriveSubsystems.h"
-//#include "JankyPathWeaver.h"
+#include <ctre/Phoenix.h>
 
 // NAMESPACES
 using namespace std;
 using namespace frc;
 using namespace AutoDriveConstants;
+using namespace ctre;
 
 class Robot : public frc::TimedRobot {
   public:

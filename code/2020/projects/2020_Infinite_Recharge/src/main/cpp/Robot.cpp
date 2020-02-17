@@ -308,15 +308,15 @@ class Robot : public TimedRobot {
     bool buttonRB = _joy -> GetButtonRB();
     bool buttonLB = _joy -> GetButtonLB();
 
-    if(buttonBack){
-      intakemech -> RollersIn();
-    }
-    else if(buttonStart){
-      intakemech -> RollersOut(); 
-    }
-    else{
-      intakemech -> RollersStop();
-    }
+    // if(buttonBack){
+    //   intakemech -> RollersIn();
+    // }
+    // else if(buttonStart){
+    //   intakemech -> RollersOut(); 
+    // }
+    // else{
+    //   intakemech -> RollersStop();
+    // }
     //check with someone to see if this makes sense 
     if(buttonLB){
       intakemech -> MechInRobot();
@@ -368,18 +368,18 @@ class Robot : public TimedRobot {
     #endif
 
     // manual testing
-    #ifndef TURRET_USING_VISION
+    // #ifndef TURRET_USING_VISION
       bool turretJoystick = _joy->GetLeftYAxis();
-      if (turretJoystick > 0.2) {
+      if (buttonStart) {
         turretMotor -> Set(0.4); // run to right
       }
-      else if (turretJoystick < -0.2) {
+      else if (buttonBack) {
         turretMotor -> Set(-0.4); // run to left
       }
       else {
         turretMotor -> Set(0); //stop
       }
-    #endif
+    // #endif
 
   }
 
