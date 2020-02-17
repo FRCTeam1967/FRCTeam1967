@@ -47,11 +47,7 @@ class Robot : public frc::TimedRobot {
   
   virtual void RobotInit() override
   {
-
-  }
-
-  virtual void AutonomousInit() override
-  {
+    cout << "Creating voltage constraint" << endl;
     // Create a voltage constraint to ensure we don't accelerate too fast
     frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
         frc::SimpleMotorFeedforward<units::meters>(
@@ -63,6 +59,7 @@ class Robot : public frc::TimedRobot {
           10_V
         );
 
+    cout << "Config Trajectory" << endl;
     // CONFIG TRAJECTORY
     // Set up config for trajectory
     frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration);
@@ -72,6 +69,7 @@ class Robot : public frc::TimedRobot {
     config.AddConstraint(autoVoltageConstraint);
 
     // GET TRAJECTORY
+    cout << "Get Trajectory" << endl;
     wpi::SmallString<64> deployDirectory;
     frc::filesystem::GetDeployDirectory(deployDirectory);
     wpi::sys::path::append(deployDirectory, "paths");
@@ -79,13 +77,17 @@ class Robot : public frc::TimedRobot {
 
     frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
-    // CREATE PID CONTROLLER
+    
+    // cout << "Creating pid controller" << endl;
+    // // CREATE PID CONTROLLER
     frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0,0);
     frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0,0);
 
     leftController.SetTolerance(0.0);
     rightController.SetTolerance(0.0);
 
+    cout << "Instantiate ramsete command" << endl;
+    // INSTANTIATE RAMSETE COMMAND
     rc = new frc2::RamseteCommand(
       trajectory, [this]() { return m_drive.GetPose(); },
       frc::RamseteController(AutoConstants::kRamseteB,
@@ -100,9 +102,19 @@ class Robot : public frc::TimedRobot {
       {&m_drive});
   }
 
+  virtual void AutonomousInit() override
+  {
+
+  }
+
   virtual void AutonomousPeriodic() override
   {
+    // EXECUTE
+    cout << " " << endl;
     rc->Execute();
+    // std::move(rc),
+    //   frc2::InstantCommand([this] { m_drive.TankDriveVolts(0_V, 0_V); },
+    //   {});
   }
 
   virtual void TeleopInit() override
@@ -116,6 +128,16 @@ class Robot : public frc::TimedRobot {
   }
 
   virtual void TestPeriodic() override
+  {
+
+  }
+
+  virtual void DisabledInit() override
+  {
+
+  }
+
+  virtual void DisabledPeriodic() override
   {
 
   }

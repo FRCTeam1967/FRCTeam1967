@@ -118,16 +118,10 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
   // declared private and exposed only through public methods.
 
   // The motor controllers
-  // frc::PWMVictorSPX m_left1;
-  // frc::PWMVictorSPX m_left2;
-  // frc::PWMVictorSPX m_right1;
-  // frc::PWMVictorSPX m_right2;
   WPI_TalonSRX m_left1;
-  WPI_TalonSRX m_left2;
-  WPI_TalonSRX m_right1;
+  WPI_VictorSPX m_left2;
+  WPI_VictorSPX m_right1;
   WPI_TalonSRX m_right2;
-
-  
 
   // The motors on the left side of the drive
   frc::SpeedControllerGroup m_leftMotors{m_left1, m_left2};
@@ -137,19 +131,6 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
 
   // The robot's drive
   frc::DifferentialDrive m_drive{m_leftMotors, m_rightMotors};
-
-  // The left-side drive encoder
-  //frc::Encoder m_leftEncoder;
-  // m_left1 ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	// m_left1 -> SetSelectedSensorPosition(0, 0, 10);
-	// m_left1 -> GetSensorCollection().SetQuadraturePosition(0,10);
-
-
-  // The right-side drive encoder
-  //frc::Encoder m_rightEncoder;
-  // m_right1 ->ConfigSelectedFeedbackSensor(CTRE_MagEncoder_Absolute, 0, 0);
-	// m_right1 -> SetSelectedSensorPosition(0, 0, 10);
-	// m_right1 -> GetSensorCollection().SetQuadraturePosition(0,10);
 
   // The gyro sensor
   frc::ADXRS450_Gyro m_gyro;

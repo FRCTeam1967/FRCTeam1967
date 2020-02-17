@@ -5,41 +5,42 @@
 
 using namespace AutoDriveConstants;
 using namespace ctre;
+using namespace std;
 
 AutoDriveSubsystem::AutoDriveSubsystem()
     : m_left1{kLeftMotor1Port},
       m_left2{kLeftMotor2Port},
       m_right1{kRightMotor1Port},
       m_right2{kRightMotor2Port},
-      //m_leftEncoder{kLeftEncoderPorts[0], kLeftEncoderPorts[1]},
-      //m_rightEncoder{kRightEncoderPorts[0], kRightEncoderPorts[1]},
       m_odometry{frc::Rotation2d(units::degree_t(GetHeading()))} {
-  // Set the distance per pulse for the encoders
-  //m_leftEncoder.SetDistancePerPulse(kEncoderDistancePerPulse);
-  //m_rightEncoder.SetDistancePerPulse(kEncoderDistancePerPulse);
+
+  // configure left encoder
   m_left1.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
 	m_left1.SetSelectedSensorPosition(0, 0, 10);
 	m_left1.GetSensorCollection().SetQuadraturePosition(0,10);
 
+  // configure right encoder
   m_right2.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
 	m_right2.SetSelectedSensorPosition(0, 0, 10);
 	m_right2.GetSensorCollection().SetQuadraturePosition(0,10);
+
+  // set differential drive safety to false
+  m_drive.SetSafetyEnabled(false); 
 
   // reset time
   time = new frc::Timer();
   time -> Reset();
 
+  // reset encoders
   ResetEncoders();
 }
 
 void AutoDriveSubsystem::Periodic() {
-  // Implementation of subsystem periodic method goes here.
-  // m_odometry.Update(frc::Rotation2d(units::degree_t(GetHeading())),
-  //                   units::meter_t(m_leftEncoder.GetDistance()), // units of s
-  //                   units::meter_t(m_rightEncoder.GetDistance()));
-
   double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
   double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+
+  cout << "Left distance: " << distanceLeft << endl;
+  cout << "Right distance: " << distanceRight << endl;
   m_odometry.Update(frc::Rotation2d(units::degree_t(GetHeading())),
                     units::meter_t(distanceLeft), // QUESTION: WHY IS THIS IN METERS? :(
                     units::meter_t(distanceRight)); // QUESTION: WHY IS THIS IN METERS? :(
@@ -55,8 +56,7 @@ void AutoDriveSubsystem::TankDriveVolts(units::volt_t left, units::volt_t right)
 }
 
 void AutoDriveSubsystem::ResetEncoders() {
-  // m_leftEncoder.Reset();
-  // m_rightEncoder.Reset();
+  // reset encoders
   m_left1.GetSensorCollection().SetQuadraturePosition(0,10);
   m_right2.GetSensorCollection().SetQuadraturePosition(0,10);
 
@@ -65,45 +65,56 @@ void AutoDriveSubsystem::ResetEncoders() {
 }
 
 double AutoDriveSubsystem::GetAverageEncoderDistance() {
-  //return (m_leftEncoder.GetDistance() + m_rightEncoder.GetDistance()) / 2.0;
-  return (m_left1.GetSensorCollection().GetQuadraturePosition() + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0;
+  cout << "Average Encoder Distance: " << ((m_left1.GetSensorCollection().GetQuadraturePosition() * -1) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0 << endl; // print statement
+  return ((m_left1.GetSensorCollection().GetQuadraturePosition() * -1) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0;
 }
 
-// frc::Encoder& AutoDriveSubsystem::GetLeftEncoder() { return m_leftEncoder; }
-// frc::Encoder& AutoDriveSubsystem::GetRightEncoder() { return m_rightEncoder; }
+double AutoDriveSubsystem::GetLeftEncoder() { 
+  cout << "Left Encoder: " << (m_left1.GetSensorCollection().GetQuadraturePosition() * -1) << endl; // print statement
+  return (m_left1.GetSensorCollection().GetQuadraturePosition() * -1); 
+}
 
-double AutoDriveSubsystem::GetLeftEncoder() { return m_left1.GetSensorCollection().GetQuadraturePosition(); }
-double AutoDriveSubsystem::GetRightEncoder() { return m_right2.GetSensorCollection().GetQuadraturePosition(); }
+double AutoDriveSubsystem::GetRightEncoder() { 
+  cout << "Right Encoder: " << m_right2.GetSensorCollection().GetQuadraturePosition() << endl; // print statement
+  return m_right2.GetSensorCollection().GetQuadraturePosition(); 
+}
 
 void AutoDriveSubsystem::SetMaxOutput(double maxOutput) {
+  cout << "Max Output: " << maxOutput << endl; // print statement
   m_drive.SetMaxOutput(maxOutput);
 }
 
 double AutoDriveSubsystem::GetHeading() {
+  cout << "Heading: " << std::remainder(m_gyro.GetAngle(), 360) * (kGyroReversed ? -1.0 : 1.0) << endl; // print statement
   return std::remainder(m_gyro.GetAngle(), 360) * (kGyroReversed ? -1.0 : 1.0);
 }
 
 double AutoDriveSubsystem::GetTurnRate() {
+  cout << "Turn Rate: " << m_gyro.GetRate() * (kGyroReversed ? -1.0 : 1.0) << endl; // print statement
   return m_gyro.GetRate() * (kGyroReversed ? -1.0 : 1.0);
 }
 
-frc::Pose2d AutoDriveSubsystem::GetPose() { return m_odometry.GetPose(); }
+frc::Pose2d AutoDriveSubsystem::GetPose() { 
+  return m_odometry.GetPose(); 
+}
 
 frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
-  // return {units::meters_per_second_t(m_leftEncoder.GetRate()), // units of distance per second
-  //         units::meters_per_second_t(m_rightEncoder.GetRate())}; // units of distance per second
-
   // get distance
   double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
   double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
 
-  double t = time->Get();
+  cout << "Left distance: " << distanceLeft << endl;
+  cout << "Right distance: " << distanceRight << endl;
 
   // get time
+  double t = time->Get();
+
+  cout << "time: " << t << endl; // print statement
+
+  // get rate (divide distance by time)
   double leftRate = distanceLeft / t;
   double rightRate = distanceRight / t;
 
-  //divide distance by time
   return {units::meters_per_second_t(leftRate), // units of distance per second
           units::meters_per_second_t(rightRate)}; // units of distance per second
 }
