@@ -34,7 +34,7 @@ class Robot : public TimedRobot {
   jankyDrivestick*right;
   bool shootingSideFront;
   ColorSensorInfiniteRecharge*sensor_fake;
-  TalonFX * _talon = new TalonFX(0); //change the channel number on here and id
+  TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
   IntakeMech * intakemech;
   WPI_VictorSPX * conveyorBeltMotor;
   WPI_VictorSPX * bridgeMotor;
@@ -327,11 +327,15 @@ class Robot : public TimedRobot {
 
     // INTAKE TO TURRET TRANSPORTATION --> for testing; will need changed by intake group
     bool buttonX = _joy -> GetButtonX(); // conveyor belt
+    bool buttonB = _joy -> GetButtonB(); // conveyor belt back
     bool buttonY = _joy -> GetButtonY(); // bridge
 
     if (buttonX) {
       // run conveyor belt
-      conveyorBeltMotor->Set(0.6);
+      conveyorBeltMotor->Set(1.0);
+    }
+    else if (buttonB) {
+      conveyorBeltMotor->Set(-1.0);
     }
     else {
       // stop conveyor belt
@@ -340,11 +344,11 @@ class Robot : public TimedRobot {
 
     if (buttonY) {
       // run bridge motor
-      conveyorBeltMotor->Set(0.6);
+      bridgeMotor->Set(1.0);
     }
     else {
       // stop bridge motor
-      conveyorBeltMotor->Set(0);
+      bridgeMotor->Set(0);
     }
 
 
@@ -367,10 +371,10 @@ class Robot : public TimedRobot {
     #ifndef TURRET_USING_VISION
       bool turretJoystick = _joy->GetLeftYAxis();
       if (turretJoystick > 0.2) {
-        turretMotor -> Set(0.6); // run to right
+        turretMotor -> Set(0.4); // run to right
       }
       else if (turretJoystick < -0.2) {
-        turretMotor -> Set(-0.6); // run to left
+        turretMotor -> Set(-0.4); // run to left
       }
       else {
         turretMotor -> Set(0); //stop

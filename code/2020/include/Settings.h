@@ -2,7 +2,7 @@
 #define JANKYCHASSIS
 
 //Cameras
-//#define DRIVE_TEAM_CAM_1 //COMMENT THIS OUT IF CAMERA IS NOT ON BOT
+#define DRIVE_TEAM_CAM_1 //COMMENT THIS OUT IF CAMERA IS NOT ON BOT
 //#define DRIVE_TEAM_CAM_2 //COMMENT THIS OUT IF CAMERA IS NOT ON BOT
 
 // Ports of joysticks & sensors
@@ -31,11 +31,11 @@
 #define NO_DATA_DEFAULT -1000
 
 //Intake
-#define MOTOR_ROLL_CHANNEL 5 //change the channel accordingly 
-#define LEFT_PISTON_CHANNEL 6
-#define RIGHT_PISTON_CHANNEL 7
+#define MOTOR_ROLL_CHANNEL 6 //change the channel accordingly 
+#define LEFT_PISTON_CHANNEL 0
+#define RIGHT_PISTON_CHANNEL 1
 //Intake to turret transportation
-#define CONVEYOR_BELT_CHANNEL 8
+#define CONVEYOR_BELT_CHANNEL 2
 #define BRIDGE_CHANNEL 9
 
 // Turret
@@ -43,3 +43,6 @@
 #define LOWER_BOUND -3
 #define UPPER_BOUND 3
 //#define TURRET_USING_VISION
+
+// Shooting
+#define FLYWHEEL_CHANNEL 5
