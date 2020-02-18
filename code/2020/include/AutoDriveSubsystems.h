@@ -9,8 +9,11 @@
 #include <frc/kinematics/DifferentialDriveOdometry.h>
 #include <frc2/command/SubsystemBase.h>
 #include <units/units.h>
+#include <ctre/Phoenix.h>
 
 #include "AutoConstants.h"
+
+using namespace ctre;
 
 class AutoDriveSubsystem : public frc2::SubsystemBase {
  public:
@@ -56,14 +59,16 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
    *
    * @return the left drive encoder
    */
-  frc::Encoder& GetLeftEncoder();
+  //frc::Encoder& GetLeftEncoder();
+  double GetLeftEncoder();
 
   /**
    * Gets the right drive encoder.
    *
    * @return the right drive encoder
    */
-  frc::Encoder& GetRightEncoder();
+  //frc::Encoder& GetRightEncoder();
+  double GetRightEncoder();
 
   /**
    * Sets the max output of the drive.  Useful for scaling the drive to drive
@@ -108,15 +113,17 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
    */
   void ResetOdometry(frc::Pose2d pose);
 
+  void StopAuto();
+
  private:
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
 
   // The motor controllers
-  frc::PWMVictorSPX m_left1;
-  frc::PWMVictorSPX m_left2;
-  frc::PWMVictorSPX m_right1;
-  frc::PWMVictorSPX m_right2;
+  WPI_TalonSRX m_left1;
+  WPI_VictorSPX m_left2;
+  WPI_VictorSPX m_right1;
+  WPI_TalonSRX m_right2;
 
   // The motors on the left side of the drive
   frc::SpeedControllerGroup m_leftMotors{m_left1, m_left2};
@@ -127,15 +134,13 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
   // The robot's drive
   frc::DifferentialDrive m_drive{m_leftMotors, m_rightMotors};
 
-  // The left-side drive encoder
-  frc::Encoder m_leftEncoder;
-
-  // The right-side drive encoder
-  frc::Encoder m_rightEncoder;
-
   // The gyro sensor
   frc::ADXRS450_Gyro m_gyro;
 
   // Odometry class for tracking robot pose
   frc::DifferentialDriveOdometry m_odometry;
+
+  //Timer
+  frc::Timer * time;
+  double prevTime;
 };

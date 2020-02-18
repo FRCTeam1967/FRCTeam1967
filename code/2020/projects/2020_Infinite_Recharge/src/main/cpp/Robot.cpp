@@ -1,28 +1,52 @@
-// includes
+//INCLUDES
 #include <iostream>
-#include "Settings.h"
-#include "JankyConstants.h"
+// color sensor
+#include "rev/ColorSensorV3.h"
+// ctre
 #include "ctre/Phoenix.h"
+// frc
+#include <frc/drive/DifferentialDrive.h>
+#include <frc/Filesystem.h>
+#include "frc/kinematics/DifferentialDriveKinematics.h"
+#include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
+#include "frc/SpeedControllerGroup.h"
 #include <frc/smartdashboard/SmartDashboard.h>
+#include "frc/TimedRobot.h"
+#include <frc/trajectory/TrajectoryConfig.h>
+#include <frc/trajectory/TrajectoryUtil.h>
+#include <frc/trajectory/TrajectoryGenerator.h>
+#include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
+//frc2
+#include "frc2/command/RamseteCommand.h"
+#include <frc2/command/InstantCommand.h>
+// wpi
+#include <wpi/Path.h>
+#include <wpi/SmallString.h>
+// custom classes
+#include "AutoConstants.h"
+#include "AutoDriveSubsystems.h"
+#include "AutoSelector.h"
+#include "ColorSensorInfiniteRecharge.h"
+#include "JankyConstants.h"
+#include "IntakeMech.h"
 #include "jankyXboxJoystick.h"
 #include "jankyDrivestick.h"
-#include <frc/drive/DifferentialDrive.h>
-#include "rev/ColorSensorV3.h"
-#include "ColorSensorInfiniteRecharge.h"
-#include "frc/TimedRobot.h"
-#include "frc/SpeedControllerGroup.h"
-#include "AutoDrive.h"
-#include "AutoSelector.h"
-#include "AutoEntry.h"
-#include "AutoSequencer.h"
-#include "IntakeMech.h"
+#include "Settings.h"
 
-using namespace std;
+// NAMESPACES
+using namespace ctre;
 using namespace frc;
 using namespace rev;
+using namespace std;
+using namespace AutoDriveConstants;
+
 
 class Robot : public TimedRobot {
+  //auto
   AutoSelector*autoSelector;
+  AutoDriveSubsystem m_drive;
+  frc2::RamseteCommand * rc;
+  //chassis
   WPI_VictorSPX*flmotor;
   WPI_TalonSRX*frmotor;
   WPI_TalonSRX*rlmotor;
@@ -30,21 +54,22 @@ class Robot : public TimedRobot {
   DifferentialDrive*drive;
   SpeedControllerGroup*leftDrive;
   SpeedControllerGroup*rightDrive;
-  jankyDrivestick*left;
-  jankyDrivestick*right;
   bool shootingSideFront;
+  //control panel
   ColorSensorInfiniteRecharge*sensor_fake;
+  //shooting
   TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
   IntakeMech * intakemech;
   WPI_VictorSPX * conveyorBeltMotor;
   WPI_VictorSPX * bridgeMotor;
-  WPI_TalonSRX * turretMotor;
-  
-	jankyXboxJoystick * _joy;  
+  WPI_TalonSRX * turretMotor; 
 	string _sb;
 	int _loops = 0;
-
-
+  //joysticks
+  jankyDrivestick*left;
+  jankyDrivestick*right;
+	jankyXboxJoystick * _joy; 
+  //vision data
   float distanceToVisionTarget;
   float offsetFromVisionTarget;
 
@@ -52,7 +77,10 @@ class Robot : public TimedRobot {
   //constructor
   Robot()
   {
+    //auto
     autoSelector = NULL;
+    rc = NULL;
+    //chassis
     flmotor = NULL;
     rlmotor = NULL;
     frmotor = NULL;
@@ -60,20 +88,25 @@ class Robot : public TimedRobot {
     drive = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
-    left = NULL;
-    right = NULL;
+    //shooting
     sensor_fake = NULL;
     intakemech = NULL;
     conveyorBeltMotor = NULL;
     bridgeMotor = NULL;
     turretMotor = NULL;
+    //joysticks
     _joy = NULL;
+    left = NULL;
+    right = NULL;
   }
 
   //deconstructor
   ~Robot()
   {
+    //auto
     delete autoSelector;
+    delete rc;
+    //chassis
     delete flmotor;
     delete rlmotor;
     delete frmotor;
@@ -81,21 +114,75 @@ class Robot : public TimedRobot {
     delete drive;
     delete leftDrive;
     delete rightDrive;
-    delete left;
-    delete right;
+    //shooting
     delete sensor_fake;
     delete intakemech;
     delete conveyorBeltMotor;
     delete bridgeMotor;
     delete turretMotor;
+    //joysticks
     delete _joy;
+    delete left;
+    delete right;
   }
   
   virtual void RobotInit() override
   {
-    // AUTO
+    // AUTONOMOUS SET-UP
+    // Auto Selector
     autoSelector = new AutoSelector();
     autoSelector->DisplayAutoOptions();
+
+    // Create a voltage constraint to ensure we don't accelerate too fast
+    cout << "Creating voltage constraint" << endl;
+    frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
+        frc::SimpleMotorFeedforward<units::meters>(
+            AutoDriveConstants::ks,
+            AutoDriveConstants::kv,
+            AutoDriveConstants::ka
+          ),
+          AutoDriveConstants::kDriveKinematics,
+          10_V
+        );
+
+    // Configure trajectory
+    cout << "Config Trajectory" << endl;
+    frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration); // Set up config for trajectory
+    config.SetKinematics(AutoDriveConstants::kDriveKinematics); // Add kinematics to ensure max speed is actually obeyed
+    config.AddConstraint(autoVoltageConstraint); // Apply the voltage constraint
+
+    // Get Trajectory
+    cout << "Get Trajectory" << endl;
+    wpi::SmallString<64> deployDirectory;
+    frc::filesystem::GetDeployDirectory(deployDirectory);
+    wpi::sys::path::append(deployDirectory, "output");
+    wpi::sys::path::append(deployDirectory, "TestPath.wpilib.json");
+    frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+
+    // Create PID controller & set tolerance
+    cout << "Creating pid controller" << endl;
+    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0,0); // left
+    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0,0); // right
+    leftController.SetTolerance(0.0);
+    rightController.SetTolerance(0.0);
+
+    // Instantiate ramsete command
+    cout << "Instantiate ramsete command" << endl;
+    rc = new frc2::RamseteCommand(
+      trajectory, [this]() { return m_drive.GetPose(); },
+      frc::RamseteController(AutoConstants::kRamseteB,
+                            AutoConstants::kRamseteZeta),
+      frc::SimpleMotorFeedforward<units::meters>(
+          AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
+      AutoDriveConstants::kDriveKinematics,
+      [this] { return m_drive.GetWheelSpeeds(); },
+      frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
+      frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
+      [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
+      {&m_drive});
+
+      // Initialize ramsete command
+      rc->Initialize();
 
     // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
@@ -112,7 +199,6 @@ class Robot : public TimedRobot {
       driveCam1.SetFPS(5);
       driveCam1.GetProperty("compression").Set(100);
     #endif
-
     #ifdef DRIVE_TEAM_CAM_2
       //Run drive team camera
       cs::UsbCamera driveCam2;
@@ -132,7 +218,7 @@ class Robot : public TimedRobot {
     sensor_fake = new ColorSensorInfiniteRecharge(); // color sensor
     _joy = new jankyXboxJoystick(2); // joystick
 
-    //drive -> SetSafetyEnabled(false);
+    drive -> SetSafetyEnabled(false);
 
     // SHOOTER
     shootingSideFront = true;
@@ -166,14 +252,22 @@ class Robot : public TimedRobot {
 
   virtual void AutonomousInit() override
   {
-  
+    // Execute ramsete command
+    cout << " " << endl;
+    if(rc->IsFinished())
+    {
+      cout << "executing" << endl;
+      rc->Execute();
+    }
+    else {
+      cout << "end" << endl;
+      rc->End(true);
+      m_drive.StopAuto();
+    }
   }
 
   virtual void AutonomousPeriodic() override
   {
-    // print values
-    //autoSelector->PrintValues();
-
     // get auto mode
     autoSelector -> GetAutoMode();
   }
@@ -189,7 +283,6 @@ class Robot : public TimedRobot {
     #ifdef PROG_BOT
     bool drivingToggle = left -> Get10();
     #endif
-
     #ifdef JANKYCHASSIS
     bool drivingToggle = left -> Get10();
     #endif
@@ -219,9 +312,6 @@ class Robot : public TimedRobot {
     {
       drive -> TankDrive(left->GetY(), right->GetY());
     }
-
-    //SmartDashboard::PutNumber("left y axis", left -> GetY());
-    //SmartDashboard::PutNumber("right y axis", right -> GetY());
   
     // COLOR SENSOR
     string colorString;

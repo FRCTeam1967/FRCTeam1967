@@ -6,22 +6,28 @@
 
 #pragma once
 
-namespace AutoDriveConstants {
-constexpr int kLeftMotor1Port = 0;
-constexpr int kLeftMotor2Port = 1;
-constexpr int kRightMotor1Port = 2;
-constexpr int kRightMotor2Port = 3;
+#define CHASSIS_LEFT_ENCODER_CHANNEL 0
+#define CHASSIS_RIGHT_ENCODER_CHANNEL 1
 
-constexpr int kLeftEncoderPorts[]{0, 1};
-constexpr int kRightEncoderPorts[]{2, 3};
+#define CHASSIS_WIDTH 25.25_in //0.69_m
+#define WHEEL_DIAMETER_INCHES 6
+
+namespace AutoDriveConstants {
+constexpr int kLeftMotor1Port = SHOOTING_LEFT_MOTOR_CHANNEL;
+constexpr int kLeftMotor2Port = INTAKE_LEFT_MOTOR_CHANNEL;
+constexpr int kRightMotor1Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
+constexpr int kRightMotor2Port = INTAKE_RIGHT_MOTOR_CHANNEL;
+
+//constexpr int kLeftEncoderPorts[]{0, 1};
+//constexpr int kRightEncoderPorts[]{2, 3};
 constexpr bool kLeftEncoderReversed = false;
 constexpr bool kRightEncoderReversed = true;
 
-constexpr auto kTrackwidth = 0.69_m;
+constexpr auto kTrackwidth = CHASSIS_WIDTH;
 extern const frc::DifferentialDriveKinematics kDriveKinematics;
 
 constexpr int kEncoderCPR = 1024;
-constexpr double kWheelDiameterInches = 6;
+constexpr double kWheelDiameterInches = WHEEL_DIAMETER_INCHES;
 constexpr double kEncoderDistancePerPulse =
     // Assumes the encoders are directly mounted on the wheel shafts
     (kWheelDiameterInches * wpi::math::pi) / static_cast<double>(kEncoderCPR);
@@ -42,8 +48,8 @@ constexpr double kPDriveVel = 8.5;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 3_mps;
-constexpr auto kMaxAcceleration = 3_mps_sq;
+constexpr auto kMaxSpeed = 15_fps;
+constexpr auto kMaxAcceleration = 15_fps_sq;
 
 // Reasonable baseline values for a RAMSETE follower in units of meters and
 // seconds
@@ -54,3 +60,9 @@ constexpr double kRamseteZeta = 0.7;
 namespace OIConstants {
 constexpr int kDriverControllerPort = 1;
 }  // namespace OIConstants
+
+
+// constants for distance calculation
+#define PULSES_PER_REVOLUTION 4096
+#define WHEEL_DIAMETER 6
+#define WHEEL_CIRCUMFERENCE WHEEL_DIAMETER * wpi::math::pi

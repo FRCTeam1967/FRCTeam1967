@@ -8,10 +8,8 @@
 #include "frc/WPILib.h"
 #include "ctre/Phoenix.h"
 #include "jankyStateMachine.h"
-#include <AutoSequencer.h>
+#include "AutoSequencer.h"
 #include "AutoSettings.h"
-// #include "DriveSegment.h"
-// #include "TurnSegment.h"
 
 using namespace std;
 using namespace frc;

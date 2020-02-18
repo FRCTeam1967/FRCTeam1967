@@ -6,7 +6,6 @@
 */
 
 #include <iostream>
-#include "frc/WPILib.h"
 
 #ifndef AUTO_SELECTOR_H
 #define AUTO_SELECTOR_H
