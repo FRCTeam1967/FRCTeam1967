@@ -2,6 +2,7 @@
 #include <frc/geometry/Rotation2d.h>
 #include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
 #include <ctre/Phoenix.h>
+#include "frc2/command/RamseteCommand.h"
 
 using namespace AutoDriveConstants;
 using namespace ctre;
@@ -27,9 +28,12 @@ AutoDriveSubsystem::AutoDriveSubsystem()
   // set differential drive safety to false
   m_drive.SetSafetyEnabled(false); 
 
+  prevTime = 0;
+
   // reset time
   time = new frc::Timer();
   time -> Reset();
+  time->Start();
 
   // reset encoders
   ResetEncoders();
@@ -108,12 +112,15 @@ frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
 
   // get time
   double t = time->Get();
+  double elapsedTime = t - prevTime;
 
   cout << "time: " << t << endl; // print statement
 
   // get rate (divide distance by time)
-  double leftRate = distanceLeft / t;
-  double rightRate = distanceRight / t;
+  double leftRate = distanceLeft / elapsedTime;
+  double rightRate = distanceRight / elapsedTime;
+
+  prevTime = t;
 
   return {units::meters_per_second_t(leftRate), // units of distance per second
           units::meters_per_second_t(rightRate)}; // units of distance per second
@@ -123,4 +130,10 @@ void AutoDriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   ResetEncoders();
   m_odometry.ResetPosition(pose,
                            frc::Rotation2d(units::degree_t(GetHeading())));
+}
+
+void AutoDriveSubsystem::StopAuto() {
+  cout << "stopping subsystems" << endl;
+  time -> Stop();
+  time -> Reset();
 }

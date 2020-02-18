@@ -100,21 +100,29 @@ class Robot : public frc::TimedRobot {
       frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
       {&m_drive});
+
+      rc->Initialize();
   }
 
   virtual void AutonomousInit() override
   {
-
+      
   }
 
   virtual void AutonomousPeriodic() override
   {
     // EXECUTE
     cout << " " << endl;
-    rc->Execute();
-    // std::move(rc),
-    //   frc2::InstantCommand([this] { m_drive.TankDriveVolts(0_V, 0_V); },
-    //   {});
+    if(rc->IsFinished())
+    {
+      cout << "executing" << endl;
+      rc->Execute();
+    }
+    else {
+      cout << "end" << endl;
+      rc->End(true);
+      m_drive.StopAuto();
+    }
   }
 
   virtual void TeleopInit() override

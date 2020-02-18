@@ -113,6 +113,8 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
    */
   void ResetOdometry(frc::Pose2d pose);
 
+  void StopAuto();
+
  private:
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
@@ -140,4 +142,5 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
 
   //Timer
   frc::Timer * time;
+  double prevTime;
 };
