@@ -45,9 +45,9 @@ class HSV {
         double getVal(int lowerOrUpperBound); // Get hue value range
 
     private:
-	double hue[2] = {73, 84};
-	double sat[2] = {212, 255};
-	double val[2] = {135, 255};
+	double hue[2] = {65, 194};
+	double sat[2] = {226, 255};
+	double val[2] = {142, 175};
 };
 
 #endif /* HSV_H */

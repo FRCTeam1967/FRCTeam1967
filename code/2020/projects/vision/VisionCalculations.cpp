@@ -66,3 +66,14 @@ float VisionCalculations::returnDist(){
 int VisionCalculations::returnOffset(){
    return offsetInInches;
 }
+
+float VisionCalculations::returnVelocity(float boundRectWidth) {
+    velocity = (TAPE_WIDTH_FROM_TOP_CORNERS * FOCAL_LENGTH) * pow(boundRectWidth, -2);
+    return velocity;
+}
+
+float VisionCalculations::returnAcceleration(float boundRectWidth) {
+    acceleration = (2* TAPE_WIDTH_FROM_TOP_CORNERS * FOCAL_LENGTH) * pow(boundRectWidth, -3);
+    return acceleration;
+}
+
