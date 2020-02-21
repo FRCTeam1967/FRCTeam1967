@@ -6,15 +6,12 @@
 #include "ctre/Phoenix.h"
 // frc
 #include <frc/drive/DifferentialDrive.h>
-<<<<<<< HEAD
 #include "ColorSensorV3.h"
 #include "ColorSensorInfiniteRecharge.h"
 #include "frc/TimedRobot.h"
-=======
 #include <frc/Filesystem.h>
 #include "frc/kinematics/DifferentialDriveKinematics.h"
 #include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
->>>>>>> 03ec3211597a69f9bd337d8a3454e44eb12e2743
 #include "frc/SpeedControllerGroup.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "frc/TimedRobot.h"
@@ -477,13 +474,10 @@ class Robot : public TimedRobot {
       }
     // #endif
 
-<<<<<<< HEAD
     ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
 
     frc::SmartDashboard::PutString("Color", sensor_fake -> GetColorString(color));
     //frc::SmartDashboard::PutNumber("Confidence", confidence);
-=======
->>>>>>> 03ec3211597a69f9bd337d8a3454e44eb12e2743
   }
 
   virtual void TestPeriodic() override
