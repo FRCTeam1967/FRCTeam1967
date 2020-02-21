@@ -2,11 +2,10 @@
     AutoSelector.h
 
     Modified on: February 8, 2020
-    Authors: Maddie, Kara
+    Authors: Maddie, Kara, Angela, Sofia
 */
 
 #include <iostream>
-#include "frc/WPILib.h"
 
 #ifndef AUTO_SELECTOR_H
 #define AUTO_SELECTOR_H
@@ -24,6 +23,7 @@ class AutoSelector
         void PrintValues(); // print values of auto selector for debugging purposes
 
     private:
+    int autoMode;
 
 };
 #endif 

@@ -2,6 +2,9 @@
 #include "frc/WPILib.h"
 #include "autoDrive.h"
 
+using namespace std;
+using namespace frc;
+
 AutoDrive::AutoDrive() {
 
 }

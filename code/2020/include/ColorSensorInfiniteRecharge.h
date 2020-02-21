@@ -1,7 +1,7 @@
 #include <iostream>
 //#include "frc/WPILib.h"
-#include "rev/ColorSensorV3.h"
-#include "rev/ColorMatch.h"
+#include "ColorSensorV3.h"
+#include "ColorMatch.h"
 //#include "frc/Color.h"
 
 class ColorSensorInfiniteRecharge
@@ -18,8 +18,9 @@ class ColorSensorInfiniteRecharge
             kUnknown,
             kInvalid
         };
-        std::string ReadColor();
-        std::string ReadRawColor(double &confidence);
+        ColorSensorInfiniteRecharge::InfiniteRechargeColors ReadColor();
+        ColorSensorInfiniteRecharge::InfiniteRechargeColors ReadRawColor(double &confidence);
+        std::string GetColorString(ColorSensorInfiniteRecharge::InfiniteRechargeColors colorNum);
 
     private:
         //bool detected;
@@ -30,4 +31,5 @@ class ColorSensorInfiniteRecharge
         frc::Color kGreenTarget;
         frc::Color kRedTarget;
         frc::Color kYellowTarget;
+        
 };
