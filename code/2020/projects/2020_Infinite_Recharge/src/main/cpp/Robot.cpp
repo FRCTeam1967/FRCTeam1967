@@ -4,7 +4,7 @@
 #include "jankyXboxJoystick.h"
 #include "jankyDrivestick.h"
 #include <frc/drive/DifferentialDrive.h>
-#include "rev/ColorSensorV3.h"
+#include "ColorSensorV3.h"
 #include "ColorSensorInfiniteRecharge.h"
 #include "frc/TimedRobot.h"
 #include "frc/SpeedControllerGroup.h"
@@ -146,7 +146,9 @@ class Robot : public frc::TimedRobot {
     distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
 	  offsetFromVisionTarget = (frc::SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
 
-    frc::SmartDashboard::PutString("Color", sensor_fake -> ReadColor());
+    ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
+
+    frc::SmartDashboard::PutString("Color", sensor_fake -> GetColorString(color));
     //frc::SmartDashboard::PutNumber("Confidence", confidence);
   }
 
