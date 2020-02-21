@@ -36,7 +36,17 @@ VisionCalculations::VisionCalculations(){
 }
 
 float VisionCalculations::calculateDist(float boundRectWidth){
-   distance = (TAPE_WIDTH_FROM_TOP_CORNERS * FOCAL_LENGTH) / boundRectWidth;
+   distance = (TAPE_WIDTH_FROM_TOP_CORNERS * FOCAL_LENGTH) / boundRectWidth; //distance using focal length
+
+   //distance = (-0.0673 * boundRectWidth) + 126.1538; //distance using linear
+
+   //distance = (-0.001309 * pow(boundRectWidth, 2)) - (0.025 * boundRectWidth) + 125.9524; //distance using quadratic regression
+   //distance = distance * 2;
+
+   //distance = (-0.000083 * pow(boundRectWidth, 3)) + (0.0025 * pow(boundRectWidth, 2)) - (0.06667 * boundRectWidth) + 126; //distance using cubic regression
+
+   //distance = 126.6202 / (1 + (0.00534 * pow(2.71828, 0.04567 * boundRectWidth))); //distance using logistic regression
+
    return distance;
 }
 

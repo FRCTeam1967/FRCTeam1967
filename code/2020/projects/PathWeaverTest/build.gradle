@@ -1,7 +1,7 @@
 plugins {
     id "cpp"
     id "google-test-test-suite"
-    id "edu.wpi.first.GradleRIO" version "2020.1.2"
+    id "edu.wpi.first.GradleRIO" version "2020.2.2"
 }
 
 // Define my targets (RoboRIO) and artifacts (deployable files)
@@ -60,10 +60,12 @@ model {
             sources.cpp {
                 source {
                     srcDir 'src/main/cpp'
+                    srcDir '../vision/allwpilib/wpiLibNewCommands/src/main/native/cpp/'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
                     srcDir 'src/main/include'
+                    srcDir '../vision/allwpilib/wpiLibNewCommands/src/main/native/include/'
                     if (includeSrcInIncludeRoot) {
                         srcDir 'src/main/cpp'
                     }

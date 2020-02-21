@@ -42,18 +42,18 @@ int main(int argc, char **argv)
     // Initialize sortedContours & contourPairs vectors
     vector<Contour> sortedContours;
     vector<ContourPair> contourPairs;
-    bool sendDataToSD = false;
+
     bool printCalculations = true;
     HSV hsv = HSV();
 
     VisionCalculations calcs = VisionCalculations();
 
-    if(sendDataToSD) {
-        //Network tables send data to the roboRIO
-        NetworkTable::SetTeam(1967); //set team number
-        NetworkTable::SetClientMode();
-        NetworkTable::Initialize();
-    }
+
+    //Network tables send data to the roboRIO
+    //NetworkTable::SetTeam(1967); //set team number
+    //NetworkTable::SetClientMode();
+    //NetworkTable::Initialize();
+
     shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 
     // Checks if argument passed
@@ -190,8 +190,8 @@ int main(int argc, char **argv)
 	    if(contours.size() == 0)
 	    {
 	        cout << "Skipped a frame with zero contours" << endl;
-		vTable->PutNumber("Offset", -100);
-            	vTable->PutNumber("Distance to Tape", -1);
+		//vTable->PutNumber("Offset", -100);
+            	//vTable->PutNumber("Distance to Tape", -1);
 		continue;
 	    }
 	    calcs.calculateOffset(boundRect[c].tl().x, boundRect[c].width);
@@ -200,7 +200,11 @@ int main(int argc, char **argv)
 
 	    calcs.calculateDist(boundRect[c].width);
  	    float dist = calcs.returnDist();
-	    cout << "Dtst: " << dist << endl;
+	    cout << "Distance: " << dist << endl;
+
+	    // Send data to smart dash
+	    //vTable->PutNumber("Offset", offset);
+            //vTable->PutNumber("Distance to Tape", dist);
 
         }
 

@@ -63,12 +63,14 @@ model {
                     srcDir '../../classes'
                     srcDir '../../../jankyLib/classes'
                     srcDir '../../classes/rev'
+                    srcDir '../vision/allwpilib/wpiLibNewCommands/src/main/native/cpp/'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
                     srcDir 'src/main/include'
                     srcDir '../../include'
                     srcDir '../../../jankyLib/include'
+                    srcDir '../vision/allwpilib/wpiLibNewCommands/src/main/native/include/'
                     srcDir '../../include/rev'
                     if (includeSrcInIncludeRoot) {
                         srcDir 'src/main/cpp'
