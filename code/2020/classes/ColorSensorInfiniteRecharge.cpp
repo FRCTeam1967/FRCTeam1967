@@ -1,8 +1,8 @@
 #include <iostream>
 //#include "frc/WPILib.h"
 #include "ColorSensorInfiniteRecharge.h"
-#include "ColorSensorV3.h"
-#include "ColorMatch.h"
+#include "rev/ColorSensorV3.h"
+#include "rev/ColorMatch.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 
 //ReadColor() = returns color as an enum of colors
