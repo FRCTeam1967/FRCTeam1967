@@ -253,24 +253,27 @@ class Robot : public TimedRobot {
 
   virtual void AutonomousInit() override
   {
-    // Execute ramsete command
-    cout << " " << endl;
-    if(rc->IsFinished())
-    {
-      cout << "executing" << endl;
-      rc->Execute();
-    }
-    else {
-      cout << "end" << endl;
-      rc->End(true);
-      m_drive.StopAuto();
-    }
+    // get auto mode
+    autoSelector -> GetAutoMode();
+    rc->Execute();
   }
 
   virtual void AutonomousPeriodic() override
   {
-    // get auto mode
-    autoSelector -> GetAutoMode();
+    // Execute ramsete command
+    cout << " " << endl;
+    // if(rc->IsFinished())
+    // {
+    //   cout << "executing" << endl;
+      rc->Execute();
+      cout << "Left encoder: " << m_drive.GetLeftEncoder() << endl;
+      cout << "Right encoder: " << m_drive.GetRightEncoder() << endl;
+    // }
+    // else {
+    //   cout << "end" << endl;
+    //   rc->End(true);
+    //   m_drive.StopAuto();
+    // }
   }
 
   virtual void TeleopInit() override
