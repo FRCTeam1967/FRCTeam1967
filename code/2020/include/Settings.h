@@ -1,5 +1,7 @@
 //#define PROG_BOT  //COMMENT THIS OUT IF NOT TESTING ON PROGRAMMING BOT
 #define JANKYCHASSIS
+#define DRIVING_WITH_XBOX
+// #define DRIVING_WITH_2_JOYS
 
 //Cameras
 #define DRIVE_TEAM_CAM_1 //COMMENT THIS OUT IF CAMERA IS NOT ON BOT
@@ -8,6 +10,7 @@
 // Ports of joysticks & sensors
 #define LEFT_JOYSTICK_CHANNEL 0
 #define RIGHT_JOYSTICK_CHANNEL 1
+#define XBOX_DRIVE_CHANNEL 3
 #define COLOR_SENSOR_PORT 0x52
 
 //Chassis
@@ -25,6 +28,11 @@
 #define INTAKE_RIGHT_MOTOR_CHANNEL 3
 #endif
 
+// #define SHOOTING_LEFT_MOTOR_CHANNEL 1
+// #define INTAKE_LEFT_MOTOR_CHANNEL 2
+// #define SHOOTING_RIGHT_MOTOR_CHANNEL 3
+// #define INTAKE_RIGHT_MOTOR_CHANNEL 4
+
 // Vision
 #define VISION_DISTANCE "Distance to Tape"
 #define VISION_OFFSET "Offset"
@@ -35,11 +43,11 @@
 #define LEFT_PISTON_CHANNEL 0
 #define RIGHT_PISTON_CHANNEL 1
 //Intake to turret transportation
-#define CONVEYOR_BELT_CHANNEL 2
-#define BRIDGE_CHANNEL 9
+#define CONVEYOR_BELT_CHANNEL 7
+#define BRIDGE_CHANNEL 8
 
 // Turret
-#define TURRET_MOTOR_CHANNEL 7
+#define TURRET_MOTOR_CHANNEL 6
 #define LOWER_BOUND -3
 #define UPPER_BOUND 3
 //#define TURRET_USING_VISION
