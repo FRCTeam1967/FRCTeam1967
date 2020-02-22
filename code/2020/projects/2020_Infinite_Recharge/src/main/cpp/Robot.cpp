@@ -61,14 +61,19 @@ class Robot : public TimedRobot {
   //shooting
   TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
   IntakeMech * intakemech;
-  WPI_VictorSPX * conveyorBeltMotor;
+  WPI_TalonSRX * conveyorBeltMotor;
   WPI_VictorSPX * bridgeMotor;
   WPI_TalonSRX * turretMotor; 
 	string _sb;
 	int _loops = 0;
   //joysticks
-  jankyDrivestick*left;
-  jankyDrivestick*right;
+  #ifdef DRIVING_WITH_2_JOYS
+    jankyDrivestick*left;
+    jankyDrivestick*right;
+  #endif
+  #ifdef DRIVING_WITH_XBOX
+    jankyXboxJoystick * drivingJoy;
+  #endif
 	jankyXboxJoystick * _joy; 
   //vision data
   float distanceToVisionTarget;
@@ -97,8 +102,13 @@ class Robot : public TimedRobot {
     turretMotor = NULL;
     //joysticks
     _joy = NULL;
-    left = NULL;
-    right = NULL;
+    #ifdef DRIVING_WITH_2_JOYS
+      left = NULL;
+      right = NULL;
+    #endif
+    #ifdef DRIVING_WITH_XBOX
+      drivingJoy = NULL;
+    #endif
   }
 
   //deconstructor
@@ -123,8 +133,13 @@ class Robot : public TimedRobot {
     delete turretMotor;
     //joysticks
     delete _joy;
-    delete left;
-    delete right;
+    #ifdef DRIVING_WITH_2_JOYS
+      delete left;
+      delete right;
+    #endif
+    #ifdef DRIVING_WITH_XBOX
+      delete drivingJoy;
+    #endif
   }
   
   virtual void RobotInit() override
@@ -213,8 +228,13 @@ class Robot : public TimedRobot {
     leftDrive = new SpeedControllerGroup(*flmotor, *rlmotor);
     rightDrive = new SpeedControllerGroup(*frmotor, *rrmotor);
     drive = new DifferentialDrive(*leftDrive, *rightDrive);
-    left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
-    right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
+    #ifdef DRIVING_WITH_2_JOYS
+      left = new jankyDrivestick(LEFT_JOYSTICK_CHANNEL);
+      right = new jankyDrivestick(RIGHT_JOYSTICK_CHANNEL);
+    #endif
+    #ifdef DRIVING_WITH_XBOX
+      drivingJoy = new jankyXboxJoystick(XBOX_DRIVE_CHANNEL);
+    #endif
 
     sensor_fake = new ColorSensorInfiniteRecharge(); // color sensor
     _joy = new jankyXboxJoystick(2); // joystick
@@ -233,10 +253,10 @@ class Robot : public TimedRobot {
 		_talon->ConfigPeakOutputForward(1, kTimeoutMs);
 		_talon->ConfigPeakOutputReverse(-1, kTimeoutMs);
 		/* set closed loop gains in slot0 */
-		_talon->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
-		_talon->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+		_talon->Config_kF(kPIDLoopIdx, 0.045, kTimeoutMs);
+		_talon->Config_kP(kPIDLoopIdx, 0.0012, kTimeoutMs);
 		_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-		_talon->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+		_talon->Config_kD(kPIDLoopIdx, 0.0001, kTimeoutMs);
 
     // GET VISION DATA
     SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
@@ -244,7 +264,7 @@ class Robot : public TimedRobot {
 
     // INTAKE & CONVEYOR BELT & BRIDGE
     intakemech = new IntakeMech(MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL);
-    conveyorBeltMotor = new WPI_VictorSPX(CONVEYOR_BELT_CHANNEL);
+    conveyorBeltMotor = new WPI_TalonSRX(CONVEYOR_BELT_CHANNEL);
     bridgeMotor = new WPI_VictorSPX(BRIDGE_CHANNEL);
 
     // TURRET 
@@ -255,7 +275,6 @@ class Robot : public TimedRobot {
   {
     // get auto mode
     autoSelector -> GetAutoMode();
-    rc->Execute();
   }
 
   virtual void AutonomousPeriodic() override
@@ -264,7 +283,7 @@ class Robot : public TimedRobot {
     cout << " " << endl;
     // if(rc->IsFinished())
     // {
-    //   cout << "executing" << endl;
+      cout << "executing" << endl;
       rc->Execute();
       cout << "Left encoder: " << m_drive.GetLeftEncoder() << endl;
       cout << "Right encoder: " << m_drive.GetRightEncoder() << endl;
@@ -284,37 +303,53 @@ class Robot : public TimedRobot {
   virtual void TeleopPeriodic() override
   {
     // CHASSIS
-    #ifdef PROG_BOT
-    bool drivingToggle = left -> Get10();
-    #endif
-    #ifdef JANKYCHASSIS
-    bool drivingToggle = left -> Get10();
-    #endif
+    #ifdef DRIVING_WITH_2_JOYS
+      #ifdef PROG_BOT
+      bool drivingToggle = left -> Get10();
+      #endif
 
+      #ifdef JANKYCHASSIS
+      bool drivingToggle = left -> Get10();
+      #endif
+    #endif
+    
     bool buttonPressed = false;
 
-    if (drivingToggle && shootingSideFront)
-    {
-      shootingSideFront = false;
-      buttonPressed = true;
+    #ifdef DRIVING_WITH_2_JOYS
+      if (drivingToggle && shootingSideFront)
+      {
+        shootingSideFront = false;
+        buttonPressed = true;
+      }
+      else if(drivingToggle && !buttonPressed && !shootingSideFront)
+      {
+        shootingSideFront = true;
+        buttonPressed = true;
+      }
+      else if (!drivingToggle && buttonPressed)
+      {
+        buttonPressed = false;
     }
-    else if(drivingToggle && !buttonPressed && !shootingSideFront)
-    {
-      shootingSideFront = true;
-      buttonPressed = true;
-    }
-    else if (!drivingToggle && buttonPressed)
-    {
-      buttonPressed = false;
-    }
+    #endif
 
     if (shootingSideFront)
     {
-      drive -> TankDrive(-left->GetY(), -right->GetY());
+      #ifdef DRIVING_WITH_2_JOYS
+        drive -> TankDrive(-left->GetY(), -right->GetY());
+      #endif
+
+      #ifdef DRIVING_WITH_XBOX
+        drive -> TankDrive(-drivingJoy->GetLeftYAxis(), -drivingJoy->GetRightYAxis());
+      #endif
     }
     else if (!shootingSideFront)
     {
-      drive -> TankDrive(left->GetY(), right->GetY());
+      #ifdef DRIVING_WITH_2_JOYS
+        drive -> TankDrive(left->GetY(), right->GetY());
+      #endif
+      #ifdef DRIVING_WITH_XBOX
+        drive -> TankDrive(drivingJoy->GetLeftYAxis(), drivingJoy->GetRightYAxis());
+      #endif
     }
   
     // COLOR SENSOR
@@ -358,7 +393,7 @@ class Robot : public TimedRobot {
 			 * velocity setpoint is in units/100ms
 			 */
       button_status = "pushed";
-			targetVelocity_UnitsPer100ms = leftYstick * 5000.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
+			targetVelocity_UnitsPer100ms = 5500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
       //double targetVelocity_UnitsPer100ms = 0.75 * 500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
 			/* 500 RPM in either direction */
 			/* append more signals to print when in speed mode. */
