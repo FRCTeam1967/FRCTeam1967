@@ -29,6 +29,8 @@ class VisionCalculations { //hi
 	int calculateOffset(int boundRectLeftCorner, float boundRectWidth);
 	float returnDist();
 	int returnOffset();
+	float returnVelocity(float boundRectWidth);
+	float returnAcceleration(float boundRectWidth);
     private:
 	// variables for distance calculation
 	float distance;
@@ -47,5 +49,9 @@ class VisionCalculations { //hi
    	float pixelsToInches;
    	float tapeCenter;
    	float offsetInPixels;
+	// vars for velocity & acceleration
+	float velocity;
+	float acceleration;
+
 };
 #endif /* VISION_CALCULATIONS_H */

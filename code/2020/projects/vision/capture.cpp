@@ -50,9 +50,9 @@ int main(int argc, char **argv)
 
 
     //Network tables send data to the roboRIO
-    //NetworkTable::SetTeam(1967); //set team number
-    //NetworkTable::SetClientMode();
-    //NetworkTable::Initialize();
+    NetworkTable::SetTeam(1967); //set team number
+    NetworkTable::SetClientMode();
+    NetworkTable::Initialize();
 
     shared_ptr<NetworkTable> vTable = NetworkTable::GetTable("SmartDashboard");
 
@@ -190,8 +190,8 @@ int main(int argc, char **argv)
 	    if(contours.size() == 0)
 	    {
 	        cout << "Skipped a frame with zero contours" << endl;
-		//vTable->PutNumber("Offset", -100);
-            	//vTable->PutNumber("Distance to Tape", -1);
+		vTable->PutNumber("Offset", -1000);
+            	vTable->PutNumber("Distance to Tape", -1000);
 		continue;
 	    }
 	    calcs.calculateOffset(boundRect[c].tl().x, boundRect[c].width);
@@ -203,10 +203,20 @@ int main(int argc, char **argv)
 	    cout << "Distance: " << dist << endl;
 
 	    // Send data to smart dash
-	    //vTable->PutNumber("Offset", offset);
-            //vTable->PutNumber("Distance to Tape", dist);
+	    vTable->PutNumber("Offset", offset);
+            vTable->PutNumber("Distance to Tape", dist);
+	    vTable->PutNumber("Velocity", calcs.returnVelocity(boundRect[c].width));
+	    vTable->PutNumber("Acceleration", calcs.returnAcceleration(boundRect[c].width));
+
+	    cout << "Velocity: " << calcs.returnVelocity(boundRect[c].width) << endl;
+	    cout << "Acceleration: " << calcs.returnAcceleration(boundRect[c].width) << endl;
 
         }
+
+	if (contours.size() == 0) {
+	    vTable->PutNumber("Offset", -1000);
+            vTable->PutNumber("Distance to Tape", -1000);
+	}
 
 	// Decides whether or not to run the camera streams
         if (argPassed)
@@ -214,7 +224,7 @@ int main(int argc, char **argv)
             circle(frame, Point(0, 0), 3, Scalar(255, 0, 0), 10);
             imshow("camera feed", frame);
             imshow("filtered green", green);
-        }
+        } 
 
         frames++;
 

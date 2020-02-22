@@ -6,8 +6,6 @@
 #include "ctre/Phoenix.h"
 // frc
 #include <frc/drive/DifferentialDrive.h>
-#include "ColorSensorV3.h"
-#include "ColorSensorInfiniteRecharge.h"
 #include "frc/TimedRobot.h"
 #include <frc/Filesystem.h>
 #include "frc/kinematics/DifferentialDriveKinematics.h"
