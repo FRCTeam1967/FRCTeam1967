@@ -61,7 +61,7 @@ class Robot : public TimedRobot {
   //shooting
   TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
   IntakeMech * intakemech;
-  WPI_VictorSPX * conveyorBeltMotor;
+  WPI_TalonSRX * conveyorBeltMotor;
   WPI_VictorSPX * bridgeMotor;
   WPI_TalonSRX * turretMotor; 
 	string _sb;
@@ -233,10 +233,10 @@ class Robot : public TimedRobot {
 		_talon->ConfigPeakOutputForward(1, kTimeoutMs);
 		_talon->ConfigPeakOutputReverse(-1, kTimeoutMs);
 		/* set closed loop gains in slot0 */
-		_talon->Config_kF(kPIDLoopIdx, 0.1097, kTimeoutMs);
-		_talon->Config_kP(kPIDLoopIdx, 0.22, kTimeoutMs);
+		_talon->Config_kF(kPIDLoopIdx, 0.045, kTimeoutMs);
+		_talon->Config_kP(kPIDLoopIdx, 0.0012, kTimeoutMs);
 		_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-		_talon->Config_kD(kPIDLoopIdx, 0.0, kTimeoutMs);
+		_talon->Config_kD(kPIDLoopIdx, 0.0001, kTimeoutMs);
 
     // GET VISION DATA
     SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
@@ -244,7 +244,7 @@ class Robot : public TimedRobot {
 
     // INTAKE & CONVEYOR BELT & BRIDGE
     intakemech = new IntakeMech(MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL);
-    conveyorBeltMotor = new WPI_VictorSPX(CONVEYOR_BELT_CHANNEL);
+    conveyorBeltMotor = new WPI_TalonSRX(CONVEYOR_BELT_CHANNEL);
     bridgeMotor = new WPI_VictorSPX(BRIDGE_CHANNEL);
 
     // TURRET 
@@ -355,7 +355,7 @@ class Robot : public TimedRobot {
 			 * velocity setpoint is in units/100ms
 			 */
       button_status = "pushed";
-			targetVelocity_UnitsPer100ms = leftYstick * 5000.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
+			targetVelocity_UnitsPer100ms = 5500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
       //double targetVelocity_UnitsPer100ms = 0.75 * 500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
 			/* 500 RPM in either direction */
 			/* append more signals to print when in speed mode. */

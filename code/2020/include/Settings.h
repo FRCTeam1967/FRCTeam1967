@@ -35,11 +35,11 @@
 #define LEFT_PISTON_CHANNEL 0
 #define RIGHT_PISTON_CHANNEL 1
 //Intake to turret transportation
-#define CONVEYOR_BELT_CHANNEL 2
-#define BRIDGE_CHANNEL 9
+#define CONVEYOR_BELT_CHANNEL 7
+#define BRIDGE_CHANNEL 8
 
 // Turret
-#define TURRET_MOTOR_CHANNEL 7
+#define TURRET_MOTOR_CHANNEL 6
 #define LOWER_BOUND -3
 #define UPPER_BOUND 3
 //#define TURRET_USING_VISION
