@@ -2,6 +2,9 @@
 #include <iostream>
 // color sensor
 #include "rev/ColorSensorV3.h"
+// Camera
+#include <cscore_oo.h>
+#include <cameraserver/CameraServer.h>
 // ctre
 #include "ctre/Phoenix.h"
 // frc
@@ -303,7 +306,7 @@ class Robot : public TimedRobot {
   virtual void TeleopPeriodic() override
   {
     // CHASSIS
-    #ifdef DRIVING_WITH_2_JOYS
+#ifdef DRIVING_WITH_2_JOYS
       #ifdef PROG_BOT
       bool drivingToggle = left -> Get10();
       #endif
@@ -311,11 +314,11 @@ class Robot : public TimedRobot {
       #ifdef JANKYCHASSIS
       bool drivingToggle = left -> Get10();
       #endif
-    #endif
+#endif
     
+#ifdef DRIVING_WITH_2_JOYS
     bool buttonPressed = false;
 
-    #ifdef DRIVING_WITH_2_JOYS
       if (drivingToggle && shootingSideFront)
       {
         shootingSideFront = false;
@@ -330,7 +333,7 @@ class Robot : public TimedRobot {
       {
         buttonPressed = false;
     }
-    #endif
+#endif
 
     if (shootingSideFront)
     {
@@ -375,7 +378,7 @@ class Robot : public TimedRobot {
 
     // SHOOTING
     /* get gamepad axis */
-		double leftYstick = _joy->GetLeftThrottle();
+//		double leftYstick = _joy->GetLeftThrottle();
 		double motorOutput = _talon->GetMotorOutputPercent();
 		/* prepare line to print */
 		_sb.append("\tout:");
@@ -504,7 +507,7 @@ class Robot : public TimedRobot {
       else {
         turretMotor -> Set(0); // within bounds
       }
-    #endif
+#endif
 
     // manual testing
     // #ifndef TURRET_USING_VISION
