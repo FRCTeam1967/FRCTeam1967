@@ -112,17 +112,17 @@ class Robot : public frc::TimedRobot {
   virtual void AutonomousPeriodic() override
   {
     // EXECUTE
-    cout << " " << endl;
-    if(rc->IsFinished())
-    {
-      cout << "executing" << endl;
+    // cout << " " << endl;
+    // if(rc->IsFinished())
+    // {
+    //   cout << "executing" << endl;
       rc->Execute();
-    }
-    else {
-      cout << "end" << endl;
-      rc->End(true);
-      m_drive.StopAuto();
-    }
+    // }
+    // else {
+    //   cout << "end" << endl;
+    //   rc->End(true);
+    //   m_drive.StopAuto();
+    // }
   }
 
   virtual void TeleopInit() override

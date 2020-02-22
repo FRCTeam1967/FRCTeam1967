@@ -253,6 +253,13 @@ class Robot : public TimedRobot {
 
   virtual void AutonomousInit() override
   {
+    // get auto mode
+    autoSelector -> GetAutoMode();
+    rc->Execute();
+  }
+
+  virtual void AutonomousPeriodic() override
+  {
     // Execute ramsete command
     cout << " " << endl;
     if(rc->IsFinished())
@@ -265,12 +272,6 @@ class Robot : public TimedRobot {
       rc->End(true);
       m_drive.StopAuto();
     }
-  }
-
-  virtual void AutonomousPeriodic() override
-  {
-    // get auto mode
-    autoSelector -> GetAutoMode();
   }
 
   virtual void TeleopInit() override
