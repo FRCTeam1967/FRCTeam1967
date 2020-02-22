@@ -484,12 +484,22 @@ class Robot : public TimedRobot {
     // TURRET TESTING CODE
     // with vision
     #ifdef TURRET_USING_VISION
-      if (offsetFromVisionTarget < LOWER_BOUND) {
-        turretMotor -> Set(0.6); // run motor to right
+      if (buttonStart) {
+        turretMotor -> Set(0.4); // run to right
+      }
+      else if (buttonBack) {
+        turretMotor -> Set(-0.4); // run to left
+      }
+      else if (offsetFromVisionTarget == BAD_DATA)
+      {
+        turretMotor -> Set(0); // within bounds
+      }
+      else if (offsetFromVisionTarget < LOWER_BOUND) {
+        turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
       }
       else if (offsetFromVisionTarget > UPPER_BOUND)
       {
-        turretMotor -> Set(-0.6); // run motor to left
+        turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
       }
       else {
         turretMotor -> Set(0); // within bounds
@@ -498,16 +508,16 @@ class Robot : public TimedRobot {
 
     // manual testing
     // #ifndef TURRET_USING_VISION
-      bool turretJoystick = _joy->GetLeftYAxis();
-      if (buttonStart) {
-        turretMotor -> Set(0.4); // run to right
-      }
-      else if (buttonBack) {
-        turretMotor -> Set(-0.4); // run to left
-      }
-      else {
-        turretMotor -> Set(0); //stop
-      }
+      // bool turretJoystick = _joy->GetLeftYAxis();
+      // if (buttonStart) {
+      //   turretMotor -> Set(0.4); // run to right
+      // }
+      // else if (buttonBack) {
+      //   turretMotor -> Set(-0.4); // run to left
+      // }
+      // else {
+      //   turretMotor -> Set(0); //stop
+      // }
     // #endif
 
     ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
