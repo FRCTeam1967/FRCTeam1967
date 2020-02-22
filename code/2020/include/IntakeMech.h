@@ -1,5 +1,5 @@
 #include "Settings.h"
-#include "frc/WPILib.h"
+#include "frc/Solenoid.h"
 #include "ctre/Phoenix.h"
 #include <iostream>
 #include <jankyXboxJoystick.h>

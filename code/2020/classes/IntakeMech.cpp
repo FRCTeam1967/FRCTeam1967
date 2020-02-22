@@ -1,4 +1,3 @@
-#include "frc/WPILib.h" 
 #include <iostream> 
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "IntakeMech.h"
