@@ -1,5 +1,6 @@
 //INCLUDES
 #include <iostream>
+#include <math.h>
 // color sensor
 #include "rev/ColorSensorV3.h"
 // Camera
@@ -396,7 +397,13 @@ class Robot : public TimedRobot {
 			 * velocity setpoint is in units/100ms
 			 */
       button_status = "pushed";
-			targetVelocity_UnitsPer100ms = 5500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
+      // calculate rpm:
+      double desiredRPM = (3.7274 * distanceToVisionTarget) + 4951.4266; // linear regression
+      //double desiredRPM = (0.1099* pow(distanceToVisionTarget, 2)) - (33.1961 * distanceToVisionTarget)  + 7968.2759; // quadratic regression
+      //double desiredRPM = (0.0017 * pow(distanceToVisionTarget, 3)) - (0.7705 * pow(distanceToVisionTarget, 2)) + (112.4296 * distanceToVisionTarget) + 73.1639; // cubic regression
+      //double desiredRPM = (-5.4012 * pow(distanceToVisionTarget, 4)) + (0.0054 * pow(distanceToVisionTarget, 3)) + (-1.6742 * pow(distanceToVisionTarget, 2)) + (211.3463 * distanceToVisionTarget) - 3939.8026; // quartic regression
+
+			targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600; //change 4096 to 2048 for unit per rev
       //double targetVelocity_UnitsPer100ms = 0.75 * 500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
 			/* 500 RPM in either direction */
 			/* append more signals to print when in speed mode. */
@@ -488,19 +495,19 @@ class Robot : public TimedRobot {
     // with vision
     #ifdef TURRET_USING_VISION
       if (buttonStart) {
-        turretMotor -> Set(0.4); // run to right
+        turretMotor -> Set(0.2); // run to right
       }
       else if (buttonBack) {
-        turretMotor -> Set(-0.4); // run to left
+        turretMotor -> Set(-0.2); // run to left
       }
-      else if (offsetFromVisionTarget == BAD_DATA)
+      else if ((offsetFromVisionTarget == BAD_DATA) && (!_joy->GetButtonY()))
       {
         turretMotor -> Set(0); // within bounds
       }
-      else if (offsetFromVisionTarget < LOWER_BOUND) {
+      else if ((offsetFromVisionTarget < LOWER_BOUND) && (!_joy->GetButtonY())) {
         turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
       }
-      else if (offsetFromVisionTarget > UPPER_BOUND)
+      else if ((offsetFromVisionTarget > UPPER_BOUND) && (!_joy->GetButtonY()))
       {
         turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
       }
