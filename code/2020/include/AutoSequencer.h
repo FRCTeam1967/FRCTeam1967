@@ -5,9 +5,10 @@
  *      Author: Maddie
  */
 
-#include "frc/WPILib.h"
 #include "jankyStateMachine.h"
 #include "ctre/Phoenix.h"
+#include <frc/RobotDrive.h>
+#include <frc/ADXRS450_Gyro.h>
 #include "AutoEntry.h"
 
 #ifndef AUTO_SEQUENCER_H_

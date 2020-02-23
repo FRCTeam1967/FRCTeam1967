@@ -5,8 +5,6 @@
  *      Author: Maddie
  */
 
-#include "frc/WPILib.h"
-
 #ifndef AUTO_ENTRY_H_
 #define AUTO_ENTRY_H_
 

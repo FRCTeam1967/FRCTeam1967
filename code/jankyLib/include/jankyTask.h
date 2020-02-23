@@ -2,8 +2,6 @@
 #define JANKYTASK_H_
 #include <pthread.h>
 
-#include "frc/WPILib.h"
-
 /**
  * @author Robert Wolff - based largely on Tom Bottglieri's work from Team 254
  * @author Tom Bottglieri
