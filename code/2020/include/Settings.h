@@ -39,7 +39,7 @@
 #define NO_DATA_DEFAULT -1000
 
 //Intake
-#define MOTOR_ROLL_CHANNEL 10 //change the channel accordingly 
+#define MOTOR_ROLL_CHANNEL 2 //change the channel accordingly 
 #define LEFT_PISTON_CHANNEL 0
 #define RIGHT_PISTON_CHANNEL 1
 //Intake to turret transportation

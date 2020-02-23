@@ -346,15 +346,15 @@ class Robot : public TimedRobot {
         drive -> TankDrive(-drivingJoy->GetLeftYAxis(), -drivingJoy->GetRightYAxis());
       #endif
     }
-    else if (!shootingSideFront)
-    {
-      #ifdef DRIVING_WITH_2_JOYS
-        drive -> TankDrive(left->GetY(), right->GetY());
-      #endif
-      #ifdef DRIVING_WITH_XBOX
-        drive -> TankDrive(drivingJoy->GetLeftYAxis(), drivingJoy->GetRightYAxis());
-      #endif
-    }
+    // else if (!shootingSideFront)
+    // {
+    //   #ifdef DRIVING_WITH_2_JOYS
+    //     drive -> TankDrive(left->GetY(), right->GetY());
+    //   #endif
+    //   #ifdef DRIVING_WITH_XBOX
+    //     drive -> TankDrive(pow(drivingJoy->GetLeftYAxis(), 2), pow(drivingJoy->GetRightYAxis(), 2));
+    //   #endif
+    // }
   
     // COLOR SENSOR
     string colorString;
@@ -442,29 +442,26 @@ class Robot : public TimedRobot {
     SmartDashboard::PutString("Color", string);
 
     //INTAKE
-    bool buttonBack = _joy -> GetButtonBack();
-    bool buttonStart = _joy -> GetButtonStart();
-    bool buttonRB = _joy -> GetButtonRB();
-    bool buttonLB = _joy -> GetButtonLB();
+    bool buttonRB = _joy -> GetButtonRB(); // rollers in
+    bool buttonLB = _joy -> GetButtonLB(); // rollers out
 
-    // if(buttonBack){
-    //   intakemech -> RollersIn();
-    // }
-    // else if(buttonStart){
-    //   intakemech -> RollersOut(); 
-    // }
-    // else{
-    //   intakemech -> RollersStop();
-    // }
-    //check with someone to see if this makes sense 
-    if(buttonLB){
-      intakemech -> MechInRobot();
+    if(buttonRB){
+      intakemech -> RollersIn();
     }
-    else if(buttonRB){
-      intakemech -> MechOutRobot();
+    else if(buttonLB){
+      intakemech -> RollersOut(); 
     }
+    else{
+      intakemech -> RollersStop();
+    }
+    // if(buttonLB){
+    //   intakemech -> MechInRobot();
+    // }
+    // else if(buttonRB){
+    //   intakemech -> MechOutRobot();
+    // }
 
-    // INTAKE TO TURRET TRANSPORTATION --> for testing; will need changed by intake group
+    // INTAKE TO TURRET TRANSPORTATION
     bool buttonX = _joy -> GetButtonX(); // conveyor belt
     bool buttonB = _joy -> GetButtonB(); // conveyor belt back
     bool buttonY = _joy -> GetButtonY(); // bridge
@@ -493,6 +490,8 @@ class Robot : public TimedRobot {
 
     // TURRET TESTING CODE
     // with vision
+    bool buttonStart = _joy->GetButtonStart();
+    bool buttonBack = _joy->GetButtonBack();
     #ifdef TURRET_USING_VISION
       if (buttonStart) {
         turretMotor -> Set(0.2); // run to right
