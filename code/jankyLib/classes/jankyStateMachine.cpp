@@ -4,10 +4,10 @@
  *  Created on: Feb 15, 2014
  *      Author: Team1967
  */
-#include "frc/WPILib.h"
 #include "jankyTask.h"
 #include "jankyStateMachine.h"
 #include <string>
+#include <cstring>
 
 const char*name;
 

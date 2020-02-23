@@ -1,5 +1,4 @@
 #include <iostream>
-#include "frc/WPILib.h"
 
 #ifndef AUTO_DRIVE_H
 #define AUTO_DRIVE_H
