@@ -20,7 +20,7 @@ class ClimbingMech : public JankyTask{
 public: 
         bool isMechanismRunning;
 
-        ClimbingMech(int lMotorChannel, int rMotorChannel, int leftSolenoidChannel, int rightSolenoidChannel);
+        ClimbingMech(int lMotorChannel, int rMotorChannel, int limSwitchBottomChannel, int limSwitchTopChannel);
         virtual ~ClimbingMech(); 
         virtual void Run();
 
@@ -44,8 +44,8 @@ public:
         void EnablePID();
 
 protected:
-        bool GetleftSolenoid();
-        bool GetrightSolenoid();
+        bool GetBottomLimSwitch();
+        bool GetTopLimSwitch();
 
 private:
         void EmergencyStop(); 
@@ -59,8 +59,8 @@ private:
         double leftEncoderDistance;
         double rightEncoderDistance;
         double avgEncoderDistance;
-        bool rightSolenoidOff;
-        bool leftSolenoidOff;
+        bool bottomLimSwitchHasNotBeenPressed;
+        bool topLimSwitchHasNotBeenPressed;
         string setHeight;
         string controlMode;
 

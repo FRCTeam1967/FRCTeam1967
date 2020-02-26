@@ -6,16 +6,16 @@
 #define L_MOTOR_R_SPEED -1.0
 #endif
 #define MOTOR_STOP_SPEED 0.0
-#define UD_PULSES_PER_REVOLUTION 4096
-#define UD_CIRCUMFERENCE 1 //no idea what the circumference actually is- I just put a random number- TODO
-#define GEAR_RATIO 1 //this is also a random number TODO
-#define THIRD_STAGE_PRESENT 1 //also random number-TODO
+#define UD_PULSES_PER_REVOLUTION 4096 //UD means up and down (just ignore it when programming)
+#define UD_CIRCUMFERENCE 4.5314 //circumference of the sprocket
+#define GEAR_RATIO 20 //the ratio is 20 to 1
+#define THIRD_STAGE_PRESENT 1 //they don;t have a third stage so we just kept this as 1
 
 
 //preset height measurements in inches 
 #define INCHES_OFF_GROUND 2.0
 #define GROUND_HEIGHT 0.0 - INCHES_OFF_GROUND 
-//#define BALL_HEIGHT 19 - INCHES_OFF_GROUND
+//#define BALL_HEIGHT 19 - INCHES_OFF_GROUND (this is from 2019's game)
 #define HIGHEST_HEIGHT 78.875 - INCHES_OFF_GROUND 
 #define LEVEL_HEIGHT 63.0 - INCHES_OFF_GROUND
 
@@ -34,7 +34,7 @@
 #define K_I 0.0
 #define K_D 0.0
 
-ClimbingMech::ClimbingMech(int lMotorChannel, int rMotorChannel, int rightSolenoidChannel, int leftSolenoidChannel) {
+ClimbingMech::ClimbingMech(int lMotorChannel, int rMotorChannel, int limSwitchBottomChannel, int limSwitchTopChannel) {
     kTimeoutMs = 50;
     kPIDLoopIdx = 0;
     lmotor = new WPI_TalonSRX(lMotorChannel);
@@ -61,10 +61,10 @@ ClimbingMech::ClimbingMech(int lMotorChannel, int rMotorChannel, int rightSoleno
     rmotor -> Set(ControlMode::Follower, lMotorChannel);
 
     //lim switches
-    /*
+    
     lmotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
 	lmotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
-    */
+    
 }
 
 ClimbingMech::~ClimbingMech(){
@@ -141,7 +141,7 @@ void ClimbingMech::ClimbingMotorStop(){
 }
 
 // lim switch values
-/*
+
 bool ClimbingMech::GetBottomLimSwitch(){
     return lmotor->GetSensorCollection().IsFwdLimitSwitchClosed();
 }
@@ -149,7 +149,7 @@ bool ClimbingMech::GetBottomLimSwitch(){
 bool ClimbingMech::GetTopLimSwitch(){
     return lmotor->GetSensorCollection().IsRevLimitSwitchClosed();
     }
-    */
+    
 
 
 //preset heights 
@@ -214,15 +214,15 @@ void ClimbingMech::StartUpInit(){
     desiredHeight = 0;
     desiredHeightPulses = 0;
 
-    //bottomLimSwitchHasNotBeenPressed = true;
-    //topLimSwitchHasNotBeenPressed = true;
+    bottomLimSwitchHasNotBeenPressed = true;
+    topLimSwitchHasNotBeenPressed = true;
 }
 
 //estop if lim switch triggered
-/*
+
 void ClimbingMech::EmergencyStop(){
     if ((GetBottomLimSwitch()==true) && bottomLimSwitchHasNotBeenPressed) {
-		ElevatorMotorStop();
+		ClimbingMotorStop();
 		isMechanismRunning = false;
 		ResetEncoder();
         printf("Bottom limit switch pressed\n");
@@ -243,10 +243,10 @@ void ClimbingMech::EmergencyStop(){
 		topLimSwitchHasNotBeenPressed = true;
     }
     }
-    */
+    
 
 
 void ClimbingMech::Run(){ 
-    //EmergencyStop(); ---> TODO- ushoshi- implement this
+    EmergencyStop(); 
     SmartDashboardComments();
 }
