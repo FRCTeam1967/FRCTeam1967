@@ -5,7 +5,8 @@
  *      Author: Maddie
  */
 
-#include "frc/WPILib.h"
+#include <frc/RobotDrive.h>
+#include <frc/smartdashboard/SmartDashboard.h>
 #include "ctre/Phoenix.h"
 #include "jankyStateMachine.h"
 #include "AutoSequencer.h"

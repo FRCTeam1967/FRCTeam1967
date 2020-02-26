@@ -1,7 +1,11 @@
 //INCLUDES
 #include <iostream>
+#include <math.h>
 // color sensor
 #include "rev/ColorSensorV3.h"
+// Camera
+#include <cscore_oo.h>
+#include <cameraserver/CameraServer.h>
 // ctre
 #include "ctre/Phoenix.h"
 // frc
@@ -303,7 +307,7 @@ class Robot : public TimedRobot {
   virtual void TeleopPeriodic() override
   {
     // CHASSIS
-    #ifdef DRIVING_WITH_2_JOYS
+#ifdef DRIVING_WITH_2_JOYS
       #ifdef PROG_BOT
       bool drivingToggle = left -> Get10();
       #endif
@@ -311,11 +315,11 @@ class Robot : public TimedRobot {
       #ifdef JANKYCHASSIS
       bool drivingToggle = left -> Get10();
       #endif
-    #endif
+#endif
     
+#ifdef DRIVING_WITH_2_JOYS
     bool buttonPressed = false;
 
-    #ifdef DRIVING_WITH_2_JOYS
       if (drivingToggle && shootingSideFront)
       {
         shootingSideFront = false;
@@ -330,7 +334,7 @@ class Robot : public TimedRobot {
       {
         buttonPressed = false;
     }
-    #endif
+#endif
 
     if (shootingSideFront)
     {
@@ -342,15 +346,15 @@ class Robot : public TimedRobot {
         drive -> TankDrive(-drivingJoy->GetLeftYAxis(), -drivingJoy->GetRightYAxis());
       #endif
     }
-    else if (!shootingSideFront)
-    {
-      #ifdef DRIVING_WITH_2_JOYS
-        drive -> TankDrive(left->GetY(), right->GetY());
-      #endif
-      #ifdef DRIVING_WITH_XBOX
-        drive -> TankDrive(drivingJoy->GetLeftYAxis(), drivingJoy->GetRightYAxis());
-      #endif
-    }
+    // else if (!shootingSideFront)
+    // {
+    //   #ifdef DRIVING_WITH_2_JOYS
+    //     drive -> TankDrive(left->GetY(), right->GetY());
+    //   #endif
+    //   #ifdef DRIVING_WITH_XBOX
+    //     drive -> TankDrive(pow(drivingJoy->GetLeftYAxis(), 2), pow(drivingJoy->GetRightYAxis(), 2));
+    //   #endif
+    // }
   
     // COLOR SENSOR
     string colorString;
@@ -375,7 +379,7 @@ class Robot : public TimedRobot {
 
     // SHOOTING
     /* get gamepad axis */
-		double leftYstick = _joy->GetLeftThrottle();
+//		double leftYstick = _joy->GetLeftThrottle();
 		double motorOutput = _talon->GetMotorOutputPercent();
 		/* prepare line to print */
 		_sb.append("\tout:");
@@ -393,7 +397,13 @@ class Robot : public TimedRobot {
 			 * velocity setpoint is in units/100ms
 			 */
       button_status = "pushed";
-			targetVelocity_UnitsPer100ms = 5500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
+      // calculate rpm:
+      double desiredRPM = (3.7274 * distanceToVisionTarget) + 4951.4266; // linear regression
+      //double desiredRPM = (0.1099* pow(distanceToVisionTarget, 2)) - (33.1961 * distanceToVisionTarget)  + 7968.2759; // quadratic regression
+      //double desiredRPM = (0.0017 * pow(distanceToVisionTarget, 3)) - (0.7705 * pow(distanceToVisionTarget, 2)) + (112.4296 * distanceToVisionTarget) + 73.1639; // cubic regression
+      //double desiredRPM = (-5.4012 * pow(distanceToVisionTarget, 4)) + (0.0054 * pow(distanceToVisionTarget, 3)) + (-1.6742 * pow(distanceToVisionTarget, 2)) + (211.3463 * distanceToVisionTarget) - 3939.8026; // quartic regression
+
+			targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600; //change 4096 to 2048 for unit per rev
       //double targetVelocity_UnitsPer100ms = 0.75 * 500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
 			/* 500 RPM in either direction */
 			/* append more signals to print when in speed mode. */
@@ -432,29 +442,26 @@ class Robot : public TimedRobot {
     SmartDashboard::PutString("Color", string);
 
     //INTAKE
-    bool buttonBack = _joy -> GetButtonBack();
-    bool buttonStart = _joy -> GetButtonStart();
-    bool buttonRB = _joy -> GetButtonRB();
-    bool buttonLB = _joy -> GetButtonLB();
+    bool buttonRB = _joy -> GetButtonRB(); // rollers in
+    bool buttonLB = _joy -> GetButtonLB(); // rollers out
 
-    // if(buttonBack){
-    //   intakemech -> RollersIn();
-    // }
-    // else if(buttonStart){
-    //   intakemech -> RollersOut(); 
-    // }
-    // else{
-    //   intakemech -> RollersStop();
-    // }
-    //check with someone to see if this makes sense 
-    if(buttonLB){
-      intakemech -> MechInRobot();
+    if(buttonRB){
+      intakemech -> RollersIn();
     }
-    else if(buttonRB){
-      intakemech -> MechOutRobot();
+    else if(buttonLB){
+      intakemech -> RollersOut(); 
     }
+    else{
+      intakemech -> RollersStop();
+    }
+    // if(buttonLB){
+    //   intakemech -> MechInRobot();
+    // }
+    // else if(buttonRB){
+    //   intakemech -> MechOutRobot();
+    // }
 
-    // INTAKE TO TURRET TRANSPORTATION --> for testing; will need changed by intake group
+    // INTAKE TO TURRET TRANSPORTATION
     bool buttonX = _joy -> GetButtonX(); // conveyor belt
     bool buttonB = _joy -> GetButtonB(); // conveyor belt back
     bool buttonY = _joy -> GetButtonY(); // bridge
@@ -483,31 +490,43 @@ class Robot : public TimedRobot {
 
     // TURRET TESTING CODE
     // with vision
+    bool buttonStart = _joy->GetButtonStart();
+    bool buttonBack = _joy->GetButtonBack();
     #ifdef TURRET_USING_VISION
-      if (offsetFromVisionTarget < LOWER_BOUND) {
-        turretMotor -> Set(0.6); // run motor to right
+      if (buttonStart) {
+        turretMotor -> Set(0.2); // run to right
       }
-      else if (offsetFromVisionTarget > UPPER_BOUND)
+      else if (buttonBack) {
+        turretMotor -> Set(-0.2); // run to left
+      }
+      else if ((offsetFromVisionTarget == BAD_DATA) && (!_joy->GetButtonY()))
       {
-        turretMotor -> Set(-0.6); // run motor to left
+        turretMotor -> Set(0); // within bounds
+      }
+      else if ((offsetFromVisionTarget < LOWER_BOUND) && (!_joy->GetButtonY())) {
+        turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
+      }
+      else if ((offsetFromVisionTarget > UPPER_BOUND) && (!_joy->GetButtonY()))
+      {
+        turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
       }
       else {
         turretMotor -> Set(0); // within bounds
       }
-    #endif
+#endif
 
     // manual testing
     // #ifndef TURRET_USING_VISION
-      bool turretJoystick = _joy->GetLeftYAxis();
-      if (buttonStart) {
-        turretMotor -> Set(0.4); // run to right
-      }
-      else if (buttonBack) {
-        turretMotor -> Set(-0.4); // run to left
-      }
-      else {
-        turretMotor -> Set(0); //stop
-      }
+      // bool turretJoystick = _joy->GetLeftYAxis();
+      // if (buttonStart) {
+      //   turretMotor -> Set(0.4); // run to right
+      // }
+      // else if (buttonBack) {
+      //   turretMotor -> Set(-0.4); // run to left
+      // }
+      // else {
+      //   turretMotor -> Set(0); //stop
+      // }
     // #endif
 
     ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();

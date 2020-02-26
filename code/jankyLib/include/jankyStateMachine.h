@@ -8,7 +8,6 @@
 #define _JANKYSTATEMACHINE_H
 #include "jankyTask.h"
 #include <string>
-#include "frc/WPILib.h"
 #define MAX_NAMES 32
 #define MAX_NAME_LENGTH 32
 
