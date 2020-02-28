@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "."
+		},
+		{
+			"path": "/Users/ushoshi.b/FRCTeam1967/code/2020/classes"
+		},
+		{
+			"path": "/Users/ushoshi.b/FRCTeam1967/code/2020/include"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "disabled",
+		"java.import.gradle.enabled": false
+	}
+}
