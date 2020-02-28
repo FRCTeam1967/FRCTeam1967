@@ -37,6 +37,7 @@
 #include "jankyXboxJoystick.h"
 #include "jankyDrivestick.h"
 #include "Settings.h"
+#include "JankyPathWeaver.h"
 
 // NAMESPACES
 using namespace ctre;

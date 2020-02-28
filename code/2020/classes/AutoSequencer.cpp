@@ -27,6 +27,7 @@ float drive_kD = 0.0;
 int c;
 
 AutoSequencer::AutoSequencer(RobotDrive*drive, ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor) { //add shooter as a parameter later
+	SetMachineName("JankyAutoSequencer");
 }
 
 AutoSequencer::~AutoSequencer() {
