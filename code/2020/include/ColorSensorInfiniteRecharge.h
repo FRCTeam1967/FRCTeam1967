@@ -1,8 +1,8 @@
 #include <iostream>
-//#include "frc/WPILib.h"
+#include "frc/WPILib.h"
 #include "rev/ColorSensorV3.h"
 #include "rev/ColorMatch.h"
-//#include "frc/Color.h"
+#include "frc/util/Color.h"
 
 class ColorSensorInfiniteRecharge
 {
