@@ -12,8 +12,8 @@
 #ifndef _JANKYXBOXJOYSTICK_H
 #define _JANKYXBOXJOYSTICK_H
 
-#include "frc/WPILib.h"
-//#include "frc/Joystick.h"
+// Do NOT include this global header file. Include only what you need. --Mentor-Bob: #include "frc/WPILib.h"
+#include "frc/Joystick.h"
 
 #define BUTTON_A_PORT 1
 #define BUTTON_B_PORT 2

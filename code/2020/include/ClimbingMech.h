@@ -2,7 +2,7 @@
 #define CLIMBING_MECH_H
 
 #include "Settings.h"
-#include "frc/WPILib.h" 
+// Do NOT include this global header file. Include only what you need. --Mentor-Bob: #include "frc/WPILib.h"
 #include "jankyTask.h"
 #include "ctre/Phoenix.h"
 #include <iostream> 
