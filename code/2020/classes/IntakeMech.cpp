@@ -15,8 +15,8 @@ using namespace ctre;
 
 IntakeMech::IntakeMech(int motorRollChannel,int leftPistonChannel,int rightPistonChannel){
   motorRoll = new WPI_VictorSPX(motorRollChannel);
-  leftPiston = new Solenoid(10, leftPistonChannel); //10 is a questionable value 
-  rightPiston = new Solenoid(10, rightPistonChannel);
+  leftPiston = new Solenoid(12, leftPistonChannel); //10 is a questionable value 
+  rightPiston = new Solenoid(12, rightPistonChannel);
 }
 IntakeMech::~IntakeMech(){
   delete motorRoll;

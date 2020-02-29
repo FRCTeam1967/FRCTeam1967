@@ -435,9 +435,9 @@ class Robot : public TimedRobot {
     // Set distance & offset --> to give to turret & shooter
     distanceToVisionTarget = SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
 	  offsetFromVisionTarget = (SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
-    cout << "Distance to vision target: " << distanceToVisionTarget << endl;
-    cout << "offset: " << offsetFromVisionTarget << endl;
-    cout << endl;
+    //cout << "Distance to vision target: " << distanceToVisionTarget << endl;
+    //cout << "offset: " << offsetFromVisionTarget << endl;
+    //cout << endl;
 
     string string = "hi";
     SmartDashboard::PutString("Color", string);
