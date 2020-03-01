@@ -45,6 +45,8 @@ void AutoDriveSubsystem::Periodic() {
 
   cout << "Left distance: " << distanceLeft << endl;
   cout << "Right distance: " << distanceRight << endl;
+  cout << "Gyro: " << m_gyro.GetAngle() << endl;
+  cout << " " << endl;
   m_odometry.Update(frc::Rotation2d(units::degree_t(GetHeading())),
                     units::meter_t(distanceLeft), // QUESTION: WHY IS THIS IN METERS? :(
                     units::meter_t(distanceRight)); // QUESTION: WHY IS THIS IN METERS? :(
@@ -69,13 +71,15 @@ void AutoDriveSubsystem::ResetEncoders() {
 }
 
 double AutoDriveSubsystem::GetAverageEncoderDistance() {
-  cout << "Average Encoder Distance: " << ((m_left1.GetSensorCollection().GetQuadraturePosition() * -1) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0 << endl; // print statement
-  return ((m_left1.GetSensorCollection().GetQuadraturePosition() * -1) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0;
+  cout << "Average Encoder Distance: " << ((m_left1.GetSensorCollection().GetQuadraturePosition()) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0 << endl; // print statement
+  return ((m_left1.GetSensorCollection().GetQuadraturePosition()) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0;
 }
 
 double AutoDriveSubsystem::GetLeftEncoder() { 
-  cout << "Left Encoder: " << (m_left1.GetSensorCollection().GetQuadraturePosition() * -1) << endl; // print statement
-  return (m_left1.GetSensorCollection().GetQuadraturePosition() * -1); 
+  cout << "Left Encoder: " << (m_left1.GetSensorCollection().GetQuadraturePosition()) << endl; // print statement
+  cout << "Gyro: " << m_gyro.GetAngle() << endl;
+  cout << " " << endl;
+  return (m_left1.GetSensorCollection().GetQuadraturePosition()); 
 }
 
 double AutoDriveSubsystem::GetRightEncoder() { 
@@ -130,6 +134,7 @@ void AutoDriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   ResetEncoders();
   m_odometry.ResetPosition(pose,
                            frc::Rotation2d(units::degree_t(GetHeading())));
+
 }
 
 void AutoDriveSubsystem::StopAuto() {

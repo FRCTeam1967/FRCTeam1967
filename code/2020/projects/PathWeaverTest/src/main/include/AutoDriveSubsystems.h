@@ -135,7 +135,7 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
   frc::DifferentialDrive m_drive{m_leftMotors, m_rightMotors};
 
   // The gyro sensor
-  frc::ADXRS450_Gyro m_gyro;
+  frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};
 
   // Odometry class for tracking robot pose
   frc::DifferentialDriveOdometry m_odometry;

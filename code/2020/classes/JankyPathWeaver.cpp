@@ -3,23 +3,28 @@
 #include <wpi/Path.h>
 #include <wpi/SmallString.h>
 #include <frc/trajectory/TrajectoryConfig.h>
-#include "AutoConstants.h"
-#include "AutoDriveSubsystems.h"
 #include <frc/trajectory/TrajectoryUtil.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
 #include "frc/kinematics/DifferentialDriveKinematics.h"
 #include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
-#include "JankyPathweaver.h"
 #include "frc2/command/RamseteCommand.h"
+// our header files
+#include "AutoConstants.h"
+#include "AutoDriveSubsystems.h"
 #include "AutoSettings.h"
+#include "AutoDriveSubsystems.h"
+#include "JankyPathWeaver.h"
+#include "AutoEntry.h"
 
 using namespace AutoDriveConstants;
 using namespace frc;
 using namespace frc2;
 
-JankyPathWeaver::JankyPathWeaver() {
-
+JankyPathWeaver::JankyPathWeaver(AutoDriveSubsystem * driveSubsystem, int autoMode) {
+    m_drive = driveSubsystem;
+    trajectory = GeneratePath(autoMode);
+    //rc = GetRamsetteCommand();
 }
 
 JankyPathWeaver::~JankyPathWeaver() {
@@ -159,13 +164,11 @@ frc::Trajectory JankyPathWeaver::GeneratePath(int autoMode) {
     wpi::sys::path::append(deployDirectory, pathName);
 
     // get trajectory
-    frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
-    return trajectory;
+    frc::Trajectory t = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+    return t;
 }
 
-// frc2::RamseteCommand JankyPathWeaver::GetRamsetteCommand(frc::Trajectory traj) {
-//     AutoDriveSubsystem m_drive;
-
+// frc2::RamseteCommand JankyPathWeaver::GetRamsetteCommand() {
 //     // CREATE PID CONTROLLER
 //     frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0,0);
 //     frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0,0);
@@ -174,7 +177,7 @@ frc::Trajectory JankyPathWeaver::GeneratePath(int autoMode) {
 //     rightController.SetTolerance(0.0);
 
 //     frc2::RamseteCommand ramseteCommand(
-//       traj, [this]() { return m_drive.GetPose(); },
+//       trajectory, [this]() { return m_drive.GetPose(); },
 //       frc::RamseteController(AutoConstants::kRamseteB,
 //                             AutoConstants::kRamseteZeta),
 //       frc::SimpleMotorFeedforward<units::meters>(
@@ -189,3 +192,22 @@ frc::Trajectory JankyPathWeaver::GeneratePath(int autoMode) {
 //       return ramseteCommand;
 // }
 
+void JankyPathWeaver::Start()
+{
+    //rc.Execute();
+}
+
+bool JankyPathWeaver::JobDone()
+{
+    return true; //(rc.IsFinished());
+}
+
+void JankyPathWeaver::RunAction()
+{
+
+}
+
+void JankyPathWeaver::End()
+{
+
+}

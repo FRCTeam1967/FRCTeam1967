@@ -5,27 +5,22 @@
 
 #pragma once
 
-#define SHOOTING_LEFT_MOTOR_CHANNEL 1
-#define INTAKE_LEFT_MOTOR_CHANNEL 2
-#define SHOOTING_RIGHT_MOTOR_CHANNEL 3
-#define INTAKE_RIGHT_MOTOR_CHANNEL 4
+#define SHOOTING_LEFT_MOTOR_CHANNEL 4
+#define INTAKE_LEFT_MOTOR_CHANNEL 0
+#define SHOOTING_RIGHT_MOTOR_CHANNEL 1
+#define INTAKE_RIGHT_MOTOR_CHANNEL 3
 
-// #define FRONT_LEFT_MOTOR_CHANNEL 1
-// #define REAR_LEFT_MOTOR_CHANNEL 2
-// #define FRONT_RIGHT_MOTOR_CHANNEL 3
-// #define REAR_RIGHT_MOTOR_CHANNEL 4
-
-#define CHASSIS_LEFT_ENCODER_CHANNEL 0
-#define CHASSIS_RIGHT_ENCODER_CHANNEL 1
+#define CHASSIS_LEFT_ENCODER_CHANNEL 1
+#define CHASSIS_RIGHT_ENCODER_CHANNEL 0
 
 #define CHASSIS_WIDTH 25.25_in //0.69_m
 #define WHEEL_DIAMETER_INCHES 6
 
 namespace AutoDriveConstants {
-constexpr int kLeftMotor1Port = SHOOTING_LEFT_MOTOR_CHANNEL;
-constexpr int kLeftMotor2Port = INTAKE_LEFT_MOTOR_CHANNEL;
-constexpr int kRightMotor1Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
-constexpr int kRightMotor2Port = INTAKE_RIGHT_MOTOR_CHANNEL;
+constexpr int kLeftMotor1Port = INTAKE_LEFT_MOTOR_CHANNEL;
+constexpr int kLeftMotor2Port = SHOOTING_LEFT_MOTOR_CHANNEL;
+constexpr int kRightMotor1Port = INTAKE_RIGHT_MOTOR_CHANNEL;
+constexpr int kRightMotor2Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
 
 //constexpr int kLeftEncoderPorts[]{0, 1};
 //constexpr int kRightEncoderPorts[]{2, 3};
@@ -57,8 +52,8 @@ constexpr double kPDriveVel = 8.5;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 15_fps;
-constexpr auto kMaxAcceleration = 15_fps_sq;
+constexpr auto kMaxSpeed = 5_fps;
+constexpr auto kMaxAcceleration = 5_fps_sq;
 
 // Reasonable baseline values for a RAMSETE follower in units of meters and
 // seconds

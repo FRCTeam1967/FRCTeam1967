@@ -69,13 +69,15 @@ void AutoDriveSubsystem::ResetEncoders() {
 }
 
 double AutoDriveSubsystem::GetAverageEncoderDistance() {
-  cout << "Average Encoder Distance: " << ((m_left1.GetSensorCollection().GetQuadraturePosition() * -1) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0 << endl; // print statement
-  return ((m_left1.GetSensorCollection().GetQuadraturePosition() * -1) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0;
+  cout << "Average Encoder Distance: " << ((m_left1.GetSensorCollection().GetQuadraturePosition()) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0 << endl; // print statement
+  return ((m_left1.GetSensorCollection().GetQuadraturePosition()) + m_right2.GetSensorCollection().GetQuadraturePosition()) / 2.0;
 }
 
 double AutoDriveSubsystem::GetLeftEncoder() { 
-  cout << "Left Encoder: " << (m_left1.GetSensorCollection().GetQuadraturePosition() * -1) << endl; // print statement
-  return (m_left1.GetSensorCollection().GetQuadraturePosition() * -1); 
+  cout << "Left Encoder: " << (m_left1.GetSensorCollection().GetQuadraturePosition()) << endl; // print statement
+  cout << "Gyro: " << m_gyro.GetAngle() << endl;
+  cout << " " << endl;
+  return (m_left1.GetSensorCollection().GetQuadraturePosition()); 
 }
 
 double AutoDriveSubsystem::GetRightEncoder() { 
@@ -89,16 +91,17 @@ void AutoDriveSubsystem::SetMaxOutput(double maxOutput) {
 }
 
 double AutoDriveSubsystem::GetHeading() {
-  cout << "Heading: " << std::remainder(m_gyro.GetAngle(), 360) * (kGyroReversed ? -1.0 : 1.0) << endl; // print statement
-  return std::remainder(m_gyro.GetAngle(), 360) * (kGyroReversed ? -1.0 : 1.0);
+  cout << "Heading: " << std::remainder(-(m_gyro.GetAngle()), 360) * (kGyroReversed ? -1.0 : 1.0) << endl; // print statement
+  return std::remainder(-(m_gyro.GetAngle()), 360) * (kGyroReversed ? -1.0 : 1.0);
 }
 
 double AutoDriveSubsystem::GetTurnRate() {
-  cout << "Turn Rate: " << m_gyro.GetRate() * (kGyroReversed ? -1.0 : 1.0) << endl; // print statement
-  return m_gyro.GetRate() * (kGyroReversed ? -1.0 : 1.0);
+  cout << "Turn Rate: " << -(m_gyro.GetRate()) * (kGyroReversed ? -1.0 : 1.0) << endl; // print statement
+  return -(m_gyro.GetRate()) * (kGyroReversed ? -1.0 : 1.0);
 }
 
 frc::Pose2d AutoDriveSubsystem::GetPose() { 
+  //cout << "PoseL " << m_odometry.GetPose() << endl;
   return m_odometry.GetPose(); 
 }
 

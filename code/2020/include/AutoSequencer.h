@@ -10,22 +10,20 @@
 #include <frc/RobotDrive.h>
 #include <frc/ADXRS450_Gyro.h>
 #include "AutoEntry.h"
+#include "AutoDriveSubsystems.h"
 
 #ifndef AUTO_SEQUENCER_H_
 #define AUTO_SEQUENCER_H_
 
 class AutoSequencer:public JankyStateMachine {
 public:
-	AutoSequencer(frc::RobotDrive*drive, frc::ADXRS450_Gyro*gyro, SensorCollection*leftEncoder, SensorCollection*rightEncoder, WPI_TalonSRX*leftmotor, WPI_TalonSRX*rightmotor); //TODO: add shooter as a parameter
+	AutoSequencer(AutoDriveSubsystem * m_drive, int autoMode); //TODO: add shooter as a parameter
 	virtual ~AutoSequencer();
 	void SetName(int state, const char* name, AutoEntry*entry);
 
 	enum StateValue {
-		Rest,
-        BackUp12Inches,
-        CenterRobotWithTarget,
-        ShootBalls,
-		Stop
+		Trajectory1,
+		Shoot
 	};
 
 	AutoEntry* entries[MAX_NAMES];

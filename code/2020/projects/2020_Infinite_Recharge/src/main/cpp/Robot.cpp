@@ -21,6 +21,7 @@
 #include <frc/trajectory/TrajectoryUtil.h>
 #include <frc/trajectory/TrajectoryGenerator.h>
 #include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
+#include <frc/ADXRS450_Gyro.h>
 //frc2
 #include "frc2/command/RamseteCommand.h"
 #include <frc2/command/InstantCommand.h>
@@ -37,7 +38,7 @@
 #include "jankyXboxJoystick.h"
 #include "jankyDrivestick.h"
 #include "Settings.h"
-#include "JankyPathWeaver.h"
+//#include "JankyPathWeaver.h"
 
 // NAMESPACES
 using namespace ctre;
@@ -197,8 +198,8 @@ class Robot : public TimedRobot {
           AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
       AutoDriveConstants::kDriveKinematics,
       [this] { return m_drive.GetWheelSpeeds(); },
-      frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
-      frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
+      leftController,
+      rightController,
       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
       {&m_drive});
 
@@ -286,18 +287,18 @@ class Robot : public TimedRobot {
   {
     // Execute ramsete command
     cout << " " << endl;
-    // if(rc->IsFinished())
-    // {
+    if(rc->IsFinished())
+    {
       cout << "executing" << endl;
       rc->Execute();
       cout << "Left encoder: " << m_drive.GetLeftEncoder() << endl;
       cout << "Right encoder: " << m_drive.GetRightEncoder() << endl;
-    // }
-    // else {
-    //   cout << "end" << endl;
-    //   rc->End(true);
-    //   m_drive.StopAuto();
-    // }
+    }
+    else {
+      cout << "end" << endl;
+      rc->End(true);
+      m_drive.StopAuto();
+    }
   }
 
   virtual void TeleopInit() override
