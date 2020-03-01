@@ -287,18 +287,18 @@ class Robot : public TimedRobot {
   {
     // Execute ramsete command
     cout << " " << endl;
-    if(rc->IsFinished())
-    {
+    // if(rc->IsFinished())
+    // {
       cout << "executing" << endl;
       rc->Execute();
       cout << "Left encoder: " << m_drive.GetLeftEncoder() << endl;
       cout << "Right encoder: " << m_drive.GetRightEncoder() << endl;
-    }
-    else {
-      cout << "end" << endl;
-      rc->End(true);
-      m_drive.StopAuto();
-    }
+    // }
+    // else {
+    //   cout << "end" << endl;
+    //   rc->End(true);
+    //   m_drive.StopAuto();
+    // }
   }
 
   virtual void TeleopInit() override
