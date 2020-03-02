@@ -84,6 +84,8 @@ class Robot : public TimedRobot {
   //vision data
   float distanceToVisionTarget;
   float offsetFromVisionTarget;
+  int i = 0;
+  int j = 0;
 
   public:
   //constructor
@@ -178,13 +180,13 @@ class Robot : public TimedRobot {
     wpi::SmallString<64> deployDirectory;
     frc::filesystem::GetDeployDirectory(deployDirectory);
     wpi::sys::path::append(deployDirectory, "output");
-    wpi::sys::path::append(deployDirectory, "TestPath.wpilib.json");
+    wpi::sys::path::append(deployDirectory, "Unnamed.wpilib.json");
     frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
     // Create PID controller & set tolerance
     cout << "Creating pid controller" << endl;
-    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0,0); // left
-    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0,0); // right
+    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // left
+    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // right
     leftController.SetTolerance(0.0);
     rightController.SetTolerance(0.0);
 
@@ -203,14 +205,19 @@ class Robot : public TimedRobot {
       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
       {&m_drive});
 
-      // Initialize ramsete command
-      rc->Initialize();
-
     // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_TalonSRX(INTAKE_LEFT_MOTOR_CHANNEL);
     frmotor = new WPI_TalonSRX(SHOOTING_RIGHT_MOTOR_CHANNEL);
     rrmotor = new WPI_VictorSPX(INTAKE_RIGHT_MOTOR_CHANNEL);
+
+    // CHASSIS ENCODERS
+    rlmotor->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
+    rlmotor->SetSelectedSensorPosition(0, 0, 10);
+    rlmotor->GetSensorCollection().SetQuadraturePosition(0,10);
+    frmotor->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
+    frmotor->SetSelectedSensorPosition(0, 0, 10);
+    frmotor->GetSensorCollection().SetQuadraturePosition(0,10);
 
     // CAMERAS
     #ifdef DRIVE_TEAM_CAM_1
@@ -281,24 +288,32 @@ class Robot : public TimedRobot {
   {
     // get auto mode
     autoSelector -> GetAutoMode();
+    i = 0;
+    j = 0;
+    // Initialize ramsete command
+    rc->Initialize();
   }
 
   virtual void AutonomousPeriodic() override
   {
     // Execute ramsete command
     cout << " " << endl;
-    // if(rc->IsFinished())
-    // {
-      cout << "executing" << endl;
+    if(!rc->IsFinished() )
+    {
+      SmartDashboard::PutNumber("Execute COUNT???", i);
+      i++;
       rc->Execute();
-      cout << "Left encoder: " << m_drive.GetLeftEncoder() << endl;
-      cout << "Right encoder: " << m_drive.GetRightEncoder() << endl;
-    // }
-    // else {
-    //   cout << "end" << endl;
-    //   rc->End(true);
-    //   m_drive.StopAuto();
-    // }
+      SmartDashboard::PutNumber("Chassis Left Encoder: ", m_drive.GetLeftEncoder());
+      SmartDashboard::PutNumber("Chassis Right Encoder: ", m_drive.GetRightEncoder());
+      SmartDashboard::PutNumber("Avg Dist: ", m_drive.GetAverageEncoderDistance());
+    }
+    else {
+      SmartDashboard::PutNumber("End COUNT???", j);
+      j++;
+      cout << "end" << endl;
+      rc->End(true);
+      m_drive.StopAuto();
+    }
   }
 
   virtual void TeleopInit() override
@@ -308,8 +323,12 @@ class Robot : public TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
+    // CHASSIS ENCODERS
+    cout << "Left Encoder: " << rlmotor->GetSensorCollection().GetQuadraturePosition() << endl;
+    cout << "Right Encoder: " << (-1.0 * frmotor->GetSensorCollection().GetQuadraturePosition()) << endl;
+
     // CHASSIS
-#ifdef DRIVING_WITH_2_JOYS
+    #ifdef DRIVING_WITH_2_JOYS
       #ifdef PROG_BOT
       bool drivingToggle = left -> Get10();
       #endif
@@ -317,26 +336,26 @@ class Robot : public TimedRobot {
       #ifdef JANKYCHASSIS
       bool drivingToggle = left -> Get10();
       #endif
-#endif
+    #endif
     
-#ifdef DRIVING_WITH_2_JOYS
-    bool buttonPressed = false;
+    #ifdef DRIVING_WITH_2_JOYS
+      bool buttonPressed = false;
 
-      if (drivingToggle && shootingSideFront)
-      {
-        shootingSideFront = false;
-        buttonPressed = true;
+        if (drivingToggle && shootingSideFront)
+        {
+          shootingSideFront = false;
+          buttonPressed = true;
+        }
+        else if(drivingToggle && !buttonPressed && !shootingSideFront)
+        {
+          shootingSideFront = true;
+          buttonPressed = true;
+        }
+        else if (!drivingToggle && buttonPressed)
+        {
+          buttonPressed = false;
       }
-      else if(drivingToggle && !buttonPressed && !shootingSideFront)
-      {
-        shootingSideFront = true;
-        buttonPressed = true;
-      }
-      else if (!drivingToggle && buttonPressed)
-      {
-        buttonPressed = false;
-    }
-#endif
+    #endif
 
     if (shootingSideFront)
     {
@@ -381,7 +400,7 @@ class Robot : public TimedRobot {
 
     // SHOOTING
     /* get gamepad axis */
-//		double leftYstick = _joy->GetLeftThrottle();
+    //double leftYstick = _joy->GetLeftThrottle();
 		double motorOutput = _talon->GetMotorOutputPercent();
 		/* prepare line to print */
 		_sb.append("\tout:");
@@ -515,7 +534,7 @@ class Robot : public TimedRobot {
       else {
         turretMotor -> Set(0); // within bounds
       }
-#endif
+    #endif
 
     // manual testing
     // #ifndef TURRET_USING_VISION
@@ -538,6 +557,16 @@ class Robot : public TimedRobot {
   }
 
   virtual void TestPeriodic() override
+  {
+
+  }
+
+  virtual void DisabledInit() override
+  {
+
+  }
+
+  virtual void DisabledPeriodic() override
   {
 
   }

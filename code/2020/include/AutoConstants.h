@@ -9,8 +9,8 @@
 #define CHASSIS_LEFT_ENCODER_CHANNEL 0
 #define CHASSIS_RIGHT_ENCODER_CHANNEL 1
 
-#define CHASSIS_WIDTH 25.25_in //0.69_m
-#define WHEEL_DIAMETER_INCHES 6
+#define CHASSIS_WIDTH 0.69_m
+#define WHEEL_DIAMETER_INCHES 0.1524 //6
 
 namespace AutoDriveConstants {
 constexpr int kLeftMotor1Port = INTAKE_LEFT_MOTOR_CHANNEL;
@@ -18,10 +18,16 @@ constexpr int kLeftMotor2Port = SHOOTING_LEFT_MOTOR_CHANNEL;
 constexpr int kRightMotor1Port = INTAKE_RIGHT_MOTOR_CHANNEL;
 constexpr int kRightMotor2Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
 
+//Try:
+// constexpr int kLeftMotor1Port = SHOOTING_LEFT_MOTOR_CHANNEL;
+// constexpr int kLeftMotor2Port = INTAKE_LEFT_MOTOR_CHANNEL;
+// constexpr int kRightMotor1Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
+// constexpr int kRightMotor2Port = INTAKE_RIGHT_MOTOR_CHANNEL;
+
 //constexpr int kLeftEncoderPorts[]{0, 1};
 //constexpr int kRightEncoderPorts[]{2, 3};
 constexpr bool kLeftEncoderReversed = false;
-constexpr bool kRightEncoderReversed = true;
+constexpr bool kRightEncoderReversed = false; //true;
 
 constexpr auto kTrackwidth = CHASSIS_WIDTH; //232.9723996;
 extern const frc::DifferentialDriveKinematics kDriveKinematics;
@@ -39,17 +45,18 @@ constexpr bool kGyroReversed = true;
 // theoretically for *your* robot's drive. The Robot Characterization
 // Toolsuite provides a convenient tool for obtaining these values for your
 // robot.
-constexpr auto ks = 1.52_V; // 0.22_V;
-constexpr auto kv = 0.00935 * 1_V * 1_s / 1_m; //1.98 * 1_V * 1_s / 1_m;
-constexpr auto ka = 0.000222 * 1_V * 1_s * 1_s / 1_m; //0.2 * 1_V * 1_s * 1_s / 1_m;
+constexpr auto ks = 1.08_V; //1.52_V;
+constexpr auto kv = 0.00766 * 1_V * 1_s / 1_in;  //0.00935 * 1_V * 1_s / 1_m; 
+constexpr auto ka = 0.000222 * 1_V * 1_s * 1_s / 1_in; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
 
 // Example value only - as above, this must be tuned for your drive!
 constexpr double kPDriveVel = 0.00707;
+constexpr double kDDriveVel = 0.101;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 5_fps;
-constexpr auto kMaxAcceleration = 5_fps_sq;
+constexpr auto kMaxSpeed = 15_mps;
+constexpr auto kMaxAcceleration = 15_mps_sq;
 
 // Reasonable baseline values for a RAMSETE follower in units of meters and
 // seconds

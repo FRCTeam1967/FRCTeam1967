@@ -21,28 +21,28 @@ using namespace AutoDriveConstants;
 using namespace frc;
 using namespace frc2;
 
-JankyPathWeaver::JankyPathWeaver(AutoDriveSubsystem * driveSubsystem, int autoMode) {
-    m_drive = driveSubsystem;
-    trajectory = GeneratePath(autoMode);
-    //rc = GetRamsetteCommand();
+JankyPathWeaver::JankyPathWeaver(AutoDriveSubsystem * drive, int autoMode) 
+{
+    // create auto drive subsystem
+    m_drive = drive;
+    
+    leftController.SetTolerance(0.0);
+    rightController.SetTolerance(0.0);
+
+    // generate path
+    GeneratePath(autoMode);
+
+    // initialize ramsete command
+    //rc = NULL;
+    //SetUpRamseteCommand();
 }
 
 JankyPathWeaver::~JankyPathWeaver() {
-
+    //delete rc;
+    delete m_drive;
 }
 
-frc::Trajectory JankyPathWeaver::GeneratePath(int autoMode) {
-    // Create a voltage constraint to ensure we don't accelerate too fast
-    frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
-        frc::SimpleMotorFeedforward<units::meters>(
-            AutoDriveConstants::ks,
-            AutoDriveConstants::kv,
-            AutoDriveConstants::ka
-          ),
-          AutoDriveConstants::kDriveKinematics,
-          10_V
-        );
-
+void JankyPathWeaver::GeneratePath(int autoMode) {
     // Path name variable
     std::string pathName = "GetBallFromTrench.wpilib.json";
 
@@ -164,42 +164,34 @@ frc::Trajectory JankyPathWeaver::GeneratePath(int autoMode) {
     wpi::sys::path::append(deployDirectory, pathName);
 
     // get trajectory
-    frc::Trajectory t = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
-    return t;
+    trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 }
 
-// frc2::RamseteCommand JankyPathWeaver::GetRamsetteCommand() {
-//     // CREATE PID CONTROLLER
-//     frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0,0);
-//     frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0,0);
-
-//     leftController.SetTolerance(0.0);
-//     rightController.SetTolerance(0.0);
-
-//     frc2::RamseteCommand ramseteCommand(
-//       trajectory, [this]() { return m_drive.GetPose(); },
+// void JankyPathWeaver::SetUpRamseteCommand() {
+//     rc = new frc2::RamseteCommand(
+//       trajectory, [this]() { return m_drive->GetPose(); },
 //       frc::RamseteController(AutoConstants::kRamseteB,
 //                             AutoConstants::kRamseteZeta),
 //       frc::SimpleMotorFeedforward<units::meters>(
 //           AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
 //       AutoDriveConstants::kDriveKinematics,
-//       [this] { return m_drive.GetWheelSpeeds(); },
-//       frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
-//       frc2::PIDController(AutoDriveConstants::kPDriveVel, 0, 0),
-//       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
+//       [this] { return m_drive->GetWheelSpeeds(); },
+//       leftController,
+//       rightController,
+//       [this](auto left, auto right) { m_drive->TankDriveVolts(left, right); },
 //       {&m_drive});
 
-//       return ramseteCommand;
+//       rc->Initialize();
 // }
 
 void JankyPathWeaver::Start()
 {
-    //rc.Execute();
+    // rc->Execute();
 }
 
 bool JankyPathWeaver::JobDone()
 {
-    return true; //(rc.IsFinished());
+    return true; // (rc->IsFinished());
 }
 
 void JankyPathWeaver::RunAction()
