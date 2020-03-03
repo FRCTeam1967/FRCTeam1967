@@ -23,6 +23,8 @@
 #define BUTTON_RB_PORT 6
 #define BUTTON_BACK_PORT 7
 #define BUTTON_START_PORT 8
+#define LEFT_STICK_BUTTON_PORT 9
+#define RIGHT_STICK_BUTTON_PORT 10
 #define LEFT_X_AXIS_CHANNEL 0 // before 1
 #define LEFT_Y_AXIS_CHANNEL 1 // before 2
 #define RIGHT_X_AXIS_CHANNEL 4
@@ -41,6 +43,8 @@ public:
 	bool GetButtonRB();
 	bool GetButtonBack();
 	bool GetButtonStart();
+	bool GetLeftStickButton();
+	bool GetRightStickButton();
 	float GetLeftThrottle();
 	float GetRightThrottle();
 	float GetLeftXAxis();

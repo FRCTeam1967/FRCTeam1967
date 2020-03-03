@@ -69,7 +69,7 @@ bool jankyXboxJoystick::GetButtonY()
 }
 
 /**
- * Get button value (true or false) of button A (bottom button). 
+ * Get button value (true or false) of button LB. 
  */
 bool jankyXboxJoystick::GetButtonLB()
 {
@@ -77,7 +77,7 @@ bool jankyXboxJoystick::GetButtonLB()
 }
 
 /**
- * Get button value (true or false) of button A (bottom button). 
+ * Get button value (true or false) of button RB. 
  */
 bool jankyXboxJoystick::GetButtonRB()
 {
@@ -85,7 +85,7 @@ bool jankyXboxJoystick::GetButtonRB()
 }
 
 /**
- * Get button value (true or false) of button A (bottom button). 
+ * Get button value (true or false) of button BACK. 
  */
 bool jankyXboxJoystick::GetButtonBack()
 {
@@ -93,11 +93,27 @@ bool jankyXboxJoystick::GetButtonBack()
 }
 
 /**
- * Get button value (true or false) of button A (bottom button). 
+ * Get button value (true or false) of button START. 
  */
 bool jankyXboxJoystick::GetButtonStart()
 {
 	return Joystick::GetRawButton(BUTTON_START_PORT);
+}
+
+/**
+ * Get button value (true or false) of the left thumbstick button.
+ */
+bool jankyXboxJoystick::GetLeftStickButton()
+{
+	return Joystick::GetRawButton(LEFT_STICK_BUTTON_PORT);
+}
+
+/**
+ * Get button value (true or false) of the right thumbstick button.
+ */
+bool jankyXboxJoystick::GetRightStickButton()
+{
+	return Joystick::GetRawButton(RIGHT_STICK_BUTTON_PORT);
 }
 
 /**

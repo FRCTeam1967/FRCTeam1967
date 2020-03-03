@@ -62,6 +62,7 @@ class Robot : public TimedRobot {
   bool shootingSideFront;
   //control panel
   ColorSensorInfiniteRecharge*sensor_fake;
+  WPI_TalonSRX*colorMotor;
   //shooting
   TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
   IntakeMech * intakemech;
@@ -98,8 +99,10 @@ class Robot : public TimedRobot {
     drive = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
-    //shooting
+    //color sensor
     sensor_fake = NULL;
+    colorMotor = NULL;
+    //shooting
     intakemech = NULL;
     conveyorBeltMotor = NULL;
     bridgeMotor = NULL;
@@ -129,8 +132,10 @@ class Robot : public TimedRobot {
     delete drive;
     delete leftDrive;
     delete rightDrive;
-    //shooting
+    //color sensor
     delete sensor_fake;
+    delete colorMotor;
+    //shooting
     delete intakemech;
     delete conveyorBeltMotor;
     delete bridgeMotor;
@@ -357,25 +362,9 @@ class Robot : public TimedRobot {
     // }
   
     // COLOR SENSOR
-    string colorString;
-    
-    // COMMENTED OUT DUE TO ERRORS --> needs troubleshooting by color sensor group :)
-    // switch (sensor_fake -> ReadColor())
-    // {
-    //   case 0: colorString = "red";
-    //     break;
-    //   case 1: colorString = "yellow";
-    //     break;
-    //   case 2: colorString = "blue";
-    //     break;
-    //   case 3: colorString = "green";
-    //     break;
-    //   case 4: colorString = "unknown";
-    //     break;
-    //   default: colorString = "invalid";
-    // }
-
-    SmartDashboard::PutString("Color", colorString);
+    ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
+    frc::SmartDashboard::PutString("Color", sensor_fake -> GetColorString(color));
+    //frc::SmartDashboard::PutNumber("Confidence", confidence);
 
     // SHOOTING
     /* get gamepad axis */
@@ -437,10 +426,7 @@ class Robot : public TimedRobot {
     cout << "Distance to vision target: " << distanceToVisionTarget << endl;
     cout << "offset: " << offsetFromVisionTarget << endl;
     cout << endl;
-
-    string string = "hi";
-    SmartDashboard::PutString("Color", string);
-
+    
     //INTAKE
     bool buttonRB = _joy -> GetButtonRB(); // rollers in
     bool buttonLB = _joy -> GetButtonLB(); // rollers out
@@ -528,11 +514,6 @@ class Robot : public TimedRobot {
       //   turretMotor -> Set(0); //stop
       // }
     // #endif
-
-    ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
-
-    frc::SmartDashboard::PutString("Color", sensor_fake -> GetColorString(color));
-    //frc::SmartDashboard::PutNumber("Confidence", confidence);
   }
 
   virtual void TestPeriodic() override

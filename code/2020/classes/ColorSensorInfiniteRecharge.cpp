@@ -125,3 +125,43 @@ std::string ColorSensorInfiniteRecharge::GetColorString(ColorSensorInfiniteRecha
 
     return colorString;
 }
+
+int ColorSensorInfiniteRecharge::ReadHalfRotations()
+{
+    int halfRotationCounter = 0, blueCounter = 0, redCounter = 0, yellowCounter = 0, greenCounter = 0, unknownCounter = 0;
+    double confidence = 0.0;
+    frc::Color detectedColor = sensor.GetColor();
+    frc::Color matchedColor = colorMatcher.MatchClosestColor(detectedColor, confidence);
+
+    if (confidence < 0.944)
+    {
+      unknownCounter++;
+    }
+    else if (matchedColor == kBlueTarget)
+    {
+      blueCounter++;
+    }
+    else if (matchedColor == kRedTarget)
+    {
+      redCounter++;
+    }
+    else if (matchedColor == kGreenTarget)
+    {
+      greenCounter++;
+    }
+    else //if (matchedColor == kYellowTarget)
+    {
+      yellowCounter++;
+    }
+
+    if(blueCounter>0 && redCounter>0 && yellowCounter>0 && greenCounter>0)
+    {
+      halfRotationCounter++;
+      blueCounter = 0;
+      redCounter = 0;
+      yellowCounter = 0;
+      greenCounter = 0;
+    }
+
+    return halfRotationCounter;
+}
