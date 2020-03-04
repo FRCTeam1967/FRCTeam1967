@@ -1,5 +1,5 @@
 #include <iostream>
-//#include "frc/WPILib.h"
+// Do NOT include this global header file. Include only what you need. --Mentor-Bob: #include "frc/WPILib.h"
 #include "ColorSensorInfiniteRecharge.h"
 #include "rev/ColorSensorV3.h"
 #include "rev/ColorMatch.h"

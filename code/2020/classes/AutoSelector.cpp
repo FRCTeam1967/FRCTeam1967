@@ -337,3 +337,4 @@ int AutoSelector::GetAutoMode() {
 
     return autoMode;
 }
+

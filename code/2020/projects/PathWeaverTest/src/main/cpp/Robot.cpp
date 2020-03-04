@@ -19,6 +19,7 @@
 #include "AutoConstants.h"
 #include "AutoDriveSubsystems.h"
 #include <ctre/Phoenix.h>
+#include <frc/ADXRS450_Gyro.h>
 
 // NAMESPACES
 using namespace std;
@@ -31,22 +32,26 @@ class Robot : public frc::TimedRobot {
   //JankyPathWeaver * pathweaver;
   AutoDriveSubsystem m_drive;
   frc2::RamseteCommand * rc;
+  //frc::ADXRS450_Gyro * gyro;
 
   //constructor
   Robot()
   {
     //pathweaver = NULL;
     rc = NULL;
+    //gyro = NULL;
   }
   //deconstructor
   ~Robot()
   {
     //delete pathweaver;
     delete rc;
+    //delete gyro;
   }
   
   virtual void RobotInit() override
   {
+    //gyro = new frc::ADXRS450_Gyro(frc::SPI::Port::kOnboardCS0);
     cout << "Creating voltage constraint" << endl;
     // Create a voltage constraint to ensure we don't accelerate too fast
     frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
@@ -127,12 +132,13 @@ class Robot : public frc::TimedRobot {
 
   virtual void TeleopInit() override
   {
-
+    //gyro->Calibrate();
+    //gyro->Reset();
   }
 
   virtual void TeleopPeriodic() override
   {
-
+    //cout << "Gyro: " << gyro->GetAngle() << endl;
   }
 
   virtual void TestPeriodic() override
