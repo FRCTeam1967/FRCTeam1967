@@ -165,3 +165,24 @@ int ColorSensorInfiniteRecharge::ReadHalfRotations()
 
     return halfRotationCounter;
 }
+
+bool ColorSensorInfiniteRecharge::DetectedColor()
+{
+  double confidence = 0.0;
+  frc::Color detectedColor = sensor.GetColor();
+  frc::Color matchedColor = colorMatcher.MatchClosestColor(detectedColor, confidence);
+
+  if (confidence < 0.944)
+  {
+    return false;
+  }
+  else if (matchedColor == kBlueTarget || matchedColor == kRedTarget || matchedColor == kGreenTarget || matchedColor == kYellowTarget)
+  {
+    return true;
+  }
+  else
+  {
+    return false;
+  }
+  
+}

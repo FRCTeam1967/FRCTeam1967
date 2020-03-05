@@ -22,6 +22,7 @@ class ColorSensorInfiniteRecharge
         ColorSensorInfiniteRecharge::InfiniteRechargeColors ReadRawColor(double &confidence);
         std::string GetColorString(ColorSensorInfiniteRecharge::InfiniteRechargeColors colorNum);
         int ReadHalfRotations();
+        bool DetectedColor();
 
     private:
         //bool detected;

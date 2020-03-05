@@ -386,6 +386,12 @@ class Robot : public TimedRobot {
     ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
     frc::SmartDashboard::PutString("Color", sensor_fake -> GetColorString(color));
     //frc::SmartDashboard::PutNumber("Confidence", confidence);
+    int halfRotations = sensor_fake -> ReadHalfRotations();
+    frc::SmartDashboard::PutNumber("Half Rotations", sensor_fake -> ReadHalfRotations());
+    if(sensor_fake -> DetectedColor() || halfRotations <= 9)
+    {
+      colorMotor -> Set(1.0);
+    }
 
     // SHOOTING
     /* get gamepad axis */
