@@ -28,6 +28,8 @@
 // wpi
 #include <wpi/Path.h>
 #include <wpi/SmallString.h>
+// gyro
+#include "adi/ADIS16470_IMU.h"
 // custom classes
 #include "AutoConstants.h"
 #include "AutoDriveSubsystems.h"

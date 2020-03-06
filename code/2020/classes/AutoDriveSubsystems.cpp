@@ -4,6 +4,8 @@
 #include <ctre/Phoenix.h>
 #include "frc2/command/RamseteCommand.h"
 #include <frc/smartdashboard/SmartDashboard.h>
+// gyro
+#include "adi/ADIS16470_IMU.h"
 
 using namespace AutoDriveConstants;
 using namespace ctre;

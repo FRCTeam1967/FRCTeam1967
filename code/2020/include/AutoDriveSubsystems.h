@@ -12,6 +12,8 @@
 #include <ctre/Phoenix.h>
 
 #include "AutoConstants.h"
+// gyro
+#include "adi/ADIS16470_IMU.h"
 
 using namespace ctre;
 
@@ -135,7 +137,10 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
   frc::DifferentialDrive m_drive{m_leftMotors, m_rightMotors};
 
   // The gyro sensor
-  frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};
+  //frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};
+  frc::ADIS16470_IMU m_gyro; //{frc::ADIS16470_IMU::IMUAxis::kY, frc::SPI::Port::kOnboardCS0, frc::ADIS16470_IMU::CalibrationTime::_1s};
+  
+  
 
   // Odometry class for tracking robot pose
   frc::DifferentialDriveOdometry m_odometry;
