@@ -56,3 +56,6 @@
 
 // Shooting
 #define FLYWHEEL_CHANNEL 5
+
+// Color Sensor
+// #define CP_ON_ROBOT

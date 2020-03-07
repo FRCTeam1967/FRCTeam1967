@@ -117,6 +117,8 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
 
   void StopAuto();
 
+  double ReturnGyroAngle();
+
  private:
   // Components (e.g. motor controllers and sensors) should generally be
   // declared private and exposed only through public methods.
@@ -138,8 +140,7 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
 
   // The gyro sensor
   //frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};
-  frc::ADIS16470_IMU m_gyro; //{frc::ADIS16470_IMU::IMUAxis::kY, frc::SPI::Port::kOnboardCS0, frc::ADIS16470_IMU::CalibrationTime::_1s};
-  
+  frc::ADIS16470_IMU m_gyro; //{frc::ADIS16470_IMU::IMUAxis::kY, frc::SPI::Port::kOnboardCS0, frc::ADIS16470CalibrationTime::_1s};
   
 
   // Odometry class for tracking robot pose

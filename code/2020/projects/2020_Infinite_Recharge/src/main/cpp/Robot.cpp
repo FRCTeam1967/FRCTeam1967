@@ -64,9 +64,11 @@ class Robot : public TimedRobot {
   SpeedControllerGroup*leftDrive;
   SpeedControllerGroup*rightDrive;
   bool shootingSideFront;
-  //control panel
-  ColorSensorInfiniteRecharge*sensor_fake;
-  WPI_TalonSRX*colorMotor;
+  #ifdef CP_ON_ROBOT
+    //control panel
+    ColorSensorInfiniteRecharge*sensor_fake;
+    WPI_TalonSRX*colorMotor;
+  #endif
   //shooting
   TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
   IntakeMech * intakemech;
@@ -105,9 +107,11 @@ class Robot : public TimedRobot {
     drive = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
-    //color sensor
-    sensor_fake = NULL;
-    colorMotor = NULL;
+    #ifdef CP_ON_ROBOT
+      //color sensor
+      sensor_fake = NULL;
+      colorMotor = NULL;
+    #endif
     //shooting
     intakemech = NULL;
     conveyorBeltMotor = NULL;
@@ -138,9 +142,11 @@ class Robot : public TimedRobot {
     delete drive;
     delete leftDrive;
     delete rightDrive;
-    //color sensor
-    delete sensor_fake;
-    delete colorMotor;
+    #ifdef CP_ON_ROBOT
+      //color sensor
+      delete sensor_fake;
+      delete colorMotor;
+    #endif
     //shooting
     delete intakemech;
     delete conveyorBeltMotor;
@@ -255,9 +261,11 @@ class Robot : public TimedRobot {
     #ifdef DRIVING_WITH_XBOX
       drivingJoy = new jankyXboxJoystick(XBOX_DRIVE_CHANNEL);
     #endif
-
-    sensor_fake = new ColorSensorInfiniteRecharge(); // color sensor
-    _joy = new jankyXboxJoystick(2); // joystick
+    
+    #ifdef CP_ON_ROBOT
+      sensor_fake = new ColorSensorInfiniteRecharge(); // color sensor
+      _joy = new jankyXboxJoystick(2); // joystick
+    #endif
 
     drive -> SetSafetyEnabled(false);
 
@@ -305,22 +313,22 @@ class Robot : public TimedRobot {
   {
     // Execute ramsete command
     cout << " " << endl;
-    if(!rc->IsFinished() )
-    {
+    // if(!rc->IsFinished() )
+    // {
       SmartDashboard::PutNumber("Execute COUNT???", i);
       i++;
       rc->Execute();
       SmartDashboard::PutNumber("Chassis Left Encoder: ", m_drive.GetLeftEncoder());
       SmartDashboard::PutNumber("Chassis Right Encoder: ", m_drive.GetRightEncoder());
       SmartDashboard::PutNumber("Avg Dist: ", m_drive.GetAverageEncoderDistance());
-    }
-    else {
-      SmartDashboard::PutNumber("End COUNT???", j);
-      j++;
-      cout << "end" << endl;
-      rc->End(true);
-      m_drive.StopAuto();
-    }
+    // }
+    // else {
+    //   SmartDashboard::PutNumber("End COUNT???", j);
+    //   j++;
+    //   cout << "end" << endl;
+    //   rc->End(true);
+    //   m_drive.StopAuto();
+    // }
   }
 
   virtual void TeleopInit() override
@@ -330,6 +338,8 @@ class Robot : public TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
+    // cout << "GYRO" << m_drive.ReturnGyroAngle() << endl;
+
     // CHASSIS ENCODERS
     cout << "Left Encoder: " << rlmotor->GetSensorCollection().GetQuadraturePosition() << endl;
     cout << "Right Encoder: " << (-1.0 * frmotor->GetSensorCollection().GetQuadraturePosition()) << endl;
@@ -385,15 +395,17 @@ class Robot : public TimedRobot {
     // }
   
     // COLOR SENSOR
-    ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
-    frc::SmartDashboard::PutString("Color", sensor_fake -> GetColorString(color));
-    //frc::SmartDashboard::PutNumber("Confidence", confidence);
-    int halfRotations = sensor_fake -> ReadHalfRotations();
-    frc::SmartDashboard::PutNumber("Half Rotations", sensor_fake -> ReadHalfRotations());
-    if(sensor_fake -> DetectedColor() || halfRotations <= 9)
-    {
-      colorMotor -> Set(1.0);
-    }
+    #ifdef CP_ON_ROBOT
+      ColorSensorInfiniteRecharge::InfiniteRechargeColors color = sensor_fake -> ReadColor();
+      frc::SmartDashboard::PutString("Color", sensor_fake -> GetColorString(color));
+      //frc::SmartDashboard::PutNumber("Confidence", confidence);
+      int halfRotations = sensor_fake -> ReadHalfRotations();
+      frc::SmartDashboard::PutNumber("Half Rotations", sensor_fake -> ReadHalfRotations());
+      if(sensor_fake -> DetectedColor() || halfRotations <= 9)
+      {
+        colorMotor -> Set(1.0);
+      }
+    #endif
 
     // SHOOTING
     /* get gamepad axis */
@@ -501,7 +513,6 @@ class Robot : public TimedRobot {
       // stop bridge motor
       bridgeMotor->Set(0);
     }
-
 
     // TURRET TESTING CODE
     // with vision

@@ -32,7 +32,7 @@ constexpr bool kRightEncoderReversed = false; //true;
 constexpr auto kTrackwidth = CHASSIS_WIDTH; //232.9723996;
 extern const frc::DifferentialDriveKinematics kDriveKinematics;
 
-constexpr int kEncoderCPR = 1024;
+constexpr int kEncoderCPR = 4096;
 constexpr double kWheelDiameterInches = WHEEL_DIAMETER_INCHES;
 constexpr double kEncoderDistancePerPulse =
     // Assumes the encoders are directly mounted on the wheel shafts
@@ -45,13 +45,13 @@ constexpr bool kGyroReversed = true;
 // theoretically for *your* robot's drive. The Robot Characterization
 // Toolsuite provides a convenient tool for obtaining these values for your
 // robot.
-constexpr auto ks = 1.08_V; //1.52_V;
-constexpr auto kv = 0.00766 * 1_V * 1_s / 1_in;  //0.00935 * 1_V * 1_s / 1_m; 
-constexpr auto ka = 0.000222 * 1_V * 1_s * 1_s / 1_in; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
+constexpr auto ks = 1.04_V; //1.52_V;
+constexpr auto kv = 0.00814 * 1_V * 1_s / 1_in;  //0.00935 * 1_V * 1_s / 1_m; 
+constexpr auto ka = 0.00215 * 1_V * 1_s * 1_s / 1_in; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
 
 // Example value only - as above, this must be tuned for your drive!
-constexpr double kPDriveVel = 0.00707;
-constexpr double kDDriveVel = 0.101;
+constexpr double kPDriveVel = 0.0000559;
+constexpr double kDDriveVel = 0.000027;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
@@ -61,7 +61,7 @@ constexpr auto kMaxAcceleration = 15_mps_sq;
 // Reasonable baseline values for a RAMSETE follower in units of meters and
 // seconds
 constexpr double kRamseteB = 2;
-constexpr double kRamseteZeta = 0.7;
+constexpr double kRamseteZeta = 0.7 ;
 }  // namespace AutoConstants
 
 namespace OIConstants {

@@ -41,6 +41,10 @@ AutoDriveSubsystem::AutoDriveSubsystem()
 
   // reset encoders
   ResetEncoders();
+
+  //gyro
+  m_gyro.Calibrate();
+  m_gyro.Reset();
 }
 
 void AutoDriveSubsystem::Periodic() {
@@ -76,12 +80,12 @@ void AutoDriveSubsystem::ResetEncoders() {
 }
 
 double AutoDriveSubsystem::GetAverageEncoderDistance() {
-  double avgDist = (m_left1.GetSensorCollection().GetQuadraturePosition() + (-1.0 * m_right2.GetSensorCollection().GetQuadraturePosition())) / 2.0;
-  cout << "Average Encoder Distance: " << (m_left1.GetSensorCollection().GetQuadraturePosition() + (-1.0 * m_right2.GetSensorCollection().GetQuadraturePosition())) / 2.0 << endl; // print statement
+  // double avgDist = (m_left1.GetSensorCollection().GetQuadraturePosition() + (-1.0 * m_right2.GetSensorCollection().GetQuadraturePosition())) / 2.0;
+  // cout << "Average Encoder Distance: " << (m_left1.GetSensorCollection().GetQuadraturePosition() + (-1.0 * m_right2.GetSensorCollection().GetQuadraturePosition())) / 2.0 << endl; // print statement
   // SmartDashboard::PutNumber("Avg Encoder Dist: ", avgDist);
-  // double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
-  // double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
-  // double avgDist = distanceLeft + distanceRight / 2;
+  double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+  double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+  double avgDist = distanceLeft + distanceRight / 2;
   return avgDist;
 }
 
@@ -146,10 +150,16 @@ void AutoDriveSubsystem::ResetOdometry(frc::Pose2d pose) {
                            frc::Rotation2d(units::degree_t(GetHeading())));
 }
 
+
+double AutoDriveSubsystem::ReturnGyroAngle() {
+  return m_gyro.GetAngle();
+}
+
 void AutoDriveSubsystem::StopAuto() {
   cout << "stopping subsystems" << endl;
   time -> Stop();
   time -> Reset();
+  m_gyro.Reset();
   // m_left1.Set(0);
   // m_left2.Set(0);
   // m_right1.Set(0);
