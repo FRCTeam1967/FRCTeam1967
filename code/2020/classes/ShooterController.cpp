@@ -9,6 +9,10 @@ ShooterControllerInfiniteRecharge::ShooterControllerInfiniteRecharge(int conveyo
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().SetQuadraturePosition(0,10);
     flywheelmech = new FlywheelMechInfiniteRecharge(flywheelChannelNumber);
     intakemech = new IntakeMech(motorRollChannel, leftPistonChannel, rightPistonChannel);
+
+    ResetEncoderCount();
+    SetDesiredCount(0);
+    Start();
 }
 
 ShooterControllerInfiniteRecharge::~ShooterControllerInfiniteRecharge()
@@ -23,25 +27,29 @@ void ShooterControllerInfiniteRecharge::Target()
     flywheelmech ->SetRPM();
 }
 
-void ShooterControllerInfiniteRecharge::GetEncoderCount()
+int ShooterControllerInfiniteRecharge::GetEncoderCount()
 { 
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().GetQuadraturePosition();
     frc::SmartDashboard::PutNumber("Current Encoder Count", currentEncoderCount);
+    return currentEncoderCount;
 }
 
 void ShooterControllerInfiniteRecharge::ResetEncoderCount()
 {
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().SetQuadraturePosition(0,10);
+    desiredEncoderCount = 0;
+    run = false;
 }
     
-void ShooterControllerInfiniteRecharge::SetDesiredCount(double desiredCount)
+void ShooterControllerInfiniteRecharge::SetDesiredCount(int count)
 {
-    desiredEncoderCount = 5120;
+    desiredEncoderCount = count;
+    run = true;
 }
 
 void ShooterControllerInfiniteRecharge::GetOneBall()
 {
-    if(currentEncoderCount < desiredEncoderCount)
+    if(GetEncoderCount() < desiredEncoderCount)
     { 
         intakemech -> RollersIn();
         conveyorBeltMotor->Set(1.0);
@@ -56,7 +64,7 @@ void ShooterControllerInfiniteRecharge::GetOneBall()
 
 void ShooterControllerInfiniteRecharge::OuttakeOneBall()
 {
-    if(currentEncoderCount > desiredEncoderCount)
+    if(GetEncoderCount() > desiredEncoderCount)
     { 
         intakemech -> RollersOut();
         conveyorBeltMotor->Set(-1.0);
@@ -81,4 +89,28 @@ double ShooterControllerInfiniteRecharge::GetRunningRPM()
 double ShooterControllerInfiniteRecharge::GetDesiredRPM()
 {
     return flywheelmech->ReturnDesiredRPM();
+}
+
+void ShooterControllerInfiniteRecharge::Run() 
+{
+    if(GetEncoderCount() > desiredEncoderCount && run)
+    { 
+        intakemech -> RollersIn();
+        conveyorBeltMotor->Set(1.0);
+    }
+    else if(GetEncoderCount() < desiredEncoderCount && run)
+    { 
+        intakemech -> RollersOut();
+        conveyorBeltMotor->Set(-1.0);
+    }
+    else 
+    {
+        intakemech -> RollersStop();
+        conveyorBeltMotor->Set(0.0);
+        ResetEncoderCount();
+        std::cout << "STOPPPPPPPPPP" << std::endl;
+    } 
+
+    std::cout << "STORAGE ENCODER: " << currentEncoderCount << std::endl;
+    std::cout << "STORAGE ENCODER: " << desiredEncoderCount << std::endl;
 }

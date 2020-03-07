@@ -94,6 +94,10 @@ class Robot : public TimedRobot {
   int i = 0;
   int j = 0;
 
+  bool yWasPressed = false;
+  bool xWasPressed = false;
+  bool aWasPressed = false;
+
   public:
   //constructor
   Robot()
@@ -527,7 +531,7 @@ class Robot : public TimedRobot {
     double desiredRPM = shootingcontroller->GetDesiredRPM();
     double runningRPM = shootingcontroller->GetRunningRPM();
 
-    if(buttonA) {
+    if(buttonA && !aWasPressed) {
       shootingcontroller->Target();
       if((runningRPM > (0.95 * desiredRPM)) || (runningRPM > (1.05 * desiredRPM)))
       {
@@ -539,13 +543,23 @@ class Robot : public TimedRobot {
         bridgeMotor->Set(0.0);
         shootingcontroller->StopConveyorBelt();
       }
+      aWasPressed = true;
+    }
+    else {
+      aWasPressed = false;
     }
 
-    if(buttonX) {
-      shootingcontroller->GetOneBall();
+    if(buttonX && !xWasPressed) {
+      shootingcontroller->SetDesiredCount(-5120);
+      xWasPressed = true;
     }
-    if(buttonY) {
-      shootingcontroller->OuttakeOneBall();
+    else if(buttonY && !yWasPressed) {
+      shootingcontroller->SetDesiredCount(5120);
+      yWasPressed = true;
+    }
+    else {
+      xWasPressed = false;
+      yWasPressed = false;
     }
 
     // TURRET (to be integrated into shootercontroller)
