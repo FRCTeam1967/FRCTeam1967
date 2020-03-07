@@ -264,8 +264,9 @@ class Robot : public TimedRobot {
     
     #ifdef CP_ON_ROBOT
       sensor_fake = new ColorSensorInfiniteRecharge(); // color sensor
-      _joy = new jankyXboxJoystick(2); // joystick
     #endif
+
+    _joy = new jankyXboxJoystick(2); // joystick
 
     drive -> SetSafetyEnabled(false);
 
@@ -338,6 +339,7 @@ class Robot : public TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
+    //assert(_joy);
     // cout << "GYRO" << m_drive.ReturnGyroAngle() << endl;
 
     // CHASSIS ENCODERS
