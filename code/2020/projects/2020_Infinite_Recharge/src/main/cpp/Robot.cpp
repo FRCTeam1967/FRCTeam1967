@@ -36,7 +36,8 @@
 #include "AutoSelector.h"
 #include "ColorSensorInfiniteRecharge.h"
 #include "JankyConstants.h"
-#include "IntakeMech.h"
+// #include "IntakeMech.h"
+#include "ShooterController.h"
 #include "jankyXboxJoystick.h"
 #include "jankyDrivestick.h"
 #include "Settings.h"
@@ -70,9 +71,10 @@ class Robot : public TimedRobot {
     WPI_TalonSRX*colorMotor;
   #endif
   //shooting
-  TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
-  IntakeMech * intakemech;
-  WPI_TalonSRX * conveyorBeltMotor;
+  // TalonFX * _talon = new TalonFX(FLYWHEEL_CHANNEL); //change the channel number on here and id
+  // IntakeMech * intakemech;
+  // WPI_TalonSRX * conveyorBeltMotor;
+  ShooterControllerInfiniteRecharge * shootingcontroller;
   WPI_VictorSPX * bridgeMotor;
   WPI_TalonSRX * turretMotor; 
 	string _sb;
@@ -113,8 +115,9 @@ class Robot : public TimedRobot {
       colorMotor = NULL;
     #endif
     //shooting
-    intakemech = NULL;
-    conveyorBeltMotor = NULL;
+    // intakemech = NULL;
+    // conveyorBeltMotor = NULL;
+    shootingcontroller = NULL;
     bridgeMotor = NULL;
     turretMotor = NULL;
     //joysticks
@@ -148,8 +151,9 @@ class Robot : public TimedRobot {
       delete colorMotor;
     #endif
     //shooting
-    delete intakemech;
-    delete conveyorBeltMotor;
+    // delete intakemech;
+    // delete conveyorBeltMotor;
+    delete shootingcontroller;
     delete bridgeMotor;
     delete turretMotor;
     //joysticks
@@ -272,28 +276,29 @@ class Robot : public TimedRobot {
 
     // SHOOTER
     shootingSideFront = true;
-    _talon->ConfigFactoryDefault();
+    shootingcontroller = new ShooterControllerInfiniteRecharge(CONVEYOR_BELT_CHANNEL, MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL, FLYWHEEL_CHANNEL);
+    //_talon->ConfigFactoryDefault();
      /* first choose the sensor */
-		_talon->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, kTimeoutMs);
-		_talon->SetSensorPhase(true);
+		//_talon->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Relative, 0, kTimeoutMs);
+		//_talon->SetSensorPhase(true);
 		/* set the peak and nominal outputs */
-		_talon->ConfigNominalOutputForward(0, kTimeoutMs);
-		_talon->ConfigNominalOutputReverse(0, kTimeoutMs);
-		_talon->ConfigPeakOutputForward(1, kTimeoutMs);
-		_talon->ConfigPeakOutputReverse(-1, kTimeoutMs);
+		//_talon->ConfigNominalOutputForward(0, kTimeoutMs);
+		//_talon->ConfigNominalOutputReverse(0, kTimeoutMs);
+		//_talon->ConfigPeakOutputForward(1, kTimeoutMs);
+		//_talon->ConfigPeakOutputReverse(-1, kTimeoutMs);
 		/* set closed loop gains in slot0 */
-		_talon->Config_kF(kPIDLoopIdx, 0.045, kTimeoutMs);
-		_talon->Config_kP(kPIDLoopIdx, 0.0012, kTimeoutMs);
-		_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
-		_talon->Config_kD(kPIDLoopIdx, 0.0001, kTimeoutMs);
+		//_talon->Config_kF(kPIDLoopIdx, 0.045, kTimeoutMs);
+		//_talon->Config_kP(kPIDLoopIdx, 0.0012, kTimeoutMs);
+		//_talon->Config_kI(kPIDLoopIdx, 0.0, kTimeoutMs);
+		//_talon->Config_kD(kPIDLoopIdx, 0.0001, kTimeoutMs);
 
     // GET VISION DATA
     SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
 	  SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
 
     // INTAKE & CONVEYOR BELT & BRIDGE
-    intakemech = new IntakeMech(MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL);
-    conveyorBeltMotor = new WPI_TalonSRX(CONVEYOR_BELT_CHANNEL);
+    //intakemech = new IntakeMech(MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL);
+    //conveyorBeltMotor = new WPI_TalonSRX(CONVEYOR_BELT_CHANNEL);
     bridgeMotor = new WPI_VictorSPX(BRIDGE_CHANNEL);
 
     // TURRET 
@@ -314,22 +319,22 @@ class Robot : public TimedRobot {
   {
     // Execute ramsete command
     cout << " " << endl;
-    // if(!rc->IsFinished() )
-    // {
+    if(!rc->IsFinished() )
+    {
       SmartDashboard::PutNumber("Execute COUNT???", i);
       i++;
       rc->Execute();
       SmartDashboard::PutNumber("Chassis Left Encoder: ", m_drive.GetLeftEncoder());
       SmartDashboard::PutNumber("Chassis Right Encoder: ", m_drive.GetRightEncoder());
       SmartDashboard::PutNumber("Avg Dist: ", m_drive.GetAverageEncoderDistance());
-    // }
-    // else {
-    //   SmartDashboard::PutNumber("End COUNT???", j);
-    //   j++;
-    //   cout << "end" << endl;
-    //   rc->End(true);
-    //   m_drive.StopAuto();
-    // }
+    }
+    else {
+      SmartDashboard::PutNumber("End COUNT???", j);
+      j++;
+      cout << "end" << endl;
+      rc->End(true);
+      m_drive.StopAuto();
+    }
   }
 
   virtual void TeleopInit() override
@@ -412,77 +417,77 @@ class Robot : public TimedRobot {
     // SHOOTING
     /* get gamepad axis */
     //double leftYstick = _joy->GetLeftThrottle();
-		double motorOutput = _talon->GetMotorOutputPercent();
+		// double motorOutput = _talon->GetMotorOutputPercent();
 		/* prepare line to print */
-		_sb.append("\tout:");
-		_sb.append(to_string(motorOutput));
-		_sb.append("\tspd:");
-		_sb.append(to_string(_talon->GetSelectedSensorVelocity(kPIDLoopIdx)));
+		// _sb.append("\tout:");
+		// _sb.append(to_string(motorOutput));
+		// _sb.append("\tspd:");
+		// _sb.append(to_string(_talon->GetSelectedSensorVelocity(kPIDLoopIdx)));
 		/* while button1 is held down, closed-loop on target velocity */
-		string button_status;
-    double targetVelocity_UnitsPer100ms = 0;
-    if (_joy->GetButtonA()) 
-    {
+		// string button_status;
+    // double targetVelocity_UnitsPer100ms = 0;
+    // if (_joy->GetButtonA()) 
+    // {
         	/* Speed mode */
 			/* Convert 500 RPM to units / 100ms.
 			 * 4096 Units/Rev * 500 RPM / 600 100ms/min in either direction:
 			 * velocity setpoint is in units/100ms
 			 */
-      button_status = "pushed";
+      // button_status = "pushed";
       // calculate rpm:
-      double desiredRPM = (3.7274 * distanceToVisionTarget) + 4951.4266; // linear regression
+      // double desiredRPM = (3.7274 * distanceToVisionTarget) + 4951.4266; // linear regression
       //double desiredRPM = (0.1099* pow(distanceToVisionTarget, 2)) - (33.1961 * distanceToVisionTarget)  + 7968.2759; // quadratic regression
       //double desiredRPM = (0.0017 * pow(distanceToVisionTarget, 3)) - (0.7705 * pow(distanceToVisionTarget, 2)) + (112.4296 * distanceToVisionTarget) + 73.1639; // cubic regression
       //double desiredRPM = (-5.4012 * pow(distanceToVisionTarget, 4)) + (0.0054 * pow(distanceToVisionTarget, 3)) + (-1.6742 * pow(distanceToVisionTarget, 2)) + (211.3463 * distanceToVisionTarget) - 3939.8026; // quartic regression
 
-			targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600; //change 4096 to 2048 for unit per rev
+			// targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600; //change 4096 to 2048 for unit per rev
       //double targetVelocity_UnitsPer100ms = 0.75 * 500.0 * 2048 / 600; //change 4096 to 2048 for unit per rev
 			/* 500 RPM in either direction */
 			/* append more signals to print when in speed mode. */
-			_sb.append("\terrNative:");
-			_sb.append(to_string(_talon->GetClosedLoopError(kPIDLoopIdx)));
-			_sb.append("\ttrg:");
-			_sb.append(to_string(targetVelocity_UnitsPer100ms));
-      } 
-      else
-      {
-        button_status = "not pushed";
-      }
-      _talon->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms); 
+			// _sb.append("\terrNative:");
+			// _sb.append(to_string(_talon->GetClosedLoopError(kPIDLoopIdx)));
+			// _sb.append("\ttrg:");
+			// _sb.append(to_string(targetVelocity_UnitsPer100ms));
+      // } 
+      // else
+      // {
+      //   button_status = "not pushed";
+      // }
+      // _talon->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms); 
 
       //else {
 			/* Percent voltage mode */
 		//_talon->Set(ControlMode::PercentOutput, leftYstick);
 		//}
 		/* print every ten loops, printing too much too fast is generally bad for performance */
-		SmartDashboard::PutString("button a: ", button_status);
+		// SmartDashboard::PutString("button a: ", button_status);
 
-    if (++_loops >= 10) {
-			_loops = 0;
-			printf("%s\n",_sb.c_str());
-		}
-		_sb.clear();
+    // if (++_loops >= 10) {
+		// 	_loops = 0;
+		// 	printf("%s\n",_sb.c_str());
+		// }
+		// _sb.clear();
 
     // Set distance & offset --> to give to turret & shooter
-    distanceToVisionTarget = SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
+    // distanceToVisionTarget = SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); 
 	  offsetFromVisionTarget = (SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
-    cout << "Distance to vision target: " << distanceToVisionTarget << endl;
-    cout << "offset: " << offsetFromVisionTarget << endl;
-    cout << endl;
+    // cout << "Distance to vision target: " << distanceToVisionTarget << endl;
+    // cout << "offset: " << offsetFromVisionTarget << endl;
+    // cout << endl;
     
     //INTAKE
-    bool buttonRB = _joy -> GetButtonRB(); // rollers in
-    bool buttonLB = _joy -> GetButtonLB(); // rollers out
+    // bool buttonRB = _joy -> GetButtonRB(); // rollers in
+    // bool buttonLB = _joy -> GetButtonLB(); // rollers out
 
-    if(buttonRB){
-      intakemech -> RollersIn();
-    }
-    else if(buttonLB){
-      intakemech -> RollersOut(); 
-    }
-    else{
-      intakemech -> RollersStop();
-    }
+    // if(buttonRB){
+    //   intakemech -> RollersIn();
+    // }
+    // else if(buttonLB){
+    //   intakemech -> RollersOut(); 
+    // }
+    // else{
+    //   intakemech -> RollersStop();
+    // }
     // if(buttonLB){
     //   intakemech -> MechInRobot();
     // }
@@ -491,71 +496,81 @@ class Robot : public TimedRobot {
     // }
 
     // INTAKE TO TURRET TRANSPORTATION
-    bool buttonX = _joy -> GetButtonX(); // conveyor belt
-    bool buttonB = _joy -> GetButtonB(); // conveyor belt back
-    bool buttonY = _joy -> GetButtonY(); // bridge
+    // bool buttonX = _joy -> GetButtonX(); // conveyor belt
+    // bool buttonB = _joy -> GetButtonB(); // conveyor belt back
+    // bool buttonY = _joy -> GetButtonY(); // bridge
 
-    if (buttonX) {
-      // run conveyor belt
-      conveyorBeltMotor->Set(1.0);
-    }
-    else if (buttonB) {
-      conveyorBeltMotor->Set(-1.0);
-    }
-    else {
-      // stop conveyor belt
-      conveyorBeltMotor->Set(0);
+    // if (buttonX) {
+    //   // run conveyor belt
+    //   conveyorBeltMotor->Set(1.0);
+    // }
+    // else if (buttonB) {
+    //   conveyorBeltMotor->Set(-1.0);
+    // }
+    // else {
+    //   // stop conveyor belt
+    //   conveyorBeltMotor->Set(0);
+    // }
+
+    // if (buttonY) {
+    //   // run bridge motor
+    //   bridgeMotor->Set(1.0);
+    // }
+    // else {
+    //   // stop bridge motor
+    //   bridgeMotor->Set(0);
+    // }
+
+    bool buttonA = _joy->GetButtonA();
+    bool buttonX = _joy->GetButtonX();
+    bool buttonY = _joy->GetButtonY();
+    double desiredRPM = shootingcontroller->GetDesiredRPM();
+    double runningRPM = shootingcontroller->GetRunningRPM();
+
+    if(buttonA) {
+      shootingcontroller->Target();
+      if((runningRPM > (0.95 * desiredRPM)) || (runningRPM > (1.05 * desiredRPM)))
+      {
+        bridgeMotor->Set(1.0);
+        shootingcontroller->StopConveyorBelt();
+      }
+      else
+      {
+        bridgeMotor->Set(0.0);
+        shootingcontroller->StopConveyorBelt();
+      }
     }
 
-    if (buttonY) {
-      // run bridge motor
-      bridgeMotor->Set(1.0);
+    if(buttonX) {
+      shootingcontroller->GetOneBall();
     }
-    else {
-      // stop bridge motor
-      bridgeMotor->Set(0);
+    if(buttonY) {
+      shootingcontroller->OuttakeOneBall();
     }
 
-    // TURRET TESTING CODE
-    // with vision
+    // TURRET (to be integrated into shootercontroller)
     bool buttonStart = _joy->GetButtonStart();
     bool buttonBack = _joy->GetButtonBack();
-    #ifdef TURRET_USING_VISION
-      if (buttonStart) {
-        turretMotor -> Set(0.2); // run to right
-      }
-      else if (buttonBack) {
-        turretMotor -> Set(-0.2); // run to left
-      }
-      else if ((offsetFromVisionTarget == BAD_DATA) && (!_joy->GetButtonY()))
-      {
-        turretMotor -> Set(0); // within bounds
-      }
-      else if ((offsetFromVisionTarget < LOWER_BOUND) && (!_joy->GetButtonY())) {
-        turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
-      }
-      else if ((offsetFromVisionTarget > UPPER_BOUND) && (!_joy->GetButtonY()))
-      {
-        turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
-      }
-      else {
-        turretMotor -> Set(0); // within bounds
-      }
-    #endif
-
-    // manual testing
-    // #ifndef TURRET_USING_VISION
-      // bool turretJoystick = _joy->GetLeftYAxis();
-      // if (buttonStart) {
-      //   turretMotor -> Set(0.4); // run to right
-      // }
-      // else if (buttonBack) {
-      //   turretMotor -> Set(-0.4); // run to left
-      // }
-      // else {
-      //   turretMotor -> Set(0); //stop
-      // }
-    // #endif
+    if (buttonStart) {
+      turretMotor -> Set(0.2); // run to right
+    }
+    else if (buttonBack) {
+      turretMotor -> Set(-0.2); // run to left
+    }
+    else if ((offsetFromVisionTarget == BAD_DATA) && (!_joy->GetButtonY()))
+    {
+      turretMotor -> Set(0); // within bounds
+    }
+    else if ((offsetFromVisionTarget < LOWER_BOUND) && (!_joy->GetButtonY())) {
+      turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
+    }
+    else if ((offsetFromVisionTarget > UPPER_BOUND) && (!_joy->GetButtonY()))
+    {
+      turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
+    }
+    else {
+      turretMotor -> Set(0); // within bounds
+    }
   }
 
   virtual void TestPeriodic() override
