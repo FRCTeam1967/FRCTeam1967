@@ -55,3 +55,7 @@ double FlywheelMechInfiniteRecharge::GetRunningRPM()
     frc::SmartDashboard::PutNumber("RPM flywheel is running at", runningRPM);
     return runningRPM;
 }
+
+void FlywheelMechInfiniteRecharge::StopFlywheel() {
+    flywheelMotor->Set(ControlMode::Velocity, 0);
+}

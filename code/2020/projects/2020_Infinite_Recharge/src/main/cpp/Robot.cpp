@@ -545,22 +545,38 @@ class Robot : public TimedRobot {
       }
       aWasPressed = true;
     }
-    else {
+    else if (aWasPressed && !buttonA){
+      shootingcontroller->StopTarget();
       aWasPressed = false;
     }
 
     if(buttonX && !xWasPressed) {
-      shootingcontroller->SetDesiredCount(-5120);
+      shootingcontroller->SetDesiredCount(-4096);
       xWasPressed = true;
     }
     else if(buttonY && !yWasPressed) {
-      shootingcontroller->SetDesiredCount(5120);
+      shootingcontroller->SetDesiredCount(4096);
       yWasPressed = true;
     }
     else {
       xWasPressed = false;
       yWasPressed = false;
     }
+
+    // intake
+    float intakeJoy = _joy->GetLeftYAxis();
+
+    if(intakeJoy > 0.2) {
+      shootingcontroller->IntakeOut();
+    }
+    else if (intakeJoy < -0.2) {
+      shootingcontroller->IntakeIn();
+    }
+    else {
+      shootingcontroller->IntakeStop();
+    }
+
+
 
     // TURRET (to be integrated into shootercontroller)
     bool buttonStart = _joy->GetButtonStart();
@@ -585,6 +601,13 @@ class Robot : public TimedRobot {
     else {
       turretMotor -> Set(0); // within bounds
     }
+    
+    bool driveStraightButton = left->Get4();
+    if(driveStraightButton) {
+      float avg = ((left->GetY()) + (right->GetY())) / 2;
+      drive -> TankDrive(-avg, -avg);
+    }
+
   }
 
   virtual void TestPeriodic() override

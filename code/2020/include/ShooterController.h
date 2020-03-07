@@ -24,6 +24,10 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         void StopConveyorBelt();
         double GetRunningRPM();
         double GetDesiredRPM();
+        void IntakeStop();
+        void IntakeIn();
+        void IntakeOut();
+        void StopTarget();
     private:
         double currentEncoderCount; 
         double desiredEncoderCount;

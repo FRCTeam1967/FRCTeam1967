@@ -93,24 +93,40 @@ double ShooterControllerInfiniteRecharge::GetDesiredRPM()
 
 void ShooterControllerInfiniteRecharge::Run() 
 {
-    if(GetEncoderCount() > desiredEncoderCount && run)
+    if((GetEncoderCount() > desiredEncoderCount) && (run) && (desiredEncoderCount < 0))
     { 
-        intakemech -> RollersIn();
-        conveyorBeltMotor->Set(1.0);
+        //IntakeIn();
+        conveyorBeltMotor->Set(0.7);
     }
-    else if(GetEncoderCount() < desiredEncoderCount && run)
+    else if((GetEncoderCount() < desiredEncoderCount) && (run) && (desiredEncoderCount > 0))
     { 
-        intakemech -> RollersOut();
-        conveyorBeltMotor->Set(-1.0);
+        //IntakeOut();
+        conveyorBeltMotor->Set(-0.7);
     }
     else 
     {
-        intakemech -> RollersStop();
+        //IntakeStop();
         conveyorBeltMotor->Set(0.0);
         ResetEncoderCount();
         std::cout << "STOPPPPPPPPPP" << std::endl;
     } 
 
-    std::cout << "STORAGE ENCODER: " << currentEncoderCount << std::endl;
-    std::cout << "STORAGE ENCODER: " << desiredEncoderCount << std::endl;
+    frc::SmartDashboard::PutNumber("Current Storage Encoder Count", currentEncoderCount);
+    frc::SmartDashboard::PutNumber("Desired Storage Encoder Count", desiredEncoderCount);
+}
+
+void ShooterControllerInfiniteRecharge::IntakeIn() {
+    intakemech -> RollersIn();
+}
+
+void ShooterControllerInfiniteRecharge::IntakeOut() {
+    intakemech -> RollersOut();
+}
+
+void ShooterControllerInfiniteRecharge::IntakeStop() {
+    intakemech -> RollersStop();
+}
+
+void ShooterControllerInfiniteRecharge::StopTarget() {
+    flywheelmech->StopFlywheel();
 }
