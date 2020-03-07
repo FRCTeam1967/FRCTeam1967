@@ -17,7 +17,7 @@ void AutoShoot::Start()
 
 bool AutoShoot::JobDone()
 {
-    
+    return true;
 }
 
 void AutoShoot::RunAction()
