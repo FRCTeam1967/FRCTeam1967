@@ -4,7 +4,7 @@
 #define DRIVING_WITH_2_JOYS
 
 //Cameras
-// #define DRIVE_TEAM_CAM_1 //COMMENT THIS OUT IF CAMERA IS NOT ON BOT
+//#define DRIVE_TEAM_CAM_1 //COMMENT THIS OUT IF CAMERA IS NOT ON BOT
 #define DRIVE_TEAM_CAM_2 //COMMENT THIS OUT IF CAMERA IS NOT ON BOT
 
 // Ports of joysticks & sensors
@@ -51,7 +51,7 @@
 #define LOWER_BOUND -3
 #define UPPER_BOUND 3
 #define BAD_DATA -1000
-#define TURRET_SPEED_W_VISION 0.2
+#define TURRET_SPEED_W_VISION 0.1
 #define TURRET_USING_VISION
 
 // Shooting

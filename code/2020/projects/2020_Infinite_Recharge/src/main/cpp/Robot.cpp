@@ -345,11 +345,11 @@ class Robot : public TimedRobot {
     // CHASSIS
     #ifdef DRIVING_WITH_2_JOYS
       #ifdef PROG_BOT
-      bool drivingToggle = left -> Get10();
+      bool drivingToggle = left -> Get4();
       #endif
 
       #ifdef JANKYCHASSIS
-      bool drivingToggle = left -> Get10();
+      bool drivingToggle = left -> Get4();
       #endif
     #endif
     
@@ -513,7 +513,7 @@ class Robot : public TimedRobot {
       turretMotor -> Set(0); // within bounds
     }
     
-    bool driveStraightButton = right->Get4();
+    bool driveStraightButton = right->Get5();
     if(driveStraightButton) {
       float avg = ((left->GetY()) + (right->GetY())) / 2;
       drive -> TankDrive(-avg, -avg);
