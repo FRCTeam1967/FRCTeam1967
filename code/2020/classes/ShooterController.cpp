@@ -39,12 +39,14 @@ void ShooterControllerInfiniteRecharge::ResetEncoderCount()
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().SetQuadraturePosition(0,10);
     desiredEncoderCount = 0;
     run = false;
+    manualSConveyor = true;
 }
     
 void ShooterControllerInfiniteRecharge::SetDesiredCount(int count)
 {
     desiredEncoderCount = count;
     run = true;
+    manualSConveyor = false;
 }
 
 void ShooterControllerInfiniteRecharge::GetOneBall()
@@ -80,6 +82,7 @@ void ShooterControllerInfiniteRecharge::OuttakeOneBall()
 void ShooterControllerInfiniteRecharge::StopConveyorBelt() 
 {
     conveyorBeltMotor->Set(0.0);
+    manualSConveyor = true;
 }
 
 double ShooterControllerInfiniteRecharge::GetRunningRPM()
@@ -93,26 +96,26 @@ double ShooterControllerInfiniteRecharge::GetDesiredRPM()
 
 void ShooterControllerInfiniteRecharge::Run() 
 {
-    if((GetEncoderCount() > desiredEncoderCount) && (run) && (desiredEncoderCount < 0))
+    if(!manualSConveyor && (GetEncoderCount() > desiredEncoderCount) && (run) && (desiredEncoderCount < 0))
     { 
         //IntakeIn();
         conveyorBeltMotor->Set(0.7);
     }
-    else if((GetEncoderCount() < desiredEncoderCount) && (run) && (desiredEncoderCount > 0))
+    else if(!manualSConveyor && (GetEncoderCount() < desiredEncoderCount) && (run) && (desiredEncoderCount > 0))
     { 
         //IntakeOut();
         conveyorBeltMotor->Set(-0.7);
     }
-    else 
+    else if (!manualSConveyor)
     {
         //IntakeStop();
         conveyorBeltMotor->Set(0.0);
         ResetEncoderCount();
-        std::cout << "STOPPPPPPPPPP" << std::endl;
+        //std::cout << "STOPPPPPPPPPP" << std::endl;
     } 
 
-    frc::SmartDashboard::PutNumber("Current Storage Encoder Count", currentEncoderCount);
-    frc::SmartDashboard::PutNumber("Desired Storage Encoder Count", desiredEncoderCount);
+    //frc::SmartDashboard::PutNumber("Current Storage Encoder Count", currentEncoderCount);
+    //frc::SmartDashboard::PutNumber("Desired Storage Encoder Count", desiredEncoderCount);
 }
 
 void ShooterControllerInfiniteRecharge::IntakeIn() {
@@ -129,4 +132,17 @@ void ShooterControllerInfiniteRecharge::IntakeStop() {
 
 void ShooterControllerInfiniteRecharge::StopTarget() {
     flywheelmech->StopFlywheel();
+}
+
+void ShooterControllerInfiniteRecharge::StartConveyorBelt() {
+    manualSConveyor = true;
+    conveyorBeltMotor->Set(1.0);
+}
+
+void ShooterControllerInfiniteRecharge::IntakePistonsDown() {
+    intakemech->MechOutRobot();
+}
+
+void ShooterControllerInfiniteRecharge::IntakePistonsUp() {
+    intakemech->MechInRobot();
 }

@@ -22,16 +22,20 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         void OuttakeOneBall();
         void SetDesiredCount(int count);
         void StopConveyorBelt();
+        void StartConveyorBelt();
         double GetRunningRPM();
         double GetDesiredRPM();
         void IntakeStop();
         void IntakeIn();
         void IntakeOut();
         void StopTarget();
+        void IntakePistonsDown();
+        void IntakePistonsUp();
     private:
         double currentEncoderCount; 
         double desiredEncoderCount;
         bool run;
+        bool manualSConveyor;
         WPI_TalonSRX * conveyorBeltMotor;
         FlywheelMechInfiniteRecharge * flywheelmech;
         IntakeMech * intakemech;
