@@ -8,7 +8,7 @@
 #define MOTOR_STOP_SPEED 0.0
 #define UD_PULSES_PER_REVOLUTION 4096 //UD means up and down (just ignore it when programming)
 #define UD_CIRCUMFERENCE 4.5314 //circumference of the sprocket
-#define GEAR_RATIO 20 //the ratio is 20 to 1
+#define GEAR_RATIO 100 //the ratio is 100 to 1
 #define THIRD_STAGE_PRESENT 1 //they don;t have a third stage so we just kept this as 1
 
 
