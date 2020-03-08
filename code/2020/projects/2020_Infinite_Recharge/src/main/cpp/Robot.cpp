@@ -385,7 +385,7 @@ class Robot : public TimedRobot {
     else if (!shootingSideFront)
     {
       #ifdef DRIVING_WITH_2_JOYS
-        drive -> TankDrive(left->GetY(), right->GetY());
+        drive -> TankDrive(right->GetY(), left->GetY());
       #endif
       #ifdef DRIVING_WITH_XBOX
         drive -> TankDrive(pow(drivingJoy->GetLeftYAxis(), 2), pow(drivingJoy->GetRightYAxis(), 2));

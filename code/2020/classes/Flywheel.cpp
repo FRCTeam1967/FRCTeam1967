@@ -39,7 +39,7 @@ double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
 
 void FlywheelMechInfiniteRecharge::SetRPM()
 {
-    desiredRPM = (3.7272 * distanceToVisionTarget) + 4951.4266; 
+    desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //4951.4266; 
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }

@@ -6,8 +6,8 @@
 #include <jankyXboxJoystick.h>
 
 //motor speeds
-#define MOTOR_ROLL_F_SPEED -0.5   //roller intake speed (the signs may have to be switched)
-#define MOTOR_ROLL_R_SPEED 0.5   //roller outtake speed
+#define MOTOR_ROLL_F_SPEED -0.75   //roller intake speed (the signs may have to be switched)
+#define MOTOR_ROLL_R_SPEED 0.75   //roller outtake speed
 #define MOTOR_STOP_SPEED 0.0  // stops motor
 
 using namespace frc;
