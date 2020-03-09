@@ -73,8 +73,8 @@ class Robot : public TimedRobot {
   //shooting
   WPI_TalonSRX * conveyorBeltMotor;
   ShooterControllerInfiniteRecharge * shootingcontroller;
-  WPI_VictorSPX * bridgeMotor;
-  WPI_TalonSRX * turretMotor; 
+  // WPI_VictorSPX * bridgeMotor;
+  // WPI_TalonSRX * turretMotor; 
 	string _sb;
 	int _loops = 0;
   //joysticks
@@ -121,8 +121,8 @@ class Robot : public TimedRobot {
     // intakemech = NULL;
     conveyorBeltMotor = NULL;
     shootingcontroller = NULL;
-    bridgeMotor = NULL;
-    turretMotor = NULL;
+    // bridgeMotor = NULL;
+    // turretMotor = NULL;
     //joysticks
     _joy = NULL;
     #ifdef DRIVING_WITH_2_JOYS
@@ -157,9 +157,9 @@ class Robot : public TimedRobot {
     // delete intakemech;
     delete conveyorBeltMotor;
     delete shootingcontroller;
-    delete bridgeMotor;
+    // delete bridgeMotor;
     //delete conveyorBeltMotor;
-    delete turretMotor;
+    // delete turretMotor;
     //joysticks
     delete _joy;
     #ifdef DRIVING_WITH_2_JOYS
@@ -282,7 +282,7 @@ class Robot : public TimedRobot {
 
     // SHOOTER
     shootingSideFront = true;
-    shootingcontroller = new ShooterControllerInfiniteRecharge(CONVEYOR_BELT_CHANNEL, MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL, FLYWHEEL_CHANNEL);
+    shootingcontroller = new ShooterControllerInfiniteRecharge(CONVEYOR_BELT_CHANNEL, MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL, FLYWHEEL_CHANNEL, BRIDGE_CHANNEL, TURRET_MOTOR_CHANNEL);
 
     // GET VISION DATA
     SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
@@ -290,10 +290,10 @@ class Robot : public TimedRobot {
 
     // INTAKE & CONVEYOR BELT & BRIDGE
     conveyorBeltMotor = new WPI_TalonSRX(CONVEYOR_BELT_CHANNEL);
-    bridgeMotor = new WPI_VictorSPX(BRIDGE_CHANNEL);
+    // bridgeMotor = new WPI_VictorSPX(BRIDGE_CHANNEL);
 
     // TURRET 
-    turretMotor = new WPI_TalonSRX(TURRET_MOTOR_CHANNEL);
+    // turretMotor = new WPI_TalonSRX(TURRET_MOTOR_CHANNEL);
   }
 
   virtual void AutonomousInit() override
@@ -335,9 +335,6 @@ class Robot : public TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
-    //assert(_joy);
-    // cout << "GYRO" << m_drive.ReturnGyroAngle() << endl;
-
     // CHASSIS ENCODERS
     cout << "Left Encoder: " << rlmotor->GetSensorCollection().GetQuadraturePosition() << endl;
     cout << "Right Encoder: " << (-1.0 * frmotor->GetSensorCollection().GetQuadraturePosition()) << endl;
@@ -391,6 +388,16 @@ class Robot : public TimedRobot {
         drive -> TankDrive(pow(drivingJoy->GetLeftYAxis(), 2), pow(drivingJoy->GetRightYAxis(), 2));
       #endif
     }
+
+    bool driveStraightButton = right->Get5();
+    if(driveStraightButton && shootingSideFront) {
+      float avg = ((left->GetY()) + (right->GetY())) / 2;
+      drive -> TankDrive(-avg, -avg);
+    }
+    else if (driveStraightButton && !shootingSideFront) {
+      float avg = ((left->GetY()) + (right->GetY())) / 2;
+      drive -> TankDrive(avg, avg);
+    }
   
     // COLOR SENSOR
     #ifdef CP_ON_ROBOT
@@ -424,13 +431,15 @@ class Robot : public TimedRobot {
     // CONVEYOR BELT & BRIDGE
      if (buttonB && !bWasPressed) {
       // run bridge motor
-         bridgeMotor->Set(1.0);
+        shootingcontroller->BridgeForward();
+        //  bridgeMotor->Set(1.0);
          shootingcontroller->StartConveyorBelt();
          bWasPressed = true;
      }
      else if (!buttonB & bWasPressed) {
       // stop bridge motor
-      bridgeMotor->Set(0);
+      shootingcontroller->StopBridge();
+      // bridgeMotor->Set(0);
       shootingcontroller->StopConveyorBelt();
       bWasPressed = false;
      }
@@ -446,16 +455,6 @@ class Robot : public TimedRobot {
     // FLYWHEEL
     if(buttonA) {
       shootingcontroller->Target();
-      // if((runningRPM > (0.95 * runningRPM)) && (runningRPM < (1.05 * runningRPM)))
-      // {
-      //   bridgeMotor->Set(1.0);
-      //   shootingcontroller->StartConveyorBelt();
-      // }
-      // else
-      // {
-      //   bridgeMotor->Set(0.0);
-      //   shootingcontroller->StopConveyorBelt();
-      // }
       aWasPressed = true;
     }
     else if (aWasPressed){
@@ -489,34 +488,34 @@ class Robot : public TimedRobot {
       shootingcontroller->IntakeStop();
     }
 
-    // TURRET (to be integrated into shootercontroller)
+    // TURRET
     bool buttonStart = _joy->GetButtonStart();
     bool buttonBack = _joy->GetButtonBack();
     if (buttonStart) {
-      turretMotor -> Set(0.2); // run to right
+      shootingcontroller-> TurretRight();
+      // turretMotor -> Set(0.2); // run to right
     }
     else if (buttonBack) {
-      turretMotor -> Set(-0.2); // run to left
+      shootingcontroller-> TurretLeft();
+      // turretMotor -> Set(-0.2); // run to left
     }
     else if ((offsetFromVisionTarget == BAD_DATA) && (!_joy->GetButtonY()))
     {
-      turretMotor -> Set(0); // within bounds
+      shootingcontroller->StopTurret();
+      // turretMotor -> Set(0); // within bounds
     }
     else if ((offsetFromVisionTarget < LOWER_BOUND) && (!_joy->GetButtonY())) {
-      turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
+      shootingcontroller-> TurretRight();
+      // turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
     }
     else if ((offsetFromVisionTarget > UPPER_BOUND) && (!_joy->GetButtonY()))
     {
-      turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
+      shootingcontroller-> TurretLeft();
+      // turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
     }
     else {
-      turretMotor -> Set(0); // within bounds
-    }
-    
-    bool driveStraightButton = right->Get5();
-    if(driveStraightButton) {
-      float avg = ((left->GetY()) + (right->GetY())) / 2;
-      drive -> TankDrive(-avg, -avg);
+      shootingcontroller->StopTurret();
+      // turretMotor -> Set(0); // within bounds
     }
 
   }

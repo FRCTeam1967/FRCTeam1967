@@ -1,14 +1,19 @@
 #include <iostream>
 #include "ShooterController.h"
 
+using namespace frc;
+using namespace ctre;
 
-ShooterControllerInfiniteRecharge::ShooterControllerInfiniteRecharge(int conveyorBeltMotorChannel, int motorRollChannel,int leftPistonChannel,int rightPistonChannel, int flywheelChannelNumber)
+ShooterControllerInfiniteRecharge::ShooterControllerInfiniteRecharge(int conveyorBeltMotorChannel, int motorRollChannel,int leftPistonChannel,int rightPistonChannel, int flywheelChannelNumber, int bridgeChannel, int turretChannel)
 {
     conveyorBeltMotor = new WPI_TalonSRX(conveyorBeltMotorChannel);
     conveyorBeltMotor->ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().SetQuadraturePosition(0,10);
     flywheelmech = new FlywheelMechInfiniteRecharge(flywheelChannelNumber);
     intakemech = new IntakeMech(motorRollChannel, leftPistonChannel, rightPistonChannel);
+
+    bridgeMotor = new WPI_VictorSPX(bridgeChannel);
+    turretMotor = new WPI_TalonSRX(turretChannel); 
 
     ResetEncoderCount();
     SetDesiredCount(0);
@@ -20,6 +25,8 @@ ShooterControllerInfiniteRecharge::~ShooterControllerInfiniteRecharge()
     delete conveyorBeltMotor;
     delete flywheelmech;
     delete intakemech;
+    delete bridgeMotor;
+    delete turretMotor;
 }
 
 void ShooterControllerInfiniteRecharge::Target()
@@ -94,30 +101,6 @@ double ShooterControllerInfiniteRecharge::GetDesiredRPM()
     return flywheelmech->ReturnDesiredRPM();
 }
 
-void ShooterControllerInfiniteRecharge::Run() 
-{
-    if(!manualSConveyor && (GetEncoderCount() > desiredEncoderCount) && (run) && (desiredEncoderCount < 0))
-    { 
-        //IntakeIn();
-        conveyorBeltMotor->Set(0.7);
-    }
-    else if(!manualSConveyor && (GetEncoderCount() < desiredEncoderCount) && (run) && (desiredEncoderCount > 0))
-    { 
-        //IntakeOut();
-        conveyorBeltMotor->Set(-0.7);
-    }
-    else if (!manualSConveyor)
-    {
-        //IntakeStop();
-        conveyorBeltMotor->Set(0.0);
-        ResetEncoderCount();
-        //std::cout << "STOPPPPPPPPPP" << std::endl;
-    } 
-
-    //frc::SmartDashboard::PutNumber("Current Storage Encoder Count", currentEncoderCount);
-    //frc::SmartDashboard::PutNumber("Desired Storage Encoder Count", desiredEncoderCount);
-}
-
 void ShooterControllerInfiniteRecharge::IntakeIn() {
     intakemech -> RollersIn();
 }
@@ -145,4 +128,42 @@ void ShooterControllerInfiniteRecharge::IntakePistonsDown() {
 
 void ShooterControllerInfiniteRecharge::IntakePistonsUp() {
     intakemech->MechInRobot();
+}
+
+void ShooterControllerInfiniteRecharge::BridgeForward() {
+    bridgeMotor->Set(1.0);
+}
+
+void ShooterControllerInfiniteRecharge::StopBridge() {
+    bridgeMotor->Set(0.0);
+}
+
+
+void ShooterControllerInfiniteRecharge::TurretLeft() {
+    turretMotor->Set(-TURRET_SPEED_W_VISION);
+}
+
+void ShooterControllerInfiniteRecharge::TurretRight() {
+    turretMotor->Set(TURRET_SPEED_W_VISION);
+}
+
+void ShooterControllerInfiniteRecharge::StopTurret() {
+    turretMotor->Set(0.0);
+}
+
+void ShooterControllerInfiniteRecharge::Run() 
+{
+    if(!manualSConveyor && (GetEncoderCount() > desiredEncoderCount) && (run) && (desiredEncoderCount < 0))
+    { 
+        conveyorBeltMotor->Set(0.7);
+    }
+    else if(!manualSConveyor && (GetEncoderCount() < desiredEncoderCount) && (run) && (desiredEncoderCount > 0))
+    { 
+        conveyorBeltMotor->Set(-0.7);
+    }
+    else if (!manualSConveyor)
+    {
+        conveyorBeltMotor->Set(0.0);
+        ResetEncoderCount();
+    } 
 }

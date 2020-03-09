@@ -10,12 +10,18 @@
 
 class ShooterControllerInfiniteRecharge : public JankyTask {
     public:
-        ShooterControllerInfiniteRecharge(int conveyorBeltMotorChannel, int motorRollChannel,int leftPistonChannel,int rightPistonChannel, int flywheelChannelNumber);
+        ShooterControllerInfiniteRecharge(int conveyorBeltMotorChannel, int motorRollChannel,int leftPistonChannel,int rightPistonChannel, int flywheelChannelNumber, int bridgeChannel, int turretChannel);
         virtual ~ShooterControllerInfiniteRecharge();
 
         virtual void Run();
 
+        // FLYWHEEL
         void Target();
+        double GetRunningRPM();
+        double GetDesiredRPM();
+        void StopTarget();
+
+        // CONVEYOR BELT
         int GetEncoderCount();
         void ResetEncoderCount();
         void GetOneBall();
@@ -23,20 +29,33 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         void SetDesiredCount(int count);
         void StopConveyorBelt();
         void StartConveyorBelt();
-        double GetRunningRPM();
-        double GetDesiredRPM();
+        
+        // INTAKE
         void IntakeStop();
         void IntakeIn();
         void IntakeOut();
-        void StopTarget();
         void IntakePistonsDown();
         void IntakePistonsUp();
+
+        // BRIDGE
+        void BridgeForward();
+        void StopBridge();
+
+        // TURRET
+        void TurretLeft();
+        void TurretRight();
+        void StopTurret();
+
     private:
         double currentEncoderCount; 
         double desiredEncoderCount;
         bool run;
         bool manualSConveyor;
+        float offsetFromVisionTarget;
+
         WPI_TalonSRX * conveyorBeltMotor;
         FlywheelMechInfiniteRecharge * flywheelmech;
         IntakeMech * intakemech;
+        WPI_VictorSPX * bridgeMotor;
+        WPI_TalonSRX * turretMotor; 
 };

@@ -51,7 +51,7 @@
 #define LOWER_BOUND -3
 #define UPPER_BOUND 3
 #define BAD_DATA -1000
-#define TURRET_SPEED_W_VISION 0.1
+#define TURRET_SPEED_W_VISION 0.2
 #define TURRET_USING_VISION
 
 // Shooting
