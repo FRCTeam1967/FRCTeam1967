@@ -21,11 +21,6 @@ AutoSanDiego::AutoSanDiego(WPI_VictorSPX*flmotor, WPI_TalonSRX*frmotor, WPI_Talo
 }
 
 AutoSanDiego::~AutoSanDiego() {
-    delete shootercontroller;
-    delete flmotor;
-    delete frmotor;
-    delete rlmotor;
-    delete rrmotor;
     delete leftDrive;
     delete rightDrive;
     delete drive;
