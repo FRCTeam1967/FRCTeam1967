@@ -119,7 +119,7 @@ void ShooterControllerInfiniteRecharge::StopTarget() {
 
 void ShooterControllerInfiniteRecharge::StartConveyorBelt() {
     manualSConveyor = true;
-    conveyorBeltMotor->Set(1.0);
+    conveyorBeltMotor->Set(-1.0);
 }
 
 void ShooterControllerInfiniteRecharge::IntakePistonsDown() {
