@@ -42,6 +42,14 @@
 #include "jankyDrivestick.h"
 #include "Settings.h"
 //#include "JankyPathWeaver.h"
+//climbing
+#include "ClimbingMech.h"
+#include "frc/WPILib.h"
+#include <frc/smartdashboard/SmartDashboard.h>
+#include "ctre/phoenix/motorcontrol/SensorCollection.h"
+#include <frc/Encoder.h>
+#include "jankyTask.h"
+
 
 // NAMESPACES
 using namespace ctre;
@@ -49,6 +57,11 @@ using namespace frc;
 using namespace rev;
 using namespace std;
 using namespace AutoDriveConstants;
+
+//Climbing Defines
+#define L_MOTOR_CHANNEL 9 //find real numbers for these later- TODO
+#define R_MOTOR_CHANNEL 10
+
 
 
 class Robot : public TimedRobot {
@@ -97,6 +110,13 @@ class Robot : public TimedRobot {
   bool aWasPressed = false;
   bool bWasPressed = false;
 
+  //climbing
+  WPI_TalonSRX * lmotor;
+  WPI_TalonSRX * rmotor;
+  ClimbingMech * climbing;
+  jankyXboxJoystick * joystick;
+  string setHeight;
+
   public:
   //constructor
   Robot()
@@ -108,10 +128,16 @@ class Robot : public TimedRobot {
     flmotor = NULL;
     rlmotor = NULL;
     frmotor = NULL;
-    rrmotor = NULL;
+    rmotor = NULL;
     drive = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
+    //climbing
+    lmotor = NULL;
+    rmotor = NULL;
+    climbing = NULL;
+    joystick = NULL;
+
     #ifdef CP_ON_ROBOT
       //color sensor
       sensor_fake = NULL;
@@ -148,6 +174,11 @@ class Robot : public TimedRobot {
     delete drive;
     delete leftDrive;
     delete rightDrive;
+    //climbing
+    delete lmotor;
+    delete rmotor;
+    delete climbing;
+    delete joystick;
     #ifdef CP_ON_ROBOT
       //color sensor
       delete sensor_fake;
@@ -294,6 +325,10 @@ class Robot : public TimedRobot {
 
     // TURRET 
     // turretMotor = new WPI_TalonSRX(TURRET_MOTOR_CHANNEL);
+    //climbing
+    climbing = new ClimbingMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, 1, 2);
+    joystick = new jankyXboxJoystick(4);
+    climbing -> StartUpInit();
   }
 
   virtual void AutonomousInit() override
@@ -335,6 +370,8 @@ class Robot : public TimedRobot {
 
   virtual void TeleopPeriodic() override
   {
+    //climbing
+    float rightVal = joystick -> GetRightYAxis();
     // CHASSIS ENCODERS
     cout << "Left Encoder: " << rlmotor->GetSensorCollection().GetQuadraturePosition() << endl;
     cout << "Right Encoder: " << (-1.0 * frmotor->GetSensorCollection().GetQuadraturePosition()) << endl;
@@ -517,12 +554,29 @@ class Robot : public TimedRobot {
       shootingcontroller->StopTurret();
       // turretMotor -> Set(0); // within bounds
     }
+    //climbing
+    //manual controls
+    
+    if (rightVal >= 0.2){
+      climbing -> ClimbingMotorDown();
+      setHeight = "None";
+    }
+    else if (rightVal <= -0.2){
+      climbing -> ClimbingMotorUp();
+      setHeight = "None";
+    }
+    else if (rightVal < 0.2 && rightVal > -0.2){
+      climbing -> ClimbingMotorStop();
+      setHeight = "None";
+    }
+  
+  
 
   }
 
   virtual void TestPeriodic() override
   {
-
+    
   }
 
   virtual void DisabledInit() override
