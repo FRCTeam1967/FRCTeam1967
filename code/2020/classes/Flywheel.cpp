@@ -44,6 +44,13 @@ void FlywheelMechInfiniteRecharge::SetRPM()
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }
 
+void FlywheelMechInfiniteRecharge::SetRPMAuto() 
+{
+    desiredRPM = 6000;
+    targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
+    flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
+}
+
 double FlywheelMechInfiniteRecharge::ReturnDesiredRPM()
 {
     return desiredRPM; 

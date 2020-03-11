@@ -8,6 +8,7 @@ class FlywheelMechInfiniteRecharge{
         FlywheelMechInfiniteRecharge(int flywheelChannelNumber);
         virtual ~FlywheelMechInfiniteRecharge();
         void SetRPM();
+        void SetRPMAuto();
         double ReturnDesiredRPM();
         double GetRunningRPM();
         void CalculateDistanceToVisionTarget();

@@ -137,7 +137,7 @@ void AutoSanDiego::RunAuto() {
         case 1: 
             cout << "CASE 1" << endl;
             CenterTurretAutomatically();
-            shootercontroller->Target();
+            shootercontroller->SetRPMAuto();
             if(flywheelTimer->Get() > FLYWHEEL_TIME)
             {
                 StartShootingTimer();

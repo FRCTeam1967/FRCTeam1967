@@ -34,6 +34,11 @@ void ShooterControllerInfiniteRecharge::Target()
     flywheelmech ->SetRPM();
 }
 
+void ShooterControllerInfiniteRecharge::SetRPMAuto()
+{
+    flywheelmech ->SetRPMAuto();
+}
+
 int ShooterControllerInfiniteRecharge::GetEncoderCount()
 { 
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().GetQuadraturePosition();
