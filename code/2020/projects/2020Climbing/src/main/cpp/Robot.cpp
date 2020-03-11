@@ -45,7 +45,7 @@ class Robot : public frc::TimedRobot {
   
   virtual void RobotInit() override
   {
-    climbing = new ClimbingMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, 1, 2);
+    climbing = new ClimbingMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL);
     joystick = new jankyXboxJoystick(4);
     climbing -> StartUpInit();
   }
@@ -86,7 +86,7 @@ class Robot : public frc::TimedRobot {
     climbing -> GroundHeight();
   }
   //manual controls
-  else {
+  
     if (rightVal >= 0.2){
       climbing -> ClimbingMotorDown();
       setHeight = "None";
@@ -99,7 +99,7 @@ class Robot : public frc::TimedRobot {
       climbing -> ClimbingMotorStop();
       setHeight = "None";
     }
-    }
+    
   }
 
     virtual void TestPeriodic() override
