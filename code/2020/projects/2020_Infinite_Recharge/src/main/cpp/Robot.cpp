@@ -17,6 +17,7 @@
 #include "frc/SpeedControllerGroup.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "frc/TimedRobot.h"
+// #include "frc/livewindow/LiveWindow.h"
 // #include <frc/trajectory/TrajectoryConfig.h>
 // #include <frc/trajectory/TrajectoryUtil.h>
 // #include <frc/trajectory/TrajectoryGenerator.h>
@@ -54,6 +55,7 @@ using namespace std;
 
 class Robot : public TimedRobot {
   //auto
+  // LiveWindow*lw;
   AutoSelector*autoSelector;
   AutoSanDiego * autoSD;
   // AutoDriveSubsystem m_drive;
@@ -103,6 +105,7 @@ class Robot : public TimedRobot {
   //constructor
   Robot()
   {
+    // lw = NULL;
     //auto
     autoSelector = NULL;
     autoSD = NULL;
@@ -140,6 +143,7 @@ class Robot : public TimedRobot {
   //deconstructor
   ~Robot()
   {
+    // delete lw;
     //auto
     delete autoSelector;
     delete autoSD;
@@ -300,6 +304,7 @@ class Robot : public TimedRobot {
     // turretMotor = new WPI_TalonSRX(TURRET_MOTOR_CHANNEL);
 
     autoSD = new AutoSanDiego(flmotor, frmotor, rlmotor, rrmotor, shootingcontroller);
+    // lw = frc::LiveWindow::GetInstance();
   }
 
   virtual void AutonomousInit() override

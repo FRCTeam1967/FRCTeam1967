@@ -42,6 +42,7 @@ class AutoSanDiego {
         DifferentialDrive*drive;
         Timer * shootingTimer;
         Timer * flywheelTimer;
+        Timer * drivingTimer;
 
         float offsetFromVisionTarget;
         bool isFinishedDriving;

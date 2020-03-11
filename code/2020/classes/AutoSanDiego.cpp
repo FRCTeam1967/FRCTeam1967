@@ -3,6 +3,7 @@
 
 #define FLYWHEEL_TIME 1
 #define CONVEYOR_TIME 3
+#define DRIVING_TIME 2
 #define DISTANCE 50
 #define FORWARD -1
 #define BACKWARD 1
@@ -51,6 +52,8 @@ void AutoSanDiego::Initialize() {
     shootingTimer -> Reset();
     flywheelTimer = new Timer();
     flywheelTimer -> Reset();
+    drivingTimer = new Timer();
+    drivingTimer -> Reset();
 
     // VARIABLES
     isFinishedDriving = false;
@@ -91,7 +94,7 @@ void AutoSanDiego::EndFlywheelTimer() {
 void AutoSanDiego::DriveStraight(int distancePulses, int forwardOrBack) {
     int avgEncoders = (GetRightEncoder() + GetLeftEncoder()) / 2;
     cout << "DISTANCE: " << avgEncoders << endl;
-    if (avgEncoders < distancePulses) {
+    if (drivingTimer->Get() < DRIVING_TIME) {
         float speed = 0.5 * forwardOrBack;
         drive -> TankDrive(-speed, -speed);
     }
@@ -121,6 +124,7 @@ void AutoSanDiego::CenterTurretAutomatically() {
 }
 
 void AutoSanDiego::RunAuto() {
+    CenterTurretAutomatically();
     // AUTO SEQUENCE
     switch(caseNum) {
         case 0:
@@ -152,6 +156,7 @@ void AutoSanDiego::RunAuto() {
                 shootercontroller->StopConveyorBelt();
                 shootercontroller->StopBridge(); 
                 shootercontroller->StopTarget();
+                drivingTimer->Start();
                 EndShootingTimer();
                 caseNum = 3;
             }
