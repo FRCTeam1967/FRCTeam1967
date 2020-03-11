@@ -3,9 +3,9 @@
 
 #define FLYWHEEL_TIME 1
 #define CONVEYOR_TIME 3
-#define DISTANCE 4096
-#define FORWARD 1
-#define BACKWARD -1
+#define DISTANCE 50
+#define FORWARD -1
+#define BACKWARD 1
 
 using namespace frc;
 using namespace ctre;
@@ -43,6 +43,7 @@ void AutoSanDiego::Initialize() {
     frmotor->GetSensorCollection().SetQuadraturePosition(0,10);
 
     // VISION DATA
+    SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);
     offsetFromVisionTarget = (SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT)); //positive is to the right
 
     // TIMERS
@@ -89,6 +90,7 @@ void AutoSanDiego::EndFlywheelTimer() {
 
 void AutoSanDiego::DriveStraight(int distancePulses, int forwardOrBack) {
     int avgEncoders = (GetRightEncoder() + GetLeftEncoder()) / 2;
+    cout << "DISTANCE: " << avgEncoders << endl;
     if (avgEncoders < distancePulses) {
         float speed = 0.5 * forwardOrBack;
         drive -> TankDrive(-speed, -speed);
@@ -97,6 +99,7 @@ void AutoSanDiego::DriveStraight(int distancePulses, int forwardOrBack) {
         drive -> TankDrive(0.0, 0.0);
         isFinishedDriving = true;
     }
+    cout << avgEncoders << endl;
 }
 
 void AutoSanDiego::CenterTurretAutomatically() {
@@ -118,18 +121,18 @@ void AutoSanDiego::CenterTurretAutomatically() {
 }
 
 void AutoSanDiego::RunAuto() {
-    // TURRET
-    CenterTurretAutomatically();
-
     // AUTO SEQUENCE
     switch(caseNum) {
         case 0:
             cout << "CASE 0" << endl;
+            CenterTurretAutomatically();
             StartFlywheelTimer();
+            drive -> TankDrive(0.0, 0.0);
             caseNum = 1;
             break;
         case 1: 
             cout << "CASE 1" << endl;
+            CenterTurretAutomatically();
             shootercontroller->Target();
             if(flywheelTimer->Get() > FLYWHEEL_TIME)
             {
@@ -138,26 +141,33 @@ void AutoSanDiego::RunAuto() {
                 caseNum = 2;
             }
             break; 
+            drive -> TankDrive(0.0, 0.0);
         case 2: 
             cout << "CASE 2" << endl;
+            CenterTurretAutomatically();
             shootercontroller->StartConveyorBelt();
             shootercontroller->BridgeForward(); 
-            if(flywheelTimer->Get() > CONVEYOR_TIME)
+            if(shootingTimer->Get() > CONVEYOR_TIME)
             {
                 shootercontroller->StopConveyorBelt();
                 shootercontroller->StopBridge(); 
+                shootercontroller->StopTarget();
                 EndShootingTimer();
                 caseNum = 3;
             }
+            drive -> TankDrive(0.0, 0.0);
             break;
         case 3:
             cout << "CASE 3" << endl;
-            DriveStraight(DISTANCE, FORWARD);
+            CenterTurretAutomatically();
+            DriveStraight(DISTANCE, BACKWARD);
             if (isFinishedDriving == true) {
                 caseNum = 4;
             }
             break;
         case 4: 
+            CenterTurretAutomatically();
+            drive -> TankDrive(0.0, 0.0);
             cout << "IS FINISHED AUTO" << endl;
             break;
     }

@@ -34,7 +34,7 @@
 #define K_I 0.0
 #define K_D 0.0
 
-ClimbingMech::ClimbingMech(int lMotorChannel, int rMotorChannel, int limSwitchBottomChannel, int limSwitchTopChannel) {
+ClimbingMech::ClimbingMech(int lMotorChannel, int rMotorChannel) {
     kTimeoutMs = 50;
     kPIDLoopIdx = 0;
     lmotor = new WPI_TalonSRX(lMotorChannel);
@@ -62,8 +62,8 @@ ClimbingMech::ClimbingMech(int lMotorChannel, int rMotorChannel, int limSwitchBo
 
     //lim switches
     
-    lmotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
-	lmotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
+    //lmotor->ConfigForwardLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
+	//lmotor->ConfigReverseLimitSwitchSource(RemoteLimitSwitchSource_RemoteTalonSRX , LimitSwitchNormal_Disabled , 6, 0);
     
 }
 
@@ -141,7 +141,7 @@ void ClimbingMech::ClimbingMotorStop(){
 }
 
 // lim switch values
-
+/*
 bool ClimbingMech::GetBottomLimSwitch(){
     return lmotor->GetSensorCollection().IsFwdLimitSwitchClosed();
 }
@@ -149,7 +149,7 @@ bool ClimbingMech::GetBottomLimSwitch(){
 bool ClimbingMech::GetTopLimSwitch(){
     return lmotor->GetSensorCollection().IsRevLimitSwitchClosed();
     }
-    
+*/
 
 
 //preset heights 
@@ -214,12 +214,12 @@ void ClimbingMech::StartUpInit(){
     desiredHeight = 0;
     desiredHeightPulses = 0;
 
-    bottomLimSwitchHasNotBeenPressed = true;
-    topLimSwitchHasNotBeenPressed = true;
+    //bottomLimSwitchHasNotBeenPressed = true;
+    //topLimSwitchHasNotBeenPressed = true;
 }
 
 //estop if lim switch triggered
-
+/*
 void ClimbingMech::EmergencyStop(){
     if ((GetBottomLimSwitch()==true) && bottomLimSwitchHasNotBeenPressed) {
 		ClimbingMotorStop();
@@ -245,8 +245,8 @@ void ClimbingMech::EmergencyStop(){
     }
     
 
-
+*/
 void ClimbingMech::Run(){ 
-    EmergencyStop(); 
+    //EmergencyStop(); 
     SmartDashboardComments();
 }

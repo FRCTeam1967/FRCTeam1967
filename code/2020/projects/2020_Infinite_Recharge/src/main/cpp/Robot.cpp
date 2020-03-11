@@ -11,20 +11,20 @@
 // frc
 #include <frc/drive/DifferentialDrive.h>
 #include "frc/TimedRobot.h"
-#include <frc/Filesystem.h>
-#include "frc/kinematics/DifferentialDriveKinematics.h"
-#include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
+// #include <frc/Filesystem.h>
+// #include "frc/kinematics/DifferentialDriveKinematics.h"
+// #include <frc/kinematics/DifferentialDriveWheelSpeeds.h>
 #include "frc/SpeedControllerGroup.h"
 #include <frc/smartdashboard/SmartDashboard.h>
 #include "frc/TimedRobot.h"
-#include <frc/trajectory/TrajectoryConfig.h>
-#include <frc/trajectory/TrajectoryUtil.h>
-#include <frc/trajectory/TrajectoryGenerator.h>
-#include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
-#include <frc/ADXRS450_Gyro.h>
+// #include <frc/trajectory/TrajectoryConfig.h>
+// #include <frc/trajectory/TrajectoryUtil.h>
+// #include <frc/trajectory/TrajectoryGenerator.h>
+// #include <frc/trajectory/constraint/DifferentialDriveVoltageConstraint.h>
+// #include <frc/ADXRS450_Gyro.h>
 //frc2
-#include "frc2/command/RamseteCommand.h"
-#include <frc2/command/InstantCommand.h>
+// #include "frc2/command/RamseteCommand.h"
+// #include <frc2/command/InstantCommand.h>
 // wpi
 #include <wpi/Path.h>
 #include <wpi/SmallString.h>
@@ -32,12 +32,13 @@
 #include "adi/ADIS16470_IMU.h"
 // custom classes
 #include "AutoConstants.h"
-#include "AutoDriveSubsystems.h"
+// #include "AutoDriveSubsystems.h"
 #include "AutoSelector.h"
 #include "ColorSensorInfiniteRecharge.h"
 #include "JankyConstants.h"
 // #include "IntakeMech.h"
-#include "ShooterController.h"
+#include "AutoSanDiego.h"
+// #include "ShooterController.h"
 #include "jankyXboxJoystick.h"
 #include "jankyDrivestick.h"
 #include "Settings.h"
@@ -56,10 +57,10 @@ using namespace ctre;
 using namespace frc;
 using namespace rev;
 using namespace std;
-using namespace AutoDriveConstants;
+// using namespace AutoDriveConstants;
 
 //Climbing Defines
-#define L_MOTOR_CHANNEL 9 //find real numbers for these later- TODO
+#define L_MOTOR_CHANNEL 9 
 #define R_MOTOR_CHANNEL 10
 
 
@@ -67,8 +68,9 @@ using namespace AutoDriveConstants;
 class Robot : public TimedRobot {
   //auto
   AutoSelector*autoSelector;
-  AutoDriveSubsystem m_drive;
-  frc2::RamseteCommand * rc;
+  AutoSanDiego * autoSD;
+  // AutoDriveSubsystem m_drive;
+  // frc2::RamseteCommand * rc;
   //chassis
   WPI_VictorSPX*flmotor;
   WPI_TalonSRX*frmotor;
@@ -123,7 +125,8 @@ class Robot : public TimedRobot {
   {
     //auto
     autoSelector = NULL;
-    rc = NULL;
+    autoSD = NULL;
+    // rc = NULL;
     //chassis
     flmotor = NULL;
     rlmotor = NULL;
@@ -165,7 +168,8 @@ class Robot : public TimedRobot {
   {
     //auto
     delete autoSelector;
-    delete rc;
+    delete autoSD;
+    // delete rc;
     //chassis
     delete flmotor;
     delete rlmotor;
@@ -210,52 +214,52 @@ class Robot : public TimedRobot {
     autoSelector->DisplayAutoOptions();
 
     // Create a voltage constraint to ensure we don't accelerate too fast
-    cout << "Creating voltage constraint" << endl;
-    frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
-        frc::SimpleMotorFeedforward<units::meters>(
-            AutoDriveConstants::ks,
-            AutoDriveConstants::kv,
-            AutoDriveConstants::ka
-          ),
-          AutoDriveConstants::kDriveKinematics,
-          10_V
-        );
+    // cout << "Creating voltage constraint" << endl;
+    // frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
+    //     frc::SimpleMotorFeedforward<units::meters>(
+    //         AutoDriveConstants::ks,
+    //         AutoDriveConstants::kv,
+    //         AutoDriveConstants::ka
+    //       ),
+    //       AutoDriveConstants::kDriveKinematics,
+    //       10_V
+    //     );
 
     // Configure trajectory
-    cout << "Config Trajectory" << endl;
-    frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration); // Set up config for trajectory
-    config.SetKinematics(AutoDriveConstants::kDriveKinematics); // Add kinematics to ensure max speed is actually obeyed
-    config.AddConstraint(autoVoltageConstraint); // Apply the voltage constraint
+    // cout << "Config Trajectory" << endl;
+    // frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration); // Set up config for trajectory
+    // config.SetKinematics(AutoDriveConstants::kDriveKinematics); // Add kinematics to ensure max speed is actually obeyed
+    // config.AddConstraint(autoVoltageConstraint); // Apply the voltage constraint
 
     // Get Trajectory
-    cout << "Get Trajectory" << endl;
-    wpi::SmallString<64> deployDirectory;
-    frc::filesystem::GetDeployDirectory(deployDirectory);
-    wpi::sys::path::append(deployDirectory, "output");
-    wpi::sys::path::append(deployDirectory, "Unnamed.wpilib.json");
-    frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+    // cout << "Get Trajectory" << endl;
+    // wpi::SmallString<64> deployDirectory;
+    // frc::filesystem::GetDeployDirectory(deployDirectory);
+    // wpi::sys::path::append(deployDirectory, "output");
+    // wpi::sys::path::append(deployDirectory, "Unnamed.wpilib.json");
+    // frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 
     // Create PID controller & set tolerance
-    cout << "Creating pid controller" << endl;
-    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // left
-    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // right
-    leftController.SetTolerance(0.0);
-    rightController.SetTolerance(0.0);
+    // cout << "Creating pid controller" << endl;
+    // frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // left
+    // frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // right
+    // leftController.SetTolerance(0.0);
+    // rightController.SetTolerance(0.0);
 
     // Instantiate ramsete command
-    cout << "Instantiate ramsete command" << endl;
-    rc = new frc2::RamseteCommand(
-      trajectory, [this]() { return m_drive.GetPose(); },
-      frc::RamseteController(AutoConstants::kRamseteB,
-                            AutoConstants::kRamseteZeta),
-      frc::SimpleMotorFeedforward<units::meters>(
-          AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
-      AutoDriveConstants::kDriveKinematics,
-      [this] { return m_drive.GetWheelSpeeds(); },
-      leftController,
-      rightController,
-      [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
-      {&m_drive});
+    // cout << "Instantiate ramsete command" << endl;
+    // rc = new frc2::RamseteCommand(
+    //   trajectory, [this]() { return m_drive.GetPose(); },
+    //   frc::RamseteController(AutoConstants::kRamseteB,
+    //                         AutoConstants::kRamseteZeta),
+    //   frc::SimpleMotorFeedforward<units::meters>(
+    //       AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
+    //   AutoDriveConstants::kDriveKinematics,
+    //   [this] { return m_drive.GetWheelSpeeds(); },
+    //   leftController,
+    //   rightController,
+    //   [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
+    //   {&m_drive});
 
     // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
@@ -326,9 +330,11 @@ class Robot : public TimedRobot {
     // TURRET 
     // turretMotor = new WPI_TalonSRX(TURRET_MOTOR_CHANNEL);
     //climbing
-    climbing = new ClimbingMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL, 1, 2);
+    climbing = new ClimbingMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL);
     joystick = new jankyXboxJoystick(4);
     climbing -> StartUpInit();
+
+    autoSD = new AutoSanDiego(flmotor, frmotor, rlmotor, rrmotor, shootingcontroller);
   }
 
   virtual void AutonomousInit() override
@@ -338,29 +344,30 @@ class Robot : public TimedRobot {
     i = 0;
     j = 0;
     // Initialize ramsete command
-    rc->Initialize();
+    // rc->Initialize();
   }
 
   virtual void AutonomousPeriodic() override
   {
+    autoSD->RunAuto();
     // Execute ramsete command
-    cout << " " << endl;
-    if(!rc->IsFinished() )
-    {
-      SmartDashboard::PutNumber("Execute COUNT???", i);
-      i++;
-      rc->Execute();
-      SmartDashboard::PutNumber("Chassis Left Encoder: ", m_drive.GetLeftEncoder());
-      SmartDashboard::PutNumber("Chassis Right Encoder: ", m_drive.GetRightEncoder());
-      SmartDashboard::PutNumber("Avg Dist: ", m_drive.GetAverageEncoderDistance());
-    }
-    else {
-      SmartDashboard::PutNumber("End COUNT???", j);
-      j++;
-      cout << "end" << endl;
-      rc->End(true);
-      m_drive.StopAuto();
-    }
+    // cout << " " << endl;
+    // if(!rc->IsFinished() )
+    // {
+    //   SmartDashboard::PutNumber("Execute COUNT???", i);
+    //   i++;
+    //   rc->Execute();
+    //   SmartDashboard::PutNumber("Chassis Left Encoder: ", m_drive.GetLeftEncoder());
+    //   SmartDashboard::PutNumber("Chassis Right Encoder: ", m_drive.GetRightEncoder());
+    //   SmartDashboard::PutNumber("Avg Dist: ", m_drive.GetAverageEncoderDistance());
+    // }
+    // else {
+    //   SmartDashboard::PutNumber("End COUNT???", j);
+    //   j++;
+    //   cout << "end" << endl;
+    //   rc->End(true);
+    //   m_drive.StopAuto();
+    // }
   }
 
   virtual void TeleopInit() override
