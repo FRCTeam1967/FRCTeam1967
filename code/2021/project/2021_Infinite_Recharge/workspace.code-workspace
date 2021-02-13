@@ -1,0 +1,17 @@
+{
+	"folders": [
+		{
+			"path": "../../2021_Infinite_Recharge-Imported_V2"
+		},
+		{
+			"path": "../../classes"
+		},
+		{
+			"path": "../../include"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "disabled",
+		"java.import.gradle.enabled": false
+	}
+}
