@@ -1,3 +1,4 @@
+#if 0
 #include <iostream>
 // Do NOT include this global header file. Include only what you need. --Mentor-Bob: #include "frc/WPILib.h"
 #include "ColorSensorInfiniteRecharge.h"
@@ -186,3 +187,4 @@ bool ColorSensorInfiniteRecharge::DetectedColor()
   }
   
 }
+#endif

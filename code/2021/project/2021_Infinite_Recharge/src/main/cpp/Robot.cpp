@@ -35,7 +35,7 @@
 #include "AutoConstants.h"
 // #include "AutoDriveSubsystems.h"
 #include "AutoSelector.h"
-#include "ColorSensorInfiniteRecharge.h"
+//#include "ColorSensorInfiniteRecharge.h"
 #include "JankyConstants.h"
 // #include "IntakeMech.h"
 #include "AutoSanDiego.h"
@@ -56,7 +56,7 @@
 // NAMESPACES
 using namespace ctre;
 using namespace frc;
-using namespace rev;
+//using namespace rev;
 using namespace std;
 // using namespace AutoDriveConstants;
 
