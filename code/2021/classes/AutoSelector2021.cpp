@@ -45,7 +45,7 @@ void AutoSelector::DisplayAutoOptions() {
 
 }
 
-#if 0
+#ifdef USE_DELAY_TIME
 int AutoSelector::GetDelayTime() {
     if(delay.GetSelected()==&zero_sec){
 		return 0;
@@ -68,8 +68,16 @@ int AutoSelector::GetDelayTime() {
 }
 #endif
 
-#if 0
 void AutoSelector::PrintValues() {
+
+	//paths
+	printf("simmple path: %d \n", simplePath);
+	printf("bounce path: %d \n", bouncePath);
+	printf("barrel racing path: %d \n", barrelPath);
+	printf("slalom path %d \n", slalomPath);
+	printf("do nothing: %d \n", doNothing);
+
+#ifdef USE_DELAY_TIME
 	// delay times
 	printf("zero_sec: %d \n", zero_sec);
 	printf("one_sec: %d \n", one_sec);
@@ -77,201 +85,47 @@ void AutoSelector::PrintValues() {
 	printf("three_sec: %d \n", three_sec);
 	printf("four_sec: %d \n", four_sec);
 	printf("five_sec: %d \n", five_sec);
-
-	// starting positions
-	printf("leftStart: %d \n", leftStart);
-	printf("rightStart: %d \n", rightStart);
-	printf("centerStart: %d \n", centerStart);
-	printf("leftOfCenterStart: %d \n", leftOfCenterStart);
-	printf("rightOfCenterStart: %d \n", rightOfCenterStart);
-	
-	// step 1
-	printf("crossLineForward: %d \n", crossLineForward);
-	printf("crossLineBackward: %d \n", crossLineBackward);
-	printf("shootPreloadedBallsFirst: %d \n", shootPreloadedBallsFirst);
-	printf("doNothing1: %d \n", doNothing1);
-
-	// step 2
-	printf("shootPreloadedBalls: %d \n", shootPreloadedBalls);
-	printf("driveToRP: %d \n", driveToRP);
-	printf("driveToTrench: %d \n", driveToTrench);
-	printf("doNothing2: %d \n", doNothing2);
-
-	// step 3
-	printf("pickUpBallsT: %d \n", pickUpBallsT);
-	printf("pickUpBallsRP: %d \n", pickUpBallsRP);
-	printf("doNothing3: %d \n", doNothing3);
-	printf("driveToT3: %d \n", driveToT3);
-	printf("driveToRP3: %d \n", driveToRP3);
-
-	// step 4
-	printf("shootPickedUpBalls: %d \n", shootPickedUpBalls);
-	printf("doNothing4: %d \n", doNothing4);
-}
 #endif
 
+}
+
 int AutoSelector::GetAutoMode() {
-#if 0
 	// variables for selected positions
-	int* selectedPosition = startingPosition.GetSelected();
+	int* selectedPath = autoPaths.GetSelected();
+#ifdef USE_DELAY_TIME
 	int* selectedDelay = delay.GetSelected();
-	int* selectedAction1 = actionStep1.GetSelected();
-	int* selectedAction2 = actionStep2.GetSelected();
-	int* selectedAction3 = actionStep3.GetSelected();
-	int* selectedAction4 = actionStep4.GetSelected();
+#endif
 
 	// print values
-	printf("selected position: %d \n", *selectedPosition);
+	printf("selected path: %d \n", *selectedPath);
+#ifdef USE_DELAY_TIME
 	printf("selected delay: %d \n", *selectedDelay);
-	printf("selected action 1: %d \n", *selectedAction1);
-	printf("selected action 2: %d \n", *selectedAction2);
-	printf("selected action 3: %d \n", *selectedAction3);
-	printf("selected action 4: %d \n", *selectedAction4);
+#endif
 
-	// decide what auto mode will be
-
-	if((selectedAction1 == &doNothing1) && (selectedAction2 == &doNothing2) &&  (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	// decide what auto mode will be:
+	if (selectedPath == &simplePath)
 	{
-		autoMode = STAY_STILL;
+		autoMode = SIMPLE_PATH;
 	}
-	else if((selectedAction1 == &crossLineForward) && (selectedAction2 == &doNothing2) &&  (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4)) 
+	else if (selectedPath == &bouncePath)
 	{
-		autoMode = FORWARD_STILL;
+		autoMode = BOUNCE_PATH;
 	}
-	else if((selectedAction1 == &crossLineBackward) && (selectedAction2 == &doNothing2) &&  (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	else if (selectedPath == &barrelPath)
 	{
-		autoMode = BACKWARD_STILL;
+		autoMode = BARREL_PATH;
 	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &shootPreloadedBalls) && (selectedAction2 == &doNothing2) && (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	else if (selectedPath == &slalomPath)
 	{
-		autoMode = CENTER_SHOOT;
+		autoMode = SLALOM_PATH;	
 	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
+	else
 	{
-		autoMode = CENTER_FORWARD_SHOOT;
-	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &crossLineBackward) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &doNothing3) && (selectedAction4 == &doNothing4))
-	{
-		autoMode = CENTER_BACKWARD_SHOOT;
-	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &shootPreloadedBallsFirst) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = CENTER_SHOOT_RONDEZVOUS;
-	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &shootPreloadedBallsFirst) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = CENTER_SHOOT_TRENCH;
-	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = CENTER_FORWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &leftStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = LEFT_FORWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &rightStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = RIGHT_FORWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &leftOfCenterStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = LC_FORWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &rightOfCenterStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = RC_FORWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &crossLineBackward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = CENTER_BACKWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &leftStart) && (selectedAction1 == &crossLineBackward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = LEFT_BACKWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &rightStart) && (selectedAction1 == &crossLineBackward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = RIGHT_BACKWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &leftOfCenterStart) && (selectedAction1 == &crossLineBackward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = LC_BACKWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &rightOfCenterStart) && (selectedAction1 == &crossLineBackward) && (selectedAction2 == &driveToRP) && (selectedAction3 == &pickUpBallsRP) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = RC_BACKWARD_RONDEZVOUS;
-	}
-	else if((selectedPosition == &centerStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = CENTER_FORWARD_TRENCH;
-	}
-	else if((selectedPosition == &leftStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = LEFT_FORWARD_TRENCH;
-	}
-	else if((selectedPosition == &rightStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = RIGHT_FORWARD_TRENCH;
-	}
-	else if((selectedPosition == &leftOfCenterStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = LC_FORWARD_TRENCH;
-	}
-	else if((selectedPosition == &rightOfCenterStart) && (selectedAction1 == &crossLineForward) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &shootPickedUpBalls))
-	{
-		autoMode = RC_FORWARD_TRENCH;
-	}
-	else if((selectedAction1 == &centerStart) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = CENTER_BACKWARD_TRENCH;
-	}
-	else if((selectedAction1 == &leftStart) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = LEFT_BACKWARD_TRENCH;
-	}
-	else if((selectedAction1 == &rightStart) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = RIGHT_BACKWARD_TRENCH;
-	}
-	else if((selectedAction1 == &leftOfCenterStart) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = LC_BACKWARD_TRENCH;
-	}
-	else if((selectedAction1 == &rightOfCenterStart) && (selectedAction2 == &driveToTrench) && (selectedAction3 == &pickUpBallsT) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = RC_BACKWARD_TRENCH;
-	}
-	else if((selectedAction1 == &centerStart) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToRP3) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = CENTER_BACKWARD_SHOOT_RONDEZVOUS;
-	}
-	else if((selectedAction1 == &rightStart) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToRP3) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = RIGHT_BACKWARD_SHOOT_RONDEZVOUS;
-	}
-	else if((selectedAction1 == &rightOfCenterStart) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToRP3) && (selectedAction4 == &pickUpBallsRP))
-	{
-		autoMode = RC_BACKWARD_SHOOT_RONDEZVOUS;
-	}
-	else if((selectedAction1 == &centerStart) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToT3) && (selectedAction4 == &pickUpBallsT))
-	{
-		autoMode = CENTER_BACKWARD_SHOOT_TRENCH;
-	}
-	else if((selectedAction1 == &rightStart) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToT3) && (selectedAction4 == &pickUpBallsT))
-	{
-		autoMode = RIGHT_BACKWARD_SHOOT_TRENCH;
-	}
-	else if((selectedAction1 == &rightOfCenterStart) && (selectedAction2 == &shootPreloadedBalls) && (selectedAction3 == &driveToT3) && (selectedAction4 == &pickUpBallsT))
-	{
-		autoMode = RC_BACKWARD_SHOOT_TRENCH;
+		autoMode = DO_NOTHING;
 	}
 
 	printf("selected auto mode: %d \n", autoMode);
 
     return autoMode;
-#endif 
-
-	return 0;
 }
 

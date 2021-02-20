@@ -34,12 +34,12 @@ JankyPathWeaver::JankyPathWeaver(AutoDriveSubsystem * drive, int autoMode)
 
     // initialize ramsete command
     //rc = NULL;
-    //SetUpRamseteCommand();
+    SetUpRamseteCommand();
 }
 
 JankyPathWeaver::~JankyPathWeaver() {
     //delete rc;
-    delete m_drive;
+    //delete m_drive;
 }
 
 void JankyPathWeaver::GeneratePath(int autoMode) {
@@ -170,22 +170,22 @@ void JankyPathWeaver::GeneratePath(int autoMode) {
     trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
 }
 
-// void JankyPathWeaver::SetUpRamseteCommand() {
-//     rc = new frc2::RamseteCommand(
-//       trajectory, [this]() { return m_drive->GetPose(); },
-//       frc::RamseteController(AutoConstants::kRamseteB,
-//                             AutoConstants::kRamseteZeta),
-//       frc::SimpleMotorFeedforward<units::meters>(
-//           AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
-//       AutoDriveConstants::kDriveKinematics,
-//       [this] { return m_drive->GetWheelSpeeds(); },
-//       leftController,
-//       rightController,
-//       [this](auto left, auto right) { m_drive->TankDriveVolts(left, right); },
-//       {&m_drive});
+void JankyPathWeaver::SetUpRamseteCommand() {
+    rc = new frc2::RamseteCommand(
+      trajectory, [this]() { return m_drive->GetPose(); },
+      frc::RamseteController(AutoConstants::kRamseteB,
+                            AutoConstants::kRamseteZeta),
+      frc::SimpleMotorFeedforward<units::meters>(
+          AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
+      AutoDriveConstants::kDriveKinematics,
+      [this] { return m_drive->GetWheelSpeeds(); },
+      leftController,
+      rightController,
+      [this](auto left, auto right) { m_drive->TankDriveVolts(left, right); },
+      {&m_drive});
 
-//       rc->Initialize();
-// }
+      rc->Initialize();
+}
 
 void JankyPathWeaver::Start()
 {

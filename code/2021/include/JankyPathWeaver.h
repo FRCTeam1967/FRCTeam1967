@@ -23,7 +23,7 @@ class JankyPathWeaver : public AutoEntry
         void End();
 
         void GeneratePath(int autoMode);
-        //void SetUpRamseteCommand();
+        void SetUpRamseteCommand();
 
     private:
         AutoDriveSubsystem * m_drive;
