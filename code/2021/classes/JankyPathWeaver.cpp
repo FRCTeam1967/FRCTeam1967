@@ -44,7 +44,7 @@ JankyPathWeaver::~JankyPathWeaver() {
 
 void JankyPathWeaver::GeneratePath(int autoMode) {
     // Path name variable
-    std::string pathName = "GetBallFromTrench.wpilib.json";
+    std::string pathName = "simpleTest.wpilib.json";
 
     // Set up config for trajectory
     frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration);
@@ -57,8 +57,10 @@ void JankyPathWeaver::GeneratePath(int autoMode) {
     wpi::SmallString<64> deployDirectory;
     frc::filesystem::GetDeployDirectory(deployDirectory);
     wpi::sys::path::append(deployDirectory, "paths");
+    
+    #if 0
     if(autoMode == STAY_STILL)
-    {
+    {w
         pathName == "StayStill.wpilib.json";
     }
     else if(autoMode == FORWARD_STILL) {
@@ -160,6 +162,7 @@ void JankyPathWeaver::GeneratePath(int autoMode) {
     else if(autoMode == RC_BACKWARD_SHOOT_TRENCH) {
         pathName == "BackwardShootTrench.wpilib.json";
     }
+    #endif
 
     wpi::sys::path::append(deployDirectory, pathName);
 

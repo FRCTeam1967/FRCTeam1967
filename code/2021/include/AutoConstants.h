@@ -11,7 +11,7 @@
 #define CHASSIS_LEFT_ENCODER_CHANNEL 0
 #define CHASSIS_RIGHT_ENCODER_CHANNEL 1
 
-#define CHASSIS_WIDTH 0.69_m
+#define CHASSIS_WIDTH 0.686_m
 #define WHEEL_DIAMETER_INCHES 0.1524 //6
 
 namespace AutoDriveConstants {
@@ -47,7 +47,7 @@ constexpr bool kGyroReversed = true;
 // theoretically for *your* robot's drive. The Robot Characterization
 // Toolsuite provides a convenient tool for obtaining these values for your
 // robot.
-constexpr auto ks = 1.04_V; //1.52_V;
+constexpr auto ks = 1.35_V; //1.52_V;
 constexpr auto kv = 0.00814 * 1_V * 1_s / 1_in;  //0.00935 * 1_V * 1_s / 1_m; 
 constexpr auto ka = 0.00215 * 1_V * 1_s * 1_s / 1_in; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
 
