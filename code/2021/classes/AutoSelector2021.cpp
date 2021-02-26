@@ -22,12 +22,19 @@ int barrelPath = BARREL_PATH;
 int slalomPath = SLALOM_PATH;
 int doNothing = DO_NOTHING;
 
+//robot used:
+int usingJankybot = JANKYBOT;
+int usingLuca = LUCA;
+
 // create sendable chooser
 SendableChooser<int*> autoPaths;
+SendableChooser<int*> robotSelector;
 
 
 AutoSelector::AutoSelector() {
 	autoMode = DO_NOTHING; //set default mode to do nothing
+	robotUsed = JANKYBOT;
+
 }
 
 AutoSelector::~AutoSelector() {
@@ -42,6 +49,9 @@ void AutoSelector::DisplayAutoOptions() {
 	autoPaths.AddOption("Slalom Path", &slalomPath);
 	SmartDashboard::PutData("Auto Paths", &autoPaths);
 
+	robotSelector.SetDefaultOption("Jankybot", &usingJankybot);
+	robotSelector.AddOption("Luca", &usingLuca);
+	SmartDashboard::PutData("Selected Robot", &robotSelector);
 
 }
 
@@ -76,6 +86,9 @@ void AutoSelector::PrintValues() {
 	printf("barrel racing path: %d \n", barrelPath);
 	printf("slalom path %d \n", slalomPath);
 	printf("do nothing: %d \n", doNothing);
+
+	printf("Jankybot: %d \n", usingJankybot);
+	printf("Luca: %d \n", usingLuca);
 
 #ifdef USE_DELAY_TIME
 	// delay times
@@ -127,5 +140,9 @@ int AutoSelector::GetAutoMode() {
 	printf("selected auto mode: %d \n", autoMode);
 
     return autoMode;
+}
+
+int AutoSelector::GetSelectedRobot() {
+	return robotSelector.GetSelected();
 }
 

@@ -47,13 +47,22 @@ constexpr bool kGyroReversed = true;
 // theoretically for *your* robot's drive. The Robot Characterization
 // Toolsuite provides a convenient tool for obtaining these values for your
 // robot.
-constexpr auto ks = 1.35_V; //1.52_V;
-constexpr auto kv = 2.35 * 1_V * 1_s / 1_m;  //0.00935 * 1_V * 1_s / 1_m; 
-constexpr auto ka = 0.478 * 1_V * 1_s * 1_s / 1_m; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
+//Jankybot:
+constexpr auto jankybotKS = 1.35_V; //1.52_V;
+constexpr auto jankybotKV = 2.35 * 1_V * 1_s / 1_m;  //0.00935 * 1_V * 1_s / 1_m; 
+constexpr auto jankybotKA = 0.478 * 1_V * 1_s * 1_s / 1_m; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
+//Luca
+constexpr auto lucaKS = 1.35_V; //1.52_V;
+constexpr auto lucaKV = 2.35 * 1_V * 1_s / 1_m;  //0.00935 * 1_V * 1_s / 1_m; 
+constexpr auto lucaKA = 0.478 * 1_V * 1_s * 1_s / 1_m; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
 
 // Example value only - as above, this must be tuned for your drive!
-constexpr double kPDriveVel = 0.0000559;
-constexpr double kDDriveVel = 0.000027;
+//Jankybot
+constexpr double jankybotKPDriveVel = 0.0000559;
+constexpr double jankybotKDDriveVel = 0.000027;
+//Luca
+constexpr double lucaKPDriveVel = 0.0000559;
+constexpr double lucaKDDriveVel = 0.000027;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {

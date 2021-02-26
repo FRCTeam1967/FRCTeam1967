@@ -35,6 +35,7 @@
 #include "AutoConstants.h"
 #include "AutoDriveSubsystems.h"
 #include "AutoSelector.h"
+#include "AutoSettings2021.h"
 //#include "ColorSensorInfiniteRecharge.h"
 #include "JankyConstants.h"
 // #include "IntakeMech.h"
@@ -235,36 +236,6 @@ class Robot : public TimedRobot {
     config.SetKinematics(AutoDriveConstants::kDriveKinematics); // Add kinematics to ensure max speed is actually obeyed
     config.AddConstraint(autoVoltageConstraint); // Apply the voltage constraint
 
-    //Get Trajectory
-    cout << "Get Trajectory" << endl;
-    wpi::SmallString<64> deployDirectory;
-    frc::filesystem::GetDeployDirectory(deployDirectory);
-    wpi::sys::path::append(deployDirectory, "output");
-    wpi::sys::path::append(deployDirectory, "Unnamed.wpilib.json");
-    frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
-
-    //Create PID controller & set tolerance
-    cout << "Creating pid controller" << endl;
-    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // left
-    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // right
-    leftController.SetTolerance(0.0);
-    rightController.SetTolerance(0.0);
-
-    //Instantiate ramsete command
-    cout << "Instantiate ramsete command" << endl;
-    rc = new frc2::RamseteCommand(
-      trajectory, [this]() { return m_drive.GetPose(); },
-      frc::RamseteController(AutoConstants::kRamseteB,
-                            AutoConstants::kRamseteZeta),
-      frc::SimpleMotorFeedforward<units::meters>(
-          AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
-      AutoDriveConstants::kDriveKinematics,
-      [this] { return m_drive.GetWheelSpeeds(); },
-      leftController,
-      rightController,
-      [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
-      {&m_drive});
-
     // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_TalonSRX(INTAKE_LEFT_MOTOR_CHANNEL);
@@ -342,14 +313,90 @@ class Robot : public TimedRobot {
     // lw = frc::LiveWindow::GetInstance();
   }
 
+  std::string getTrajectoryFileName(int autoMode){
+    std::string pathName = "simpleTest.wpilib.json";
+
+    if(autoMode == SIMPLE_PATH)
+    {
+      pathName = "simpleTest.wpilib.json";
+    }
+    else if (autoMode == BOUNCE_PATH){
+      pathName = "bouceTest.wpilib.json";
+    }
+    else if (autoMode == BARREL_PATH){
+      pathName = "barrelTest.wpilib.json";
+    }
+    else if (autoMode == SLALOM_PATH){
+      pathName = "slalomTest.wpilib.json";
+    }
+    else{
+      pathName = "doNothing.wpilib.json";
+    }
+    return pathName;
+  }
+
   virtual void AutonomousInit() override
   {
     // get auto mode
-    autoSelector -> GetAutoMode();
+    int autoMode = autoSelector -> GetAutoMode();
+    std::string pathName = getTrajectoryFileName(autoMode);
+    int selectedRobot = autoSelector -> GetSelectedRobot();
+    if (selectedRobot == JANKYBOT){
+      ks = jankybotKS;
+      kv = jankybotKV;
+      ka = jankybotKA;
+
+      kPDriveVel = jankybotKPDriveVel;
+      kDDriveVel = jankybotKDDriveVel;
+    }
+    else if (selectedRobot == LUCA){
+      ks = lucaKS;
+      kv = lucaKV;
+      ka = lucaKA;
+
+      kPDriveVel = lucaKPDriveVel;
+      kDDriveVel = lucaKDDriveVel;
+    }
+
+    //Get Trajectory
+    cout << "Get Trajectory" << endl;
+    wpi::SmallString<64> deployDirectory;
+    frc::filesystem::GetDeployDirectory(deployDirectory);
+    wpi::sys::path::append(deployDirectory, "output");
+    wpi::sys::path::append(deployDirectory, pathName);
+    //try{
+    frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+    //} catch(System.IO::IOException e){
+    //  printf("Failed to pass path into trajectory");
+    //}
+
+    //Create PID controller & set tolerance
+    cout << "Creating pid controller" << endl;
+    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // left
+    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // right
+    leftController.SetTolerance(0.0);
+    rightController.SetTolerance(0.0);
+
+    //Instantiate ramsete command
+    cout << "Instantiate ramsete command" << endl;
+    rc = new frc2::RamseteCommand(
+      trajectory, [this]() { return m_drive.GetPose(); },
+      frc::RamseteController(AutoConstants::kRamseteB,
+                            AutoConstants::kRamseteZeta),
+      frc::SimpleMotorFeedforward<units::meters>(
+          AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
+      AutoDriveConstants::kDriveKinematics,
+      [this] { return m_drive.GetWheelSpeeds(); },
+      leftController,
+      rightController,
+      [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
+      {&m_drive});
+
+
     i = 0;
     j = 0;
     // Initialize ramsete command
-     //rc->Initialize();
+    rc->Initialize();
   }
 
   virtual void AutonomousPeriodic() override

@@ -14,6 +14,10 @@
 #define FOUR_SEC 4
 #define FIVE_SEC 5
 
+// robot used:
+#define JANKYBOT 0
+#define LUCA 1
+
 #if 0
 // starting places
 #define START_LEFT_WALL 1
