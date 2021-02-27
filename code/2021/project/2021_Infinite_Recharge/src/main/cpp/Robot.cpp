@@ -34,7 +34,7 @@
 // custom classes
 #include "AutoConstants.h"
 #include "AutoDriveSubsystems.h"
-#include "AutoSelector.h"
+#include "AutoSelector2021.h"
 #include "AutoSettings2021.h"
 //#include "ColorSensorInfiniteRecharge.h"
 #include "JankyConstants.h"
@@ -319,26 +319,32 @@ class Robot : public TimedRobot {
 
   virtual void AutonomousInit() override
   {
-    auto ksSelected, kvSelected, kaSelected; 
+    auto ksSelected = AutoDriveConstants::jankybotKS;
+    auto kvSelected = AutoDriveConstants::jankybotKV;
+    auto kaSelected = AutoDriveConstants::jankybotKA; 
+
+    auto kPDriveVel = AutoDriveConstants::jankybotKPDriveVel;
+    auto kDDriveVel = AutoDriveConstants::jankybotKDDriveVel;
+
     // get auto mode
     int autoMode = autoSelector -> GetAutoMode();
     std::string pathName = getTrajectoryFileName(autoMode);
     int selectedRobot = autoSelector -> GetSelectedRobot();
     if (selectedRobot == JANKYBOT){
-      ksSelected = jankybotKS;
-      kvSelected = jankybotKV;
-      kaSelected = jankybotKA;
+      ksSelected = AutoDriveConstants::jankybotKS;
+      kvSelected = AutoDriveConstants::jankybotKV;
+      kaSelected = AutoDriveConstants::jankybotKA;
 
-      kPDriveVel = jankybotKPDriveVel;
-      kDDriveVel = jankybotKDDriveVel;
+      kPDriveVel = AutoDriveConstants::jankybotKPDriveVel;
+      kDDriveVel = AutoDriveConstants::jankybotKDDriveVel;
     }
     else if (selectedRobot == LUCA){
-      ksSelected = lucaKS;
-      kvSelected = lucaKV;
-      kaSelected = lucaKA;
+      ksSelected = AutoDriveConstants::lucaKS;
+      kvSelected = AutoDriveConstants::lucaKV;
+      kaSelected = AutoDriveConstants::lucaKA;
 
-      kPDriveVel = lucaKPDriveVel;
-      kDDriveVel = lucaKDDriveVel;
+      kPDriveVel = AutoDriveConstants::lucaKPDriveVel;
+      kDDriveVel = AutoDriveConstants::lucaKDDriveVel;
     }
     
     //Create a voltage constraint to ensure we don't accelerate too fast
@@ -365,16 +371,18 @@ class Robot : public TimedRobot {
     frc::filesystem::GetDeployDirectory(deployDirectory);
     wpi::sys::path::append(deployDirectory, "output");
     wpi::sys::path::append(deployDirectory, pathName);
-    //try{
-    frc::Trajectory trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
-    //} catch(System.IO::IOException e){
-    //  printf("Failed to pass path into trajectory");
-    //}
+    frc::Trajectory trajectory;
+    try{
+      trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+    } catch(...){
+      printf("Failed to pass path into trajectory \n");
+      exit(-999);
+    }
 
     //Create PID controller & set tolerance
     cout << "Creating pid controller" << endl;
-    frc2::PIDController leftController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // left
-    frc2::PIDController rightController(AutoDriveConstants::kPDriveVel, 0, AutoDriveConstants::kDDriveVel); // right
+    frc2::PIDController leftController(kPDriveVel, 0, kDDriveVel); // left
+    frc2::PIDController rightController(kPDriveVel, 0, kDDriveVel); // right
     leftController.SetTolerance(0.0);
     rightController.SetTolerance(0.0);
 
@@ -385,7 +393,7 @@ class Robot : public TimedRobot {
       frc::RamseteController(AutoConstants::kRamseteB,
                             AutoConstants::kRamseteZeta),
       frc::SimpleMotorFeedforward<units::meters>(
-          AutoDriveConstants::ks, AutoDriveConstants::kv, AutoDriveConstants::ka),
+          ksSelected, kvSelected, kaSelected),
       AutoDriveConstants::kDriveKinematics,
       [this] { return m_drive.GetWheelSpeeds(); },
       leftController,

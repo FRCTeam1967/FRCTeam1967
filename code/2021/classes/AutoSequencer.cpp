@@ -12,7 +12,7 @@
 #include "AutoSequencer.h"
 #include "AutoSettings.h"
 #include "AutoDriveSubsystems.h"
-#include "JankyPathWeaver.h"
+//#include "JankyPathWeaver.h"
 #include "AutoShoot.h"
 
 using namespace std;

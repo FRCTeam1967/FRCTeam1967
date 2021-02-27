@@ -20,7 +20,7 @@ class AutoSelector
         void DisplayAutoOptions(); // displays different options for auto modes on Smart Dashboard
         int GetAutoMode(); // gets user's input for what auto mode will be
         //int GetDelayTime(); // get amount of time  the robot will wait until it starts executing autonomus mode
-        //void PrintValues(); // print values of auto selector for debugging purposes
+        void PrintValues(); // print values of auto selector for debugging purposes
         int GetSelectedRobot(); //returns the value for the selected robot (Janky vs Luca)
 
     private:

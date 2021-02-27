@@ -9,7 +9,7 @@
 #include <iostream>
 #include "frc/smartdashboard/SmartDashboard.h"
 #include "frc/smartdashboard/SendableChooser.h"
-#include "AutoSelector.h"
+#include "AutoSelector2021.h"
 #include "AutoSettings2021.h"
 
 using namespace std;
@@ -34,7 +34,6 @@ SendableChooser<int*> robotSelector;
 AutoSelector::AutoSelector() {
 	autoMode = DO_NOTHING; //set default mode to do nothing
 	robotUsed = JANKYBOT;
-
 }
 
 AutoSelector::~AutoSelector() {
@@ -143,6 +142,20 @@ int AutoSelector::GetAutoMode() {
 }
 
 int AutoSelector::GetSelectedRobot() {
-	return robotSelector.GetSelected();
+	int* selectedRobot = robotSelector.GetSelected();
+
+	printf ("Selected robot: %d \n", *selectedRobot);
+
+	if (selectedRobot == &usingJankybot){
+		robotUsed = JANKYBOT;
+	}
+	else if (selectedRobot == &usingLuca){
+		robotUsed = LUCA;
+	}
+	else {
+		printf("No robot was chosen \n");
+	}
+
+	return robotUsed;
 }
 
