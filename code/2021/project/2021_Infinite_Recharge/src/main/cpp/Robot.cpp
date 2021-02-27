@@ -218,24 +218,6 @@ class Robot : public TimedRobot {
     autoSelector = new AutoSelector();
     autoSelector->DisplayAutoOptions();
 
-    //Create a voltage constraint to ensure we don't accelerate too fast
-    cout << "Creating voltage constraint" << endl;
-    frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
-        frc::SimpleMotorFeedforward<units::meters>(
-            AutoDriveConstants::ks,
-            AutoDriveConstants::kv,
-            AutoDriveConstants::ka
-          ),
-          AutoDriveConstants::kDriveKinematics,
-          10_V
-        );
-
-    //Configure trajectory
-    cout << "Config Trajectory" << endl;
-    frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration); // Set up config for trajectory
-    config.SetKinematics(AutoDriveConstants::kDriveKinematics); // Add kinematics to ensure max speed is actually obeyed
-    config.AddConstraint(autoVoltageConstraint); // Apply the voltage constraint
-
     // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
     rlmotor = new WPI_TalonSRX(INTAKE_LEFT_MOTOR_CHANNEL);
@@ -337,26 +319,45 @@ class Robot : public TimedRobot {
 
   virtual void AutonomousInit() override
   {
+    auto ksSelected, kvSelected, kaSelected; 
     // get auto mode
     int autoMode = autoSelector -> GetAutoMode();
     std::string pathName = getTrajectoryFileName(autoMode);
     int selectedRobot = autoSelector -> GetSelectedRobot();
     if (selectedRobot == JANKYBOT){
-      ks = jankybotKS;
-      kv = jankybotKV;
-      ka = jankybotKA;
+      ksSelected = jankybotKS;
+      kvSelected = jankybotKV;
+      kaSelected = jankybotKA;
 
       kPDriveVel = jankybotKPDriveVel;
       kDDriveVel = jankybotKDDriveVel;
     }
     else if (selectedRobot == LUCA){
-      ks = lucaKS;
-      kv = lucaKV;
-      ka = lucaKA;
+      ksSelected = lucaKS;
+      kvSelected = lucaKV;
+      kaSelected = lucaKA;
 
       kPDriveVel = lucaKPDriveVel;
       kDDriveVel = lucaKDDriveVel;
     }
+    
+    //Create a voltage constraint to ensure we don't accelerate too fast
+    cout << "Creating voltage constraint" << endl;
+    frc::DifferentialDriveVoltageConstraint autoVoltageConstraint(
+        frc::SimpleMotorFeedforward<units::meters>(
+            ksSelected,
+            kvSelected,
+            kaSelected
+          ),
+          AutoDriveConstants::kDriveKinematics,
+          10_V
+        );
+
+    //Configure trajectory
+    cout << "Config Trajectory" << endl;
+    frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration); // Set up config for trajectory
+    config.SetKinematics(AutoDriveConstants::kDriveKinematics); // Add kinematics to ensure max speed is actually obeyed
+    config.AddConstraint(autoVoltageConstraint); // Apply the voltage constraint
 
     //Get Trajectory
     cout << "Get Trajectory" << endl;

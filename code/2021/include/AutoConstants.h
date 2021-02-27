@@ -48,9 +48,9 @@ constexpr bool kGyroReversed = true;
 // Toolsuite provides a convenient tool for obtaining these values for your
 // robot.
 //Jankybot:
-constexpr auto jankybotKS = 1.35_V; //1.52_V;
-constexpr auto jankybotKV = 2.35 * 1_V * 1_s / 1_m;  //0.00935 * 1_V * 1_s / 1_m; 
-constexpr auto jankybotKA = 0.478 * 1_V * 1_s * 1_s / 1_m; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
+constexpr auto jankybotKS = 1.23_V; //1.52_V;
+constexpr auto jankybotKV = 2.29 * 1_V * 1_s / 1_m;  //0.00935 * 1_V * 1_s / 1_m; 
+constexpr auto jankybotKA = 0.218 * 1_V * 1_s * 1_s / 1_m; //0.000222 * 1_V * 1_s * 1_s / 1_m; 
 //Luca
 constexpr auto lucaKS = 1.35_V; //1.52_V;
 constexpr auto lucaKV = 2.35 * 1_V * 1_s / 1_m;  //0.00935 * 1_V * 1_s / 1_m; 
@@ -66,7 +66,7 @@ constexpr double lucaKDDriveVel = 0.000027;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 15_mps; //value may not be accurate
+constexpr auto kMaxSpeed = 11_mps; //value may not be accurate
 constexpr auto kMaxAcceleration = 15_mps_sq; //value may not be accurate
 
 // Reasonable baseline values for a RAMSETE follower in units of meters and
