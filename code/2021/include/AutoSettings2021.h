@@ -5,6 +5,9 @@
 #define BARREL_PATH 2
 #define SLALOM_PATH 3 
 #define DO_NOTHING 4
+#define TEST_PATH_1 5
+#define TEST_PATH_2 6
+#define TEST_PATH_3 7
 
 // delay times
 #define ZERO_SEC 0

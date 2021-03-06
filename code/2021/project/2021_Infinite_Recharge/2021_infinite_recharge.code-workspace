@@ -91,7 +91,13 @@
 			"thread": "cpp",
 			"cinttypes": "cpp",
 			"codecvt": "cpp",
-			"filesystem": "cpp"
+			"filesystem": "cpp",
+			"__hash_table": "cpp",
+			"__node_handle": "cpp",
+			"__split_buffer": "cpp",
+			"__tree": "cpp",
+			"queue": "cpp",
+			"stack": "cpp"
 		}
 	}
 }

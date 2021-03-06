@@ -21,6 +21,9 @@ int bouncePath = BOUNCE_PATH;
 int barrelPath = BARREL_PATH;
 int slalomPath = SLALOM_PATH;
 int doNothing = DO_NOTHING;
+int testPath1 = TEST_PATH_1;
+int testPath2 = TEST_PATH_2;
+int testPath3 = TEST_PATH_3;
 
 //robot used:
 int usingJankybot = JANKYBOT;
@@ -46,6 +49,9 @@ void AutoSelector::DisplayAutoOptions() {
 	autoPaths.AddOption("Bounce Path", &bouncePath);
 	autoPaths.AddOption("Barrel Path", &barrelPath);
 	autoPaths.AddOption("Slalom Path", &slalomPath);
+	autoPaths.AddOption("Test Path 1", &testPath1);
+	autoPaths.AddOption("Test Path 2", &testPath2);
+	autoPaths.AddOption("Test Path 3", &testPath3);
 	SmartDashboard::PutData("Auto Paths", &autoPaths);
 
 	robotSelector.SetDefaultOption("Jankybot", &usingJankybot);
@@ -85,6 +91,9 @@ void AutoSelector::PrintValues() {
 	printf("barrel racing path: %d \n", barrelPath);
 	printf("slalom path %d \n", slalomPath);
 	printf("do nothing: %d \n", doNothing);
+	printf("test path 1: %d \n", testPath1);
+	printf("test path 2: %d \n", testPath2);
+	printf("test path 3: %d \n", testPath3);
 
 	printf("Jankybot: %d \n", usingJankybot);
 	printf("Luca: %d \n", usingLuca);
@@ -130,6 +139,18 @@ int AutoSelector::GetAutoMode() {
 	else if (selectedPath == &slalomPath)
 	{
 		autoMode = SLALOM_PATH;	
+	}
+	else if (selectedPath == &testPath1)
+	{
+		autoMode = TEST_PATH_1;
+	}
+	else if (selectedPath == &testPath2)
+	{
+		autoMode = TEST_PATH_2;
+	}
+	else if (selectedPath == &testPath3)
+	{
+		autoMode = TEST_PATH_3;
 	}
 	else
 	{
