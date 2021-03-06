@@ -303,7 +303,7 @@ class Robot : public TimedRobot {
       pathName = "simpleTest.wpilib.json";
     }
     else if (autoMode == BOUNCE_PATH){
-      pathName = "bouceTest.wpilib.json";
+      pathName = "bounceTest.wpilib.json";
     }
     else if (autoMode == BARREL_PATH){
       pathName = "barrelTest.wpilib.json";
@@ -311,9 +311,19 @@ class Robot : public TimedRobot {
     else if (autoMode == SLALOM_PATH){
       pathName = "slalomTest.wpilib.json";
     }
-    else{
+    else if (autoMode == DO_NOTHING) {
       pathName = "doNothing.wpilib.json";
     }
+    else if (autoMode == TEST_PATH_1){
+      pathName = "TestPath1.wpilib.json";
+    }
+    else if (autoMode == TEST_PATH_2){
+      pathName = "TestPath2.wpilib.json";
+    }
+    else if (autoMode == TEST_PATH_3){
+      pathName = "TestPath3.wpilib.json";
+    }
+
     return pathName;
   }
 
