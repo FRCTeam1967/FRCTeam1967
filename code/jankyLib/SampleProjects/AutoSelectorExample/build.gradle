@@ -71,13 +71,16 @@ model {
             sources.cpp {
                 source {
                     srcDir 'src/main/cpp'
-                    //srcDir '../../classes'
+                    // Janky SampleProjects are in code/jankyLib/SampleProjects/
+                    // For janky example, could be: ../../classes
+                    // Leaving jankyLib in it for clarity only.
                     srcDir '../../../jankyLib/classes'
                     include '**/*.cpp', '**/*.cc'
                 }
                 exportedHeaders {
                     srcDir 'src/main/include'
-                    srcDir '../../include'
+                    // For janky example, could be: ../../include
+                    // Leaving jankyLib in it for clarity only.
                     srcDir '../../../jankyLib/include'
                     if (includeSrcInIncludeRoot) {
                         srcDir 'src/main/cpp'

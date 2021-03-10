@@ -19,10 +19,6 @@ void Robot::RobotPeriodic() {
 }
 
 void Robot::AutonomousInit() {
-
-}
-
-void Robot::AutonomousPeriodic() {
   SelectorSample::Options optionReceived = pathSelector->GetSelection();
   std::string pathName = "doNothing.wpilib.json";
   if (optionReceived == SelectorSample::Options::Path1){
@@ -35,6 +31,9 @@ void Robot::AutonomousPeriodic() {
     pathName = "path3.wpilib.json";
   }
   //the rest of the trajectory stuff would be the same as normal
+}
+
+void Robot::AutonomousPeriodic() {
 }
 
 void Robot::TeleopInit() {}
