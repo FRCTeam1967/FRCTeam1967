@@ -39,9 +39,32 @@ double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
 
 void FlywheelMechInfiniteRecharge::SetRPM()
 {
-    desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //4951.4266; 
+    int zoneCurrentlyIn;
+    //zone 1
+    if (distanceToVisionTarget < 90){  //meters: 2.25552
+        desiredRPM = (3.7272 * distanceToVisionTarget) + 4500; //4951.4266; 
+        zoneCurrentlyIn = 1;
+    }
+    //zone 2
+    else if (distanceToVisionTarget < 150){ //meters: 3.81
+        desiredRPM = (3.7272 * distanceToVisionTarget) + 5000;
+        zoneCurrentlyIn = 2;
+    }
+    //zone 3
+    else if (distanceToVisionTarget < 210){ //meters: 5.334
+        desiredRPM = (3.7272 * distanceToVisionTarget) + 5000;
+        zoneCurrentlyIn = 3;
+    }
+    //zone 4
+    else{ 
+        desiredRPM = (3.7272 * distanceToVisionTarget) + 5125; 
+        zoneCurrentlyIn = 4;
+    }
+    
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
+    frc::SmartDashboard::PutNumber("Shooting Zone: ", zoneCurrentlyIn);
+    frc::SmartDashboard::PutNumber("Desired RPM: ", desiredRPM);
 }
 
 void FlywheelMechInfiniteRecharge::SetRPMAuto() 
