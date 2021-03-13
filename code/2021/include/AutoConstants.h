@@ -66,8 +66,8 @@ constexpr double lucaKDDriveVel = 0.000027;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 11_mps; //value may not be accurate
-constexpr auto kMaxAcceleration = 15_mps_sq; //value may not be accurate
+constexpr auto kMaxSpeed = 0.5_mps; //value may not be accurate
+constexpr auto kMaxAcceleration = 0.25_mps_sq; //value may not be accurate
 
 // Reasonable baseline values for a RAMSETE follower in units of meters and
 // seconds

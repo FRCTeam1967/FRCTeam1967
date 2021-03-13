@@ -43,8 +43,8 @@ AutoDriveSubsystem::AutoDriveSubsystem()
   ResetEncoders();
 
   //gyro
-  //m_gyro.Calibrate();
-  //m_gyro.Reset();
+  m_gyro.Calibrate();
+  m_gyro.Reset();
 }
 
 void AutoDriveSubsystem::Periodic() {

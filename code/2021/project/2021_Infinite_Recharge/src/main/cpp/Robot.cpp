@@ -410,6 +410,9 @@ class Robot : public TimedRobot {
       rightController,
       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
       {&m_drive});
+    
+    //Reset odometry to starting pose of the trajectory
+    m_drive.ResetOdometry(trajectory.InitialPose());
 
 
     i = 0;
