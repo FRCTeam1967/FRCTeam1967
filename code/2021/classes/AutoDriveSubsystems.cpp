@@ -43,8 +43,8 @@ AutoDriveSubsystem::AutoDriveSubsystem()
   ResetEncoders();
 
   //gyro
-  //m_gyro.Calibrate();
-  //m_gyro.Reset();
+
+m_gyro.SetYawAxis(ADIS16470_IMU::IMUAxis::kY);
 }
 
 void AutoDriveSubsystem::Periodic() {
@@ -91,12 +91,12 @@ double AutoDriveSubsystem::GetAverageEncoderDistance() {
 
 double AutoDriveSubsystem::GetLeftEncoder() { 
   //cout << "Left Encoder: " << (-1 * m_left1.GetSensorCollection().GetQuadraturePosition()) << endl; // print statement
-  return (m_left1.GetSensorCollection().GetQuadraturePosition()); 
+  return (-1.0 * m_left1.GetSensorCollection().GetQuadraturePosition()); 
 }
 
 double AutoDriveSubsystem::GetRightEncoder() { 
   //cout << "Right Encoder: " << (-1.0 * m_right2.GetSensorCollection().GetQuadraturePosition()) << endl; // print statement
-  return (-1.0 * m_right2.GetSensorCollection().GetQuadraturePosition()); 
+  return (m_right2.GetSensorCollection().GetQuadraturePosition()); 
 }
 
 void AutoDriveSubsystem::SetMaxOutput(double maxOutput) {

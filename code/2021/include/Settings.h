@@ -59,3 +59,8 @@
 
 // Color Sensor
 // #define CP_ON_ROBOT
+// flywheel 
+#define SHOOTING_ZONE_1 1 
+#define SHOOTING_ZONE_2 2
+#define SHOOTING_ZONE_3 3
+#define SHOOTING_ZONE_4 4

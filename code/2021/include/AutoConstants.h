@@ -28,8 +28,7 @@ constexpr int kRightMotor2Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
 
 //constexpr int kLeftEncoderPorts[]{0, 1};
 //constexpr int kRightEncoderPorts[]{2, 3};
-constexpr bool kLeftEncoderReversed = false;
-constexpr bool kRightEncoderReversed = false; //true;
+
 
 constexpr auto kTrackwidth = CHASSIS_WIDTH; //232.9723996;
 extern const frc::DifferentialDriveKinematics kDriveKinematics;
@@ -40,7 +39,7 @@ constexpr double kEncoderDistancePerPulse =
     // Assumes the encoders are directly mounted on the wheel shafts
     (kWheelDiameterInches * wpi::math::pi) / static_cast<double>(kEncoderCPR);
 
-constexpr bool kGyroReversed = true;
+constexpr bool kGyroReversed = false;
 
 // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
 // These characterization values MUST be determined either experimentally or
@@ -66,8 +65,8 @@ constexpr double lucaKDDriveVel = 0.000027;
 }  // namespace AutoDriveConstants
 
 namespace AutoConstants {
-constexpr auto kMaxSpeed = 11_mps; //value may not be accurate
-constexpr auto kMaxAcceleration = 15_mps_sq; //value may not be accurate
+constexpr auto kMaxSpeed = 0.5_mps; //value may not be accurate
+constexpr auto kMaxAcceleration = 0.25_mps_sq; //value may not be accurate
 
 // Reasonable baseline values for a RAMSETE follower in units of meters and
 // seconds

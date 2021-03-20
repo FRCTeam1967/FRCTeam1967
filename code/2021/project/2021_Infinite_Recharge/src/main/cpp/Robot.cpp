@@ -53,6 +53,8 @@
 #include <frc/Encoder.h>
 #include "jankyTask.h"
 
+//Flywheel 
+#include "FlywheelSelector.h"
 
 // NAMESPACES
 using namespace ctre;
@@ -92,6 +94,7 @@ class Robot : public TimedRobot {
   //shooting
   WPI_TalonSRX * conveyorBeltMotor;
   ShooterControllerInfiniteRecharge * shootingcontroller;
+  FlywheelSelector * flywheelSelector;
   // WPI_VictorSPX * bridgeMotor;
   // WPI_TalonSRX * turretMotor; 
 	string _sb;
@@ -146,6 +149,8 @@ class Robot : public TimedRobot {
     rmotor = NULL;
     climbing = NULL;
     joystick = NULL;
+    //flywheel 
+    flywheelSelector = NULL;
 
     #ifdef CP_ON_ROBOT
       //color sensor
@@ -212,10 +217,13 @@ class Robot : public TimedRobot {
     #ifdef DRIVING_WITH_XBOX
       delete drivingJoy;
     #endif
+    delete flywheelSelector;
   }
   
   virtual void RobotInit() override
   {
+
+
     // AUTONOMOUS SET-UP
     // Auto Selector
     pathSelector = new PathSelector();
@@ -405,6 +413,9 @@ class Robot : public TimedRobot {
       rightController,
       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
       {&m_drive});
+    
+    //Reset odometry to starting pose of the trajectory
+    m_drive.ResetOdometry(trajectory.InitialPose());
 
 
     i = 0;
@@ -435,11 +446,13 @@ class Robot : public TimedRobot {
        //rc->End(true);  //TN: not sure if this needs to be removed
        m_drive.StopAuto();
      }
+
+    SmartDashboard::PutNumber("gyro heading", m_drive.GetHeading());
   }
 
   virtual void TeleopInit() override
   {
-
+    flywheelSelector ->DisplayShootingOptions();
   }
 
   virtual void TeleopPeriodic() override
@@ -564,6 +577,7 @@ class Robot : public TimedRobot {
     cout << "running rpm: " << runningRPM << endl; 
 
     // FLYWHEEL
+    shootingcontroller->SetSelectorVisionDistance(flywheelSelector->GetShootingZone());
     if(buttonA) {
       shootingcontroller->Target();
       aWasPressed = true;
@@ -602,6 +616,9 @@ class Robot : public TimedRobot {
     // TURRET
     bool buttonStart = _joy->GetButtonStart();
     bool buttonBack = _joy->GetButtonBack();
+
+    SmartDashboard::PutNumber("gyro heading", m_drive.GetHeading());
+
     if (buttonStart) {
       shootingcontroller-> TurretRight();
       // turretMotor -> Set(0.2); // run to right
