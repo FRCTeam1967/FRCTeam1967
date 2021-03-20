@@ -21,6 +21,7 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         double GetDesiredRPM();
         void StopTarget();
         void SetRPMAuto();
+        void SetSelectorVisionDistance(int selectorZone); 
 
         // CONVEYOR BELT
         int GetEncoderCount();

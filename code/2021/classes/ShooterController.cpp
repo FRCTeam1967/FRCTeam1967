@@ -39,6 +39,10 @@ void ShooterControllerInfiniteRecharge::SetRPMAuto()
     flywheelmech ->SetRPMAuto();
 }
 
+void ShooterControllerInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){ 
+    flywheelmech -> SetSelectorVisionDistance(selectorZone);
+}
+
 int ShooterControllerInfiniteRecharge::GetEncoderCount()
 { 
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().GetQuadraturePosition();

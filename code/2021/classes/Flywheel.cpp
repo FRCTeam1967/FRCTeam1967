@@ -29,7 +29,7 @@ FlywheelMechInfiniteRecharge::~FlywheelMechInfiniteRecharge()
 
 void FlywheelMechInfiniteRecharge::CalculateDistanceToVisionTarget() 
 {
-    distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
+    //distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
 }
 
 double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
@@ -39,7 +39,7 @@ double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
 
 void FlywheelMechInfiniteRecharge::SetRPM()
 {
-    desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //4951.4266; 
+    desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //4951.4266;
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }
@@ -66,3 +66,18 @@ double FlywheelMechInfiniteRecharge::GetRunningRPM()
 void FlywheelMechInfiniteRecharge::StopFlywheel() {
     flywheelMotor->Set(ControlMode::Velocity, 0);
 }
+ void FlywheelMechInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){
+  if (selectorZone == 1){
+      distanceToVisionTarget = 90; //in inches 
+  }   
+  else if (selectorZone == 2){
+      distanceToVisionTarget = 180;
+  }
+  else if (selectorZone == 3){
+      distanceToVisionTarget = 270;
+  }
+  else {
+      distanceToVisionTarget = 360;
+  }
+  frc::SmartDashboard::PutNumber("Manual Distance to Vision Target: ", distanceToVisionTarget);
+ }

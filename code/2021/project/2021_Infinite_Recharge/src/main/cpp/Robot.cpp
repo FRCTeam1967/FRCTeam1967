@@ -53,6 +53,8 @@
 #include <frc/Encoder.h>
 #include "jankyTask.h"
 
+//Flywheel 
+#include "FlywheelSelector.h"
 
 // NAMESPACES
 using namespace ctre;
@@ -91,6 +93,7 @@ class Robot : public TimedRobot {
   //shooting
   WPI_TalonSRX * conveyorBeltMotor;
   ShooterControllerInfiniteRecharge * shootingcontroller;
+  FlywheelSelector * flywheelSelector;
   // WPI_VictorSPX * bridgeMotor;
   // WPI_TalonSRX * turretMotor; 
 	string _sb;
@@ -144,6 +147,8 @@ class Robot : public TimedRobot {
     rmotor = NULL;
     climbing = NULL;
     joystick = NULL;
+    //flywheel 
+    flywheelSelector = NULL;
 
     #ifdef CP_ON_ROBOT
       //color sensor
@@ -209,10 +214,13 @@ class Robot : public TimedRobot {
     #ifdef DRIVING_WITH_XBOX
       delete drivingJoy;
     #endif
+    delete flywheelSelector;
   }
   
   virtual void RobotInit() override
   {
+
+
     // AUTONOMOUS SET-UP
     // Auto Selector
     autoSelector = new AutoSelector();
@@ -449,7 +457,7 @@ class Robot : public TimedRobot {
 
   virtual void TeleopInit() override
   {
-
+    flywheelSelector ->DisplayShootingOptions();
   }
 
   virtual void TeleopPeriodic() override
@@ -574,6 +582,7 @@ class Robot : public TimedRobot {
     cout << "running rpm: " << runningRPM << endl; 
 
     // FLYWHEEL
+    shootingcontroller->SetSelectorVisionDistance(flywheelSelector->GetShootingZone());
     if(buttonA) {
       shootingcontroller->Target();
       aWasPressed = true;
