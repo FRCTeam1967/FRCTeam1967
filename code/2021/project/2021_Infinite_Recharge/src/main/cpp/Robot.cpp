@@ -443,6 +443,8 @@ class Robot : public TimedRobot {
        //rc->End(true);  //TN: not sure if this needs to be removed
        m_drive.StopAuto();
      }
+
+    SmartDashboard::PutNumber("gyro heading", m_drive.GetHeading());
   }
 
   virtual void TeleopInit() override
@@ -610,6 +612,9 @@ class Robot : public TimedRobot {
     // TURRET
     bool buttonStart = _joy->GetButtonStart();
     bool buttonBack = _joy->GetButtonBack();
+
+    SmartDashboard::PutNumber("gyro heading", m_drive.GetHeading());
+
     if (buttonStart) {
       shootingcontroller-> TurretRight();
       // turretMotor -> Set(0.2); // run to right

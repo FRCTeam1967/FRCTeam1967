@@ -43,8 +43,8 @@ AutoDriveSubsystem::AutoDriveSubsystem()
   ResetEncoders();
 
   //gyro
-  m_gyro.Calibrate();
-  m_gyro.Reset();
+
+m_gyro.SetYawAxis(ADIS16470_IMU::IMUAxis::kY);
 }
 
 void AutoDriveSubsystem::Periodic() {
