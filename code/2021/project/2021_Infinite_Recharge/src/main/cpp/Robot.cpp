@@ -34,7 +34,7 @@
 // custom classes
 #include "AutoConstants.h"
 #include "AutoDriveSubsystems.h"
-#include "AutoSelector2021.h"
+#include "AutoSelector2021V2.h"
 #include "AutoSettings2021.h"
 //#include "ColorSensorInfiniteRecharge.h"
 #include "JankyConstants.h"
@@ -70,7 +70,8 @@ using namespace std;
 class Robot : public TimedRobot {
   //auto
   LiveWindow*lw;
-  AutoSelector*autoSelector;
+  PathSelector*pathSelector;
+  RobotSelector*robotSelector;
   AutoSanDiego * autoSD;
   AutoDriveSubsystem m_drive;
   frc2::RamseteCommand * rc;
@@ -128,7 +129,8 @@ class Robot : public TimedRobot {
   {
     // lw = NULL;
     //auto
-    autoSelector = NULL;
+    pathSelector = NULL;
+    robotSelector = NULL;
     autoSD = NULL;
     rc = NULL;
     //chassis
@@ -172,7 +174,8 @@ class Robot : public TimedRobot {
   {
     // delete lw;
     //auto
-    delete autoSelector;
+    delete pathSelector;
+    delete robotSelector;
     delete autoSD;
     delete rc;
     //chassis
@@ -215,8 +218,8 @@ class Robot : public TimedRobot {
   {
     // AUTONOMOUS SET-UP
     // Auto Selector
-    autoSelector = new AutoSelector();
-    autoSelector->DisplayAutoOptions();
+    pathSelector = new PathSelector();
+    robotSelector = new RobotSelector();
 
     // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
@@ -295,38 +298,6 @@ class Robot : public TimedRobot {
     // lw = frc::LiveWindow::GetInstance();
   }
 
-  std::string getTrajectoryFileName(int autoMode){
-    std::string pathName = "simpleTest.wpilib.json";
-
-    if(autoMode == SIMPLE_PATH)
-    {
-      pathName = "simpleTest.wpilib.json";
-    }
-    else if (autoMode == BOUNCE_PATH){
-      pathName = "bounceTest.wpilib.json";
-    }
-    else if (autoMode == BARREL_PATH){
-      pathName = "barrelTest.wpilib.json";
-    }
-    else if (autoMode == SLALOM_PATH){
-      pathName = "slalomTest.wpilib.json";
-    }
-    else if (autoMode == DO_NOTHING) {
-      pathName = "doNothing.wpilib.json";
-    }
-    else if (autoMode == TEST_PATH_1){
-      pathName = "TestPath1.wpilib.json";
-    }
-    else if (autoMode == TEST_PATH_2){
-      pathName = "TestPath2.wpilib.json";
-    }
-    else if (autoMode == TEST_PATH_3){
-      pathName = "TestPath3.wpilib.json";
-    }
-
-    return pathName;
-  }
-
   virtual void AutonomousInit() override
   {
     auto ksSelected = AutoDriveConstants::jankybotKS;
@@ -337,10 +308,34 @@ class Robot : public TimedRobot {
     auto kDDriveVel = AutoDriveConstants::jankybotKDDriveVel;
 
     // get auto mode
-    int autoMode = autoSelector -> GetAutoMode();
-    std::string pathName = getTrajectoryFileName(autoMode);
-    int selectedRobot = autoSelector -> GetSelectedRobot();
-    if (selectedRobot == JANKYBOT){
+    PathSelector::Options selectedPath = pathSelector->GetSelection();
+
+    std::string pathName = "doNothing.wpilib.json";
+    if (selectedPath == PathSelector::Options::simplePath){
+      pathName = "simpleTest.wpilib.json";
+    }
+    else if (selectedPath == PathSelector::Options::bouncePath){
+      pathName = "bounceTest.wpilib.json";
+    }
+    else if (selectedPath == PathSelector::Options::barrelPath){
+      pathName = "barrelTest.wpilib.json";
+    }
+    else if (selectedPath == PathSelector::Options::slalomPath){
+      pathName = "slalomTest.wpilib.json";
+    }
+    else if (selectedPath == PathSelector::Options::testPath1){
+      pathName = "TestPath1.wpilib.json";
+    }
+    else if (selectedPath == PathSelector::Options::testPath2){
+      pathName = "TestPath2.wpilib.json";;
+    }
+    else if (selectedPath == PathSelector::Options::testPath3){
+      pathName = "TestPath3.wpilib.json";
+    } 
+
+    RobotSelector::Options selectedRobot = robotSelector -> GetSelection();
+
+    if (selectedRobot == RobotSelector::Options::jankybot){
       ksSelected = AutoDriveConstants::jankybotKS;
       kvSelected = AutoDriveConstants::jankybotKV;
       kaSelected = AutoDriveConstants::jankybotKA;
@@ -348,7 +343,7 @@ class Robot : public TimedRobot {
       kPDriveVel = AutoDriveConstants::jankybotKPDriveVel;
       kDDriveVel = AutoDriveConstants::jankybotKDDriveVel;
     }
-    else if (selectedRobot == LUCA){
+    else if (selectedRobot == RobotSelector::Options::luca){
       ksSelected = AutoDriveConstants::lucaKS;
       kvSelected = AutoDriveConstants::lucaKV;
       kaSelected = AutoDriveConstants::lucaKA;
