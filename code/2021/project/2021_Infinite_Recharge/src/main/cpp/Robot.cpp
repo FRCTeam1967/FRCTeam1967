@@ -283,7 +283,8 @@ class Robot : public TimedRobot {
     // SHOOTER
     shootingSideFront = true;
     shootingcontroller = new ShooterControllerInfiniteRecharge(CONVEYOR_BELT_CHANNEL, MOTOR_ROLL_CHANNEL, LEFT_PISTON_CHANNEL, RIGHT_PISTON_CHANNEL, FLYWHEEL_CHANNEL, BRIDGE_CHANNEL, TURRET_MOTOR_CHANNEL);
-
+    flywheelSelector = new FlywheelSelector();
+    
     // GET VISION DATA
     SmartDashboard::PutNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
 	  SmartDashboard::PutNumber(VISION_OFFSET, NO_DATA_DEFAULT);

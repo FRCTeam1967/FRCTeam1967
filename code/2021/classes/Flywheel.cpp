@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Flywheel.h"
+#include "Settings.h"
 
 FlywheelMechInfiniteRecharge::FlywheelMechInfiniteRecharge(int flywheelChannelNumber)
 { 
@@ -39,8 +40,10 @@ double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
 
 void FlywheelMechInfiniteRecharge::SetRPM()
 {
-    desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //4951.4266;
+    // offset was 5500 originally then 2750 was tried
+    desiredRPM = (5.4545 * distanceToVisionTarget) + 4000; //4951.4266; used to be 5500; m=3.7272
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
+    frc::SmartDashboard::PutNumber("Desired RPM: ", desiredRPM);
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }
 
@@ -67,17 +70,52 @@ void FlywheelMechInfiniteRecharge::StopFlywheel() {
     flywheelMotor->Set(ControlMode::Velocity, 0);
 }
  void FlywheelMechInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){
-  if (selectorZone == 1){
-      distanceToVisionTarget = 90; //in inches 
+  if (selectorZone == SHOOTING_ZONE_1){
+      distanceToVisionTarget = 275; //in inches 
   }   
-  else if (selectorZone == 2){
-      distanceToVisionTarget = 180;
+  else if (selectorZone == SHOOTING_ZONE_2){
+      distanceToVisionTarget = 100;
   }
-  else if (selectorZone == 3){
-      distanceToVisionTarget = 270;
+  else if (selectorZone == SHOOTING_ZONE_3){
+      distanceToVisionTarget = 150;
   }
-  else {
-      distanceToVisionTarget = 360;
+  else if (selectorZone == SHOOTING_ZONE_4){
+      distanceToVisionTarget = 250;
   }
+  else if (selectorZone == SHOOTING_DISTANCE_50){
+      distanceToVisionTarget = 50;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_75){
+      distanceToVisionTarget = 75;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_100){
+      distanceToVisionTarget = 100;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_125){
+      distanceToVisionTarget = 125;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_150){
+      distanceToVisionTarget = 150;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_175){
+      distanceToVisionTarget = 175;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_200){
+      distanceToVisionTarget = 200;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_225){
+      distanceToVisionTarget = 225;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_250){
+      distanceToVisionTarget = 250;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_275){
+      distanceToVisionTarget = 275;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_300){
+      distanceToVisionTarget = 10;
+  }
+  // take out because was for testing: distanceToVisionTarget /= 10;
+
   frc::SmartDashboard::PutNumber("Manual Distance to Vision Target: ", distanceToVisionTarget);
  }
