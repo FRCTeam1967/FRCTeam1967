@@ -583,7 +583,30 @@ class Robot : public TimedRobot {
     cout << "running rpm: " << runningRPM << endl; 
 
     // FLYWHEEL
-    shootingcontroller->SetSelectorVisionDistance(flywheelSelector->GetShootingZone());
+    bool leftButton = _joy->GetLeftStickButton;
+    bool rightButton = _joy->GetRightStickButton;
+    float leftThrottle = _joy->GetLeftThrottle;
+    float rightThrottle = _joy->GetRightThrottle;
+    int shootingZone;
+    
+    if(leftButton)
+    {
+      shootingZone = 1;
+    }
+    else if (rightButton)
+    {
+      shootingZone = 2;
+    }
+    else if (leftThrottle > 0.2)
+    {
+      shootingZone = 3;
+    }
+    else if(rightThrottle > 0)
+    {
+      shootingZone = 4;
+    }
+
+    shootingcontroller->SetSelectorVisionDistance(shootingZone);
     if(buttonA) {
       shootingcontroller->Target();
       aWasPressed = true;
