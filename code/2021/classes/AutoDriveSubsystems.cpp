@@ -17,7 +17,7 @@ AutoDriveSubsystem::AutoDriveSubsystem()
       m_left2{kLeftMotor2Port},
       m_right1{kRightMotor1Port},
       m_right2{kRightMotor2Port},
-      m_odometry{frc::Rotation2d(units::degree_t(GetHeading()))} {
+      m_odometry{frc::Rotation2d(units::radian_t(units::degree_t(GetHeading())))} {
 
   // configure left encoder
   m_left1.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
@@ -56,7 +56,7 @@ void AutoDriveSubsystem::Periodic() {
   SmartDashboard::PutNumber("Left distance: " , distanceLeft);
   SmartDashboard::PutNumber("Right distance: " , distanceRight);
 
-  m_odometry.Update(frc::Rotation2d(units::degree_t(GetHeading())),
+  m_odometry.Update(frc::Rotation2d(units::radian_t(units::degree_t(GetHeading()))),
                     units::meter_t(distanceLeft), // QUESTION: WHY IS THIS IN METERS? :(
                     units::meter_t(distanceRight)); // QUESTION: WHY IS THIS IN METERS? :(
 }
@@ -147,7 +147,7 @@ frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
 void AutoDriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   ResetEncoders();
   m_odometry.ResetPosition(pose,
-                           frc::Rotation2d(units::degree_t(GetHeading())));
+                           frc::Rotation2d(units::radian_t(units::degree_t(GetHeading()))));
 }
 
 
