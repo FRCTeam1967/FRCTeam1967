@@ -120,25 +120,37 @@ frc::Pose2d AutoDriveSubsystem::GetPose() {
 }
 
 frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
-  // get distance
-  double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
-  double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+  if (getWheelSpeedIteration%50==0){
+    // get distance
+    double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+    double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
 
-  //cout << "Left distance: " << distanceLeft << endl;
-  //cout << "Right distance: " << distanceRight << endl;
+    //cout << "Left distance: " << distanceLeft << endl;
+    //cout << "Right distance: " << distanceRight << endl;
 
-  // get time
-  double t = time->Get();
-  double elapsedTime = t - prevTime;
+    // get time
+    double t = time->Get();
+    double elapsedTime = t - prevTime;
 
-  //cout << "time: " << t << endl; // print statement
-  SmartDashboard::PutNumber("time", t);
+    //
+    double elapsedDistanceLeft = distanceLeft - prevDistanceLeft;
+    double elapsedDistanceRight = distanceRight - prevDistanceRight;
 
-  // get rate (divide distance by time)
-  double leftRate = distanceLeft / elapsedTime;
-  double rightRate = distanceRight / elapsedTime;
+    //cout << "time: " << t << endl; // print statement
+    SmartDashboard::PutNumber("time", t);
 
-  prevTime = t;
+    // get rate (divide distance by time)
+    //double leftRate = distanceLeft / elapsedTime;
+    //double rightRate = distanceRight / elapsedTime;
+    leftRate = elapsedDistanceLeft / elapsedTime;
+    rightRate = elapsedDistanceRight / elapsedTime;
+
+  
+    prevTime = t;
+    prevDistanceLeft=distanceLeft;
+    prevDistanceRight=distanceRight;
+  }
+  getWheelSpeedIteration++;
 
   return {units::meters_per_second_t(leftRate), // units of distance per second
           units::meters_per_second_t(rightRate)}; // units of distance per second

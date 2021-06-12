@@ -416,8 +416,8 @@ class Robot : public TimedRobot {
     leftController.SetTolerance(0.0);
     rightController.SetTolerance(0.0);
 
-    frc::Transform2d transform = Pose2d(0_m, 0_m, Rotation2d(0_deg))-trajectory->InitialPose();
-    *trajectory = trajectory->TransformBy(transform);
+    //frc::Transform2d transform = Pose2d(0_m, 0_m, Rotation2d(0_deg))-trajectory->InitialPose();
+    //*trajectory = trajectory->TransformBy(transform);
 
     //Instantiate ramsete command
     cout << "Instantiate ramsete command" << endl;
@@ -473,16 +473,17 @@ class Robot : public TimedRobot {
        
        m_drive.Periodic();
 
-       units::second_t currentTime = (units::second_t)SmartDashboard::GetNumber("time", 0.0); //get time from AutoDriveSubsystem, cast to second_t
-       char currentTrajectoryInfo[160]; //should be exactly 145
-       //what it returns in order: running iteration count, time from SmartDashboard, seconds from state, velocity, acceleration, curvature
-       //trajectory pose rotation in degrees, trajectory pose x translation, trajectory pose y translation, 
-       //real robot heading degrees, robot heading radians, robot pose rotation , robot left wheel speed, robot right wheel speed, robot pose x translation, robot pose y translation
-       sprintf (currentTrajectoryInfo, "I:%3d SDT:%4.0f S:%4.0f V:%6.3f A:%6.3f C:%5.0f TR:%5.1f TX,Y:(%5.2f, %5.2f), RHD:%5.1f,RHR: %5.1f, RR:%5.1f, RLWS: %7.1f, RRWS: %7.1f, RX,Y:(%5.2f, %5.2f)",
-               i, currentTime.to<float>(), trajectory->Sample(currentTime).t.to<float>(), trajectory->Sample(currentTime).velocity.to<float>(), trajectory->Sample(currentTime).acceleration.to<float>(), trajectory->Sample(currentTime).curvature.to<float>(),
-               trajectory->Sample(currentTime).pose.Rotation().Degrees().to<float>(), trajectory->Sample(currentTime).pose.Translation().X().to<float>(), trajectory->Sample(currentTime).pose.Translation().Y().to<float>(), 
-               m_drive.GetHeading(), m_drive.GetHeading()*(M_PI/180), m_drive.GetPose().Rotation().Degrees().to<float>(), m_drive.GetWheelSpeeds().left.to<float>(), m_drive.GetWheelSpeeds().right.to<float>(), m_drive.GetPose().Translation().X().to<float>(), m_drive.GetPose().Translation().Y().to<float>());
-       cout << currentTrajectoryInfo << endl;
+      units::second_t currentTime = (units::second_t)SmartDashboard::GetNumber("time", 0.0); //get time from AutoDriveSubsystem, cast to second_t
+
+      char currentTrajectoryInfo[160]; //should be exactly 145
+      //what it returns in order: running iteration count, time from SmartDashboard, seconds from state, velocity, acceleration, curvature
+      //trajectory pose rotation in degrees, trajectory pose x translation, trajectory pose y translation, 
+      //real robot heading degrees, robot heading radians, robot pose rotation , robot left wheel speed, robot right wheel speed, robot pose x translation, robot pose y translation
+      sprintf (currentTrajectoryInfo, "I:%3d SDT:%4.0f S:%4.0f V:%6.3f A:%6.3f C:%5.0f TR:%5.1f TX,Y:(%5.2f, %5.2f), RHD:%5.1f,RHR: %5.1f, RR:%5.1f, RLWS: %7.1f, RRWS: %7.1f, RX,Y:(%5.2f, %5.2f)",
+              i, currentTime.to<float>(), trajectory->Sample(currentTime).t.to<float>(), trajectory->Sample(currentTime).velocity.to<float>(), trajectory->Sample(currentTime).acceleration.to<float>(), trajectory->Sample(currentTime).curvature.to<float>(),
+              trajectory->Sample(currentTime).pose.Rotation().Degrees().to<float>(), trajectory->Sample(currentTime).pose.Translation().X().to<float>(), trajectory->Sample(currentTime).pose.Translation().Y().to<float>(), 
+              m_drive.GetHeading(), m_drive.GetHeading()*(M_PI/180), m_drive.GetPose().Rotation().Degrees().to<float>(), m_drive.GetWheelSpeeds().left.to<float>(), m_drive.GetWheelSpeeds().right.to<float>(), m_drive.GetPose().Translation().X().to<float>(), m_drive.GetPose().Translation().Y().to<float>());
+      cout << currentTrajectoryInfo << endl;
 
        if (currentTime.to<int>()<=0.1){
          SmartDashboard::PutNumber("Robot distance X at start: ", m_drive.GetPose().Translation().X().to<float>());
@@ -499,9 +500,13 @@ class Robot : public TimedRobot {
          SmartDashboard::PutNumber("Robot distance Y at 10 sec: ", m_drive.GetPose().Translation().Y().to<float>());
        }
 
-       SmartDashboard::PutNumber("Trajectory Velocity: ", trajectory->Sample(currentTime).acceleration.to<float>());
-       SmartDashboard::PutNumber("Left Wheel Spped: ",m_drive.GetWheelSpeeds().left.to<float>());
-       SmartDashboard::PutNumber("Right Wheel Speed: ", m_drive.GetWheelSpeeds().right.to<float>());
+      SmartDashboard::PutNumber("Trajectory Velocity: ", trajectory->Sample(currentTime).acceleration.to<float>());
+      SmartDashboard::PutNumber("Left Wheel Spped: ",m_drive.GetWheelSpeeds().left.to<float>());
+      SmartDashboard::PutNumber("Right Wheel Speed: ", m_drive.GetWheelSpeeds().right.to<float>());
+
+      SmartDashboard::PutNumber("Auto Left Wheel Distance: ", m_drive.GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION));
+      SmartDashboard::PutNumber("Auto Right Wheel Distance: ", m_drive.GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION));
+
 
      }
      else {
@@ -538,6 +543,12 @@ class Robot : public TimedRobot {
 
     SmartDashboard::PutNumber("Left Distance in Inches: ", rlMotorEncoderInches);
     SmartDashboard::PutNumber("Right Distance in Inches: ", frMotorEncoderInches);
+
+    SmartDashboard::PutNumber("Left Wheel Speed Teleop: ",m_drive.GetWheelSpeeds().left.to<float>());
+    SmartDashboard::PutNumber("Right Wheel Speed Teleop: ", m_drive.GetWheelSpeeds().right.to<float>());
+
+    SmartDashboard::PutNumber("Teleop Left Wheel Distance: ", m_drive.GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION));
+    SmartDashboard::PutNumber("Teleop Right Wheel Distance: ", m_drive.GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION));
 
     // CHASSIS
     #ifdef DRIVING_WITH_2_JOYS
