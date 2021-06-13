@@ -81,5 +81,5 @@ constexpr int kDriverControllerPort = 1;
 
 // constants for distance calculation
 #define PULSES_PER_REVOLUTION 4096
-#define WHEEL_DIAMETER 6
+#define WHEEL_DIAMETER 0.1524 //6 inches
 #define WHEEL_CIRCUMFERENCE WHEEL_DIAMETER * wpi::math::pi

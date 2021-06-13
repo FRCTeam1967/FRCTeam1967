@@ -40,8 +40,10 @@ double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
 
 void FlywheelMechInfiniteRecharge::SetRPM()
 {
-    desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //4951.4266;
+    // offset was 5500 originally then 2750 was tried
+    desiredRPM = (5.4545 * distanceToVisionTarget) + 4000; //4951.4266; used to be 5500; m=3.7272
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
+    frc::SmartDashboard::PutNumber("Desired RPM: ", desiredRPM);
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }
 
@@ -69,16 +71,16 @@ void FlywheelMechInfiniteRecharge::StopFlywheel() {
 }
  void FlywheelMechInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){
   if (selectorZone == SHOOTING_ZONE_1){
-      distanceToVisionTarget = 90; //in inches 
+      distanceToVisionTarget = 275; //in inches 
   }   
   else if (selectorZone == SHOOTING_ZONE_2){
-      distanceToVisionTarget = 180;
+      distanceToVisionTarget = 100;
   }
-  else if (selectorZone == SHOOTINE_ZONE_3){
-      distanceToVisionTarget = 270;
+  else if (selectorZone == SHOOTING_ZONE_3){
+      distanceToVisionTarget = 150;
   }
   else if (selectorZone == SHOOTING_ZONE_4){
-      distanceToVisionTarget = 360;
+      distanceToVisionTarget = 250;
   }
   else if (selectorZone == SHOOTING_DISTANCE_50){
       distanceToVisionTarget = 50;
@@ -111,8 +113,9 @@ void FlywheelMechInfiniteRecharge::StopFlywheel() {
       distanceToVisionTarget = 275;
   }
   else if (selectorZone == SHOOTING_DISTANCE_300){
-      distanceToVisionTarget = 300;
+      distanceToVisionTarget = 10;
   }
-  
+  // take out because was for testing: distanceToVisionTarget /= 10;
+
   frc::SmartDashboard::PutNumber("Manual Distance to Vision Target: ", distanceToVisionTarget);
  }

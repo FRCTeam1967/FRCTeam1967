@@ -1,9 +1,9 @@
 {
   "lengthUnit": "Meter",
   "exportUnit": "Always Meters",
-  "maxVelocity": 0.25,
-  "maxAcceleration": 0.125,
-  "wheelBase": 0.5,
-  "gameName": "Barrel Racing Path",
+  "maxVelocity": 0.125,
+  "maxAcceleration": 0.0625,
+  "wheelBase": 0.686,
+  "gameName": "Bounce Path",
   "outputDir": "../../../2021_Infinite_Recharge/src/main/deploy"
 }

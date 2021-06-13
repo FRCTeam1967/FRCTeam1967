@@ -175,5 +175,5 @@ void ShooterControllerInfiniteRecharge::Run()
         conveyorBeltMotor->Set(0.0);
         ResetEncoderCount();
     } 
-    std::cout << "CONVEYOR ENCODER: " << GetEncoderCount() << std::endl;
+    //std::cout << "CONVEYOR ENCODER: " << GetEncoderCount() << std::endl;
 }

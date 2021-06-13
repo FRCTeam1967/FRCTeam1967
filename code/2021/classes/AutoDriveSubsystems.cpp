@@ -17,7 +17,7 @@ AutoDriveSubsystem::AutoDriveSubsystem()
       m_left2{kLeftMotor2Port},
       m_right1{kRightMotor1Port},
       m_right2{kRightMotor2Port},
-      m_odometry{frc::Rotation2d(units::degree_t(GetHeading()))} {
+      m_odometry{frc::Rotation2d(units::radian_t(units::degree_t(GetHeading())))} {
 
   // configure left encoder
   m_left1.ConfigSelectedFeedbackSensor(FeedbackDevice::CTRE_MagEncoder_Absolute, 0, 0);
@@ -56,7 +56,7 @@ void AutoDriveSubsystem::Periodic() {
   SmartDashboard::PutNumber("Left distance: " , distanceLeft);
   SmartDashboard::PutNumber("Right distance: " , distanceRight);
 
-  m_odometry.Update(frc::Rotation2d(units::degree_t(GetHeading())),
+  m_odometry.Update(frc::Rotation2d(units::radian_t(units::degree_t(GetHeading()))),
                     units::meter_t(distanceLeft), // QUESTION: WHY IS THIS IN METERS? :(
                     units::meter_t(distanceRight)); // QUESTION: WHY IS THIS IN METERS? :(
   SmartDashboard::PutNumber("Heading: ", double(units::degree_t(GetHeading())));
@@ -122,25 +122,37 @@ frc::Pose2d AutoDriveSubsystem::GetPose() {
 }
 
 frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
-  // get distance
-  double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
-  double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+  if (getWheelSpeedIteration%50==0){
+    // get distance
+    double distanceLeft = GetLeftEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+    double distanceRight = GetRightEncoder() * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
 
-  //cout << "Left distance: " << distanceLeft << endl;
-  //cout << "Right distance: " << distanceRight << endl;
+    //cout << "Left distance: " << distanceLeft << endl;
+    //cout << "Right distance: " << distanceRight << endl;
 
-  // get time
-  double t = time->Get();
-  double elapsedTime = t - prevTime;  //need to do this to distance as well?
+    // get time
+    double t = time->Get();
+    double elapsedTime = t - prevTime;
 
-  //cout << "time: " << t << endl; // print statement
-  SmartDashboard::PutNumber("time", t);
+    //
+    double elapsedDistanceLeft = distanceLeft - prevDistanceLeft;
+    double elapsedDistanceRight = distanceRight - prevDistanceRight;
 
-  // get rate (divide distance by time)
-  double leftRate = distanceLeft / elapsedTime;
-  double rightRate = distanceRight / elapsedTime;
+    //cout << "time: " << t << endl; // print statement
+    SmartDashboard::PutNumber("time", t);
 
-  prevTime = t;
+    // get rate (divide distance by time)
+    //double leftRate = distanceLeft / elapsedTime;
+    //double rightRate = distanceRight / elapsedTime;
+    leftRate = elapsedDistanceLeft / elapsedTime;
+    rightRate = elapsedDistanceRight / elapsedTime;
+
+  
+    prevTime = t;
+    prevDistanceLeft=distanceLeft;
+    prevDistanceRight=distanceRight;
+  }
+  getWheelSpeedIteration++;
 
   return {units::meters_per_second_t(leftRate), // units of distance per second
           units::meters_per_second_t(rightRate)}; // units of distance per second
@@ -149,7 +161,7 @@ frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
 void AutoDriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   ResetEncoders();
   m_odometry.ResetPosition(pose,
-                           frc::Rotation2d(units::degree_t(GetHeading()))); //needs to be in radians?
+                           frc::Rotation2d(units::radian_t(units::degree_t(GetHeading()))));
 }
 
 

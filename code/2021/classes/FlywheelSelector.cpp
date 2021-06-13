@@ -131,7 +131,7 @@ int FlywheelSelector::GetShootingZone() {
 	{
 		shootingZone = SHOOTING_DISTANCE_300;
 	}
-
+	
 	printf("selected auto mode: %d \n", shootingZone);
     return shootingZone;
 }
