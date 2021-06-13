@@ -1,5 +1,6 @@
 #include <iostream>
 #include "Flywheel.h"
+#include "Settings.h"
 
 FlywheelMechInfiniteRecharge::FlywheelMechInfiniteRecharge(int flywheelChannelNumber)
 { 
@@ -67,17 +68,51 @@ void FlywheelMechInfiniteRecharge::StopFlywheel() {
     flywheelMotor->Set(ControlMode::Velocity, 0);
 }
  void FlywheelMechInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){
-  if (selectorZone == 1){
+  if (selectorZone == SHOOTING_ZONE_1){
       distanceToVisionTarget = 90; //in inches 
   }   
-  else if (selectorZone == 2){
+  else if (selectorZone == SHOOTING_ZONE_2){
       distanceToVisionTarget = 180;
   }
-  else if (selectorZone == 3){
+  else if (selectorZone == SHOOTINE_ZONE_3){
       distanceToVisionTarget = 270;
   }
-  else {
+  else if (selectorZone == SHOOTING_ZONE_4){
       distanceToVisionTarget = 360;
   }
+  else if (selectorZone == SHOOTING_DISTANCE_50){
+      distanceToVisionTarget = 50;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_75){
+      distanceToVisionTarget = 75;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_100){
+      distanceToVisionTarget = 100;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_125){
+      distanceToVisionTarget = 125;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_150){
+      distanceToVisionTarget = 150;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_175){
+      distanceToVisionTarget = 175;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_200){
+      distanceToVisionTarget = 200;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_225){
+      distanceToVisionTarget = 225;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_250){
+      distanceToVisionTarget = 250;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_275){
+      distanceToVisionTarget = 275;
+  }
+  else if (selectorZone == SHOOTING_DISTANCE_300){
+      distanceToVisionTarget = 300;
+  }
+  
   frc::SmartDashboard::PutNumber("Manual Distance to Vision Target: ", distanceToVisionTarget);
  }

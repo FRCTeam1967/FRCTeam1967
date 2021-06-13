@@ -59,6 +59,7 @@ void AutoDriveSubsystem::Periodic() {
   m_odometry.Update(frc::Rotation2d(units::degree_t(GetHeading())),
                     units::meter_t(distanceLeft), // QUESTION: WHY IS THIS IN METERS? :(
                     units::meter_t(distanceRight)); // QUESTION: WHY IS THIS IN METERS? :(
+  SmartDashboard::PutNumber("Heading: ", double(units::degree_t(GetHeading())));
 }
 
 void AutoDriveSubsystem::ArcadeDrive(double fwd, double rot) {
@@ -68,6 +69,7 @@ void AutoDriveSubsystem::ArcadeDrive(double fwd, double rot) {
 void AutoDriveSubsystem::TankDriveVolts(units::volt_t left, units::volt_t right) {
   m_leftMotors.SetVoltage(left);
   m_rightMotors.SetVoltage(-right);
+  //m_drive.Feed(); //in wpilib documentation, not sure why taken out
 }
 
 void AutoDriveSubsystem::ResetEncoders() {
@@ -129,7 +131,7 @@ frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
 
   // get time
   double t = time->Get();
-  double elapsedTime = t - prevTime;
+  double elapsedTime = t - prevTime;  //need to do this to distance as well?
 
   //cout << "time: " << t << endl; // print statement
   SmartDashboard::PutNumber("time", t);
@@ -147,7 +149,7 @@ frc::DifferentialDriveWheelSpeeds AutoDriveSubsystem::GetWheelSpeeds() {
 void AutoDriveSubsystem::ResetOdometry(frc::Pose2d pose) {
   ResetEncoders();
   m_odometry.ResetPosition(pose,
-                           frc::Rotation2d(units::degree_t(GetHeading())));
+                           frc::Rotation2d(units::degree_t(GetHeading()))); //needs to be in radians?
 }
 
 

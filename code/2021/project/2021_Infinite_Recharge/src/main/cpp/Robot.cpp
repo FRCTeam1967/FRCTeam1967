@@ -56,6 +56,12 @@
 //Flywheel 
 #include "FlywheelSelector.h"
 
+// to display states in auto
+//#include <frc/trajectory/Trajectory.h>
+//#include <frc/geometry/Pose2d.h>
+//#include <frc/geometry/Rotation2d.h>
+//#include <frc/geometry/Translation2d.h>
+
 // NAMESPACES
 using namespace ctre;
 using namespace frc;
@@ -77,6 +83,7 @@ class Robot : public TimedRobot {
   AutoSanDiego * autoSD;
   AutoDriveSubsystem m_drive;
   frc2::RamseteCommand * rc;
+  frc::Trajectory * trajectory;
   //chassis
   WPI_VictorSPX*flmotor;
   WPI_TalonSRX*frmotor;
@@ -136,6 +143,7 @@ class Robot : public TimedRobot {
     robotSelector = NULL;
     autoSD = NULL;
     rc = NULL;
+    trajectory = NULL;
     //chassis
     flmotor = NULL;
     rlmotor = NULL;
@@ -183,6 +191,7 @@ class Robot : public TimedRobot {
     delete robotSelector;
     delete autoSD;
     delete rc;
+    delete trajectory;
     //chassis
     delete flmotor;
     delete rlmotor;
@@ -376,7 +385,7 @@ class Robot : public TimedRobot {
     cout << "Config Trajectory" << endl;
     frc::TrajectoryConfig config(AutoConstants::kMaxSpeed, AutoConstants::kMaxAcceleration); // Set up config for trajectory
     config.SetKinematics(AutoDriveConstants::kDriveKinematics); // Add kinematics to ensure max speed is actually obeyed
-    config.AddConstraint(autoVoltageConstraint); // Apply the voltage constraint
+    config.AddConstraint(autoVoltageConstraint); // Apply the voltage constrain
 
     //Get Trajectory
     cout << "Get Trajectory" << endl;
@@ -384,13 +393,22 @@ class Robot : public TimedRobot {
     frc::filesystem::GetDeployDirectory(deployDirectory);
     wpi::sys::path::append(deployDirectory, "output");
     wpi::sys::path::append(deployDirectory, pathName);
-    frc::Trajectory trajectory;
+    trajectory = new frc::Trajectory();
     try{
-      trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
+      *trajectory = frc::TrajectoryUtil::FromPathweaverJson(deployDirectory);
     } catch(...){
       printf("Failed to pass path into trajectory \n");
       exit(-999);
     }
+
+    /*
+    //try manually making basic trajectory to see if pathweaver is the issue
+    auto trajectory2 = frc::TrajectoryGenerator::GenerateTrajectory(frc::Pose2d(0_m,0_m,frc::Rotation2d(0_deg)),
+    {frc::Translation2d(1_m, 0_m)},
+    frc::Pose2d(3_m,0_m, frc::Rotation2d(0_deg)),
+    config);
+    */
+
 
     //Create PID controller & set tolerance
     cout << "Creating pid controller" << endl;
@@ -399,10 +417,15 @@ class Robot : public TimedRobot {
     leftController.SetTolerance(0.0);
     rightController.SetTolerance(0.0);
 
+    frc::Transform2d transform = Pose2d(0_m, 0_m, Rotation2d(0_deg))-trajectory->InitialPose();
+    //or just get the robot's pose?
+    *trajectory = trajectory->TransformBy(transform); 
+    frc::Trajectory newTrajectory = trajectory->TransformBy(transform);
+
     //Instantiate ramsete command
     cout << "Instantiate ramsete command" << endl;
     rc = new frc2::RamseteCommand(
-      trajectory, [this]() { return m_drive.GetPose(); },
+      *trajectory, [this]() { return m_drive.GetPose(); },
       frc::RamseteController(AutoConstants::kRamseteB,
                             AutoConstants::kRamseteZeta),
       frc::SimpleMotorFeedforward<units::meters>(
@@ -414,12 +437,24 @@ class Robot : public TimedRobot {
       [this](auto left, auto right) { m_drive.TankDriveVolts(left, right); },
       {&m_drive});
     
-    //Reset odometry to starting pose of the trajectory
-    m_drive.ResetOdometry(trajectory.InitialPose());
+    SmartDashboard::PutNumber("Robot Heading before reseting Odometry: ", m_drive.GetHeading());
 
+    //Reset odometry to starting pose of the trajectory
+    m_drive.ResetOdometry(trajectory->InitialPose()); //
+
+    //displaying other information about trajectory;
+    SmartDashboard::PutNumber("Trajectory Total Time: ", trajectory->TotalTime().to<float>());
+    SmartDashboard::PutNumber("Trajectory Initial Pose Degrees: ", trajectory->InitialPose().Rotation().Degrees().to<float>());
+    SmartDashboard::PutNumber("Trajectory Initial Pose X: ", trajectory->InitialPose().Translation().X().to<float>());
+    SmartDashboard::PutNumber("Trajectory Initial Pose Y: ", trajectory->InitialPose().Translation().Y().to<float>());
+    SmartDashboard::PutNumber("Robot Initial Pose Degrees: ", m_drive.GetPose().Rotation().Degrees().to<float>());
+    SmartDashboard::PutNumber("Robot Initial Pose X: ", m_drive.GetPose().Translation().X().to<float>());
+    SmartDashboard::PutNumber("Robot Initial Pose Y: ", m_drive.GetPose().Translation().Y().to<float>());
+    SmartDashboard::PutNumber("Robot Heading after reseting Odometry: ", m_drive.GetHeading());
 
     i = 0;
     j = 0;
+
     // Initialize ramsete command
     rc->Initialize();
   }
@@ -438,12 +473,42 @@ class Robot : public TimedRobot {
        SmartDashboard::PutNumber("Chassis Left Encoder: ", m_drive.GetLeftEncoder());
        SmartDashboard::PutNumber("Chassis Right Encoder: ", m_drive.GetRightEncoder());
        SmartDashboard::PutNumber("Avg Dist: ", m_drive.GetAverageEncoderDistance());
+
+       units::second_t currentTime = (units::second_t)SmartDashboard::GetNumber("time", 0.0); //get time from AutoDriveSubsystem, cast to second_t
+       char currentTrajectoryInfo[125]; //should be exactly 111
+       
+       //what it returns in order: running iteration count, time from SmartDashboard, seconds from state, velocity, acceleration, curvature
+       //trajectory pose rotation in degrees, trajectory pose x translation, trajectory pose y translation, 
+       //real robot heading, robot pose rotation, robot pose x translation, robot pose y translation
+       sprintf (currentTrajectoryInfo, "I:%3d SDT:%4.0f S:%4.0f V:%6.3f A:%6.3f C:%5.0f TR:%5.1f TX,Y:(%5.2f, %5.2f), RH:%5.1f, RR:%5.1f, RX,Y:(%5.2f, %5.2f)",
+               i, currentTime.to<float>(), trajectory->Sample(currentTime).t.to<float>(), trajectory->Sample(currentTime).velocity.to<float>(), trajectory->Sample(currentTime).acceleration.to<float>(), trajectory->Sample(currentTime).curvature.to<float>(),
+               trajectory->Sample(currentTime).pose.Rotation().Degrees().to<float>(), trajectory->Sample(currentTime).pose.Translation().X().to<float>(), trajectory->Sample(currentTime).pose.Translation().Y().to<float>(), 
+               m_drive.GetHeading(), m_drive.GetPose().Rotation().Degrees().to<float>(), m_drive.GetPose().Translation().X().to<float>(), m_drive.GetPose().Translation().Y().to<float>());
+       cout << currentTrajectoryInfo << endl;
+
+       /*
+       //using SmartDashboard to display trajectory info instead (can view graphs):
+       SmartDashboard::PutNumber("Running Iteration Count: ", i);
+       SmartDashboard::PutNumber("Time Read for Trajectory: ", currentTime.to<float>());
+       SmartDashboard::PutNumber("Trajectory State Seconds: ", trajectory->Sample(currentTime).t.to<float>());
+       SmartDashboard::PutNumber("Trajectory State Velocity: ", trajectory->Sample(currentTime).velocity.to<float>()); //meters per second
+       SmartDashboard::PutNumber("Trajectory State Acceleration: ", trajectory->Sample(currentTime).acceleration.to<float>()); //meters per second squared
+       SmartDashboard::PutNumber("Trajectory State Curvature: ", trajectory->Sample(currentTime).curvature.to<float>());
+       SmartDashboard::PutNumber("Trajectory State Rotation: ", trajectory->Sample(currentTime).pose.Rotation().Degrees().to<float>());
+       SmartDashboard::PutNumber("Trajectory State X Translation: ", trajectory->Sample(currentTime).pose.Translation().X().to<float>());
+       SmartDashboard::PutNumber("Trajectory State Y Translation: ", trajectory->Sample(currentTime).pose.Translation().Y().to<float>());
+       SmartDashboard::PutNumber("Robot Heading: ", m_drive.GetHeading());
+       SmartDashboard::PutNumber("Robot Odometry Rotation: ", m_drive.GetPose().Rotation().Degrees().to<float>());
+       SmartDashboard::PutNumber("Robot Odometry X Translation: ", m_drive.GetPose().Translation().X().to<float>());
+       SmartDashboard::PutNumber("Robot Odometry Y Translation: ", m_drive.GetPose().Translation().Y().to<float>());
+       */
+
      }
      else {
        SmartDashboard::PutNumber("End COUNT???", j);
        j++;
        cout << "end" << endl;
-       //rc->End(true);  //TN: not sure if this needs to be removed
+       //rc->End(true);  
        m_drive.StopAuto();
      }
 
