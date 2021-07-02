@@ -6,7 +6,8 @@
 
 #ifndef _JANKYACTUATOR_H
 #include "jankyTask.h"
-#include "frc/WPILib.h"
+#include "frc/Solenoid.h"
+#include "frc/Timer.h"
 #define _JANKYACTUATOR_H
 
 #define CYCLE_TIME 3.5

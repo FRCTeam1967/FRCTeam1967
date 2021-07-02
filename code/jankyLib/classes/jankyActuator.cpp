@@ -5,14 +5,15 @@
  *      Author: Team1967
  */
 
-#include "WPILib.h"
 #include "jankyActuator.h"
+#include "frc/Solenoid.h"
+#include "frc/Timer.h"
 
 
 /*
  * @brief This program is written by Team 1967 (the Janksters) and uses out JankyTask class to build
  * an actuator class. If used, the class will run the solenoids/pistons on its own without having to 
- * hold down a button. Functions that must be called are Start, SetFullCycleTime, SetActuationTime, 
+ * hold down a button. Functions that must be called are SetFullCycleTime, SetActuationTime, 
  * and Reset. 
  */
 
@@ -28,9 +29,10 @@ JankyActuator::JankyActuator(int pistonOneChannel, int pistonTwoChannel)
 	dFullCycleTime = 3.5;
 	dFullActuationTime = 1.2;
 	
-	pPistonOne = new Solenoid(pistonOneChannel);
-	pPistonTwo = new Solenoid(pistonTwoChannel);
-		
+	pPistonOne = new frc::Solenoid(pistonOneChannel);
+	pPistonTwo = new frc::Solenoid(pistonTwoChannel);
+
+	Start();
 }
 
 
