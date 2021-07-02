@@ -25,12 +25,18 @@
 JankyActuator::JankyActuator(int pistonOneChannel, int pistonTwoChannel)
 {
 	bActuating = false;
+	pistonSync = true;
 	cycleTimer.Reset();
 	dFullCycleTime = 3.5;
 	dFullActuationTime = 1.2;
 	
 	pPistonOne = new frc::Solenoid(pistonOneChannel);
-	pPistonTwo = new frc::Solenoid(pistonTwoChannel);
+	if (pistonTwoChannel == -1){
+		pPistonTwo = NULL;
+	}
+	else{
+		pPistonTwo = new frc::Solenoid(pistonTwoChannel);
+	}
 
 	Start();
 }
@@ -41,8 +47,14 @@ JankyActuator::JankyActuator(int pistonOneChannel, int pistonTwoChannel)
  */
 JankyActuator::~JankyActuator()
 {
-	delete pPistonOne;
-	delete pPistonTwo;
+	if (pPistonOne != NULL){
+		delete pPistonOne;
+		pPistonOne = NULL;
+	}
+	if (pPistonTwo != NULL){
+		delete pPistonTwo;
+		pPistonTwo = NULL;
+	}
 }
 
 void JankyActuator::Reset()
@@ -126,13 +138,17 @@ void JankyActuator::Run()
 			if (cycleTimer.Get() < dFullActuationTime)
 			{
 				pPistonOne->Set(true);
-				pPistonTwo->Set(false);
+				if (pPistonTwo != NULL){
+					pPistonTwo->Set(pistonSync);
+				}
 			}
 			
 			else
 			{
 				pPistonOne->Set(false);
-				pPistonTwo->Set(true);
+				if (pPistonTwo != NULL){
+					pPistonTwo->Set(!pistonSync);
+				}
 			}	
 		}	
 	}
@@ -141,15 +157,21 @@ void JankyActuator::Run()
 void JankyActuator::OverrideEnable()
 {
 	pPistonOne->Set(true);
-	pPistonTwo->Set(false);
+	if (pPistonTwo != NULL){
+		pPistonTwo->Set(!pistonSync);
+	}
+
 }
 
 void JankyActuator::OverrideDisable()
 {
 	pPistonOne->Set(false);
-	pPistonTwo->Set(true);
+	if (pPistonTwo != NULL){
+		pPistonTwo->Set(pistonSync);
+	}
 }
 
+void JankyActuator::SetDualPistonActuationSync(bool dualPistonSync){pistonSync = dualPistonSync;}
 
 
 
