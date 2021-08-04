@@ -18,7 +18,7 @@ public:
 	
 	//Member Functions
 	virtual void Run();
-	virtual void StateEngine(int curState) = 0;
+	virtual void StateEngine(int curState, bool onStateEntered) = 0;
 	int GetCurrentState();
 	void NewState(int newState, const char*reason);
 	virtual void SetName(int state, const char* name);
@@ -27,6 +27,7 @@ public:
 	//Member Variables
 private:	
 	int currentState;
+	int priorState;
 	char machineName [MAX_NAME_LENGTH];
 
 protected:
