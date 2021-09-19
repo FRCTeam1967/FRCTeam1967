@@ -30,7 +30,7 @@ FlywheelMechInfiniteRecharge::~FlywheelMechInfiniteRecharge()
 
 void FlywheelMechInfiniteRecharge::CalculateDistanceToVisionTarget() 
 {
-    //distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT);
+    distanceToVisionTarget = frc::SmartDashboard::GetNumber(VISION_DISTANCE, NO_DATA_DEFAULT); //was commented out before?  we never call so does it get data?
 }
 
 double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
@@ -40,8 +40,16 @@ double FlywheelMechInfiniteRecharge::GetDistanceToVisionTarget()
 
 void FlywheelMechInfiniteRecharge::SetRPM()
 {
+    //#ifdef MANUAL_DISTANCE_FOR_FLYWHEEL //why does it say this isn't defined???
     // offset was 5500 originally then 2750 was tried
     desiredRPM = (5.4545 * distanceToVisionTarget) + 4000; //4951.4266; used to be 5500; m=3.7272
+
+    //#endif
+
+    #ifdef VISION_DISTANCE_FOR_FLYWHEEL 
+    desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //from 2020 code --> check to see if still works
+    #endif
+    
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
     frc::SmartDashboard::PutNumber("Desired RPM: ", desiredRPM);
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
@@ -49,7 +57,7 @@ void FlywheelMechInfiniteRecharge::SetRPM()
 
 void FlywheelMechInfiniteRecharge::SetRPMAuto() 
 {
-    desiredRPM = 6000;
+    desiredRPM = 6000; //note: before turret angle changed for 2021
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }

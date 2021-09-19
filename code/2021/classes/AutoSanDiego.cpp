@@ -18,6 +18,7 @@ AutoSanDiego::AutoSanDiego(WPI_VictorSPX*flmotor, WPI_TalonSRX*frmotor, WPI_Talo
     this->frmotor = frmotor;
     this->rlmotor = rlmotor;
     this->rrmotor = rrmotor;
+
     Initialize();
 }
 
@@ -54,6 +55,8 @@ void AutoSanDiego::Initialize() {
     flywheelTimer -> Reset();
     drivingTimer = new Timer();
     drivingTimer -> Reset();
+    delayTimer = new Timer();
+    delayTimer -> Reset();
 
     // VARIABLES
     isFinishedDriving = false;
@@ -91,6 +94,17 @@ void AutoSanDiego::EndFlywheelTimer() {
     flywheelTimer->Reset();
 }
 
+void AutoSanDiego::StartDelayTimer() {
+    delayTimer->Start();
+}
+
+void AutoSanDiego::EndDelayTimer() {
+    delayTimer->Stop();
+    delayTimer->Reset();
+}
+
+
+
 void AutoSanDiego::DriveStraight(int distancePulses, int forwardOrBack) {
     int avgEncoders = (GetRightEncoder() + GetLeftEncoder()) / 2;
     cout << "DISTANCE: " << avgEncoders << endl;
@@ -123,31 +137,76 @@ void AutoSanDiego::CenterTurretAutomatically() {
     }
 }
 
+void AutoSanDiego::setInitialDelayTime(AutoSDDelaySelector::Options delay){
+    //is there a better way to get a number from enum?
+    if (delay == AutoSDDelaySelector::Options::zeroSec){
+        initialDelay = 0;
+    }
+    else if (delay == AutoSDDelaySelector::Options::oneSec){
+        initialDelay = 1;
+    }
+    else if (delay == AutoSDDelaySelector::Options::twoSec){
+        initialDelay = 2;
+    }
+    else if (delay == AutoSDDelaySelector::Options::threeSec){
+        initialDelay = 3;
+    }
+    else if (delay == AutoSDDelaySelector::Options::fourSec){
+        initialDelay = 4;
+    }
+    else if (delay == AutoSDDelaySelector::Options::fiveSec){
+        initialDelay = 5;
+    }
+    else if (delay == AutoSDDelaySelector::Options::sixSec){
+        initialDelay = 6;
+    }
+    else{
+        initialDelay = 0; //in case there's some error
+    }
+    SmartDashboard::PutNumber("initial auto delay: ", initialDelay);
+}
+
+
 void AutoSanDiego::RunAuto() {
     CenterTurretAutomatically();
     // AUTO SEQUENCE
     switch(caseNum) {
         case 0:
             cout << "CASE 0" << endl;
-            CenterTurretAutomatically();
-            StartFlywheelTimer();
+            StartDelayTimer();
             drive -> TankDrive(0.0, 0.0);
             caseNum = 1;
             break;
-        case 1: 
+        case 1:
             cout << "CASE 1" << endl;
+            CenterTurretAutomatically(); //center during delay
+            drive -> TankDrive(0.0, 0.0);
+            if (delayTimer -> Get() >= initialDelay){
+                EndDelayTimer();
+                caseNum = 2;
+            }
+            break;
+        case 2:
+            cout << "CASE 2" << endl; 
+            //CenterTurretAutomatically(); //centered during delay --> make sure it works (even if delay = 0)
+            StartFlywheelTimer(); 
+            drive -> TankDrive(0.0, 0.0);
+            caseNum = 3;
+            break;
+        case 3: 
+            cout << "CASE 3" << endl;
             CenterTurretAutomatically();
             shootercontroller->SetRPMAuto();
             if(flywheelTimer->Get() > FLYWHEEL_TIME)
             {
                 StartShootingTimer();
                 EndFlywheelTimer();
-                caseNum = 2;
+                caseNum = 4;
             }
             drive -> TankDrive(0.0, 0.0);
             break; 
-        case 2: 
-            cout << "CASE 2" << endl;
+        case 4: 
+            cout << "CASE 4" << endl;
             CenterTurretAutomatically();
             shootercontroller->StartConveyorBelt();
             shootercontroller->BridgeForward(); 
@@ -158,22 +217,33 @@ void AutoSanDiego::RunAuto() {
                 shootercontroller->StopTarget();
                 drivingTimer->Start();
                 EndShootingTimer();
-                caseNum = 3;
+                caseNum = 4;
             }
             drive -> TankDrive(0.0, 0.0);
             break;
-        case 3:
-            cout << "CASE 3" << endl;
+        case 5:
+            cout << "CASE 5" << endl;
             CenterTurretAutomatically();
             DriveStraight(DISTANCE, BACKWARD);
             if (isFinishedDriving == true) {
-                caseNum = 4;
+                caseNum = 6;
             }
             break;
-        case 4: 
+        case 6: 
             CenterTurretAutomatically();
             drive -> TankDrive(0.0, 0.0);
             cout << "IS FINISHED AUTO" << endl;
             break;
     }
+}
+
+//selector for delay:
+AutoSDDelaySelector::AutoSDDelaySelector(){
+    Initialize(optionsList, selectorName);
+}
+AutoSDDelaySelector::~AutoSDDelaySelector(){ }
+
+AutoSDDelaySelector::Options AutoSDDelaySelector::GetSelection(){
+    Options selectedDelay = (Options) GetSelectedValue();
+    return selectedDelay;
 }

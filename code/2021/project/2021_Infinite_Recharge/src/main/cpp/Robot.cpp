@@ -77,14 +77,20 @@ using namespace std;
 
 class Robot : public TimedRobot {
   //auto
+  AutoDriveSubsystem m_drive;
+  #ifdef INFINITE_RECHARGE_AT_HOME
   LiveWindow*lw;
   PathSelector*pathSelector;
   RobotSelector*robotSelector;
-  AutoSanDiego * autoSD;
-  AutoDriveSubsystem m_drive;
   frc2::RamseteCommand * rc;
   frc::Trajectory * trajectory;
+  #endif
+  #ifdef INFINITE_RECHARGE
+  AutoSanDiego * autoSD;
+  AutoSDDelaySelector * autoSDDelaySelector;
+  #endif
   //chassis
+
   WPI_VictorSPX*flmotor;
   WPI_TalonSRX*frmotor;
   WPI_TalonSRX*rlmotor;
@@ -127,11 +133,13 @@ class Robot : public TimedRobot {
   bool bWasPressed = false;
 
   //climbing
+  #ifdef CLIMBING_MECH
   WPI_TalonSRX * lmotor;
   WPI_TalonSRX * rmotor;
   ClimbingMech * climbing;
   jankyXboxJoystick * joystick;
   string setHeight;
+  #endif
 
   public:
   //constructor
@@ -139,24 +147,31 @@ class Robot : public TimedRobot {
   {
     // lw = NULL;
     //auto
+    #ifdef INFINITE_RECHARGE_ATHOME
     pathSelector = NULL;
     robotSelector = NULL;
-    autoSD = NULL;
     rc = NULL;
     trajectory = NULL;
+    #endif
+    #ifdef INFINITE_RECHARGE
+    autoSD = NULL;
+    autoSDDelaySelector = NULL;
+    #endif
     //chassis
     flmotor = NULL;
     rlmotor = NULL;
     frmotor = NULL;
-    rmotor = NULL;
+    rrmotor = NULL;
     drive = NULL;
     leftDrive = NULL;
     rightDrive = NULL;
     //climbing
+    #ifdef CLIMBING_MECH
     lmotor = NULL;
     rmotor = NULL;
     climbing = NULL;
     joystick = NULL;
+    #endif
     //flywheel 
     flywheelSelector = NULL;
 
@@ -187,11 +202,16 @@ class Robot : public TimedRobot {
   {
     // delete lw;
     //auto
+    #ifdef INFINITE_RECHARGE_AT_HOME
     delete pathSelector;
     delete robotSelector;
-    delete autoSD;
     delete rc;
     delete trajectory;
+    #endif
+    #ifdef INFINITE_RECHARGE
+    delete autoSD;
+    delete autoSDDelaySelector;
+    #endif
     //chassis
     delete flmotor;
     delete rlmotor;
@@ -201,10 +221,12 @@ class Robot : public TimedRobot {
     delete leftDrive;
     delete rightDrive;
     //climbing
+    #ifdef CLIMBING_MECH
     delete lmotor;
     delete rmotor;
     delete climbing;
     delete joystick;
+    #endif
     #ifdef CP_ON_ROBOT
       //color sensor
       delete sensor_fake;
@@ -231,12 +253,16 @@ class Robot : public TimedRobot {
   
   virtual void RobotInit() override
   {
-
-
     // AUTONOMOUS SET-UP
     // Auto Selector
+    #ifdef INFINITE_RECHARGE_AT_HOME
     pathSelector = new PathSelector();
     robotSelector = new RobotSelector();
+    #endif
+
+    #ifdef INFINITE_RECHARGE
+    autoSDDelaySelector = new AutoSDDelaySelector();
+    #endif
 
     // CHASSIS
     flmotor = new WPI_VictorSPX(SHOOTING_LEFT_MOTOR_CHANNEL);
@@ -308,9 +334,11 @@ class Robot : public TimedRobot {
     // TURRET 
     // turretMotor = new WPI_TalonSRX(TURRET_MOTOR_CHANNEL);
     //climbing
+    #ifdef CLIMBING_MECH
     climbing = new ClimbingMech(L_MOTOR_CHANNEL, R_MOTOR_CHANNEL);
     joystick = new jankyXboxJoystick(4);
     climbing -> StartUpInit();
+    #endif
 
     autoSD = new AutoSanDiego(flmotor, frmotor, rlmotor, rrmotor, shootingcontroller);
     // lw = frc::LiveWindow::GetInstance();
@@ -318,6 +346,7 @@ class Robot : public TimedRobot {
 
   virtual void AutonomousInit() override
   {
+  #ifdef INFINITE_RECHARGE_AT_HOME
     auto ksSelected = AutoDriveConstants::jankybotKS;
     auto kvSelected = AutoDriveConstants::jankybotKV;
     auto kaSelected = AutoDriveConstants::jankybotKA; 
@@ -464,12 +493,17 @@ class Robot : public TimedRobot {
 
     // Initialize ramsete command
     rc->Initialize();
+  #endif
+
+  #ifdef INFINITE_RECHARGE
+    autoSD -> setInitialDelayTime(autoSDDelaySelector->GetSelection());
+  #endif
   }
 
   virtual void AutonomousPeriodic() override
   {
-    //autoSD->RunAuto();
 
+  #ifdef INFINITE_RECHARGE_AT_HOME
     // Execute ramsete command
     cout << " " << endl;
     if(!rc->IsFinished() )
@@ -528,6 +562,13 @@ class Robot : public TimedRobot {
      }
 
     SmartDashboard::PutNumber("gyro heading", m_drive.GetHeading());
+  #endif
+
+  #ifdef INFINITE_RECHARGE 
+    autoSD->RunAuto();
+    i = 0;
+    j = 0;
+  #endif
   }
 
   virtual void TeleopInit() override
@@ -538,7 +579,9 @@ class Robot : public TimedRobot {
   virtual void TeleopPeriodic() override
   {
     //climbing
+    #ifdef CLIMBING_MECH
     float rightVal = joystick -> GetRightYAxis();
+    #endif
     // CHASSIS ENCODERS
     cout << "Left Encoder: " << rlmotor->GetSensorCollection().GetQuadraturePosition() << endl;
     cout << "Right Encoder: " << (-1.0 * frmotor->GetSensorCollection().GetQuadraturePosition()) << endl;
@@ -678,7 +721,9 @@ class Robot : public TimedRobot {
     bool rightButton = _joy->GetRightStickButton();
     float leftThrottle = _joy->GetLeftThrottle();
     float rightThrottle = _joy->GetRightThrottle();
-    int shootingZone;
+
+    #ifdef MANUAL_DISTANCE_FOR_FLYWHEEL
+    static int shootingZone = 1; //this doesn't change shootingZone to 1 during later calls, right?
     
     if(leftButton)
     {
@@ -698,6 +743,8 @@ class Robot : public TimedRobot {
     }
 
     shootingcontroller->SetSelectorVisionDistance(shootingZone);
+    #endif
+
     if(buttonA) {
       shootingcontroller->Target();
       aWasPressed = true;
@@ -767,7 +814,7 @@ class Robot : public TimedRobot {
     }
     //climbing
     //manual controls
-    
+    #ifdef CLIMBING_MECH
     if (rightVal >= 0.2){
       climbing -> ClimbingMotorDown();
       setHeight = "None";
@@ -780,6 +827,7 @@ class Robot : public TimedRobot {
       climbing -> ClimbingMotorStop();
       setHeight = "None";
     }
+    #endif
   
   
 
