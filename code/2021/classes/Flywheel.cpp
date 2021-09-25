@@ -77,6 +77,14 @@ double FlywheelMechInfiniteRecharge::GetRunningRPM()
 void FlywheelMechInfiniteRecharge::StopFlywheel() {
     flywheelMotor->Set(ControlMode::Velocity, 0);
 }
+
+/*
+void FlywheelMechInfiniteRecharge::FlywheelOut(){
+    reverseRPM = -3000; //test
+    targetVelocity_UnitsPer100ms = reverseRPM * 2048 / 600;
+    flywheelMotor->Set(ControlMode::Velocity, reverseRPM);
+}
+*/
  void FlywheelMechInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){
   if (selectorZone == SHOOTING_ZONE_1){
       distanceToVisionTarget = 275; //in inches 

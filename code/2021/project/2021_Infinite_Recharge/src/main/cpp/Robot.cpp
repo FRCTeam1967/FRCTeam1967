@@ -131,6 +131,8 @@ class Robot : public TimedRobot {
   bool xWasPressed = false;
   bool aWasPressed = false;
   bool bWasPressed = false;
+  bool rightXAxisWasPressed = false;
+  bool rightYAxisWasPressed = false;
 
   //climbing
   #ifdef CLIMBING_MECH
@@ -690,27 +692,43 @@ class Robot : public TimedRobot {
     }
 
     // INTAKE TO TURRET TRANSPORTATION
-    bool buttonB = _joy -> GetButtonB(); // bridge
+    bool buttonY = _joy -> GetButtonY(); // bridge
+    //SmartDashboard::PutBoolean("button Y", buttonY);
+    //SmartDashboard::PutBoolean("yWasPressed", yWasPressed);
 
     // CONVEYOR BELT & BRIDGE
-     if (buttonB && !bWasPressed) {
+     if (buttonY && !yWasPressed) { 
       // run bridge motor
         shootingcontroller->BridgeForward();
         //  bridgeMotor->Set(1.0);
-         shootingcontroller->StartConveyorBelt();
-         bWasPressed = true;
+         //shootingcontroller->StartConveyorBelt();
+         yWasPressed = true;
+         //SmartDashboard::PutNumber("Bridge running", 0);
      }
-     else if (!buttonB & bWasPressed) {
+     else if (!buttonY && yWasPressed) {
+      //SmartDashboard::PutNumber("Bridge running", 1);
       // stop bridge motor
       shootingcontroller->StopBridge();
       // bridgeMotor->Set(0);
       shootingcontroller->StopConveyorBelt();
-      bWasPressed = false;
+      yWasPressed = false; //correct verrsion
      }
+     
+    //bridge out
+     float rightYAxis = _joy->GetRightYAxis();//NOTE: currently uses the same as climbing; hard when both uses flywehel and bridge out right axis?
+     if (rightYAxis >=0.2 && !rightYAxisWasPressed){
+       shootingcontroller->BridgeBackward();
+       rightYAxisWasPressed = true;
+     } 
+     else if (!(rightYAxis >=0.2) && rightYAxisWasPressed){
+       shootingcontroller->StopBridge();
+       rightYAxisWasPressed = false;
+     }
+     
 
     bool buttonA = _joy->GetButtonA();
     bool buttonX = _joy->GetButtonX();
-    bool buttonY = _joy->GetButtonY();
+    bool buttonB = _joy->GetButtonB();
     double desiredRPM = shootingcontroller->GetDesiredRPM();
     double runningRPM = shootingcontroller->GetRunningRPM();
     cout << "desired rpm: " << desiredRPM << endl;
@@ -725,19 +743,19 @@ class Robot : public TimedRobot {
     #ifdef MANUAL_DISTANCE_FOR_FLYWHEEL
     static int shootingZone = 1; //this doesn't change shootingZone to 1 during later calls, right?
     
-    if(leftButton)
+    if (rightButton)
     {
       shootingZone = 1;
     }
-    else if (rightButton)
+    else if (leftThrottle > 0.2)
     {
       shootingZone = 2;
     }
-    else if (leftThrottle > 0.2)
+    else if(rightThrottle > 0)
     {
       shootingZone = 3;
     }
-    else if(rightThrottle > 0)
+    else if(leftButton)
     {
       shootingZone = 4;
     }
@@ -754,17 +772,32 @@ class Robot : public TimedRobot {
       aWasPressed = false;
     }
 
+    //flywheel out
+    /*
+     float rightXAxis = _joy->GetRightXAxis();
+     if (rightXAxis >=0.2 && !rightXAxisWasPressed){ //is it 0.0?  
+      shootingcontroller->FlywheelOut();
+      rightXAxisWasPressed = true; 
+     }
+     else if (rightXAxis <=0.2 && rightXAxisWasPressed){
+       shootingcontroller->StopTarget();
+       rightXAxisWasPressed = false;
+     }
+
+     */
     if(buttonX && !xWasPressed) {
-      shootingcontroller->SetDesiredCount(-4096);
+      shootingcontroller->SetDesiredCount(-100); //was -4096
+      //shootingcontroller->ConveyorBeltOut(); //not pulsing
       xWasPressed = true;
     }
-    else if(buttonY && !yWasPressed) {
-      shootingcontroller->SetDesiredCount(4096);
-      yWasPressed = true;
+    else if(buttonB && !bWasPressed) {
+      shootingcontroller->SetDesiredCount(100); //was 4096
+      //shootingcontroller->StartConveyorBelt();  //not pulsing
+      bWasPressed = true;
     }
     else {
-      xWasPressed = false;
-      yWasPressed = false;
+      xWasPressed = false;  //reset encoder count?
+      bWasPressed = false;
     }
 
     // INTAKE

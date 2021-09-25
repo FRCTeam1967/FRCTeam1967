@@ -39,6 +39,13 @@ void ShooterControllerInfiniteRecharge::SetRPMAuto()
     flywheelmech ->SetRPMAuto();
 }
 
+/*
+void ShooterControllerInfiniteRecharge::FlywheelOut()
+{
+    flywheelmech -> FlywheelOut();
+}
+*/
+
 void ShooterControllerInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){ 
     flywheelmech -> SetSelectorVisionDistance(selectorZone);
 }
@@ -46,8 +53,8 @@ void ShooterControllerInfiniteRecharge::SetSelectorVisionDistance(int selectorZo
 int ShooterControllerInfiniteRecharge::GetEncoderCount()
 { 
     currentEncoderCount = conveyorBeltMotor->GetSensorCollection().GetQuadraturePosition();
-    frc::SmartDashboard::PutNumber("Current Encoder Count", currentEncoderCount);
-    return currentEncoderCount;
+    frc::SmartDashboard::PutNumber("Current Conveyor Encoder Count", currentEncoderCount);
+    return -1 *  currentEncoderCount;
 }
 
 void ShooterControllerInfiniteRecharge::ResetEncoderCount()
@@ -128,7 +135,7 @@ void ShooterControllerInfiniteRecharge::StopTarget() {
 
 void ShooterControllerInfiniteRecharge::StartConveyorBelt() {
     manualSConveyor = true;
-    conveyorBeltMotor->Set(1.0);
+    conveyorBeltMotor->Set(0.7); //was 1.0
 }
 
 void ShooterControllerInfiniteRecharge::IntakePistonsDown() {
@@ -147,6 +154,10 @@ void ShooterControllerInfiniteRecharge::StopBridge() {
     bridgeMotor->Set(0.0);
 }
 
+void ShooterControllerInfiniteRecharge::BridgeBackward(){
+    bridgeMotor->Set(-1.0);
+}
+
 
 void ShooterControllerInfiniteRecharge::TurretLeft() {
     turretMotor->Set(-TURRET_SPEED_W_VISION);
@@ -159,6 +170,13 @@ void ShooterControllerInfiniteRecharge::TurretRight() {
 void ShooterControllerInfiniteRecharge::StopTurret() {
     turretMotor->Set(0.0);
 }
+
+/*
+void ShooterControllerInfiniteRecharge::ConveyorBeltOut(){//not pulsing
+    manualSConveyor = true;
+    conveyorBeltMotor->Set(-0.7);
+}
+*/
 
 void ShooterControllerInfiniteRecharge::Run() 
 {
@@ -175,5 +193,7 @@ void ShooterControllerInfiniteRecharge::Run()
         conveyorBeltMotor->Set(0.0);
         ResetEncoderCount();
     } 
+    frc::SmartDashboard::PutNumber("Conveyor Encoder Count", GetEncoderCount());
+    frc::SmartDashboard::PutNumber("Desired Conveyor Encoder", desiredEncoderCount);
     //std::cout << "CONVEYOR ENCODER: " << GetEncoderCount() << std::endl;
 }
