@@ -39,12 +39,12 @@ void ShooterControllerInfiniteRecharge::SetRPMAuto()
     flywheelmech ->SetRPMAuto();
 }
 
-/*
+
 void ShooterControllerInfiniteRecharge::FlywheelOut()
 {
     flywheelmech -> FlywheelOut();
 }
-*/
+
 
 void ShooterControllerInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){ 
     flywheelmech -> SetSelectorVisionDistance(selectorZone);
@@ -135,7 +135,7 @@ void ShooterControllerInfiniteRecharge::StopTarget() {
 
 void ShooterControllerInfiniteRecharge::StartConveyorBelt() {
     manualSConveyor = true;
-    conveyorBeltMotor->Set(0.7); //was 1.0
+    conveyorBeltMotor->Set(-0.7); //was 1.0, then 0.7...not sure why - makes it forward
 }
 
 void ShooterControllerInfiniteRecharge::IntakePistonsDown() {

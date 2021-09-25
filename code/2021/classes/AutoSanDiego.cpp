@@ -120,6 +120,7 @@ void AutoSanDiego::DriveStraight(int distancePulses, int forwardOrBack) {
 }
 
 void AutoSanDiego::CenterTurretAutomatically() {
+    offsetFromVisionTarget = (SmartDashboard::GetNumber(VISION_OFFSET, NO_DATA_DEFAULT));
     if (offsetFromVisionTarget == BAD_DATA)
     {
       shootercontroller->StopTurret();
@@ -188,10 +189,17 @@ void AutoSanDiego::RunAuto() {
             break;
         case 2:
             cout << "CASE 2" << endl; 
-            //CenterTurretAutomatically(); //centered during delay --> make sure it works (even if delay = 0)
-            StartFlywheelTimer(); 
+            CenterTurretAutomatically(); //centered during delay --> make sure it works (even if delay = 0)
+            if (offsetFromVisionTarget == BAD_DATA){
+                CenterTurretAutomatically();
+                SmartDashboard::PutBoolean("Turret Centering", false);
+            }
+            else{
+                StartFlywheelTimer(); 
+                SmartDashboard::PutBoolean("Turret Centering", true);
+                caseNum = 3;
+            }
             drive -> TankDrive(0.0, 0.0);
-            caseNum = 3;
             break;
         case 3: 
             cout << "CASE 3" << endl;
@@ -217,7 +225,7 @@ void AutoSanDiego::RunAuto() {
                 shootercontroller->StopTarget();
                 drivingTimer->Start();
                 EndShootingTimer();
-                caseNum = 4;
+                caseNum = 5;
             }
             drive -> TankDrive(0.0, 0.0);
             break;

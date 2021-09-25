@@ -773,7 +773,7 @@ class Robot : public TimedRobot {
     }
 
     //flywheel out
-    /*
+    
      float rightXAxis = _joy->GetRightXAxis();
      if (rightXAxis >=0.2 && !rightXAxisWasPressed){ //is it 0.0?  
       shootingcontroller->FlywheelOut();
@@ -784,7 +784,7 @@ class Robot : public TimedRobot {
        rightXAxisWasPressed = false;
      }
 
-     */
+     
     if(buttonX && !xWasPressed) {
       shootingcontroller->SetDesiredCount(-100); //was -4096
       //shootingcontroller->ConveyorBeltOut(); //not pulsing

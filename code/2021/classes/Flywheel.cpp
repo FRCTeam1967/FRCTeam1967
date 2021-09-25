@@ -57,7 +57,7 @@ void FlywheelMechInfiniteRecharge::SetRPM()
 
 void FlywheelMechInfiniteRecharge::SetRPMAuto() 
 {
-    desiredRPM = 6000; //note: before turret angle changed for 2021
+    desiredRPM = 5300; //note: before turret angle changed for 2021 was 6000
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }
@@ -78,13 +78,13 @@ void FlywheelMechInfiniteRecharge::StopFlywheel() {
     flywheelMotor->Set(ControlMode::Velocity, 0);
 }
 
-/*
+
 void FlywheelMechInfiniteRecharge::FlywheelOut(){
     reverseRPM = -3000; //test
     targetVelocity_UnitsPer100ms = reverseRPM * 2048 / 600;
     flywheelMotor->Set(ControlMode::Velocity, reverseRPM);
 }
-*/
+
  void FlywheelMechInfiniteRecharge::SetSelectorVisionDistance(int selectorZone){
   if (selectorZone == SHOOTING_ZONE_1){
       distanceToVisionTarget = 275; //in inches 
