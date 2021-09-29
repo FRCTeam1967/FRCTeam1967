@@ -51,8 +51,8 @@
 #define LOWER_BOUND -3
 #define UPPER_BOUND 3
 #define BAD_DATA -1000
-#define TURRET_SPEED_W_VISION 0.1 //was 0.2
-#define TURRET_USING_VISION
+#define TURRET_SPEED_MANUAL 0.2
+#define TURRET_USING_VISION 0.1
 
 // Shooting
 #define FLYWHEEL_CHANNEL 5

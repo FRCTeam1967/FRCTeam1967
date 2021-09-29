@@ -2,8 +2,8 @@
 #include "AutoSanDiego.h"
 
 #define FLYWHEEL_TIME 1
-#define CONVEYOR_TIME 3
-#define DRIVING_TIME 2
+#define CONVEYOR_TIME 4 //was 3
+#define DRIVING_TIME 3 //was 2
 #define DISTANCE 50
 #define FORWARD -1
 #define BACKWARD 1
@@ -127,11 +127,11 @@ void AutoSanDiego::CenterTurretAutomatically() {
     }
     else if (offsetFromVisionTarget < LOWER_BOUND) 
     {
-      shootercontroller-> TurretRight();
+      shootercontroller-> TurretRight(TURRET_USING_VISION);
     }
     else if (offsetFromVisionTarget > UPPER_BOUND)
     {
-      shootercontroller-> TurretLeft();
+      shootercontroller-> TurretLeft(TURRET_USING_VISION);
     }
     else {
       shootercontroller->StopTurret();
@@ -167,6 +167,15 @@ void AutoSanDiego::setInitialDelayTime(AutoSDDelaySelector::Options delay){
     SmartDashboard::PutNumber("initial auto delay: ", initialDelay);
 }
 
+void AutoSanDiego::setIntakeUpDown(AutoIntakeSelector::Options upDown){
+    if (upDown == AutoIntakeSelector::Options::intakeUp){
+        intakeUp = true;
+    } 
+    else{ //(upDown == AutoIntakeSelector::Options::intakeDown){
+        intakeUp = false;
+    }
+}
+
 
 void AutoSanDiego::RunAuto() {
     CenterTurretAutomatically();
@@ -190,15 +199,8 @@ void AutoSanDiego::RunAuto() {
         case 2:
             cout << "CASE 2" << endl; 
             CenterTurretAutomatically(); //centered during delay --> make sure it works (even if delay = 0)
-            if (offsetFromVisionTarget == BAD_DATA){
-                CenterTurretAutomatically();
-                SmartDashboard::PutBoolean("Turret Centering", false);
-            }
-            else{
-                StartFlywheelTimer(); 
-                SmartDashboard::PutBoolean("Turret Centering", true);
-                caseNum = 3;
-            }
+            StartFlywheelTimer(); 
+            caseNum = 3;
             drive -> TankDrive(0.0, 0.0);
             break;
         case 3: 
@@ -240,6 +242,14 @@ void AutoSanDiego::RunAuto() {
         case 6: 
             CenterTurretAutomatically();
             drive -> TankDrive(0.0, 0.0);
+            if(!intakeUp){
+                shootercontroller->IntakePistonsDown();
+            }
+            caseNum = 7;
+            break;
+        case 7:
+            CenterTurretAutomatically();
+            drive -> TankDrive(0.0, 0.0);
             cout << "IS FINISHED AUTO" << endl;
             break;
     }
@@ -255,3 +265,14 @@ AutoSDDelaySelector::Options AutoSDDelaySelector::GetSelection(){
     Options selectedDelay = (Options) GetSelectedValue();
     return selectedDelay;
 }
+
+//selector for intake up/down
+AutoIntakeSelector::AutoIntakeSelector(){
+    Initialize(optionsList, selectorName);
+}
+AutoIntakeSelector::~AutoIntakeSelector(){}
+
+AutoIntakeSelector::Options AutoIntakeSelector::GetSelection()  {
+    Options selectedIntake = (Options) GetSelectedValue();
+    return selectedIntake;
+} 

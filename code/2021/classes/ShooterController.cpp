@@ -135,7 +135,7 @@ void ShooterControllerInfiniteRecharge::StopTarget() {
 
 void ShooterControllerInfiniteRecharge::StartConveyorBelt() {
     manualSConveyor = true;
-    conveyorBeltMotor->Set(-0.7); //was 1.0, then 0.7...not sure why - makes it forward
+    conveyorBeltMotor->Set(-0.6); //was 1.0, then 0.7; not sure why - makes it forward
 }
 
 void ShooterControllerInfiniteRecharge::IntakePistonsDown() {
@@ -159,12 +159,12 @@ void ShooterControllerInfiniteRecharge::BridgeBackward(){
 }
 
 
-void ShooterControllerInfiniteRecharge::TurretLeft() {
-    turretMotor->Set(-TURRET_SPEED_W_VISION);
+void ShooterControllerInfiniteRecharge::TurretLeft(float turretSpeed) {
+    turretMotor->Set(-turretSpeed);
 }
 
-void ShooterControllerInfiniteRecharge::TurretRight() {
-    turretMotor->Set(TURRET_SPEED_W_VISION);
+void ShooterControllerInfiniteRecharge::TurretRight(float turretSpeed) {
+    turretMotor->Set(turretSpeed);
 }
 
 void ShooterControllerInfiniteRecharge::StopTurret() {

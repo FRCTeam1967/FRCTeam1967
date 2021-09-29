@@ -25,6 +25,19 @@ class AutoSDDelaySelector : public JankySelector{
         Options GetSelection();
 };
 
+class AutoIntakeSelector : public JankySelector{
+    public:
+        std::string selectorName = "IntakeDownAuto";
+        std::vector<std::string> optionsList 
+            {"Intake Up", "Intake Down"};
+        enum class Options {intakeUp, intakeDown};
+
+        AutoIntakeSelector();
+        ~AutoIntakeSelector();
+        Options GetSelection();
+};
+
+
 //main auto code
 class AutoSanDiego {
     public:
@@ -49,6 +62,7 @@ class AutoSanDiego {
         void MoveTurretStart();
 
         void setInitialDelayTime(AutoSDDelaySelector::Options delay);
+        void setIntakeUpDown(AutoIntakeSelector::Options upDown);
 
         void RunAuto();
         
@@ -70,4 +84,5 @@ class AutoSanDiego {
         bool isFinishedDriving;
         int caseNum;
         int initialDelay;
+        bool intakeUp;
 };

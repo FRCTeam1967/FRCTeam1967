@@ -47,8 +47,8 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         void BridgeBackward();
 
         // TURRET
-        void TurretLeft();
-        void TurretRight();
+        void TurretLeft(float turretSpeed);
+        void TurretRight(float turretSpeed);
         void StopTurret();
 
     private:

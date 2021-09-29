@@ -88,6 +88,7 @@ class Robot : public TimedRobot {
   #ifdef INFINITE_RECHARGE
   AutoSanDiego * autoSD;
   AutoSDDelaySelector * autoSDDelaySelector;
+  AutoIntakeSelector * autoIntakeSelector;
   #endif
   //chassis
 
@@ -158,6 +159,7 @@ class Robot : public TimedRobot {
     #ifdef INFINITE_RECHARGE
     autoSD = NULL;
     autoSDDelaySelector = NULL;
+    autoIntakeSelector = NULL;
     #endif
     //chassis
     flmotor = NULL;
@@ -213,6 +215,7 @@ class Robot : public TimedRobot {
     #ifdef INFINITE_RECHARGE
     delete autoSD;
     delete autoSDDelaySelector;
+    delete autoIntakeSelector;
     #endif
     //chassis
     delete flmotor;
@@ -264,6 +267,7 @@ class Robot : public TimedRobot {
 
     #ifdef INFINITE_RECHARGE
     autoSDDelaySelector = new AutoSDDelaySelector();
+    autoIntakeSelector  = new AutoIntakeSelector();
     #endif
 
     // CHASSIS
@@ -499,6 +503,7 @@ class Robot : public TimedRobot {
 
   #ifdef INFINITE_RECHARGE
     autoSD -> setInitialDelayTime(autoSDDelaySelector->GetSelection());
+    autoSD -> setIntakeUpDown(autoIntakeSelector -> GetSelection());
   #endif
   }
 
@@ -820,11 +825,11 @@ class Robot : public TimedRobot {
     SmartDashboard::PutNumber("gyro heading", m_drive.GetHeading());
 
     if (buttonStart) {
-      shootingcontroller-> TurretRight();
+      shootingcontroller-> TurretRight(TURRET_SPEED_MANUAL);
       // turretMotor -> Set(0.2); // run to right
     }
     else if (buttonBack) {
-      shootingcontroller-> TurretLeft();
+      shootingcontroller-> TurretLeft(TURRET_SPEED_MANUAL);
       // turretMotor -> Set(-0.2); // run to left
     }
     else if ((offsetFromVisionTarget == BAD_DATA) && (!_joy->GetButtonY()))
@@ -833,13 +838,13 @@ class Robot : public TimedRobot {
       // turretMotor -> Set(0); // within bounds
     }
     else if ((offsetFromVisionTarget < LOWER_BOUND) && (!_joy->GetButtonY())) {
-      shootingcontroller-> TurretRight();
-      // turretMotor -> Set(TURRET_SPEED_W_VISION); // run motor to right
+      shootingcontroller-> TurretRight(TURRET_USING_VISION);
+      // turretMotor -> Set(TURRET_USING_VISION); // run motor to right
     }
     else if ((offsetFromVisionTarget > UPPER_BOUND) && (!_joy->GetButtonY()))
     {
-      shootingcontroller-> TurretLeft();
-      // turretMotor -> Set(-TURRET_SPEED_W_VISION); // run motor to left
+      shootingcontroller-> TurretLeft(TURRET_USING_VISION);
+      // turretMotor -> Set(-TURRET_USING_VISION); // run motor to left
     }
     else {
       shootingcontroller->StopTurret();
