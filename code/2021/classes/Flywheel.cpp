@@ -57,7 +57,7 @@ void FlywheelMechInfiniteRecharge::SetRPM()
 
 void FlywheelMechInfiniteRecharge::SetRPMAuto() 
 {
-    desiredRPM = 5300; //note: before turret angle changed for 2021 was 6000
+    desiredRPM = 5000; //note: before turret angle changed for 2021 was 6000, was 5300 for first 5 calgame matches
     targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
     flywheelMotor->Set(ControlMode::Velocity, targetVelocity_UnitsPer100ms);
 }

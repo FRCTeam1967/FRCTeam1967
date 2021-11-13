@@ -48,10 +48,10 @@
 
 // Turret
 #define TURRET_MOTOR_CHANNEL 6
-#define LOWER_BOUND -3
-#define UPPER_BOUND 3
+#define LOWER_BOUND -5 //was -3
+#define UPPER_BOUND 1 //was 3
 #define BAD_DATA -1000
-#define TURRET_SPEED_MANUAL 0.2
+#define TURRET_SPEED_MANUAL 0.4
 #define TURRET_USING_VISION 0.1
 
 // Shooting
