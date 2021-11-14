@@ -39,20 +39,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
-    //WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(1);
-    /*
-    SpeedController m_leftFollower = new PWMVictorSPX(2);
-    SpeedController m_rightFollower = new PWMVictorSPX(4);
-    SpeedControllerGroup m_left = new SpeedControllerGroup(m_rightFollower, m_leftFollower);
-    */
-
     
-    SpeedController m_leftLeader = (SpeedController) new WPI_TalonSRX(0);
+    SpeedController m_leftLeader = new WPI_TalonSRX(0);
     SpeedController m_leftFollower = new PWMVictorSPX(2);
     SpeedControllerGroup m_left = new SpeedControllerGroup(m_leftLeader, m_leftFollower);
     
-    SpeedController m_rightLeader = (SpeedController) new WPI_TalonSRX(1);
+    SpeedController m_rightLeader = new WPI_TalonSRX(1);
     SpeedController m_rightFollower = new PWMVictorSPX(3);
     SpeedControllerGroup m_right = new SpeedControllerGroup(m_rightLeader, m_rightFollower);
     
@@ -118,9 +110,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    //m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    //System.out.println("Auto selected: " + m_autoSelected);
   }
 
   /** This function is called periodically during autonomous. */
