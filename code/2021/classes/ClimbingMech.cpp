@@ -1,3 +1,4 @@
+#ifdef CLIMBING_MECH
 #include "ClimbingMech.h"
 
 #ifdef JANKY_BOT_2020 //told us cims but might be mini cims later
@@ -250,3 +251,4 @@ void ClimbingMech::Run(){
     //EmergencyStop(); 
     SmartDashboardComments();
 }
+#endif

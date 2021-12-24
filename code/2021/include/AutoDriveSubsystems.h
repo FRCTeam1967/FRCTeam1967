@@ -151,4 +151,11 @@ class AutoDriveSubsystem : public frc2::SubsystemBase {
   //Timer
   frc::Timer * time;
   double prevTime;
+
+  //GetWheelSpeed
+  double prevDistanceLeft;
+  double prevDistanceRight;
+  int getWheelSpeedIteration;
+  double leftRate;
+  double rightRate;
 };

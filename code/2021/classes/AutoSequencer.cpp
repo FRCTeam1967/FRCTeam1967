@@ -12,7 +12,7 @@
 #include "AutoSequencer.h"
 #include "AutoSettings.h"
 #include "AutoDriveSubsystems.h"
-#include "JankyPathWeaver.h"
+//#include "JankyPathWeaver.h"
 #include "AutoShoot.h"
 
 using namespace std;
@@ -29,7 +29,7 @@ float drive_kI = 0.0;
 float drive_kD = 0.0;
 int c;
 
-JankyPathWeaver * trajectory1;
+// JankyPathWeaver * trajectory1;
 AutoShoot * shoot;
 
 AutoSequencer::AutoSequencer(AutoDriveSubsystem * m_drive, int autoMode) {
@@ -37,18 +37,18 @@ AutoSequencer::AutoSequencer(AutoDriveSubsystem * m_drive, int autoMode) {
 		entries[i]=NULL;
 	}
 
-	trajectory1 = new JankyPathWeaver(m_drive, autoMode);
+	//trajectory1 = new JankyPathWeaver(m_drive, autoMode);
 	shoot = new AutoShoot();
 
 	SetMachineName("JankyAutoSequencer");
-	SetName(Trajectory1, "Trajectory1", trajectory1);
+	//SetName(Trajectory1, "Trajectory1", trajectory1);
 	SetName(Shoot, "Shoot", shoot);
 
 	Start();
 }
 
 AutoSequencer::~AutoSequencer() {
-	delete trajectory1;
+	//delete trajectory1;
 	delete shoot;
 }
 
@@ -76,11 +76,11 @@ void AutoSequencer::EndSequence(){
 void AutoSequencer::StateEngine(int curState)
 {
 	switch(curState){
-		case Trajectory1: //TEST THS
-				if(trajectory1->IsComplete()){
-					NewState(Shoot, "Shoot");
-				}
-				break;
+		//case Trajectory1: //TEST THS
+				//if(trajectory1->IsComplete()){
+				//	NewState(Shoot, "Shoot");
+				//}
+				//break;
 		case Shoot: 
 				if(shoot->IsComplete())
 				{

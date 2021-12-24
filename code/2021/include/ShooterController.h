@@ -21,6 +21,8 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         double GetDesiredRPM();
         void StopTarget();
         void SetRPMAuto();
+        void SetSelectorVisionDistance(int selectorZone); 
+        void FlywheelOut();
 
         // CONVEYOR BELT
         int GetEncoderCount();
@@ -30,6 +32,7 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         void SetDesiredCount(int count);
         void StopConveyorBelt();
         void StartConveyorBelt();
+        void ConveyorBeltOut();
         
         // INTAKE
         void IntakeStop();
@@ -41,10 +44,11 @@ class ShooterControllerInfiniteRecharge : public JankyTask {
         // BRIDGE
         void BridgeForward();
         void StopBridge();
+        void BridgeBackward();
 
         // TURRET
-        void TurretLeft();
-        void TurretRight();
+        void TurretLeft(float turretSpeed);
+        void TurretRight(float turretSpeed);
         void StopTurret();
 
     private:

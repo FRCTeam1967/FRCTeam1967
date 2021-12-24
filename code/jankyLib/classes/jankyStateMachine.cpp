@@ -24,6 +24,8 @@ JankyStateMachine::JankyStateMachine()
 
 	strcpy(machineName, "DefaultMachine");
 	currentState = 0;		// Make a sane initial choice.
+	priorState = -1;
+
 	
 }
 
@@ -49,7 +51,14 @@ int JankyStateMachine::GetCurrentState()
 }
 
 void JankyStateMachine::Run(){
-	StateEngine(currentState);
+	if (priorState == currentState){
+		StateEngine(currentState, false);
+	}
+	else{
+		StateEngine(currentState, true);
+	}
+
+	priorState = currentState;
 }
 
 void JankyStateMachine::NewState(int newState, const char*reason){
@@ -75,3 +84,4 @@ void JankyStateMachine::SetName(int state, const char* stateName) {
 		printf ("JankyStateMachine::SetName Bad state value/name\n");
 	}
 }
+

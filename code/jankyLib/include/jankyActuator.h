@@ -6,7 +6,8 @@
 
 #ifndef _JANKYACTUATOR_H
 #include "jankyTask.h"
-#include "frc/WPILib.h"
+#include "frc/Solenoid.h"
+#include "frc/Timer.h"
 #define _JANKYACTUATOR_H
 
 #define CYCLE_TIME 3.5
@@ -14,7 +15,7 @@
 
 class JankyActuator : public JankyTask	{
 public:
-	JankyActuator(int pistonOneChannel, int pistonTwoChannel);
+	JankyActuator(int pistonOneChannel, int pistonTwoChannel = -1);
 	virtual ~JankyActuator(void);
 	
 	//Member functions
@@ -28,11 +29,13 @@ public:
 	frc::Solenoid * GetSolenoid(void){
 		return pPistonOne;
 	}
+	void SetDualPistonActuationSync(bool DualPistonSync);
 	
 	//Member variables
 	double dFullCycleTime;
 	double dFullActuationTime;
 	bool bActuating;
+	bool pistonSync;
 	frc::Timer cycleTimer;
 	frc::Solenoid * pPistonOne;
 	frc::Solenoid * pPistonTwo;

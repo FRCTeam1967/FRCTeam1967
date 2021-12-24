@@ -14,6 +14,8 @@ class FlywheelMechInfiniteRecharge{
         void CalculateDistanceToVisionTarget();
         double GetDistanceToVisionTarget();
         void StopFlywheel();
+        void SetSelectorVisionDistance(int selectorDistance); 
+        void FlywheelOut();
 
     private:
         TalonFX * flywheelMotor; 
@@ -22,6 +24,7 @@ class FlywheelMechInfiniteRecharge{
         int kTimeoutMs; 
         double desiredRPM;
         double runningRPM; 
+        double reverseRPM;
         double targetVelocity_UnitsPer100ms;
-        double distanceToVisionTarget;
+        double distanceToVisionTarget; 
 };
