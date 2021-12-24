@@ -1,0 +1,4 @@
+#!/bin/bash
+echo Starting compilation
+javac -d . ../../jankyLib/org/janksters/JankyTask.java Task500.java Task1000.java Main.java
+echo Finished compilation

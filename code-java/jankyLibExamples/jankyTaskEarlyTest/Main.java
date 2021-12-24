@@ -1,7 +1,6 @@
 public class Main {
   public static void main(String[] args) {
     System.out.println("This code is outside of the thread");
-    Test test1 = new Test();
 
     Task500 task500Test = new Task500();
     Task1000 task1000Test = new Task1000();
