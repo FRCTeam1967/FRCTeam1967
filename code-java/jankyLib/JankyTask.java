@@ -10,6 +10,8 @@ start() to start the task at the beginning or resume it if it's been paused, pau
 to temporarily pause the task, and terminate() to permenantly exit the task.
 */
 
+package org.janksters.jankyLib;
+
 public abstract class JankyTask extends Thread{
     private boolean enabled_;
     private boolean running_;
