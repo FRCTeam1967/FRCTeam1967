@@ -1,0 +1,22 @@
+#!/bin/bash
+# Please UPDATE this version number ANY time changes are made to the file.
+echo Janksters Java-Build gradlew mods Version 1.01
+
+# If the folder already exists, then we should already be ready to go.
+if [[ ! -e ./src/main/java/org/janksters ]]; then
+  mkdir -p ./src/main/java/org/janksters
+
+  # Create soft links to the actual file locations
+  ln -s ../../../../../../CommonClassesThisYear ./src/main/java/org/janksters/CommonClassesThisYear
+  ln -s ../../../../../../../jankyLib ./src/main/java/org/janksters/jankyLib
+
+  # Copy in the .gitignore file to keep git from looking at the soft link area
+  cp ../JanksterNewProjectSetup/gitignoreForLinkArea ./src/main/java/.gitignore
+fi
+
+# Below are old thoughts on copying files and making the area read-only
+#mkdir -p ./src/main/java/org/janksters
+#chmod -R +w ./src/main/java/org/janksters
+#cp -Rf ../classes/* ./src/main/java/org/janksters
+#chmod -R -w ./src/main/java/org/janksters
+

@@ -34,7 +34,7 @@ public class Robot extends TimedRobot {
  
  jankyXboxJoystick xBoxJanky = new jankyXboxJoystick(2);
 //IMPORTANT- figure out the port numbers
-intakeMechAllison intakeMechJanky = new intakeMechAllison(3, 4, 5);
+intakeMechAllison intakeMechJanky = new intakeMechAllison(2, 0, 1);
  
  
  /**
@@ -98,6 +98,7 @@ intakeMechAllison intakeMechJanky = new intakeMechAllison(3, 4, 5);
  public void teleopPeriodic() {
  
    boolean buttonRB = xBoxJanky.GetButtonRB();
+   SmartDashboard.putBoolean("buttonRB Pressed", buttonRB);
    boolean buttonLB = xBoxJanky.GetButtonLB();
   
  
@@ -107,14 +108,18 @@ intakeMechAllison intakeMechJanky = new intakeMechAllison(3, 4, 5);
   else if(buttonRB){
    intakeMechJanky.MechOutRobot();
   }
-  float intakeJoy = xBoxJanky.GetLeftYAxis();
+  double intakeJoy = xBoxJanky.GetLeftYAxis();
+  SmartDashboard.putNumber("LeftYAxis", intakeJoy);
   if(intakeJoy > 0.2){
+    SmartDashboard.putNumber("intake turn", 1);
     intakeMechJanky.RollersOut();
   }
   else if (intakeJoy < -0.2){
+    SmartDashboard.putNumber("intake turn", 2);
     intakeMechJanky.RollersIn();
   }
   else {
+    SmartDashboard.putNumber("intake turn", 3);
     intakeMechJanky.RollersStop();
   }
  

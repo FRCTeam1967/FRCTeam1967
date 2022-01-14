@@ -1,5 +1,5 @@
 
-package org.janksters.robotcode;
+package org.janksters.CommonClassesThisYear;
 import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.GenericHID;
  
@@ -63,15 +63,15 @@ public class jankyXboxJoystick extends Joystick {
        return getRawButton(RIGHT_STICK_BUTTON_PORT);
    }
  
-   public float GetLeftThrottle(){
-       float leftThrottle = GetLeftThrottle();
+   public double GetLeftThrottle(){
+       double leftThrottle = getTwist();
        if (leftThrottle > 0.2){
            return leftThrottle;
        }
        else return 0;
    }
-   public float GetRightThrottle(){
-       float rightThrottle = GetRightThrottle();
+   public double GetRightThrottle(){
+       double rightThrottle = getThrottle();
        if (rightThrottle>0){
            return rightThrottle;
        }
@@ -95,12 +95,12 @@ public class jankyXboxJoystick extends Joystick {
        double y=(getRawAxis(RIGHT_Y_AXIS_CHANNEL));
        return y;
    }
-   public float GetLeftTwist(){
-       float leftTwist = GetLeftTwist();
+   public double GetLeftTwist(){
+       double leftTwist = getTwist();
        return leftTwist;
    }
-   public float GetRightTwist(){
-       float rightTwist = GetRightTwist();
+   public double GetRightTwist(){
+       double rightTwist = getTwist();
        return rightTwist;
    }
 }

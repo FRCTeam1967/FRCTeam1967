@@ -35,7 +35,7 @@ import com.ctre.phoenix.motorcontrol.can.MotControllerJNI;
 import edu.wpi.first.wpilibj.SpeedControllerGroup;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice.CTRE_MagEncoder_Absolute;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
 
 /**
@@ -65,7 +65,7 @@ public class Robot extends TimedRobot {
   // Ports of joysticks & sensors
   int leftJoystickChannel = 0;
   int rightJoystickChannel = 1;
-  int xboxChannelNumber = 3;
+  int xboxChannelNumber = 2;
 
   //Chassis (prog bot)
   int frontLeftMotorChannel = 1;
@@ -132,7 +132,8 @@ public class Robot extends TimedRobot {
  //SpeedControllerGroup leftDrive = new SpeedControllerGroup(flmotor, rlmotor);
 
 
-    rlmotor.ConfigSelectedFeedbackSensor(0.0000,CTRE_MagEncoder_Absolute,0,0);
+    //rlmotor.ConfigSelectedFeedbackSensor(0.0000,CTRE_MagEncoder_Absolute,0,0);
+    rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
   //rlmotor.SetSelectedSensorPosition(0, 0, 10, 0);
 
     

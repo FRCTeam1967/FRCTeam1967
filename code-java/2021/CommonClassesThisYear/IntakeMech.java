@@ -1,4 +1,4 @@
-package org.janksters.robotcode;
+package org.janksters.CommonClassesThisYear;
  
  
 //package frc.robot;
@@ -9,7 +9,7 @@ package org.janksters.robotcode;
 import edu.wpi.first.wpilibj.Solenoid;
 //import edu.wpi.first.wpilibj.SolenoidBase;
  
-import org.janksters.robotcode.intakeMechAllison;
+//import org.janksters.robotcode.IntakeMech; //???
 //import edu.wpi.first.wpilibj.Joystick;
 //import edu.wpi.first.wpilibj.PWMVictorSPX;
 //import edu.wpi.first.wpilibj.PWMSparkMax;
@@ -20,9 +20,9 @@ import edu.wpi.first.wpilibj.PWMVictorSPX;
  
 //import Desktop.JankyXboxJoystick;
 
-public class intakeMechAllison {
+public class IntakeMech {
   //motor speed
-  //roller intake speed
+      //roller intake speed
   final double MOTOR_ROLL_F_SPEED=-0.75;
   //roller outtake speed
   final double MOTOR_ROLL_R_SPEED=0.75;
@@ -33,7 +33,7 @@ public class intakeMechAllison {
   Solenoid leftPiston;
   Solenoid rightPiston;
  
-  public intakeMechAllison(int motorRollChannel,int leftPistonChannel, int rightPistonChannel){
+  public IntakeMech (int motorRollChannel,int leftPistonChannel, int rightPistonChannel){
        motorRoll = new PWMVictorSPX(motorRollChannel);
        leftPiston = new Solenoid(11, leftPistonChannel);
        rightPiston = new Solenoid(11, rightPistonChannel);

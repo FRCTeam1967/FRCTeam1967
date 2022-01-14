@@ -9,7 +9,7 @@ public class TestTurret {
     }
 
     public void turretLeft(double turretSpeed){
-        turretMotor.set(turretSpeed);
+        turretMotor.set(-1 * turretSpeed);
     }
 
     public void turretRight(double turretSpeed){

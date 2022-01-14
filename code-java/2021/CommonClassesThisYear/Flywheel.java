@@ -1,4 +1,4 @@
-package org.janksters.robotcode;
+package org.janksters.CommonClassesThisYear;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
@@ -21,7 +21,7 @@ public class Flywheel {
     private double targetVelocity_UnitsPer100ms;
     private double distanceToVisionTarget;
 
-    private String visionDistance = "Java - Distance to Tape";
+    private String visionDistance = "Distance to Tape";
     private int NoDataDefault = -1000;
     
     private int shootingZoneOne = 1;
@@ -36,8 +36,8 @@ public class Flywheel {
         kTimeoutMs = 30;
         flywheelMotor = new WPI_TalonFX(flywheelChannelNumber);
         flywheelMotor.configFactoryDefault();
-        //flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, kTimeoutMs);
-        flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, kTimeoutMs);
+        flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Relative, 0, kTimeoutMs);
+        //flywheelMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, kTimeoutMs);
         flywheelMotor.setSensorPhase(true);
         flywheelMotor.configNominalOutputForward(0, kTimeoutMs);
         flywheelMotor.configNominalOutputReverse(0, kTimeoutMs); //0 is the minimum percent so it does turn off completely - it is the percent of motor output
@@ -64,14 +64,14 @@ public class Flywheel {
         // desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //when using vision
         targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
 
-        SmartDashboard.putNumber("Java - desiredRPM", desiredRPM);
-        //flywheelMotor.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
-        flywheelMotor.set(0.5);
-        SmartDashboard.putBoolean("Java - Flywheel is Alive", flywheelMotor.isAlive());
+        SmartDashboard.putNumber("desiredRPM", desiredRPM);
+        flywheelMotor.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
+        //flywheelMotor.set(0.5);
+        SmartDashboard.putBoolean("Flywheel is Alive", flywheelMotor.isAlive());
         
 
-        SmartDashboard.putNumber("Java - shooting zone number final", distanceToVisionTarget);
-        SmartDashboard.putNumber("Java - target velocity final", targetVelocity_UnitsPer100ms);
+        SmartDashboard.putNumber("shooting zone number final", distanceToVisionTarget);
+        SmartDashboard.putNumber("target velocity final", targetVelocity_UnitsPer100ms);
     }
 
     public void SetRPMAuto(){
@@ -86,7 +86,7 @@ public class Flywheel {
 
     public double GetRunningRPM(){
         runningRPM = (flywheelMotor.getSelectedSensorVelocity(kPIDLoopIdx)) / 2048 * 600;
-        SmartDashboard.putNumber("Java - RPM flywheel is running at", runningRPM);
+        SmartDashboard.putNumber("RPM flywheel is running at", runningRPM);
         return runningRPM;
     }
     
@@ -113,7 +113,7 @@ public class Flywheel {
             System.out.println("No distance to vision target!");
         }
 
-        SmartDashboard.putNumber("Java - Manual Distance To Vision Target: ", distanceToVisionTarget);
+        SmartDashboard.putNumber("Manual Distance To Vision Target: ", distanceToVisionTarget);
     }
 
     public double getFlywheelEncoder(){ //?? Tiffany's group including Tiffany isn't sure?

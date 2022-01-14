@@ -39,10 +39,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-
     jankyFlywheel  = new Flywheel(FLY_WHEEL_CHANNEL);
     _joy = new Joystick(2);
   }
@@ -80,14 +76,14 @@ public class Robot extends TimedRobot {
 
     jankyFlywheel.SetSelectorVisionDistance(shootingZone);
 
-    SmartDashboard.putNumber("the real shooting zone", shootingZone);
+    SmartDashboard.putNumber("Java - the real shooting zone", shootingZone);
     boolean buttonA = _joy.getRawButton(1);
     double desiredRPM = jankyFlywheel.ReturnDesiredRPM();
     double runningRPM = jankyFlywheel.GetRunningRPM();
     System.out.println("Desired RPM: " + desiredRPM);
     System.out.println("Running RPM: " + runningRPM);
 
-    SmartDashboard.putBoolean("button A was pressed", buttonA);
+    SmartDashboard.putBoolean("Java - button A was pressed", buttonA);
 
     if(buttonA) {
       jankyFlywheel.SetRPM();
@@ -102,12 +98,12 @@ public class Robot extends TimedRobot {
     if(rightXAxis >= 0.2 && !rightXAxisWasPressed) { //is it 0.0?
       jankyFlywheel.FlywheelOut();
       rightXAxisWasPressed = true;
-    } else if (aWasPressed){
+    } else if (rightXAxisWasPressed){
       jankyFlywheel.StopFlywheel();
       rightXAxisWasPressed = false;
     }
 
-    SmartDashboard.putNumber("Encoder Flywheel: ", jankyFlywheel.getFlywheelEncoder());
+    SmartDashboard.putNumber("Java - Encoder Flywheel: ", jankyFlywheel.getFlywheelEncoder());
 
   }
 
@@ -125,7 +121,7 @@ public class Robot extends TimedRobot {
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    System.out.println("Java - Auto selected: " + m_autoSelected);
   }
 
   /** This function is called periodically during autonomous. */

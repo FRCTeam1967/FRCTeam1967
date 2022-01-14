@@ -42,7 +42,7 @@ public abstract class JankyTask extends Thread{
     }
 
     //Run(): To be implemented by the derived class.  This method will be called over and over as long as the task is running (not terminated) and enabled (started and not paused)
-    abstract void Run();
+    protected abstract void Run();
 
     //run(): Will be called once by the thread, and this checks if the task should be running.
     //It calls Run() with a small pause in between if it should be running and just has a pause if the task shouldn't be running
