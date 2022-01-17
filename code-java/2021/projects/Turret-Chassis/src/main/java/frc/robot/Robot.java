@@ -17,7 +17,6 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 
-import com.janksters.robotcode.TestChassis;
 import com.janksters.robotcode.TestTurret;
 
 import edu.wpi.first.wpilibj.XboxController;
@@ -45,9 +44,6 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
  * project.
  */
 public class Robot extends TimedRobot {
-  private DifferentialDrive m_myRobot;
-  private Joystick m_leftStick;
-  private Joystick m_rightStick;
   
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -85,13 +81,18 @@ public class Robot extends TimedRobot {
   int noDataDefault = -1000;
   int CTRE_MagEncoder_Absolute = 8;
 
-  /*// Janky Drivestick ports
+  //Janky Drivestick ports
   int buttonTrigPort = 1;
   int button2Port = 2;
   int button3Port = 3;
   int button4Port = 4;
   int button5Port = 5;
-  int button6Port = 6;*/
+  int button6Port = 6;
+
+  //encoders
+  final int PULSES_PER_REVOLUTION = 4096;
+  final double WHEEL_DIAMETER = 6; // 0.1524 meters, 6 inches
+  final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
   //Turret
   private XboxController xbox = new XboxController(xboxChannelNumber);
@@ -101,7 +102,24 @@ public class Robot extends TimedRobot {
   private int _loopCount = 0;
 
   TalonSRX _talon0 = new TalonSRX(0); // Change '0' to match device ID in Tuner.  Use VictorSPX for Victor SPXs
-  Joystick _joystick = new Joystick(0);
+  //Joystick _joystick = new Joystick(0);
+
+
+  //Chassis:
+  PWMVictorSPX flmotor;
+  WPI_TalonSRX rlmotor;
+  WPI_TalonSRX frmotor;
+  PWMVictorSPX rrmotor;
+  SpeedControllerGroup leftDrive;
+  SpeedControllerGroup rightDrive;
+  DifferentialDrive drive;
+
+  //Chassis joysticks
+  Joystick leftJoystick;
+  Joystick rightJoystick;
+
+  boolean shootingSideFront = true;
+
 
 
   /**
@@ -110,7 +128,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    
+    /*
     SpeedController m_leftLeader = new WPI_TalonSRX(0);
     SpeedController m_leftFollower = new PWMVictorSPX(2);
     SpeedControllerGroup m_left = new SpeedControllerGroup(m_leftLeader, m_leftFollower);
@@ -123,20 +141,21 @@ public class Robot extends TimedRobot {
     m_myRobot = new DifferentialDrive(m_left, m_right);
     m_leftStick = new Joystick(0);
     m_rightStick = new Joystick(1);
-
+    */
       //Chassis
-  VictorSPX flmotor = new VictorSPX(shootingLeftMotorChannel);
-  TalonSRX rlmotor = new TalonSRX(intakeLeftMotorChannel);
-  TalonSRX frmotor = new TalonSRX(shootingRightMotorChannel);
-  VictorSPX rrmotor = new VictorSPX(intakeRightMotorChannel);
- //SpeedControllerGroup leftDrive = new SpeedControllerGroup(flmotor, rlmotor);
+    flmotor = new PWMVictorSPX(shootingLeftMotorChannel);
+    rlmotor = new WPI_TalonSRX(intakeLeftMotorChannel);
+    frmotor = new WPI_TalonSRX(shootingRightMotorChannel);
+    rrmotor = new PWMVictorSPX(intakeRightMotorChannel);
 
+    leftDrive = new SpeedControllerGroup(flmotor, rlmotor);
+    rightDrive = new SpeedControllerGroup(frmotor, rrmotor);
+    drive = new DifferentialDrive(leftDrive, rightDrive);
 
-    //rlmotor.ConfigSelectedFeedbackSensor(0.0000,CTRE_MagEncoder_Absolute,0,0);
-    rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
-  //rlmotor.SetSelectedSensorPosition(0, 0, 10, 0);
+    leftJoystick= new Joystick(leftJoystickChannel);
+    rightJoystick = new Joystick(rightJoystickChannel);
 
-    
+    drive.setSafetyEnabled(false);
 
     /*
     //encoders
@@ -152,6 +171,13 @@ public class Robot extends TimedRobot {
     m_leftLeader.setQuadraturePosition(-745, kTimeoutMs);
     m_rightLeader.setQuadraturePosition(-745, kTimeoutMs);
     */
+    //chassis encoders
+    rlmotor.configFactoryDefault();
+    rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
+    rlmotor.setSelectedSensorPosition(0, 10, 0);
+    frmotor.configFactoryDefault();
+    frmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
+    frmotor.setSelectedSensorPosition(0, 10, 0);
   }
 
   /**
@@ -201,14 +227,61 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {  }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    m_myRobot.tankDrive(-1.0 * m_leftStick.getY(), -1.0 * m_rightStick.getY());
-    SmartDashboard.putNumber("Left Joystick", m_leftStick.getY());
-    SmartDashboard.putNumber("Right Joystick", m_rightStick.getY());
+    //chassis
+    boolean buttonPressed = false;
+    boolean drivingToggle = leftJoystick.getRawButton(4);
+
+    if (drivingToggle && shootingSideFront)
+    {
+      shootingSideFront = false;
+      buttonPressed = true;
+    }
+    else if(drivingToggle && !buttonPressed && !shootingSideFront)
+    {
+      shootingSideFront = true;
+      buttonPressed = true;
+    }
+    else if (!drivingToggle && buttonPressed)
+    {
+      buttonPressed = false;
+  }
+
+    if (shootingSideFront){
+      drive.tankDrive(-1.0 * leftJoystick.getY(), -1.0 * rightJoystick.getY());
+    }
+    else if (!shootingSideFront) {
+      drive.tankDrive(rightJoystick.getY(), leftJoystick.getY());
+    }
+
+    SmartDashboard.putNumber("Left Joystick", leftJoystick.getY());
+    SmartDashboard.putNumber("Right Joystick", rightJoystick.getY());
+
+    boolean driveStraightButton = rightJoystick.getRawButton(5);
+    if(driveStraightButton && shootingSideFront) {
+      double avg = ((leftJoystick.getY()) + (rightJoystick.getY())) / 2;
+      drive.tankDrive(-avg, -avg);
+    }
+    else if (driveStraightButton && !shootingSideFront) {
+      double avg = ((leftJoystick.getY()) + (rightJoystick.getY())) / 2;
+      drive.tankDrive(avg, avg);
+    }
+
+    //chassis encoder:
+    SmartDashboard.putNumber("left Encoder teleop", rlmotor.getSensorCollection().getQuadraturePosition());
+    SmartDashboard.putNumber("right Encoder teleop", frmotor.getSensorCollection().getQuadraturePosition());
+    double rlMotorEncoder=rlmotor.getSensorCollection().getQuadraturePosition();
+    double rlMotorEncoderInches=rlMotorEncoder * (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+    double frMotorEncoder=-1.0*frmotor.getSensorCollection().getQuadraturePosition();
+    double frMotorEncoderInches=frMotorEncoder *  (WHEEL_CIRCUMFERENCE / PULSES_PER_REVOLUTION);
+
+    SmartDashboard.putNumber("Left Distance in Inches: ", rlMotorEncoderInches);
+    SmartDashboard.putNumber("Right Distance in Inches: ", frMotorEncoderInches);
+
 
     // Turret
     Double offsetFromVisionTarget = SmartDashboard.getNumber(visionOffset, noDataDefault);
@@ -238,16 +311,17 @@ public class Robot extends TimedRobot {
     // Chassis
         // driving with 2 joysticks on janky chassis
         //boolean drivingToggle = 
-    /*if(_loopCount++ > 10){
+    /*
+    if(_loopCount++ > 10){
       _loopCount = 0;
       int degrees = _coder.getPosition();
       System.out.println("CANCoder position is: " + degrees);
     }
 
     double stick = _joystick.getRawAxis(1);
-    _talon0.set(ControlMode.PercentOutput, stick);*/ // from https://docs.ctre-phoenix.com/en/latest/ch13_MC.html
-
-     
+    _talon0.set(ControlMode.PercentOutput, stick); // from https://docs.ctre-phoenix.com/en/latest/ch13_MC.html
+    
+    */
   }
 
 
