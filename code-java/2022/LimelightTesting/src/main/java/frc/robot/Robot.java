@@ -128,21 +128,31 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("LimelightY", y);
     SmartDashboard.putNumber("LimelightArea", area);
     SmartDashboard.putNumber("LimelightDistance", distance);
+    
+    if (x < 0){
+    // turn right
+      m_myRobot.tankDrive (-0.5, 0);
 
-    if (distance > 80 && distance < 1000) {
-      m_myRobot.tankDrive(-0.5, -0.5);
-      SmartDashboard.putBoolean("distance > 40", true);
-    }
-    else if (distance < 60) {
-      m_myRobot.tankDrive(0.5, 0.5);
-      SmartDashboard.putBoolean("distance > 40", false);
+    }  
+    else if (x > 20){
+    // turn left
+      m_myRobot.tankDrive (0, -0.5);
+
     }
     else {
+      if (distance > 80 && distance < 1000) {
+      m_myRobot.tankDrive(-0.5, -0.5);
+      SmartDashboard.putBoolean("distance > 40", true);
+      }
+      else if (distance < 60) {
+      m_myRobot.tankDrive(0.5, 0.5);
+      SmartDashboard.putBoolean("distance > 40", false);
+      }
+      else {
       m_myRobot.tankDrive(0,0);
       SmartDashboard.putBoolean("distance > 40", false);
-
+      }
     }
-
   }
 
   /** This function is called once when the robot is disabled. */
