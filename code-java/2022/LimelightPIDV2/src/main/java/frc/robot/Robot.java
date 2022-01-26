@@ -121,7 +121,7 @@ public class Robot extends TimedRobot {
     {
       if (m_LimelightHasValidTarget)
       {
-        driveAssistPID();
+        combineAssistPID();
       } else {
         m_myRobot.tankDrive(0.0, 0.0);
       } 
@@ -249,8 +249,8 @@ public class Robot extends TimedRobot {
      * This function adjusts drivetrain to target using limelight and PID 
      * (only distance adjust)
     */
-    public void distAssistPID(){
-      double KpDistance = -0.1;
+    public void distAssistPID(boolean forwardDrive){
+      double KpDistance = -0.05;
       double left_command = 0.0;
       double right_command = 0.0;
 
@@ -261,7 +261,43 @@ public class Robot extends TimedRobot {
 
       left_command += distance_adjust;
       right_command += distance_adjust;
+      
+      if (forwardDrive){
+        m_myRobot.tankDrive(left_command, right_command);
+      } else {
+        m_myRobot.tankDrive(-left_command, -right_command);
+      }
+    }
 
-      m_myRobot.tankDrive(left_command, right_command);
+    public void combineAssistPID(){
+      NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+
+      double tx = table.getEntry("tx").getDouble(0);
+      double ty = table.getEntry("ty").getDouble(0);
+      double ta = table.getEntry("ta").getDouble(0);
+      double distance = 156.15637194655 - (36.746837632824 * Math.log(ta));
+
+      if (tx < 0){
+        // turn right
+          driveAssistPID();
+        }  
+        else if (tx > 15){
+        // turn left
+          driveAssistPID();
+        }
+        else {
+          if (distance > 80 && distance < 1000) {
+            distAssistPID(true);
+            SmartDashboard.putBoolean("distance > 40", true);
+          }
+          else if (distance < 60) {
+            distAssistPID(false);
+            SmartDashboard.putBoolean("distance > 40", false);
+          }
+          else {
+            m_myRobot.tankDrive(0,0);
+            SmartDashboard.putBoolean("distance > 40", false);
+          }
+        }
     }
   }
