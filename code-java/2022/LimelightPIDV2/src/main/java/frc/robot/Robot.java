@@ -17,6 +17,7 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.math.controller.PIDController;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -37,6 +38,8 @@ public class Robot extends TimedRobot {
   private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
   private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
   private DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+  PIDController pidDistance = new PIDController(0.1, 0, 0);
+  PIDController pidAngle = new PIDController(0.1, 0, 0);
 
   private XboxController m_Controller = new XboxController(2);
   private boolean m_LimelightHasValidTarget = false;
@@ -54,7 +57,7 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    m_rightLeader.setInverted(true);
+    m_rightLeader.setInverted(true); //Is this causing me issues?
   }
 
   /**
@@ -111,23 +114,32 @@ public class Robot extends TimedRobot {
     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
     double tx = table.getEntry("tx").getDouble(0);
     double ty = table.getEntry("ty").getDouble(0);
+    double ta = table.getEntry("ta").getDouble(0);
+    double distance = 156.15637194655 - (36.746837632824 * Math.log(ta));
 
     boolean auto = m_Controller.getAButton();
     SmartDashboard.putBoolean("Limelight Has Valid Target", m_LimelightHasValidTarget);
     SmartDashboard.putNumber("Limelight Horizontal offset", tx);
     SmartDashboard.putNumber("Limelight Vertical offset ", ty);
+    SmartDashboard.putNumber("Limelight Distance ", distance);
+
+    SmartDashboard.putNumber("left Y", m_leftStick.getY());
+    SmartDashboard.putNumber("right Y", m_rightStick.getY());
     
     if (auto)
     {
       if (m_LimelightHasValidTarget)
       {
-        combineAssistPID();
+        //Get distance, get angle 
+        //distance-angle, distance+angle 
+        //m_myRobot.tankDrive(-pidCalcAngle(), pidCalcAngle());
+        m_myRobot.tankDrive(pidCalcDistance(), pidCalcDistance()); //Call pidCalcAngle() subtract from one side, add to another
       } else {
-        m_myRobot.tankDrive(0.0, 0.0);
+        m_myRobot.tankDrive(0.0, 0.0); //Try Seeking here 
       } 
     } else {
       /** Use joysticks to drive if A not pressed */
-      m_myRobot.tankDrive(-1.0 * m_leftStick.getY(), 1.0 * m_rightStick.getY());
+      m_myRobot.tankDrive(1.0 * m_leftStick.getY(), 1.0 * m_rightStick.getY());
     }
 
   }
@@ -166,6 +178,7 @@ public class Robot extends TimedRobot {
     double ta = table.getEntry("ta").getDouble(0);
 
     /** Condition returns true when target is not detected- tv is 0 */
+    
     if (tv < 1.0)
     {
       m_LimelightHasValidTarget = false;
@@ -173,7 +186,6 @@ public class Robot extends TimedRobot {
     } else {
       m_LimelightHasValidTarget = true;
     }
-
   }
 
   /**
@@ -187,21 +199,21 @@ public class Robot extends TimedRobot {
     double ta = table.getEntry("ta").getDouble(0);
     double distance = 156.15637194655 - (36.746837632824 * Math.log(ta));
     
-    if (tx < 0){
+    if (tx < -10){
       // turn right
-        m_myRobot.tankDrive (0, 0.8);
+        m_myRobot.tankDrive (-0.5, 0);
       }  
-      else if (tx > 15){
+      else if (tx > 10){
       // turn left
-        m_myRobot.tankDrive (0.8,0);
+        m_myRobot.tankDrive (0,-0.5);
       }
       else {
-        if (distance > 80 && distance < 1000) {
-          m_myRobot.tankDrive(0.6, 0.7);
+        if (distance > 70 && distance < 1000) {
+          m_myRobot.tankDrive(-0.5, -0.5);
           SmartDashboard.putBoolean("distance > 40", true);
         }
         else if (distance < 60) {
-          m_myRobot.tankDrive(-0.6, -0.7);
+          m_myRobot.tankDrive(0.5, 0.5);
           SmartDashboard.putBoolean("distance > 40", false);
         }
         else {
@@ -239,8 +251,8 @@ public class Robot extends TimedRobot {
 
       double distance_adjust = KpDistance * distance_error;
 
-      left_command += steering_adjust + distance_adjust;
-      right_command -= steering_adjust + distance_adjust;
+      left_command += steering_adjust+distance_adjust;
+      right_command -= steering_adjust+distance_adjust;
 
       m_myRobot.tankDrive(left_command, right_command);
     }
@@ -250,7 +262,7 @@ public class Robot extends TimedRobot {
      * (only distance adjust)
     */
     public void distAssistPID(boolean forwardDrive){
-      double KpDistance = -0.05;
+      double KpDistance = -0.1;
       double left_command = 0.0;
       double right_command = 0.0;
 
@@ -263,9 +275,9 @@ public class Robot extends TimedRobot {
       right_command += distance_adjust;
       
       if (forwardDrive){
-        m_myRobot.tankDrive(left_command, right_command);
-      } else {
         m_myRobot.tankDrive(-left_command, -right_command);
+      } else {
+        m_myRobot.tankDrive(left_command, right_command);
       }
     }
 
@@ -281,7 +293,7 @@ public class Robot extends TimedRobot {
         // turn right
           driveAssistPID();
         }  
-        else if (tx > 15){
+        else if (tx > 15){ // why is this 15 instead of greater than
         // turn left
           driveAssistPID();
         }
@@ -299,5 +311,21 @@ public class Robot extends TimedRobot {
             SmartDashboard.putBoolean("distance > 40", false);
           }
         }
+    }
+
+    public double pidCalcDistance(){
+      NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+      double tx = table.getEntry("tx").getDouble(0);
+      double ta = table.getEntry("ta").getDouble(0);
+      double distance = 156.15637194655 - (36.746837632824 * Math.log(ta)); //Unit- centimeters 
+
+      return pidDistance.calculate(distance, 100); //Current distance, setpoint (desired distance from target)
+    }
+
+    public double pidCalcAngle(){
+      NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+      double tx = table.getEntry("tx").getDouble(0);
+
+      return pidAngle.calculate(tx, 0);
     }
   }
