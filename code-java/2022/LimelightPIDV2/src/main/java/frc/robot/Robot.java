@@ -38,8 +38,8 @@ public class Robot extends TimedRobot {
   private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
   private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
   private DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
-  PIDController pidDistance = new PIDController(0.1, 0, 0);
-  PIDController pidAngle = new PIDController(0.1, 0, 0);
+  PIDController pidDistance = new PIDController(0.05, 0, 0);
+  PIDController pidAngle = new PIDController(0.01, 0, 0);
 
   private XboxController m_Controller = new XboxController(2);
   private boolean m_LimelightHasValidTarget = false;
@@ -133,7 +133,7 @@ public class Robot extends TimedRobot {
         //Get distance, get angle 
         //distance-angle, distance+angle 
         //m_myRobot.tankDrive(-pidCalcAngle(), pidCalcAngle());
-        m_myRobot.tankDrive(pidCalcDistance(), pidCalcDistance()); //Call pidCalcAngle() subtract from one side, add to another
+        m_myRobot.tankDrive(pidCalcDistance()-pidCalcAngle(), pidCalcDistance()+pidCalcAngle()); //Call pidCalcAngle() subtract from one side, add to another
       } else {
         m_myRobot.tankDrive(0.0, 0.0); //Try Seeking here 
       } 
@@ -315,11 +315,10 @@ public class Robot extends TimedRobot {
 
     public double pidCalcDistance(){
       NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-      double tx = table.getEntry("tx").getDouble(0);
       double ta = table.getEntry("ta").getDouble(0);
       double distance = 156.15637194655 - (36.746837632824 * Math.log(ta)); //Unit- centimeters 
 
-      return pidDistance.calculate(distance, 100); //Current distance, setpoint (desired distance from target)
+      return pidDistance.calculate(distance, 130); //Current distance, setpoint (desired distance from target)
     }
 
     public double pidCalcAngle(){
