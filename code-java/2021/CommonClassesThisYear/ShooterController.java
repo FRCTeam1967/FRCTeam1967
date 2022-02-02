@@ -21,14 +21,14 @@ public class ShooterController extends JankyTask{
     private WPI_VictorSPX bridgeMotor;
     private WPI_TalonSRX turretMotor; 
     
-    public ShooterController(int conveyorBeltMotorChannel, int motorRollChannel,int leftPistonChannel,int rightPistonChannel, int flywheelChannelNumber, int bridgeChannel, int turretChannel){
+    public ShooterController(int conveyorBeltMotorChannel, int motorRollChannel,int leftPistonChannel,int rightPistonChannel, int flywheelChannelNumber, int bridgeChannel, int turretChannel, int pCMChannel){
         conveyorBeltMotor = new WPI_TalonSRX(conveyorBeltMotorChannel);
         conveyorBeltMotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
         //currentEncoderCount = conveyorBeltMotor.getSensorCollection().setQuadraturePosition(0,10); 
         conveyorBeltMotor.getSensorCollection().setQuadraturePosition(0,10); 
         currentEncoderCount = conveyorBeltMotor.getSensorCollection().getQuadraturePosition(); 
         flywheelmech = new Flywheel(flywheelChannelNumber);
-        intakemech = new IntakeMech(motorRollChannel, leftPistonChannel, rightPistonChannel);
+        intakemech = new IntakeMech(pCMChannel, motorRollChannel, leftPistonChannel, rightPistonChannel);
 
         bridgeMotor = new WPI_VictorSPX(bridgeChannel);
         turretMotor = new WPI_TalonSRX(turretChannel); 

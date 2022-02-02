@@ -174,7 +174,7 @@ public class Robot extends TimedRobot {
     //chassis encoders
     rlmotor.configFactoryDefault();
     rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
-    rlmotor.setSelectedSensorPosition(0, 10, 0);
+    rlmotor.setSelectedSensorPosition(0, 10, 0); //0,0, 10?
     frmotor.configFactoryDefault();
     frmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
     frmotor.setSelectedSensorPosition(0, 10, 0);

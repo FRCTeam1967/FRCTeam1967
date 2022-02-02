@@ -2,10 +2,10 @@ package org.janksters.CommonClassesThisYear;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
-import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
-import com.ctre.phoenix.motorcontrol.can.BaseTalon;
+//import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+//import com.ctre.phoenix.motorcontrol.TalonFXSensorCollection;
+//import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+//import com.ctre.phoenix.motorcontrol.can.BaseTalon;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -60,18 +60,19 @@ public class Flywheel {
     }
 
     public void SetRPM(){
-        desiredRPM = (5.4545 * distanceToVisionTarget) + 4000; //when using manual buttons
+        desiredRPM = (5.4545 * distanceToVisionTarget) + 4000;
+        //desiredRPM = (5.4545 * distanceToVisionTarget) + 1000; //for testing range
         // desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //when using vision
         targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
 
-        SmartDashboard.putNumber("desiredRPM", desiredRPM);
+        SmartDashboard.putNumber("Java - desiredRPM", desiredRPM);
         flywheelMotor.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
-        //flywheelMotor.set(0.5);
+        //flywheelMotor.set(0.2);
         SmartDashboard.putBoolean("Flywheel is Alive", flywheelMotor.isAlive());
         
 
-        SmartDashboard.putNumber("shooting zone number final", distanceToVisionTarget);
-        SmartDashboard.putNumber("target velocity final", targetVelocity_UnitsPer100ms);
+        SmartDashboard.putNumber("Java - shooting zone number final", distanceToVisionTarget);
+        SmartDashboard.putNumber("Java - target velocity final", targetVelocity_UnitsPer100ms);
     }
 
     public void SetRPMAuto(){
@@ -102,18 +103,18 @@ public class Flywheel {
 
     public void SetSelectorVisionDistance(int selectorZone){
         if (selectorZone == shootingZoneOne) {
-            distanceToVisionTarget = 275; //in inches
+            distanceToVisionTarget = 265; //in inches //10 for range
         } else if (selectorZone == shootingZoneTwo) {
-            distanceToVisionTarget = 100;
+            distanceToVisionTarget = 100; //250 for range(good speed for 2022)
         } else if (selectorZone == shootingZoneThree) {
-            distanceToVisionTarget = 150;
+            distanceToVisionTarget = 150; //500 for range
         } else if (selectorZone == shootingZoneFour) {
-            distanceToVisionTarget = 250;
+            distanceToVisionTarget = 250; //1000 for range
         } else {
             System.out.println("No distance to vision target!");
         }
 
-        SmartDashboard.putNumber("Manual Distance To Vision Target: ", distanceToVisionTarget);
+        SmartDashboard.putNumber("Java-Manual Distance To Vision Target: ", distanceToVisionTarget);
     }
 
     public double getFlywheelEncoder(){ //?? Tiffany's group including Tiffany isn't sure?
