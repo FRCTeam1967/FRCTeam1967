@@ -1,0 +1,4 @@
+
+@rem Run Janksters java-build script
+call ../JanksterNewProjectSetup/WindowsModsScript.bat
+
