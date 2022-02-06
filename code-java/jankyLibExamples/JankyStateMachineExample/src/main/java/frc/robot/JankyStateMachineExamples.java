@@ -13,18 +13,6 @@ public class JankyStateMachineExamples extends JankyStateMachine{
     private final int Pause2S = 4;
     private final int DoNothing = 5;
 
-    /*
-    enum StateValues{
-        Idle(0), Pause5S(1), PrintIterations(2), PrintYPressed(3), Pause2S(4), DoNothing(5);
-        
-        private final int value;
-        private StateValues(int _value){
-            value = _value;
-        }
-        public int getValue(){
-            return value;
-        }   
-    }  */
     private Timer timer;
     private int i;
     private jankyXboxJoystick XboxController;
@@ -41,35 +29,28 @@ public class JankyStateMachineExamples extends JankyStateMachine{
         SetName(Pause2S,"Pause2S");
         SetName(DoNothing,"DoNothing");
 
-        SmartDashboard.putBoolean("new timer", true);//delete later
-        
         start();
     }
     public void StateEngine(int curState, boolean onStateEntered){
-        //System.out.println("on state entered: " + onStateEntered);
         switch (curState){
             case Idle:
                 break;
             case Pause5S:
                 if (onStateEntered){
-                    timer.reset();
+                    timer.reset(); 
                     timer.start();
-                    SmartDashboard.putBoolean("new timer", true);
+                    //SmartDashboard.putNumber("onStateEntered", Pause5S);
+                    //SmartDashboard.putBoolean("new timer", true);
                 }
-                SmartDashboard.putBoolean("onStateEntered value", onStateEntered);
                 SmartDashboard.putNumber("timer", timer.get());
                 //System.out.print(timer.get() + " ");
                 System.out.println("\n");
                 if (timer.get()>=5){
                     NewState(PrintIterations,"timer reached 5");
-                    timer.stop();
                 }
                 break;
             case PrintIterations:
                 SmartDashboard.putNumber("iteration", i++);
-                //System.out.print(i+" ");
-                //i++;
-                
                 SmartDashboard.putBoolean("ButtonX", XboxController.GetButtonX());
                 if (XboxController.GetButtonX()) {
                     NewState(Pause2S,"x button pressed");
@@ -85,13 +66,12 @@ public class JankyStateMachineExamples extends JankyStateMachine{
                 if (onStateEntered){
                     timer.reset();
                     timer.start();
+                    //SmartDashboard.putNumber("onStateEntered", Pause2S);
                 }
                 SmartDashboard.putBoolean("onStateEntered value", onStateEntered);
                 SmartDashboard.putNumber("timer", timer.get());
-                //System.out.println(timer.get());
                 if (timer.get()>=2){
                     NewState(DoNothing,"timer reached 2");
-                    timer.stop();
                 }
                 break;
             case PrintYPressed:

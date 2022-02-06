@@ -17,7 +17,7 @@ public abstract class JankyStateMachine extends JankyTask{
         for (int i=0; i< MAX_NAMES; i++){
             SetName(i, "State-Default-"+i);
         }
-
+        
         machineName = "DefaultMachine";
         currentState = 0;		// Make a sane initial choice.
         priorState = -1;
@@ -34,22 +34,22 @@ public abstract class JankyStateMachine extends JankyTask{
     public void Run(){
         if (priorState != currentState){
             StateEngine(currentState, true);
+            priorState = currentState;
         } else {
             StateEngine(currentState, false);
         }
-        priorState = currentState;
+        //priorState = currentState;
     }
     
     public void NewState(int newState, String reason){
-        if ( newState < MAX_NAMES){
+        if (newState < MAX_NAMES){
             System.out.println("STATECHANGE: " +machineName+" OLD: "+names[currentState]+" NEW: "+names[newState]+" REASON: "+reason);
-            SmartDashboard.putString("ew", names[newState]);
+            SmartDashboard.putString("new", names[newState]);
             SmartDashboard.putString("old", names[currentState]);
             currentState = newState;
-        } else{
+        } else {
             System.out.println("JankyStateMachine NewState ERROR invalid newState");
         }
-        
     }
     
     public void SetName(int state, String stateName) {
@@ -61,7 +61,4 @@ public abstract class JankyStateMachine extends JankyTask{
     }
 
     protected abstract void StateEngine(int curState, boolean onStateEntered);
-
-
-
 }
