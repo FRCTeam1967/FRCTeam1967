@@ -8,6 +8,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
+import org.janksters.CommonClassesThisYear.*;
+import org.janksters.jankyLib.*;
+
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
  * each mode, as described in the TimedRobot documentation. If you change the name of this class or
@@ -19,6 +22,37 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private Climb climbMech;
+  private jankyXboxJoystick XboxController;
+
+  //all channel numbers
+  private final int WINCH_MOTOR_CHANNEL_L = 0;
+  private final int WINCH_MOTOR_CHANNEL_R = 0;
+  private final int PCM_CHANNEL = 0;
+  private final int MID_LATCH_CHANNEL_L = 0;
+  private final int MID_LATCH_CHANNEL_R = 0;
+  private final int HIGH_LATCH_CHANNEL_L = 0;
+  private final int HIGH_LATCH_CHANNEL_R = 0;
+  private final int PIVOT_HOOK_CHANNEL_L = 0;
+  private final int PIVOT_HOOK_CHANNEL_R = 0;
+
+  //joystick variables
+  boolean climbYAxisUp;
+  boolean climbYAxisWasUp = false;
+  boolean climbYAxisDown;
+  boolean climbYAxisWasDown = false;
+  boolean xButtonPressed;
+  boolean xButtonWasPressed = false;
+  boolean yButtonPressed;
+  boolean yButtonWasPressed = false;
+  boolean aButtonPressed;
+  boolean aButtonWasPressed = false;
+  boolean bButtonPressed;
+  boolean bButtonWasPressed = false;
+  boolean startButtonPressed;
+  boolean startButtonWasPressed = false;
+
+  
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -29,6 +63,11 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    climbMech = new Climb(WINCH_MOTOR_CHANNEL_L, WINCH_MOTOR_CHANNEL_R, PCM_CHANNEL, MID_LATCH_CHANNEL_L, MID_LATCH_CHANNEL_R, 
+    HIGH_LATCH_CHANNEL_L, HIGH_LATCH_CHANNEL_R, PIVOT_HOOK_CHANNEL_L, PIVOT_HOOK_CHANNEL_R);
+
+    XboxController = new jankyXboxJoystick(2);
   }
 
   /**
@@ -78,7 +117,95 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    
+    //--- JOYSTICK UP ---//
+    climbYAxisUp = XboxController.GetLeftYAxis() > 0.2;
+    if (climbYAxisUp && !climbYAxisWasUp) { 
+      //raise winch string
+      climbMech.raiseWinchString();
+      climbYAxisWasUp = true;
+    } else if (!climbYAxisUp && climbYAxisWasUp) {
+      climbMech.stopWinchString();
+      climbYAxisWasUp = false;
+    }
+    
+    //--- JOYSTICK DOWN ---// 
+    climbYAxisDown = XboxController.GetLeftYAxis() < -0.2;
+    if (climbYAxisDown && !climbYAxisWasDown) { 
+      //lower winch string
+      climbMech.lowerWinchString();
+      climbYAxisWasDown = true;
+    } else if (!climbYAxisDown && climbYAxisWasDown) {
+      climbMech.stopWinchString();
+      climbYAxisWasDown = false;
+    }  
+
+    //--- MID LATCH ---//
+    xButtonPressed = XboxController.GetButtonX();
+    if (xButtonPressed && !xButtonWasPressed) {
+      climbMech.latchMidBar();
+      xButtonWasPressed = true;
+    } else if (!xButtonPressed && xButtonWasPressed) {
+      xButtonWasPressed = false;
+    }
+
+    //--- MID UNLATCH ---//
+    bButtonPressed = XboxController.GetButtonB();
+    if (bButtonPressed && !bButtonWasPressed) {
+      climbMech.latchMidBar();
+      bButtonWasPressed = true;
+    } else if (!bButtonPressed && bButtonWasPressed) {
+      bButtonWasPressed = false;
+    }
+
+    //--- HIGH LATCH ---//
+    yButtonPressed = XboxController.GetButtonY();
+    if (yButtonPressed && !yButtonWasPressed) {
+      climbMech.latchHighBar();
+      yButtonWasPressed = true;
+    } else if (!yButtonPressed && yButtonWasPressed) {
+      yButtonWasPressed = false;
+    }
+
+    //--- HIGH HOOK PIVOT DOWN ---//
+    aButtonPressed = XboxController.GetButtonA();
+    if (aButtonPressed && !aButtonWasPressed) {
+      climbMech.hookPivotDown();
+      aButtonWasPressed = true;
+    } else if (!aButtonPressed && aButtonWasPressed) {
+      aButtonWasPressed = false;
+    }
+    
+    //--- HIGH HOOK PIVOT UP ---//
+    startButtonPressed = XboxController.GetButtonStart();
+    if (startButtonPressed && !startButtonWasPressed) {
+      climbMech.hookPivotUp();
+      startButtonWasPressed = true;
+    } else if (!startButtonPressed && startButtonWasPressed) {
+      startButtonWasPressed = false;
+    }
+
+    /*
+    //--- WHOLE SEQUENCE BUTTON ---//
+    xButtonPressed = XboxController.GetButtonX();
+    if (xButtonPressed && !xButtonWasPressed) {
+      climbMech.startClimbStateMachine();
+      xButtonWasPressed = true;
+    } else if (!xButtonPressed && xButtonWasPressed) {
+      xButtonWasPressed = false;
+    }
+
+    //--- EMERGENCY BUTTON ---//
+    bButtonPressed = XboxController.GetButtonB();
+    if (bButtonPressed && !bButtonWasPressed) {
+      climbMech.startClimbStateMachine();
+      bButtonWasPressed = true;
+    } else if (!bButtonPressed && bButtonWasPressed) {
+      bButtonWasPressed = false;
+    }
+    */
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
