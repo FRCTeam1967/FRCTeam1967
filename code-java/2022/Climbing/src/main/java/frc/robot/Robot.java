@@ -196,10 +196,11 @@ public class Robot extends TimedRobot {
       xButtonWasPressed = false;
     }
 
-    //--- EMERGENCY BUTTON ---//
+    //--- STOP BUTTON ---//
     bButtonPressed = XboxController.GetButtonB();
     if (bButtonPressed && !bButtonWasPressed) {
-      climbMech.startClimbStateMachine();
+      climbMech.stopClimbStateMachine();
+      //climbMech.startClimbStateMachine();
       bButtonWasPressed = true;
     } else if (!bButtonPressed && bButtonWasPressed) {
       bButtonWasPressed = false;
