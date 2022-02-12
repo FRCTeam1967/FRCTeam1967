@@ -86,7 +86,7 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     //Testing XboxController output values
     SmartDashboard.putNumber("L Trigger", XboxController.GetLeftThrottle());
-    SmartDashboard.putNumber("R Trigger", XboxController.GetLeftThrottle());
+    SmartDashboard.putNumber("R Trigger", XboxController.GetRightThrottle());
     SmartDashboard.putBoolean("Left Bumper", XboxController.GetButtonLB());
     SmartDashboard.putBoolean("Right Bumper", XboxController.GetButtonRB());
   }

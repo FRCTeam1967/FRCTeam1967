@@ -81,11 +81,11 @@ public class Shooter extends JankyStateMachine {
         switch (curState) {
             case Idle:
                 zeroMotors();
-                if ((XboxController.GetLeftThrottle() == 1) && (XboxController.GetLeftThrottle() == 1)) {
+                if ((XboxController.GetLeftThrottle() == 1) && (XboxController.GetRightThrottle() == 1)) {
                     NewState(Intake, "pressed left and right throttle buttons");
                 }
-                if ((XboxController.GetButtonRB() == true) && (XboxController.GetButtonLB() == true)) {
-                    NewState(RevUp, "RB and LB pressed");
+                if ((XboxController.GetButtonLB() == true) && (XboxController.GetButtonRB() == true)) {
+                    NewState(RevUp, "LB and RB pressed");
                 }
                 if (XboxController.GetButtonRB() == true) {
                     NewState(SlowEject, "RB pressed");
@@ -93,7 +93,7 @@ public class Shooter extends JankyStateMachine {
                 break;
             case Intake:
                 runIntake();
-                if ((XboxController.GetLeftThrottle() == 0) || (XboxController.GetLeftThrottle() == 0)) {
+                if ((XboxController.GetLeftThrottle() == 0) || (XboxController.GetRightThrottle() == 0)) {
                     NewState(Idle, "released left and right throttle buttons");
                 }
                 break;
@@ -106,8 +106,8 @@ public class Shooter extends JankyStateMachine {
             case RevUp:
                 double bottomTargetVelocity = calcVelocity();
                 setBottomVelocity(bottomTargetVelocity);
-                if ((XboxController.GetButtonRB() == false) || (XboxController.GetButtonLB() == false)) {
-                    NewState(Idle, "RB and LB released");
+                if ((XboxController.GetButtonLB() == false) || (XboxController.GetButtonRB() == false)) {
+                    NewState(Idle, "LB and RB released");
                 }
                 // TODO: unknown range; need to determine
                 if ((getBottomVelocity() > bottomTargetVelocity - 8)
