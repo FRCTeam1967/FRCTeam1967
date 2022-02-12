@@ -137,11 +137,11 @@ public class Auto extends SequentialCommandGroup{
                 } else if (delayTimer.get() <= delay) {
                     m_myRobot.tankDrive(0, 0);
                 } else if (delayTimer.get() >=  delay+4) {
-                    int desiredAngle = 145;
+                    int desiredAngle = 165;
                     if (desiredAngle - m_gyro.getAngle() >= 0) {
                         m_myRobot.tankDrive(-0.7,-0.7);
-                    } else if (m_gyro.getAngle() > 170) {
-                        if (delayTimer.get() <= delay + 8) {
+                    } else if (m_gyro.getAngle() > 165) {
+                        if (delayTimer.get() <= delay + 9) {
                             m_myRobot.tankDrive(0.7,-0.7);
                         } else {
                             m_myRobot.tankDrive(0,0);
@@ -174,7 +174,7 @@ public class Auto extends SequentialCommandGroup{
 
     public void autoTurn180(DifferentialDrive m_myRobot, ADIS16470_IMU m_gyro){
         System.out.println("I am turning");
-        int desiredAngle = 130;
+        int desiredAngle = 165;
     if (desiredAngle - m_gyro.getAngle() >= 0) {
       m_myRobot.tankDrive(-0.7, -0.7);
     } else {
