@@ -13,6 +13,9 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.GenericHID;
 
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -26,7 +29,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
 import com.ctre.phoenix.sensors.CANCoder;
 
@@ -38,19 +41,42 @@ import com.ctre.phoenix.sensors.CANCoder;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  Joystick m_arcadeJoystick;
+  private static final String kTankDrive = "Tank Drive";
+  private static final String kArcadeDrive = "arcade Drive";
+  private static final String kPIDDrive = "PID Drive";
+  private static final String kCurvatureDrive = "Curvature Drive";
+  private static final String kSteeringWheel = "Steering Wheel";
 
-  private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(0);
+  //private static final String kJankyBot2022 = "2022 Janky Bot";
+  //private static final String kLazlo = "Chassis In a Day - Lazlo";
+
+  private String m_DriveSelected;
+  //private String m_ChassisSelected;
+  private final SendableChooser<String> m_driveChooser = new SendableChooser<>();
+  //private final SendableChooser<String> m_chassisChooser = new SendableChooser<>();
+
+  Joystick m_arcadeJoystickP1;
+  Joystick m_arcadeJoystickP2;
+
+
+  //Chassis in a Day - Lazlo
+    /*WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);
     MotorController m_leftFollower = new PWMVictorSPX(3);
-    WPI_TalonSRX m_rightLeader = new WPI_TalonSRX(1);
-    MotorController m_rightFollower = new PWMVictorSPX(4);
-    MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
-    MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
-    DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+    WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);
+    MotorController m_rightFollower = new PWMVictorSPX(0);*/
+
+  //2022 Janky
+    private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);
+    private WPI_TalonFX m_leftFollower = new WPI_TalonFX(3);
+    private WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);
+    private WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(0);
+
+  private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
+  private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
+  private DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+
+  PIDController pidDistance = new PIDController(0.1, 0, 0);
+  PIDController pidAngle = new PIDController(0.1, 0, 0);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -58,11 +84,26 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    m_driveChooser.setDefaultOption("Tank Drive", kTankDrive);
+    m_driveChooser.addOption("Arcade Drive", kArcadeDrive);
+    m_driveChooser.addOption("Curvature Drive", kCurvatureDrive);
+    m_driveChooser.addOption("PID Drive", kPIDDrive);
+    m_driveChooser.addOption("Steering Wheel", kSteeringWheel);
 
-    m_arcadeJoystick = new Joystick(0);
+    SmartDashboard.putData("Drive choices", m_driveChooser);
+
+    m_arcadeJoystickP1 = new Joystick(0);  //whatever is in port 1 - P1 stands for port1
+    m_arcadeJoystickP2 = new Joystick(1); //whatever is in port  2
+
+    //m_chassisChooser.setDefaultOption("Chassis in a day", kLazlo);
+    //m_chassisChooser.addOption("Janky bot 2022", kJankyBot2022);
+
+    //SmartDashboard.putData("Chassis Choices", m_chassisChooser);
+
+    /*m_leftLeader = new WPI_TalonSRX(2);
+    m_leftFollower = new WPI_TalonFX(3);
+    m_rightLeader = new WPI_TalonFX(1);
+    m_rightFollower = new WPI_TalonSRX(0);*/
 
   
   }
@@ -75,7 +116,25 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    /*m_ChassisSelected = m_chassisChooser.getSelected();
+    switch(m_ChassisSelected){
+      case kLazlo: 
+        m_leftLeader = new WPI_TalonSRX(2);
+        m_leftFollower = new WPI_TalonFX(3);
+        m_rightLeader = new WPI_TalonFX(1);
+        m_rightFollower = new WPI_TalonSRX(0);
+        break;
+      default: 
+        m_leftLeader = new WPI_TalonSRX(0);
+        m_leftFollower = new PWMVictorSPX(1);
+        m_rightLeader = new WPI_TalonFX(2);
+        m_rightFollower = new PWMVictorSPX(3);
+        break;
+    }*/
+        
+
+    }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -89,51 +148,71 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
+    
   }
 
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    
+    m_DriveSelected = m_driveChooser.getSelected();
+    System.out.println("Drive selected: " + m_DriveSelected);
+
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-  double moveSpeed;
-  double rotateSpeed;
-  boolean allowTurnInPlace;
+    //put encoder values on Smart Dashboard!!
+    switch (m_DriveSelected) {
+      case kArcadeDrive:
+        double rotateSpeed = m_arcadeJoystickP1.getRawAxis(1);
+        double moveSpeed = m_arcadeJoystickP1.getRawAxis(0);
+        m_myRobot.arcadeDrive(moveSpeed, -rotateSpeed); //- working arcade drive
+        //MOVE SPEED SHOULD BE + AND ROTATE SPEED SHOULD BE -
+        break;
+      case kPIDDrive:
+        //PID drive code here
+        break;
+      case kCurvatureDrive:
+        // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
+        m_myRobot.curvatureDrive(m_arcadeJoystickP1.getX(), -m_arcadeJoystickP1.getY(), !m_arcadeJoystickP1.getTrigger());//maybe take out negative?
+        SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP1.getY());
+        SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP1.getX());
+        //make a drive straight button
+        break;  
+      case kSteeringWheel:
+        m_myRobot.arcadeDrive(m_arcadeJoystickP2.getRawAxis(1), -m_arcadeJoystickP1.getRawAxis(0));
+        SmartDashboard.putNumber("Steering Wheel", m_arcadeJoystickP1.getY());
+        SmartDashboard.putNumber("Joystick", m_arcadeJoystickP2.getY());
+        //testing going on, robot turns when pushing the joystick
+      default:
+        m_myRobot.tankDrive(-m_arcadeJoystickP1.getY(), m_arcadeJoystickP2.getY());
+        break;
+    }
 
-  moveSpeed = m_arcadeJoystick.getRawAxis(1);
-  rotateSpeed = m_arcadeJoystick.getRawAxis(0);
+  //arcadeDrive
+    //this is arcade drive code that works
+    // Arcade drive with a given forward and turn rate
+    double moveSpeed = m_arcadeJoystickP1.getRawAxis(1);
+    double rotateSpeed = m_arcadeJoystickP2.getRawAxis(0);
+    //m_myRobot.arcadeDrive(m_arcadeJoystickP2.getY(),rotateSpeed); //try
+    //m_myRobot.arcadeDrive(moveSpeed, rotateSpeed); //- working arcade drive
+    //m_myRobot.curvatureDrive(-rotateSpeed, -moveSpeed, !m_arcadeJoystickP.getTrigger());
+    
+    //instead of this code above,test code below to use steering wheel to change x-axis and y-axis is controlled for
+    //m_myRobot.arcadeDrive(-m_arcadeJoystickP2.getY(), m_arcadeJoystickP1.getX());
+    //SmartDashboard.putNumber("Steering Wheel", m_arcadeJoystickP1.getY());
+    //SmartDashboard.putNumber("Joystick", m_arcadeJoystickP2.getY());
+
+
   
-  if (m_arcadeJoystick.getTriggerPressed()){
-    allowTurnInPlace = true;
-  }
-  else if (m_arcadeJoystick.getTriggerReleased()){
-    allowTurnInPlace = false;
-  }
-  else {//if (m_arcadeJoystick.getTriggerReleased()){
-    allowTurnInPlace = false;
-  }
 
-  m_myRobot.curvatureDrive(moveSpeed, rotateSpeed, allowTurnInPlace);
   }
   
   //}
@@ -153,4 +232,3 @@ public class Robot extends TimedRobot {
   @Override
   public void testPeriodic() {}
 }
-

@@ -5,7 +5,11 @@ connection.gradle.distribution=GRADLE_DISTRIBUTION(VERSION(7.1.1))
 connection.project.dir=
 eclipse.preferences.version=1
 gradle.user.home=
+<<<<<<< Updated upstream
 java.home=/Users/Kara/wpilib/2022/jdk
+=======
+java.home=/Library/Java/JavaVirtualMachines/jdk-11.0.2.jdk/Contents/Home
+>>>>>>> Stashed changes
 jvm.arguments=
 offline.mode=false
 override.workspace.settings=true
