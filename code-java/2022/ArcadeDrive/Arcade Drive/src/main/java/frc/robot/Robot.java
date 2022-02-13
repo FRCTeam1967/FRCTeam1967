@@ -3,6 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
+//import com.janksters.robotcode.PID;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -32,6 +33,9 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.XboxController;
 import com.ctre.phoenix.sensors.CANCoder;
+import edu.wpi.first.wpilibj.drive.RobotDriveBase;
+import edu.wpi.first.networktables.NetworkTable;
+import edu.wpi.first.networktables.NetworkTableInstance;
 
 
 /**
@@ -43,7 +47,6 @@ import com.ctre.phoenix.sensors.CANCoder;
 public class Robot extends TimedRobot {
   private static final String kTankDrive = "Tank Drive";
   private static final String kArcadeDrive = "arcade Drive";
-  private static final String kPIDDrive = "PID Drive";
   private static final String kCurvatureDrive = "Curvature Drive";
   private static final String kSteeringWheel = "Steering Wheel";
 
@@ -57,6 +60,7 @@ public class Robot extends TimedRobot {
 
   Joystick m_arcadeJoystickP1;
   Joystick m_arcadeJoystickP2;
+  boolean m_LimelightHasValidTarget = false;
 
 
   //Chassis in a Day - Lazlo
@@ -71,12 +75,18 @@ public class Robot extends TimedRobot {
     private WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);
     private WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(0);
 
-  private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
-  private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
-  private DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+    private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
+    private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
+    DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+  //DifferentialDrive m_myRobot = new DifferentialDrive(m_leftFollower,m_rightLeader);
 
   PIDController pidDistance = new PIDController(0.1, 0, 0);
   PIDController pidAngle = new PIDController(0.1, 0, 0);
+
+  //encoders
+  final int PULSES_PER_REVOLUTION = 4096;
+  final double WHEEL_DIAMETER = 6; // 0.1524 meters, 6 inches
+  final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -84,16 +94,27 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    System.out.println("Hello!");
     m_driveChooser.setDefaultOption("Tank Drive", kTankDrive);
     m_driveChooser.addOption("Arcade Drive", kArcadeDrive);
     m_driveChooser.addOption("Curvature Drive", kCurvatureDrive);
-    m_driveChooser.addOption("PID Drive", kPIDDrive);
     m_driveChooser.addOption("Steering Wheel", kSteeringWheel);
 
     SmartDashboard.putData("Drive choices", m_driveChooser);
 
     m_arcadeJoystickP1 = new Joystick(0);  //whatever is in port 1 - P1 stands for port1
     m_arcadeJoystickP2 = new Joystick(1); //whatever is in port  2
+
+    m_myRobot.setMaxOutput(0.5); //default is 1
+
+
+    m_rightLeader.configFactoryDefault();
+    m_rightLeader.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
+    m_rightLeader.setSelectedSensorPosition(0, 10, 0);
+    m_leftFollower.configFactoryDefault();
+    m_leftFollower.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
+    m_leftFollower.setSelectedSensorPosition(0, 10, 0);
+    System.out.println("Passed through initialization");
 
     //m_chassisChooser.setDefaultOption("Chassis in a day", kLazlo);
     //m_chassisChooser.addOption("Janky bot 2022", kJankyBot2022);
@@ -105,7 +126,6 @@ public class Robot extends TimedRobot {
     m_rightLeader = new WPI_TalonFX(1);
     m_rightFollower = new WPI_TalonSRX(0);*/
 
-  
   }
 
   /**
@@ -134,7 +154,7 @@ public class Robot extends TimedRobot {
     }*/
         
 
-    }
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -165,57 +185,71 @@ public class Robot extends TimedRobot {
 
   }
 
-  /** This function is called periodically during operator control. */
+  /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
     //put encoder values on Smart Dashboard!!
-    switch (m_DriveSelected) {
-      case kArcadeDrive:
-        double rotateSpeed = m_arcadeJoystickP1.getRawAxis(1);
-        double moveSpeed = m_arcadeJoystickP1.getRawAxis(0);
-        m_myRobot.arcadeDrive(moveSpeed, -rotateSpeed); //- working arcade drive
-        //MOVE SPEED SHOULD BE + AND ROTATE SPEED SHOULD BE -
-        break;
-      case kPIDDrive:
-        //PID drive code here
-        break;
-      case kCurvatureDrive:
-        // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
-        m_myRobot.curvatureDrive(m_arcadeJoystickP1.getX(), -m_arcadeJoystickP1.getY(), !m_arcadeJoystickP1.getTrigger());//maybe take out negative?
-        SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP1.getY());
-        SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP1.getX());
-        //make a drive straight button
-        break;  
-      case kSteeringWheel:
-        m_myRobot.arcadeDrive(m_arcadeJoystickP2.getRawAxis(1), -m_arcadeJoystickP1.getRawAxis(0));
-        SmartDashboard.putNumber("Steering Wheel", m_arcadeJoystickP1.getY());
-        SmartDashboard.putNumber("Joystick", m_arcadeJoystickP2.getY());
-        //testing going on, robot turns when pushing the joystick
-      default:
-        m_myRobot.tankDrive(-m_arcadeJoystickP1.getY(), m_arcadeJoystickP2.getY());
-        break;
-    }
-
-  //arcadeDrive
-    //this is arcade drive code that works
-    // Arcade drive with a given forward and turn rate
-    double moveSpeed = m_arcadeJoystickP1.getRawAxis(1);
-    double rotateSpeed = m_arcadeJoystickP2.getRawAxis(0);
-    //m_myRobot.arcadeDrive(m_arcadeJoystickP2.getY(),rotateSpeed); //try
-    //m_myRobot.arcadeDrive(moveSpeed, rotateSpeed); //- working arcade drive
-    //m_myRobot.curvatureDrive(-rotateSpeed, -moveSpeed, !m_arcadeJoystickP.getTrigger());
+    SmartDashboard.putBoolean("Limelight Has Valid Target", m_LimelightHasValidTarget);
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    double tx = table.getEntry("tx").getDouble(0);
+    double ty = table.getEntry("ty").getDouble(0);
+    double ta = table.getEntry("ta").getDouble(0);
+    double distance = 156.15637194655 - (36.746837632824 * Math.log(ta));
     
-    //instead of this code above,test code below to use steering wheel to change x-axis and y-axis is controlled for
-    //m_myRobot.arcadeDrive(-m_arcadeJoystickP2.getY(), m_arcadeJoystickP1.getX());
-    //SmartDashboard.putNumber("Steering Wheel", m_arcadeJoystickP1.getY());
-    //SmartDashboard.putNumber("Joystick", m_arcadeJoystickP2.getY());
+    SmartDashboard.putBoolean("Limelight Has Valid Target", m_LimelightHasValidTarget);
+    SmartDashboard.putNumber("Limelight Horizontal offset", tx);
+    SmartDashboard.putNumber("Limelight Vertical offset ", ty);
+    SmartDashboard.putNumber("Limelight Distance ", distance);
 
+    updateLimelightTracking();
+    SmartDashboard.putBoolean("target detected", m_LimelightHasValidTarget);
+    //making an if statement for if button pressed vision driving (for shooting)
+    if (m_arcadeJoystickP1.getRawButton(2)&& m_LimelightHasValidTarget){ 
+      m_myRobot.tankDrive(pidCalcDistance(), pidCalcDistance());//Call pidCalcAngle() subtract from one side, add to another 
+    } else {
+        /* Use joysticks to drive if A not pressed */
+        switch (m_DriveSelected) {
+          case kArcadeDrive:
+            double rotateSpeed = m_arcadeJoystickP1.getRawAxis(1);
+            double moveSpeed = m_arcadeJoystickP1.getRawAxis(0);
+            m_myRobot.arcadeDrive(moveSpeed, -rotateSpeed); //- working arcade drive
+            //MOVE SPEED SHOULD BE + AND ROTATE SPEED SHOULD BE -
+            //System.out.println("Arcade Drive");
+            break;
+          case kCurvatureDrive:
+            // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
+            m_myRobot.curvatureDrive(m_arcadeJoystickP1.getX(), -m_arcadeJoystickP1.getY(), !m_arcadeJoystickP1.getTrigger());//maybe take out negative?
+            SmartDashboard.putNumber("wheel Y-axis", m_arcadeJoystickP1.getY());
+            SmartDashboard.putNumber("wheel X-axis", m_arcadeJoystickP1.getX());
+            SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP2.getY());
+            SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP2.getX());
+            //make a drive straight button
+            //System.out.println("Curvature Drive");
+            break;  
+          case kSteeringWheel:
+            double rSpeed = m_arcadeJoystickP1.getRawAxis(0);//10% works DON'T CHANGE
+            double mSpeed = m_arcadeJoystickP2.getRawAxis(1);
+            m_myRobot.arcadeDrive(rSpeed, -mSpeed); //- working arcade drive
+            //SmartDashboard.putNumber("Steering Wheel", m_arcadeJoystickP1.getY());
+            //SmartDashboard.putNumber("Joystick", m_arcadeJoystickP2.getY());
+            SmartDashboard.putNumber("wheel Y-axis", m_arcadeJoystickP1.getY());
+            SmartDashboard.putNumber("wheel X-axis", m_arcadeJoystickP1.getX());
+            SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP2.getY());
+            SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP2.getX());
+            //System.out.println("Steering Wheel");
+            //testing going on, robot turns when pushing the joystick
+            break;
+          default:
+            m_myRobot.tankDrive(-m_arcadeJoystickP1.getY(), m_arcadeJoystickP2.getY());
+            break;
+    
+        }
+       
+    } 
 
+        
   
-
   }
-  
-  //}
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {}
@@ -231,4 +265,45 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+  public double pidCalcDistance(){
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    double tx = table.getEntry("tx").getDouble(0);
+    double ta = table.getEntry("ta").getDouble(0);
+    double distance = 156.15637194655 - (36.746837632824 * Math.log(ta)); //Unit- centimeters 
+    System.out.println("distance" + distance);
+    return pidDistance.calculate(distance, 100); //Current distance, setpoint (desired distance from target)
+  }
+
+  public double pidCalcAngle(){
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    double tx = table.getEntry("tx").getDouble(0);
+
+    return pidAngle.calculate(tx, 0);
+  }
+
+  public void updateLimelightTracking(){
+    NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
+    
+    /**
+      * tv- Whether the limelight has any valid targets (0 or 1)
+      * tx- Horizontal offset from crosshair to target (LL2 -29.8 to 29.8)
+      * ty- Vertical offset from crosshair to target (LL2 -24.85 to 24.85)
+      * ta- Target area (0% of image to 100% of image)
+    */
+    double tv = table.getEntry("tv").getDouble(0);
+    double tx = table.getEntry("tx").getDouble(0);
+    double ty = table.getEntry("ty").getDouble(0);
+    double ta = table.getEntry("ta").getDouble(0);
+
+    /** Condition returns true when target is not detected- tv is 0 */
+    
+    if (tv < 1.0)
+    {
+      m_LimelightHasValidTarget = false;
+    } else {
+      m_LimelightHasValidTarget = true;
+    }
+  }
 }
+
