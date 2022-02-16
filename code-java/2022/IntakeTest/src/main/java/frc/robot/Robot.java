@@ -8,7 +8,9 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.XboxController;
-import org.janksters.jankyLib.jankyXboxJoystick;
+import com.revrobotics.CANSparkMax;
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -22,9 +24,9 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private jankyXboxJoystick XboxController = new jankyXboxJoystick(0);
-
-  Shooter shooter = null;
+  private CANSparkMax m_motor;
+  private static final int deviceID = 14;
+  private XboxController m_stick;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -35,6 +37,10 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    m_stick = new XboxController(0);
+    m_motor = new CANSparkMax(deviceID, MotorType.kBrushless);
+    m_motor.restoreFactoryDefaults();
 
   }
 
@@ -81,22 +87,16 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-    if (shooter == null){
-      shooter = new Shooter();
-    }
-  }
+  public void teleopInit() {}
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    //Testing XboxController output values
-    SmartDashboard.putNumber("L Trigger", XboxController.GetLeftThrottle());
-    SmartDashboard.putNumber("R Trigger", XboxController.GetRightThrottle());
-    SmartDashboard.putBoolean("Left Bumper", XboxController.GetButtonLB());
-    SmartDashboard.putBoolean("Right Bumper", XboxController.GetButtonRB());
-
-    shooter.displayCurrentState();
+    if (m_stick.getLeftTriggerAxis() == 1){
+      m_motor.set(0.5);
+    } else {
+      m_motor.set(0.0);
+    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -114,4 +114,12 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
+
+  /** This function is called once when the robot is first started up. */
+  @Override
+  public void simulationInit() {}
+
+  /** This function is called periodically whilst in simulation. */
+  @Override
+  public void simulationPeriodic() {}
 }
