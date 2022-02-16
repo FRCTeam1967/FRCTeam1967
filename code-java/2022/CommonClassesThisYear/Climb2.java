@@ -6,9 +6,9 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX; //potential issue since it's not the one on WPILib
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.janksters.jankyLib.JankyStateMachine;
+import org.janksters.jankyLib.*;
 
 public class Climb2 extends JankyStateMachine{
     private WPI_TalonFX winchMotorL; //left
@@ -24,9 +24,12 @@ public class Climb2 extends JankyStateMachine{
 
     private Timer climbTimer;
 
+    private jankyXboxJoystick XboxController;
+
     //constants
     private final double WINCH_MOTOR_SPEED = 0.3;
     private final double WINCH_MOTOR_STOP = 0.0;
+    private final double WINCH_MOTOR_GENTLE = 0.1;
     private final double PULSES_PER_REVOLUTION = 2048; //2048 for falcon integrated, 4096 for MAG
     private final double LATCH_TIME = 1.0; //check value - in seconds
     private final double HOOK_TIME = 1.0; //check value - in seconds
@@ -35,23 +38,40 @@ public class Climb2 extends JankyStateMachine{
     private final int kTimeoutMs = 1;
     private final double WINCH_ENCODER_DIFFERENCE = 2000;
     private final double WINCH_ENCODER_DOWN = 1000;
+    private final double HOOKED_ON_CURRENT = 1;
+    private final double TOO_FAR_DOWN = 26;
 
     //states
-    private final int IDLE = 0;
-    private final int LATCH_MID_BAR = 1;
-    private final int WINCH_UP = 2;
-    private final int PIVOT_HOOK_DOWN = 3;
-    private final int LATCH_HIGH_BAR = 4;
-    private final int UNLATCH_MID_BAR = 5;
+    private final int IDLE = 0; //keep bar down
+    private final int READY_TO_CLIMB = 1;
+    private final int LATCH_MID_BAR = 2;
+    private final int WINCH_UP = 3;
+    private final int RELEASE = 4;
+    private final int UNLATCH_MID_BAR = 5; 
     private final int WINCH_FINAL = 6;
-    private final int DO_NOTHING = 7;
-    private final int UNLATCH_HIGH_BAR = 8;
-    private final int WINCH_DOWN = 9;
-    private final int NEW_UNLATCH_MID_BAR = 10;
+    private final int WINCH_DOWN = 7;
+    private final int UNLATCH_MID_BAR_TO_EXIT = 8;
+    private final int DO_NOTHING = 9;
 
-    boolean startClimbStateMachine = false;
-    boolean stopClimbStateMachine = false;
+    boolean climbYAxisUp;
+    boolean climbYAxisWasUp = false;
+    boolean climbYAxisDown;
+    boolean climbYAxisWasDown = false;
+    boolean xButtonPressed;
+    boolean xButtonWasPressed = false;
+    boolean yButtonPressed;
+    boolean yButtonWasPressed = false;
+    boolean aButtonPressed;
+    boolean aButtonWasPressed = false;
+    boolean bButtonPressed;
+    boolean bButtonWasPressed = false;
+    boolean startButtonPressed;
+    boolean startButtonWasPressed = false;
 
+    boolean runClimbStateMachine = false;
+
+    boolean testing = true;
+    
     public Climb2(int winchMotorChannelL, int winchMotorChannelR,
     int PCMChannel, int midLatchChannelL, int midLatchChannelR,
     int highLatchChannelL, int highLatchChannelR,
@@ -68,69 +88,94 @@ public class Climb2 extends JankyStateMachine{
         pivotHookSwingR = new Solenoid(PCMChannel, PneumaticsModuleType.CTREPCM, pivotHookChannelR);
         climbTimer = new Timer();
 
-        climbTimer = new Timer();
+        XboxController= new jankyXboxJoystick(2);
+
+        setUpWinchEncoder();
+
         SetMachineName("JankyStateMachineClimb");
         SetName(IDLE,"Idle");
+        SetName(READY_TO_CLIMB, "ReadyToClimb");
         SetName(LATCH_MID_BAR,"LatchMidBar");
         SetName(WINCH_UP,"WinchUp");
-        SetName(PIVOT_HOOK_DOWN,"PivotHookDown");
-        SetName(LATCH_HIGH_BAR,"LatchHighBar");
+        SetName(RELEASE,"Release");
         SetName(UNLATCH_MID_BAR,"UnlatchMidBar");
         SetName(WINCH_FINAL,"WinchFinal");
-        SetName(DO_NOTHING,"DoNothing");
-        SetName(UNLATCH_HIGH_BAR,"UnlatchHighBar");
         SetName(WINCH_DOWN,"WinchDown");
-        SetName(NEW_UNLATCH_MID_BAR, "NewUnlatchMidBar");
+        SetName(UNLATCH_MID_BAR_TO_EXIT, "NewUnlatchMidBar");
+        SetName(DO_NOTHING,"DoNothing");
         
         start();
     } 
 
-    public void raiseWinchString(){
+    private void raiseWinchString(){
         winchMotorL.set(WINCH_MOTOR_SPEED);
         winchMotorR.set(WINCH_MOTOR_SPEED);
     }
 
-    public void lowerWinchString(){
+    private void lowerWinchString(){
         winchMotorL.set(-1.0 * WINCH_MOTOR_SPEED);
         winchMotorR.set(-1.0 * WINCH_MOTOR_SPEED);
     }
 
-    public void stopWinchString(){
+    private void stopWinchString(){
         winchMotorL.set(WINCH_MOTOR_STOP);
         winchMotorR.set(WINCH_MOTOR_STOP);
     }
 
-    public void latchMidBar(){
+    private void releaseWinchString(){
+        winchMotorL.set(WINCH_MOTOR_GENTLE);
+        winchMotorR.set(WINCH_MOTOR_GENTLE);
+    }
+    /*
+    public void raiseWinchStringManual(){
+        if(GetCurrentState() == IDLE){
+            raiseWinchString();
+        }
+    }
+
+    public void lowerWinchStringManual(){
+        if(GetCurrentState() == IDLE){
+            lowerWinchString();
+        }
+    }
+
+    public void stopWinchStringManual(){
+        if(GetCurrentState() == IDLE){
+            stopWinchString();
+        }
+    }
+    */
+    private void latchMidBar(){
         midBarLatchL.set(true);
         midBarLatchR.set(true);
     }
 
-    public void unlatchMidBar(){
+    private void unlatchMidBar(){
         midBarLatchL.set(false);
         midBarLatchR.set(false);
     }
 
-    public void latchHighBar(){
+    private void latchHighBar(){
         highBarLatchL.set(true);
         highBarLatchR.set(true);
     }
 
-    public void unlatchHighBar(){
+    private void unlatchHighBar(){
         highBarLatchL.set(false);
         highBarLatchR.set(false);
     }
 
-    public void hookPivotDown(){
+    private void hookPivotDown(){
         pivotHookSwingL.set(true);
         pivotHookSwingR.set(true);
     }
 
-    public void hookPivotUp(){
+    private void hookPivotUp(){
         pivotHookSwingL.set(false);
         pivotHookSwingR.set(false);
     }
 
-    public void setUpWinchEncoder(){
+    private void setUpWinchEncoder(){
         winchMotorL.configFactoryDefault();
         winchMotorL.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, kTimeoutMs);
         winchMotorL.setSensorPhase(true);
@@ -140,20 +185,20 @@ public class Climb2 extends JankyStateMachine{
         winchMotorR.setSensorPhase(true);
     }
 
-    public double getWinchEncoderCountL(){
+    private double getWinchEncoderCountL(){
         return winchMotorL.getSensorCollection().getIntegratedSensorPosition();
     }
 
-    public double getWinchEncoderCountR(){
+    private double getWinchEncoderCountR(){
         return winchMotorR.getSensorCollection().getIntegratedSensorPosition();
     }
 
-    public void resetWinchEncoders(){
+    private void resetWinchEncoders(){
         winchMotorL.getSensorCollection().setIntegratedSensorPosition(0, 10);
         winchMotorR.getSensorCollection().setIntegratedSensorPosition(0, 10);
     }
 
-    public double getAvgWinchEncoderCount(){
+    private double getAvgWinchEncoderCount(){
         //condition for when one is wrong
         if (Math.abs(getWinchEncoderCountL() - getWinchEncoderCountR()) > WINCH_ENCODER_DIFFERENCE) { //change value later
             SmartDashboard.putBoolean("climb winch encoders working?", false);
@@ -164,41 +209,117 @@ public class Climb2 extends JankyStateMachine{
         return (getWinchEncoderCountL() + getWinchEncoderCountR()) / 2;
     }
 
-    public double getAvgWinchEncoderDistance(){ //in inches
-        return getAvgWinchEncoderCount() * (PULSES_PER_REVOLUTION); //to do: figure out distance per revolution
+    private double getAvgWinchEncoderDistance(){ //in inches
+        return getAvgWinchEncoderCount() * (PULSES_PER_REVOLUTION); //to do: figure out distance per revolution, gear ratio
     }
 
     public void startClimbStateMachine() {
-        startClimbStateMachine = true;
+        runClimbStateMachine = true;
     }
 
     public void stopClimbStateMachine(){
-        stopClimbStateMachine = true;
+        runClimbStateMachine = false;
+    }
+
+    public void resetForClimb(){
+        hookPivotDown();
+        unlatchMidBar();
+        unlatchHighBar();
+        stopWinchString();
+    }
+
+    private void keepArmDown(){
+        //to do
+    }
+
+    private double getWinchStatorCurrent(){
+        double leftMotorCurrent = winchMotorL.getStatorCurrent();
+        double rightMotorCurrent = winchMotorR.getStatorCurrent();
+        return (leftMotorCurrent+rightMotorCurrent)/2; 
     }
 
     public void StateEngine(int curState, boolean onStateEntered){
+        if(XboxController.GetButtonB()) { //stop button pressed
+            runClimbStateMachine=false;
+        }
         switch (curState){
             case IDLE:
-                stopClimbStateMachine = false;
-                if (startClimbStateMachine){
-                    NewState(LATCH_MID_BAR,"x button pressed to start sequence");
+                keepArmDown();
+                if (XboxController.GetRightStickButton()){
+                    NewState(READY_TO_CLIMB, "right stick button was pressed");
                 }
                 break;
+
+            case READY_TO_CLIMB:
+                if (onStateEntered){
+                    resetForClimb();
+                }
+                //--- JOYSTICK UP ---//
+                climbYAxisUp = XboxController.GetLeftYAxis() > 0.2;
+                if (climbYAxisUp && !climbYAxisWasUp) { 
+                    //raise winch string
+                    raiseWinchString();
+                    climbYAxisWasUp = true;
+                } else if (!climbYAxisUp && climbYAxisWasUp) {
+                    stopWinchString();
+                    climbYAxisWasUp = false;
+                }
+                
+                //--- JOYSTICK DOWN ---// 
+                climbYAxisDown = XboxController.GetLeftYAxis() < -0.2;
+                if (climbYAxisDown && !climbYAxisWasDown) { 
+                    //lower winch string
+                    lowerWinchString();
+                    climbYAxisWasDown = true;
+                } else if (!climbYAxisDown && climbYAxisWasDown) {
+                    stopWinchString();
+                    climbYAxisWasDown = false;
+                }  
+
+                 //--- MID LATCH ---//
+                 xButtonPressed = XboxController.GetButtonX();
+                 if (xButtonPressed && !xButtonWasPressed) {
+                     latchMidBar();
+                     xButtonWasPressed = true;
+                 } else if (!xButtonPressed && xButtonWasPressed) {
+                     xButtonWasPressed = false;
+                 }
+ 
+                 //--- MID UNLATCH ---//
+                 bButtonPressed = XboxController.GetButtonB();
+                 if (bButtonPressed && !bButtonWasPressed) {
+                     latchMidBar();
+                     bButtonWasPressed = true;
+                 } else if (!bButtonPressed && bButtonWasPressed) {
+                     bButtonWasPressed = false;
+                 }
+
+                if (XboxController.GetButtonY()){
+                    runClimbStateMachine=true;
+                }
+                
+                if (runClimbStateMachine){
+                    NewState(LATCH_MID_BAR,"x button pressed to start sequence");
+                }
+
+                break;
+
             case LATCH_MID_BAR:
                 if (onStateEntered){
                     climbTimer.reset();
                     climbTimer.start();
                 }
                 latchMidBar();
-                if (stopClimbStateMachine) {  //stop button pressed
-                    NewState(NEW_UNLATCH_MID_BAR,"no longer going to winch up");
+                if (!runClimbStateMachine) {  //stop button pressed
+                    NewState(UNLATCH_MID_BAR_TO_EXIT,"no longer going to winch up");
                 }
                 if (climbTimer.get()>=LATCH_TIME){
                     climbTimer.stop();
                     NewState(WINCH_UP,"mid bar latch timer finished");
                 }
                 break;
-            case NEW_UNLATCH_MID_BAR:
+
+            case UNLATCH_MID_BAR_TO_EXIT:
                 if (onStateEntered){
                     climbTimer.reset();
                     climbTimer.start();
@@ -206,74 +327,64 @@ public class Climb2 extends JankyStateMachine{
                 unlatchMidBar();
                 if (climbTimer.get()>=LATCH_TIME){
                     climbTimer.stop();
-                    NewState(IDLE,"done with unlatching after stop button");
+                    NewState(READY_TO_CLIMB,"done with unlatching after stop button");
                 }
                 break;
+
             case WINCH_UP:
                 if (onStateEntered){
                     resetWinchEncoders(); //change to PID and current instead of encoders?
                 }
                 raiseWinchString();
-                if (stopClimbStateMachine) {  //stop button pressed
+
+                //stop button pressed
+                if (!runClimbStateMachine) {
+                    stopWinchString();
                     NewState(WINCH_DOWN,"no longer going to winch up");
                 }
-                if (getAvgWinchEncoderDistance()>=WINCH_UP_DISTANCE){
-                    NewState(PIVOT_HOOK_DOWN,"reached full winch distance");
+                if (getAvgWinchEncoderDistance()>=WINCH_UP_DISTANCE||testing){
+                    stopWinchString();
+                    NewState(RELEASE,"reached full winch distance");
                 }
                 break;
+
             case WINCH_DOWN:
                 lowerWinchString();
-                if (stopClimbStateMachine) {
-                    NewState(NEW_UNLATCH_MID_BAR,"done winching down");
+                if (!runClimbStateMachine) {
+                    stopWinchString();
+                    NewState(UNLATCH_MID_BAR_TO_EXIT,"done winching down");
                 }
-                if (getAvgWinchEncoderDistance() == WINCH_ENCODER_DOWN){
-                    NewState(PIVOT_HOOK_DOWN,"reached full winch distance");
+                if (getAvgWinchEncoderDistance() == WINCH_ENCODER_DOWN || testing){
+                    stopWinchString();
+                    NewState(RELEASE,"reached full winch distance");
                 }
                 break;
-            case PIVOT_HOOK_DOWN:
+
+            case RELEASE:
                 if (onStateEntered){
                     climbTimer.reset();
                     climbTimer.start();
                 }
-                hookPivotDown();
-                if (stopClimbStateMachine) {
+                releaseWinchString();
+                if (!runClimbStateMachine) {
                     NewState(DO_NOTHING,"stopping sequence");
                 }
-                if (climbTimer.get()>=HOOK_TIME){
+                if (getWinchStatorCurrent() < HOOKED_ON_CURRENT|| testing){
                     climbTimer.stop();
-                    NewState(LATCH_HIGH_BAR,"hook timer finished");
+                    NewState(UNLATCH_MID_BAR," current is < hooked on current");
+                }
+                if (getAvgWinchEncoderDistance()< TOO_FAR_DOWN){
+                    NewState(WINCH_UP," distance is too far down");
                 }
                 break;
-            case LATCH_HIGH_BAR:
-                if (onStateEntered){
-                    climbTimer.reset();
-                    climbTimer.start();
-                }
-                latchHighBar();
-                if (stopClimbStateMachine) {
-                    NewState(UNLATCH_HIGH_BAR,"stopping sequence so need to unlatch");
-                }
-                if (climbTimer.get()>=LATCH_TIME){
-                    climbTimer.stop();
-                    NewState(UNLATCH_MID_BAR,"high bar latch timer finished");
-                }
-                break;
-            case UNLATCH_HIGH_BAR:
-                if (onStateEntered){
-                    climbTimer.reset();
-                    climbTimer.start();
-                }
-                unlatchHighBar();
-                if (climbTimer.get()>=LATCH_TIME) {
-                    NewState(DO_NOTHING,"stopping sequence - done unlatching");
-                } 
+
             case UNLATCH_MID_BAR:
                 if (onStateEntered){
                     climbTimer.reset();
                     climbTimer.start();
                 }
                 unlatchMidBar();
-                if (stopClimbStateMachine) {
+                if (!runClimbStateMachine) {
                     NewState(DO_NOTHING,"stopping sequence");
                 }
                 if (climbTimer.get()>=LATCH_TIME){
@@ -281,19 +392,28 @@ public class Climb2 extends JankyStateMachine{
                     NewState(WINCH_FINAL,"mid bar unlatch timer finished");
                 }
                 break;
+
             case WINCH_FINAL:
                 if (onStateEntered){
                     resetWinchEncoders(); //change to PID and current instead of encoders?
+                    climbTimer.reset(); //to test state machine
+                    climbTimer.start();
                 }
                 raiseWinchString();
-                if (stopClimbStateMachine) {
+                if (!runClimbStateMachine) {
+                    stopWinchString();
                     NewState(DO_NOTHING,"stopping sequence");
                 }
                 if (getAvgWinchEncoderDistance()>=WINCH_FINAL_DISTANCE){
                     climbTimer.stop();
+                    stopWinchString();
                     NewState(DO_NOTHING,"slightly pulling up winch finished");
                 }
+                if(climbTimer.get()>=2){ //to test state machine
+                    NewState(DO_NOTHING,"final winch timer if finished");//to test state machine
+                }//to test state machine
                 break;
+
             case DO_NOTHING:
                 break;
 

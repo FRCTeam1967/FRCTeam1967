@@ -118,7 +118,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    
+    //add manual control to state machine 
+    /*
     //--- JOYSTICK UP ---//
     climbYAxisUp = XboxController.GetLeftYAxis() > 0.2;
     if (climbYAxisUp && !climbYAxisWasUp) { 
@@ -185,6 +186,7 @@ public class Robot extends TimedRobot {
     } else if (!startButtonPressed && startButtonWasPressed) {
       startButtonWasPressed = false;
     }
+    /*
 
     /*
     //--- WHOLE SEQUENCE BUTTON ---//
