@@ -22,10 +22,6 @@ public class AutoConstants {
     public static int Standard = 1;
     public static int  HailJulie = 2;
 
-    // public static int DO_NOTHING = 4;
-    // public static int TEST_PATH_1 = 5;
-    // public static int TEST_PATH_2 = 6;
-    // public static int TEST_PATH_3 = 7;
 
     //robot used:
     public static int JANKYBOT = 0;
@@ -43,14 +39,6 @@ public class AutoConstants {
     public static final int kRightMotor2Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
 
 
-    //Try:
-    // constexpr int kLeftMotor1Port = SHOOTING_LEFT_MOTOR_CHANNEL;
-    // constexpr int kLeftMotor2Port = INTAKE_LEFT_MOTOR_CHANNEL;
-    // constexpr int kRightMotor1Port = SHOOTING_RIGHT_MOTOR_CHANNEL;
-    // constexpr int kRightMotor2Port = INTAKE_RIGHT_MOTOR_CHANNEL;
-
-    //constexpr int kLeftEncoderPorts[]{0, 1};
-    //constexpr int kRightEncoderPorts[]{2, 3};
 
 
     public static final double kTrackwidth = CHASSIS_WIDTH; //232.9723996;

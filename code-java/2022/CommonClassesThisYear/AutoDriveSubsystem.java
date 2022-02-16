@@ -71,7 +71,7 @@ public class AutoDriveSubsystem extends SubsystemBase {
   m_left1.getSensorCollection().setQuadraturePosition(0,10);
 
 // configure right encoder
-m_right2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+  m_right2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
   m_right2.setSelectedSensorPosition(0, 0, 10);
   m_right2.getSensorCollection().setQuadraturePosition(0,10);
 
@@ -288,10 +288,6 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
     time.stop();
     time.reset();
     m_gyro.reset();
-    // m_left1.Set(0);
-    // m_left2.Set(0);
-    // m_right1.Set(0);
-    // m_right2.Set(0);
   }
 
 
