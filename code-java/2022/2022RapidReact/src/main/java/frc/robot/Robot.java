@@ -14,40 +14,18 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-// import com.ctre.phoenix.motorcontrol.can.TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-// import edu.wpi.first.wpilibj.GenericHID;
-// import edu.wpi.first.wpilibj.TimedRobot;
-// import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-// import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-//import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import edu.wpi.first.math.controller.PIDController;
-// import edu.wpi.first.wpilibj.XboxController;
-// import com.ctre.phoenix.sensors.CANCoder;
-// import edu.wpi.first.wpilibj.drive.RobotDriveBase;
-// import edu.wpi.first.networktables.NetworkTable;
-// import edu.wpi.first.networktables.NetworkTableInstance;
-// import edu.wpi.first.networktables.NetworkTableEntry;
 
-/**
- * The VM is configured to automatically run this class, and to call the functions corresponding to
- * each mode, as described in the TimedRobot documentation. If you change the name of this class or
- * the package after creating this project, you must also update the build.gradle file in the
- * project.
- */
+
 public class Robot extends TimedRobot {
   private static final String kTankDrive = "Tank Drive";
-  private static final String kArcadeDrive = "arcade Drive";
+  private static final String kArcadeDrive = "Arcade Drive";
   private static final String kCurvatureDrive = "Curvature Drive";
   private static final String kSteeringWheel = "Steering Wheel";
 
-  //private static final String kJankyBot2022 = "2022 Janky Bot";
-  //private static final String kLazlo = "Chassis In a Day - Lazlo";
-
   private String m_DriveSelected;
-  //private String m_ChassisSelected;
   private final SendableChooser<String> m_driveChooser = new SendableChooser<>();
-  //private final SendableChooser<String> m_chassisChooser = new SendableChooser<>();
 
   Joystick m_arcadeJoystickP1;
   Joystick m_arcadeJoystickP2;
@@ -78,24 +56,16 @@ public class Robot extends TimedRobot {
 
   VisionSubsystem limeLight = new VisionSubsystem();
 
-
-  //encoders
-  final int PULSES_PER_REVOLUTION = 4096;
-  final double WHEEL_DIAMETER = 6; // 0.1524 meters, 6 inches
-  final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
-    System.out.println("Hello!");
     m_driveChooser.setDefaultOption("Tank Drive", kTankDrive);
     m_driveChooser.addOption("Arcade Drive", kArcadeDrive);
     m_driveChooser.addOption("Curvature Drive", kCurvatureDrive);
     m_driveChooser.addOption("Steering Wheel", kSteeringWheel);
-
     SmartDashboard.putData("Drive choices", m_driveChooser);
 
     m_arcadeJoystickP1 = new Joystick(0);  //whatever is in port 1 - P1 stands for port1
@@ -103,24 +73,7 @@ public class Robot extends TimedRobot {
 
     m_myRobot.setMaxOutput(0.5); //default is 1
 
-    // m_rightLeader.configFactoryDefault();
-    // m_rightLeader.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
-    // m_rightLeader.setSelectedSensorPosition(0, 10, 0);
-    // m_leftFollower.configFactoryDefault();
-    // m_leftFollower.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute,0,0);
-    // m_leftFollower.setSelectedSensorPosition(0, 10, 0);
     System.out.println("Passed through initialization");
-
-    //m_chassisChooser.setDefaultOption("Chassis in a day", kLazlo);
-    //m_chassisChooser.addOption("Janky bot 2022", kJankyBot2022);
-
-    //SmartDashboard.putData("Chassis Choices", m_chassisChooser);
-
-    /*m_leftLeader = new WPI_TalonSRX(2);
-    m_leftFollower = new WPI_TalonFX(3);
-    m_rightLeader = new WPI_TalonFX(1);
-    m_rightFollower = new WPI_TalonSRX(0);*/
-
   }
 
   /**
@@ -132,23 +85,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    /*m_ChassisSelected = m_chassisChooser.getSelected();
-    switch(m_ChassisSelected){
-      case kLazlo: 
-        m_leftLeader = new WPI_TalonSRX(2);
-        m_leftFollower = new WPI_TalonFX(3);
-        m_rightLeader = new WPI_TalonFX(1);
-        m_rightFollower = new WPI_TalonSRX(0);
-        break;
-      default: 
-        m_leftLeader = new WPI_TalonSRX(0);
-        m_leftFollower = new PWMVictorSPX(1);
-        m_rightLeader = new WPI_TalonFX(2);
-        m_rightFollower = new PWMVictorSPX(3);
-        break;
-    }*/
-        
-
   }
 
   /**
@@ -174,35 +110,14 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    
     m_DriveSelected = m_driveChooser.getSelected();
     System.out.println("Drive selected: " + m_DriveSelected);
-
   }
 
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
-    // updateLimelightTracking();
-    //put encoder values on Smart Dashboard!!
-    // SmartDashboard.putBoolean("Limelight Has Valid Target", m_LimelightHasValidTarget);
-    // NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    // double tx = table.getEntry("tx").getDouble(0);
-    // double ty = table.getEntry("ty").getDouble(0);
-    // double ta = table.getEntry("ta").getDouble(0);
-    
-    //boolean m_LimelightHasValidTarget = (table.getEntry("tv").getDouble(0) < 1.0);
-    //double distanceFromLimelightToGoalCentimeters = 2.54*((31.125-29.68504)/Math.tan((ty+0.0)*(3.14159 / 180.0)));
-    //double distanceFromLimelightToGoalCentimeters = 2.54*((80-29.69904)/Math.tan((ty+0.0)*(3.14159 / 180.0)));
-
-    //double distance = 156.15637194655 - (36.746837632824 * Math.log(ta)); //Change! - this is area of target and we want angle
-
-    // SmartDashboard.putBoolean("Limelight Has Valid Target", m_LimelightHasValidTarget);
-    // SmartDashboard.putNumber("Limelight Horizontal offset", tx);
-    // SmartDashboard.putNumber("Limelight Vertical offset ", ty);
-    // SmartDashboard.putNumber("Limelight Distance ", distance);
-    // SmartDashboard.putNumber("Limelight distance using angle", distanceFromLimelightToGoalCentimeters);
-        
+  
   /*  if (m_arcadeJoystickP1.getRawButton(3)){// do seeking
      m_myRobot.tankDrive(-0.3, 0.3);
     }
@@ -211,7 +126,6 @@ public class Robot extends TimedRobot {
     }*/
     //making an if statement for if button pressed vision driving (for shooting)
     if (m_arcadeJoystickP1.getRawButton(4)&& m_LimelightHasValidTarget){ 
-      //m_myRobot.tankDrive(-pidCalcDistance()+pidCalcAngle(), pidCalcDistance()-pidCalcAngle());//Call pidCalcAngle() subtract from one side, add to another
       m_myRobot.tankDrive(-limeLight.getDistance()+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
     } else {
         switch (m_DriveSelected) {
@@ -220,7 +134,6 @@ public class Robot extends TimedRobot {
             double moveSpeed = m_arcadeJoystickP1.getRawAxis(0);
             m_myRobot.arcadeDrive(moveSpeed, -rotateSpeed); //- working arcade drive
             //MOVE SPEED SHOULD BE + AND ROTATE SPEED SHOULD BE -
-            //System.out.println("Arcade Drive");
             break;
           case kCurvatureDrive:
             // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
@@ -252,20 +165,6 @@ public class Robot extends TimedRobot {
             } else {
               m_myRobot.tankDrive(-m_arcadeJoystickP1.getY(), m_arcadeJoystickP2.getY());
             }
-
-            // if (m_arcadeJoystickP1.getRawButton(2)&&m_LimelightHasValidTarget){
-            //   double heading_error = tx;
-            //   double steering_adjust = Kp * tx;
-            //   if (tx > 1.0)
-            //     {
-            //             steering_adjust = Kp*heading_error - min_command;
-            //     }
-            //     else if (tx < 1.0)
-            //     {
-            //             steering_adjust = Kp*heading_error + min_command;
-            //     }
-            //   m_myRobot.tankDrive(-m_arcadeJoystickP1.getY()+ steering_adjust, m_arcadeJoystickP2.getY()- steering_adjust);
-            // }
             break;
     
         }
@@ -288,74 +187,4 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during test mode. */
   @Override
   public void testPeriodic() {}
-
-//   public double pidCalcDistance(){
-//     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-//     double tx = table.getEntry("tx").getDouble(0);
-//     double ta = table.getEntry("ta").getDouble(0);
-//     double distance = 156.15637194655 - (36.746837632824 * Math.log(ta)); //Unit- centimeters 
-//     System.out.println("distance" + distance);
-//     return pidDistance.calculate(distance, 100); //Current distance, setpoint (desired distance from target)
-//   }
-//   public double angleDistance() {
-//     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-//     double ty = table.getEntry("ty").getDouble(0);
-//     //double targetOffsetAngle_Vertical = ty.getDouble(0.0);
-//     double targetOffsetAngle_Vertical =ty;
-//     // how many degrees back is your limelight rotated from perfectly vertical?
-//     double limelightMountAngleDegrees = 20.0; // in our testing it's zero but real degrees would be 20
-
-//     // distance from the center of the Limelight lens to the floor
-//     double limelightLensHeightInches = 29.69904;// 75.4cm 29.68504in for testing
-//     //awaiting electronics' height
-
-//     // distance from the target to the floor
-//     double goalHeightInches = 80; //the real hight would be  5cm height of target
-//     // real hight 104in- 5cm = real target = 104-1.9685=102.0315
-//     // our testing height is 31.125in 78.8cm
-
-//     double angleToGoalDegrees = limelightMountAngleDegrees + targetOffsetAngle_Vertical;
-//     double angleToGoalRadians = angleToGoalDegrees * (3.14159 / 180.0);
-
-//     //calculate distance
-//     double distanceFromLimelightToGoalInches = (goalHeightInches - limelightLensHeightInches)/Math.tan(angleToGoalRadians);
-//     double distanceFromLimelightToGoalCentimeters= distanceFromLimelightToGoalInches*2.54;
-//     //double distanceFromLimelightToGoalCentimeters = 2.54*((80-29.69904)/Math.tan((ty+0.0)*(3.14159 / 180.0)));
-
-//     return pidDistance.calculate(distanceFromLimelightToGoalCentimeters, 100); //Current distance, setpoint (desired distance from target)
-//   }
-
-
-//   public double pidCalcAngle(){
-//     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-//     double tx = table.getEntry("tx").getDouble(0);
-
-//     return pidAngle.calculate(tx, 0);
-//   }
-
-//   public void updateLimelightTracking(){
-//     NetworkTable table = NetworkTableInstance.getDefault().getTable("limelight");
-    
-//     /**
-//       * tv- Whether the limelight has any valid targets (0 or 1)
-//       * tx- Horizontal offset from crosshair to target (LL2 -29.8 to 29.8)
-//       * ty- Vertical offset from crosshair to target (LL2 -24.85 to 24.85)
-//       * ta- Target area (0% of image to 100% of image)
-//       remove this stuff maybe v
-//     */
-//     double tv = table.getEntry("tv").getDouble(0);
-//     double tx = table.getEntry("tx").getDouble(0);
-//     double ty = table.getEntry("ty").getDouble(0);
-//     double ta = table.getEntry("ta").getDouble(0);
-
-//     if (tv < 1.0)
-//     {
-//       m_LimelightHasValidTarget = false;
-//       return;
-
-//     } else {
-//       m_LimelightHasValidTarget = true;
-//     }
-
-// }
 }
