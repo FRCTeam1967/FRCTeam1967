@@ -15,7 +15,6 @@ import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.wpilibj.Timer;
 
 //8 values are TBD 
-//我爱你, <3 !! ♥️
 
 public class Shooter extends JankyStateMachine {
 
@@ -32,48 +31,68 @@ public class Shooter extends JankyStateMachine {
 
     private CANSparkMax topRollerMotor;
     private SparkMaxPIDController topPIDController;
-    private RelativeEncoder topMotorEncoder;
+    public RelativeEncoder topMotorEncoder;
 
     private CANSparkMax bottomRollerMotor;
     private SparkMaxPIDController bottomPIDController;
-    private RelativeEncoder bottomMotorEncoder;
+    public RelativeEncoder bottomMotorEncoder;
+
+    private static final int topRollerMotorID = 17; 
+    private static final int bottomRollerMotorID = 18;
+    
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
 
     private Timer fireTimer;
+    private Timer revTimer;
+    private Timer slowEjectTimer;
 
-    private static final int topRollerMotorID = 14; // TBD
-    // private static final int bottomRollerMotorID = 18; 
-
-    private static final int INTAKE_ROLLER_SPEED = 700; // TBD
-    private static final int SLOW_EJECT_SPEED = 100; // TBD
-    private static final int TOP_ROLLER_FIRE_SPEED = 1000; // TBD
+    // Remember, velocity values are between -1.0 and 1.0 for motor.set
+    // PID controller set reference takes RPM values, max 5700
+    private static final double INTAKE_ROLLER_SPEED = 0.2;
+    private static final double SLOW_EJECT_SPEED = 0.15;
+    private static final double TOP_ROLLER_FIRE_SPEED = 4000; 
+    private static final double BOTTOM_ROLLER_FIRE_SPEED = 4000;
 
     public Shooter() {
-
-        XboxController = new jankyXboxJoystick(0); // TBD
+        XboxController = new jankyXboxJoystick(0); 
         table = NetworkTableInstance.getDefault().getTable("limelight");
 
         topRollerMotor = new CANSparkMax(topRollerMotorID, MotorType.kBrushless);
-        // bottomRollerMotor = new CANSparkMax(bottomRollerMotorID, MotorType.kBrushless);
+        bottomRollerMotor = new CANSparkMax(bottomRollerMotorID, MotorType.kBrushless);
         topRollerMotor.restoreFactoryDefaults();
-        // bottomRollerMotor.restoreFactoryDefaults();
+        bottomRollerMotor.restoreFactoryDefaults();
 
         topPIDController = topRollerMotor.getPIDController();
-        // bottomPIDController = bottomRollerMotor.getPIDController();
+        bottomPIDController = bottomRollerMotor.getPIDController();
         topMotorEncoder = topRollerMotor.getEncoder();
-        // bottomMotorEncoder = bottomRollerMotor.getEncoder();
+        bottomMotorEncoder = bottomRollerMotor.getEncoder();
 
         fireTimer = new Timer();
+        revTimer = new Timer();
+        slowEjectTimer = new Timer();
 
-        // TBD
-        kP = 6e-5;
+        kP = 0.00003;
         kI = 0;
         kD = 0;
         kIz = 0;
-        kFF = 0.000015;
+        kFF = 0.000178;
         kMaxOutput = 1;
-        kMinOutput = 1;
+        kMinOutput = -1;
         maxRPM = 5700;
+
+        topPIDController.setP(kP);
+        topPIDController.setI(kI);
+        topPIDController.setD(kD);
+        topPIDController.setIZone(kIz);
+        topPIDController.setFF(kFF);
+        topPIDController.setOutputRange(kMinOutput, kMaxOutput);
+
+        bottomPIDController.setP(kP);
+        bottomPIDController.setI(kI);
+        bottomPIDController.setD(kD);
+        bottomPIDController.setIZone(kIz);
+        bottomPIDController.setFF(kFF);
+        bottomPIDController.setOutputRange(kMinOutput, kMaxOutput);
 
         SetMachineName("Shooter");
         SetName(Idle, "Idle");
@@ -88,13 +107,12 @@ public class Shooter extends JankyStateMachine {
     public void StateEngine(int curState, boolean onStateEntered) {
         switch (curState) {
             case Idle:
-                SmartDashboard.putString("State print", "Entered Idle");
                 zeroMotors();
                 if ((XboxController.GetLeftThrottle() == 1) && (XboxController.GetRightThrottle() == 1)) {
                     NewState(Intake, "pressed left and right throttle buttons");
                 }
                 if ((XboxController.GetButtonLB() == true) && (XboxController.GetButtonRB() == true)) {
-                    NewState(Fire, "LB and RB pressed");
+                    NewState(RevUp, "LB and RB pressed");
                 }
                 if (XboxController.GetButtonStart() == true) {
                     NewState(SlowEject, "RB pressed");
@@ -107,31 +125,29 @@ public class Shooter extends JankyStateMachine {
                 }
                 break;
             case SlowEject:
+                if (onStateEntered){
+                    slowEjectTimer.reset();
+                    slowEjectTimer.start();
+                }
                 runSlowEject();
-                if (XboxController.GetButtonRB() == false) {
-                    NewState(Idle, "RB released");
+                if (slowEjectTimer.get() >= 0.1){
+                    slowEjectTimer.stop();
+                    NewState(Idle, "slow eject timer reached");
                 }
                 break;
             case RevUp:
-                double bottomTargetVelocity = calcVelocity();
-                setBottomVelocity(bottomTargetVelocity);
-                if ((XboxController.GetButtonLB() == false) || (XboxController.GetButtonRB() == false)) {
-                    NewState(Idle, "LB and RB released");
+                setBottomVelocity();
+                if (bottomMotorEncoder.getVelocity() >= 4000){
+                    NewState(Fire, "finished bottom roller running");
                 }
-                // TODO: unknown range; need to determine
-                // if ((getBottomVelocity() > bottomTargetVelocity - 8)
-                //        && (getBottomVelocity() < bottomTargetVelocity + 8)) {
-                //    NewState(Fire, "bottom rollers reached target velocity");
-                //}
-                                                    
                 break;
             case Fire:
-                if(onStateEntered){
+                if (onStateEntered) {
                     fireTimer.reset();
                     fireTimer.start();
                 }
                 setTopVelocity();
-                if (fireTimer.get() >= 5){
+                if (fireTimer.get() >= .5) {
                     fireTimer.stop();
                     NewState(Idle, "finished firing sequence");
                 }
@@ -142,27 +158,28 @@ public class Shooter extends JankyStateMachine {
     // ACTION METHODS (ROLLERS, MOTORS, ETC)
     public void zeroMotors() {
         topRollerMotor.set(0.0);
-        // bottomRollerMotor.set(0.0);
+        bottomRollerMotor.set(0.0);
     }
 
     public void runIntake() {
         // TODO: check diagram, test directions
         // Top roller goes out, bottom goes in
         topRollerMotor.set(INTAKE_ROLLER_SPEED);
-        // bottomRollerMotor.set(INTAKE_ROLLER_SPEED);
+        bottomRollerMotor.set(-INTAKE_ROLLER_SPEED);
     }
 
     public void runSlowEject() {
         // TODO: test speed for slow eject
         // Top roller goes in, bottom goes out
-        topRollerMotor.set(SLOW_EJECT_SPEED);
-        // bottomRollerMotor.set(SLOW_EJECT_SPEED);
+        topRollerMotor.set(-SLOW_EJECT_SPEED);
+        bottomRollerMotor.set(SLOW_EJECT_SPEED);
     }
 
     public double calcVelocity() {
         // Calculate distance from hub (Limelight)
         double ta = table.getEntry("ta").getDouble(0);
-        // TBD, TODO: test and derive new equation
+
+        //TODO: test and derive new equation
         double distanceFromHub = 156.15637194655 - (36.746837632824 * Math.log(ta));
         SmartDashboard.putNumber("Distance From Hub", distanceFromHub);
 
@@ -174,22 +191,18 @@ public class Shooter extends JankyStateMachine {
         return targetVelocity;
     }
 
-    public void getBottomVelocity() { // revert to double
-        // return bottomMotorEncoder.getVelocity();
-    }
-
-    public void setBottomVelocity(double targetVelocity) {
+    public void setBottomVelocity() {
         // "Revving" rollers with PID
-        // bottomPIDController.setReference(targetVelocity, CANSparkMax.ControlType.kVelocity);
+        bottomPIDController.setReference(BOTTOM_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
     }
 
     public void setTopVelocity() {
-        topPIDController.setReference(TOP_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
+        // Second set of rollers
+        topPIDController.setReference(-TOP_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
     }
 
-    public void displayCurrentState(){
+    public void displayCurrentState() {
         SmartDashboard.putNumber("current state", GetCurrentState());
     }
 
-    
 }

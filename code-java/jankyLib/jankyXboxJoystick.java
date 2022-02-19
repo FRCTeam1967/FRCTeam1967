@@ -17,8 +17,8 @@ public class jankyXboxJoystick extends Joystick {
    final static int RIGHT_STICK_BUTTON_PORT =10;
    final static int LEFT_X_AXIS_CHANNEL =0;
    final static int LEFT_Y_AXIS_CHANNEL =1;
-   final static int RIGHT_X_AXIS_CHANNEL=4;
-   final static int RIGHT_Y_AXIS_CHANNEL =5;
+   final static int RIGHT_X_AXIS_CHANNEL =4;
+   final static int RIGHT_Y_AXIS_CHANNEL =5;  
  
    //public jankyXboxJoystick(int portNumber);
    public jankyXboxJoystick (int portNumber){
