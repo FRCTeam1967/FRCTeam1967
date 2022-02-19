@@ -18,6 +18,7 @@ import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -31,10 +32,15 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(0);
-  private MotorController m_leftFollower = new PWMVictorSPX(3);
-  private WPI_TalonSRX m_rightLeader = new WPI_TalonSRX(1);
-  private MotorController m_rightFollower = new PWMVictorSPX(4);
+  // private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(0);
+  // private MotorController m_leftFollower = new PWMVictorSPX(3);
+  // private WPI_TalonSRX m_rightLeader = new WPI_TalonSRX(1);
+  // private MotorController m_rightFollower = new PWMVictorSPX(4);
+  private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);
+  private WPI_TalonFX m_leftFollower = new WPI_TalonFX(3);
+  private WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);
+  private WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(0);
+
   private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
   private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
   private DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
@@ -57,7 +63,7 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    m_rightLeader.setInverted(true); //Is this causing me issues?
+    //m_rightLeader.setInverted(true); //Is this causing me issues?
   }
 
   /**
@@ -133,13 +139,13 @@ public class Robot extends TimedRobot {
         //Get distance, get angle 
         //distance-angle, distance+angle 
         //m_myRobot.tankDrive(-pidCalcAngle(), pidCalcAngle());
-        m_myRobot.tankDrive(pidCalcDistance(), pidCalcDistance()); //Call pidCalcAngle() subtract from one side, add to another
+        m_myRobot.tankDrive(-pidCalcDistance(), pidCalcDistance()); //Call pidCalcAngle() subtract from one side, add to another
       } else {
         m_myRobot.tankDrive(0.0, 0.0); //Try Seeking here 
       } 
     } else {
       /** Use joysticks to drive if A not pressed */
-      m_myRobot.tankDrive(1.0 * m_leftStick.getY(), 1.0 * m_rightStick.getY());
+      m_myRobot.tankDrive(-1.0 * m_leftStick.getY(), 1.0 * m_rightStick.getY());
     }
 
   }
