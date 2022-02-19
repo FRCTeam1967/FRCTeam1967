@@ -49,7 +49,20 @@ public class Auto extends SequentialCommandGroup{
     public static int autoPathFinal;
     boolean autoForwardIsFinished = false;
 
-    int drivingTime = 3;
+    int drivingTimeSec = 3;
+    // going straight and turning in standard
+    final int standardFirstDrivingTime = 4;
+    // coming back to tarmac to shoot in standard
+    final int standardSecondDrivingTime = 9;
+
+    //driving forward initially - maybe make private?
+    public void standardDrive(double speed) {
+        m_myRobot.tankDrive(speed,-speed);
+    }
+    //turning 180
+    public void standardTurn(double speed) {
+        m_myRobot.tankDrive(-speed,-speed);
+    }
 
 
     public Auto(WPI_TalonSRX _frmotor, WPI_TalonSRX _rlmotor, DifferentialDrive _m_myRobot, int _delay) {
@@ -132,22 +145,27 @@ public class Auto extends SequentialCommandGroup{
 
         //SmartDashboard.putNumber("Driving Time", endTime);
                 startDelayTimer();
-                if (delayTimer.get() >= delay && delayTimer.get() <= delay+4) {
-                    m_myRobot.tankDrive(0.6,-0.6);
-                } else if (delayTimer.get() <= delay) {
-                    m_myRobot.tankDrive(0, 0);
-                } else if (delayTimer.get() >=  delay+4) {
+                if (delayTimer.get() <=delay) {
+                    standardDrive(0);
+                    //test without delayTimer.get() >= delay and see if order works
+                } else if (delayTimer.get() >= delay && delayTimer.get() <= delay+ standardFirstDrivingTime) {
+                    standardDrive(0.6);
+                    //test without delayTimer.get() >=  delay+ standardFirstDrivingTime and see if order works --> switch to else
+                } else if (delayTimer.get() >=  delay+ standardFirstDrivingTime) {
                     int desiredAngle = 165;
                     if (desiredAngle - m_gyro.getAngle() >= 0) {
-                        m_myRobot.tankDrive(-0.7,-0.7);
+                        standardTurn(0.7);
+                    //check if rotation is finished
                     } else if (m_gyro.getAngle() > 165) {
-                        if (delayTimer.get() <= delay + 9) {
-                            m_myRobot.tankDrive(0.7,-0.7);
+                        //moving to tarmac
+                        if (delayTimer.get() <= delay + standardSecondDrivingTime) {
+                            standardDrive(0.7);
                         } else {
-                            m_myRobot.tankDrive(0,0);
+                            standardDrive(0);
                         }
                     } else {
-                    m_myRobot.tankDrive(0,0);
+                        standardDrive(0);
+                        System.out.println("I have reached the second failsafe");
                     }
                 }
             

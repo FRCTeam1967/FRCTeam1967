@@ -56,6 +56,13 @@ public class Robot extends TimedRobot {
   public ADIS16470_IMU m_gyro;
 
   int autoCaseNum;
+
+  //move forward
+  final int simplePath = 0;
+  //move forward, get ball, turn, move, shoot
+  final int standardPath = 1;
+  //turn 180 degrees
+  final int turnPath = 2;
   
 
 
@@ -107,14 +114,14 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("triaxis rate" , m_gyro.getRate());
     
 //which auto path we should run based on what is selected
-    if (Auto.autoPathFinal == 0){
+    if (Auto.autoPathFinal == simplePath){
       //just moving forward
       generalAuto.AutoSequenceSimple(m_myRobot,  selector.getAutoMode(), m_gyro, 0);
     }
-    else if (Auto.autoPathFinal == 1){
+    else if (Auto.autoPathFinal == standardPath){
       //moving forward, getting ball, moving back, shooting
       generalAuto.AutoSequenceStandard(m_myRobot,  selector.getAutoMode(), m_gyro, 0);
-    }else if (Auto.autoPathFinal == 2){
+    }else if (Auto.autoPathFinal == turnPath){
       //just for testing purposes, turning
       generalAuto.autoTurn180(m_myRobot, m_gyro);
     } else{
