@@ -22,21 +22,22 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  private Climb climbMech;
-  private jankyXboxJoystick XboxController;
+  private Climb2 climbMech;
+  //private jankyXboxJoystick XboxController;
 
-  //all channel numbers
+  //all channel numbers - to edit
   private final int WINCH_MOTOR_CHANNEL_L = 0;
   private final int WINCH_MOTOR_CHANNEL_R = 0;
   private final int PCM_CHANNEL = 0;
-  private final int MID_LATCH_CHANNEL_L = 0;
-  private final int MID_LATCH_CHANNEL_R = 0;
-  private final int HIGH_LATCH_CHANNEL_L = 0;
-  private final int HIGH_LATCH_CHANNEL_R = 0;
-  private final int PIVOT_HOOK_CHANNEL_L = 0;
-  private final int PIVOT_HOOK_CHANNEL_R = 0;
+  private final int MID_LATCH_CHANNEL_L = 2;
+  private final int MID_LATCH_CHANNEL_R = 3;
+  private final int HIGH_LATCH_CHANNEL_L = 4;
+  private final int HIGH_LATCH_CHANNEL_R = 5;
+  private final int PIVOT_HOOK_CHANNEL_L = 6;
+  private final int PIVOT_HOOK_CHANNEL_R = 7;
 
   //joystick variables
+  /*
   boolean climbYAxisUp;
   boolean climbYAxisWasUp = false;
   boolean climbYAxisDown;
@@ -51,6 +52,7 @@ public class Robot extends TimedRobot {
   boolean bButtonWasPressed = false;
   boolean startButtonPressed;
   boolean startButtonWasPressed = false;
+  */
 
   
 
@@ -64,10 +66,13 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    climbMech = new Climb(WINCH_MOTOR_CHANNEL_L, WINCH_MOTOR_CHANNEL_R, PCM_CHANNEL, MID_LATCH_CHANNEL_L, MID_LATCH_CHANNEL_R, 
-    HIGH_LATCH_CHANNEL_L, HIGH_LATCH_CHANNEL_R, PIVOT_HOOK_CHANNEL_L, PIVOT_HOOK_CHANNEL_R);
+    if (climbMech == null){
+      climbMech = new Climb2(WINCH_MOTOR_CHANNEL_L, WINCH_MOTOR_CHANNEL_R, PCM_CHANNEL, MID_LATCH_CHANNEL_L, MID_LATCH_CHANNEL_R, 
+      HIGH_LATCH_CHANNEL_L, HIGH_LATCH_CHANNEL_R, PIVOT_HOOK_CHANNEL_L, PIVOT_HOOK_CHANNEL_R);
 
-    XboxController = new jankyXboxJoystick(2);
+    }
+    
+    //XboxController = new jankyXboxJoystick(2);
   }
 
   /**
@@ -121,7 +126,7 @@ public class Robot extends TimedRobot {
     //add manual control to state machine 
     /*
     //--- JOYSTICK UP ---//
-    climbYAxisUp = XboxController.GetLeftYAxis() > 0.2;
+    climbYAxisUp = XboxController.GetRightYAxis() > 0.2;
     if (climbYAxisUp && !climbYAxisWasUp) { 
       //raise winch string
       climbMech.raiseWinchString();
@@ -132,7 +137,7 @@ public class Robot extends TimedRobot {
     }
     
     //--- JOYSTICK DOWN ---// 
-    climbYAxisDown = XboxController.GetLeftYAxis() < -0.2;
+    climbYAxisDown = XboxController.GetRightYAxis() < -0.2;
     if (climbYAxisDown && !climbYAxisWasDown) { 
       //lower winch string
       climbMech.lowerWinchString();

@@ -31,7 +31,7 @@ public class Climb2 extends JankyStateMachine{
     private final double WINCH_MOTOR_STOP = 0.0;
     private final double WINCH_MOTOR_GENTLE = 0.1;
     private final double PULSES_PER_REVOLUTION = 2048; //2048 for falcon integrated, 4096 for MAG
-    private final double LATCH_TIME = 1.0; //check value - in seconds
+    private final double LATCH_TIME = 7.0; //check value - in seconds
     private final double HOOK_TIME = 1.0; //check value - in seconds
     private final double WINCH_UP_DISTANCE = 28; //in inches
     private final int WINCH_FINAL_DISTANCE = 2; //in inches
@@ -68,7 +68,8 @@ public class Climb2 extends JankyStateMachine{
     boolean startButtonPressed;
     boolean startButtonWasPressed = false;
 
-    boolean runClimbStateMachine = false;
+    boolean runClimbStateMachine = false; //note: this variable is useful if xbox is in robot.java, 
+                                          //but not as useful when controls is inside state machine
 
     boolean testing = true;
     
@@ -239,6 +240,8 @@ public class Climb2 extends JankyStateMachine{
     }
 
     public void StateEngine(int curState, boolean onStateEntered){
+        SmartDashboard.putNumber("climb state", GetCurrentState());
+        SmartDashboard.putNumber("climb timer", climbTimer.get());
         if(XboxController.GetButtonB()) { //stop button pressed
             runClimbStateMachine=false;
         }
@@ -255,7 +258,7 @@ public class Climb2 extends JankyStateMachine{
                     resetForClimb();
                 }
                 //--- JOYSTICK UP ---//
-                climbYAxisUp = XboxController.GetLeftYAxis() > 0.2;
+                climbYAxisUp = XboxController.GetRightYAxis() > 0.2;
                 if (climbYAxisUp && !climbYAxisWasUp) { 
                     //raise winch string
                     raiseWinchString();
@@ -266,7 +269,7 @@ public class Climb2 extends JankyStateMachine{
                 }
                 
                 //--- JOYSTICK DOWN ---// 
-                climbYAxisDown = XboxController.GetLeftYAxis() < -0.2;
+                climbYAxisDown = XboxController.GetRightYAxis() < -0.2;
                 if (climbYAxisDown && !climbYAxisWasDown) { 
                     //lower winch string
                     lowerWinchString();
@@ -295,7 +298,11 @@ public class Climb2 extends JankyStateMachine{
                  }
 
                 if (XboxController.GetButtonY()){
-                    runClimbStateMachine=true;
+                    runClimbStateMachine=true; 
+                }
+
+                if (XboxController.GetButtonB()){
+                    NewState(IDLE, "stop button pressed in ready to climb");
                 }
                 
                 if (runClimbStateMachine){
@@ -334,6 +341,8 @@ public class Climb2 extends JankyStateMachine{
             case WINCH_UP:
                 if (onStateEntered){
                     resetWinchEncoders(); //change to PID and current instead of encoders?
+                    climbTimer.start();
+                    climbTimer.reset();
                 }
                 raiseWinchString();
 
@@ -342,38 +351,54 @@ public class Climb2 extends JankyStateMachine{
                     stopWinchString();
                     NewState(WINCH_DOWN,"no longer going to winch up");
                 }
-                if (getAvgWinchEncoderDistance()>=WINCH_UP_DISTANCE||testing){
+                else if (getAvgWinchEncoderDistance()>=WINCH_UP_DISTANCE&&!testing){
                     stopWinchString();
                     NewState(RELEASE,"reached full winch distance");
                 }
+                else if(testing && climbTimer.get()>=LATCH_TIME){
+                    stopWinchString();
+                    NewState(RELEASE,"reached full winch distance");
+                }
+                
                 break;
 
             case WINCH_DOWN:
-                lowerWinchString();
-                if (!runClimbStateMachine) {
-                    stopWinchString();
-                    NewState(UNLATCH_MID_BAR_TO_EXIT,"done winching down");
+                if(onStateEntered){
+                    climbTimer.reset();
+                    climbTimer.start();
                 }
-                if (getAvgWinchEncoderDistance() == WINCH_ENCODER_DOWN || testing){
+                lowerWinchString();
+                if (getAvgWinchEncoderDistance() == WINCH_ENCODER_DOWN && !testing){
                     stopWinchString();
-                    NewState(RELEASE,"reached full winch distance");
+                    NewState(UNLATCH_MID_BAR_TO_EXIT,"reached full winch down distance");
+                }
+                if(testing && climbTimer.get()>=LATCH_TIME){
+                    stopWinchString();
+                    NewState(UNLATCH_MID_BAR_TO_EXIT,"reached full winch down distance");
                 }
                 break;
 
             case RELEASE:
-                if (onStateEntered){
+                if(onStateEntered){
                     climbTimer.reset();
                     climbTimer.start();
                 }
                 releaseWinchString();
                 if (!runClimbStateMachine) {
+                    stopWinchString();
                     NewState(DO_NOTHING,"stopping sequence");
                 }
-                if (getWinchStatorCurrent() < HOOKED_ON_CURRENT|| testing){
-                    climbTimer.stop();
+                if (getWinchStatorCurrent() < HOOKED_ON_CURRENT && !testing){
+                    stopWinchString();
                     NewState(UNLATCH_MID_BAR," current is < hooked on current");
                 }
-                if (getAvgWinchEncoderDistance()< TOO_FAR_DOWN){
+                if(testing && climbTimer.get()>=LATCH_TIME){
+                    stopWinchString();
+                    NewState(UNLATCH_MID_BAR," current is < hooked on current");
+                }
+                //if (getAvgWinchEncoderDistance()< TOO_FAR_DOWN){
+                if(XboxController.GetButtonStart()){
+                    stopWinchString();
                     NewState(WINCH_UP," distance is too far down");
                 }
                 break;
@@ -404,14 +429,12 @@ public class Climb2 extends JankyStateMachine{
                     stopWinchString();
                     NewState(DO_NOTHING,"stopping sequence");
                 }
-                if (getAvgWinchEncoderDistance()>=WINCH_FINAL_DISTANCE){
+                //if (getAvgWinchEncoderDistance()>=WINCH_FINAL_DISTANCE){
+                if (XboxController.GetButtonStart()){
                     climbTimer.stop();
                     stopWinchString();
                     NewState(DO_NOTHING,"slightly pulling up winch finished");
                 }
-                if(climbTimer.get()>=2){ //to test state machine
-                    NewState(DO_NOTHING,"final winch timer if finished");//to test state machine
-                }//to test state machine
                 break;
 
             case DO_NOTHING:
