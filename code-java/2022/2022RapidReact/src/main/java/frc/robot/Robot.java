@@ -126,7 +126,7 @@ public class Robot extends TimedRobot {
     }*/
     //making an if statement for if button pressed vision driving (for shooting)
     if (m_arcadeJoystickP1.getRawButton(4)&& m_LimelightHasValidTarget){ 
-      m_myRobot.tankDrive(-limeLight.getDistance()+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
+      m_myRobot.tankDrive(-pidDistance.calculate(limeLight.getDistance(), 100)+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
     } else {
         switch (m_DriveSelected) {
           case kArcadeDrive:
@@ -143,7 +143,7 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP2.getY());
             SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP2.getX());
             //make a drive straight button
-            //System.out.println("Curvature Drive");
+            //System.out.println("Curvature Drive"); Hello
             break;  
           case kSteeringWheel:
             double rSpeed = m_arcadeJoystickP1.getRawAxis(0);//10% works DON'T CHANGE
