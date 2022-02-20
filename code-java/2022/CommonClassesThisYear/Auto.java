@@ -26,6 +26,7 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 
@@ -39,11 +40,12 @@ public class Auto extends SequentialCommandGroup{
 
     //int caseNum = 0;
     //boolean isFinishedDriving = false;
-    WPI_TalonSRX frmotor;
-    WPI_TalonSRX rlmotor;
+    TalonFX frmotor;
+    TalonFX rlmotor;
     DifferentialDrive m_myRobot;
     Timer delayTimer = new Timer();
     Timer drivingTimer = new Timer();
+    boolean hasShot = false;
 
     public static int delay;
     public static int autoPathFinal;
@@ -65,7 +67,7 @@ public class Auto extends SequentialCommandGroup{
     }
 
 
-    public Auto(WPI_TalonSRX _frmotor, WPI_TalonSRX _rlmotor, DifferentialDrive _m_myRobot, int _delay) {
+    public Auto(TalonFX _frmotor, TalonFX _rlmotor, DifferentialDrive _m_myRobot, int _delay) {
         this.frmotor = _frmotor;
         this.rlmotor = _rlmotor;
         this.m_myRobot = _m_myRobot;
@@ -73,7 +75,7 @@ public class Auto extends SequentialCommandGroup{
         Auto.delay = _delay;
     }
 
-    public Auto(WPI_TalonSRX _frmotor, WPI_TalonSRX _rlmotor, DifferentialDrive _m_myRobot){
+    public Auto(TalonFX _frmotor, TalonFX _rlmotor, DifferentialDrive _m_myRobot){
         this.frmotor = _frmotor;
         this.rlmotor = _rlmotor;
         this.m_myRobot = _m_myRobot;
@@ -104,18 +106,18 @@ public class Auto extends SequentialCommandGroup{
         delayTimer.reset();
     }
 
-    public void  resetEncoders() {
-        rlmotor.getSensorCollection().setQuadraturePosition(0,10);
-        frmotor.getSensorCollection().setQuadraturePosition(0,10);
-    } 
+    // public void  resetEncoders() {
+    //     rlmotor.getSensorCollection().setQuadraturePosition(0,10);
+    //     frmotor.getSensorCollection().setQuadraturePosition(0,10);
+    // } 
 
-    public int getRightEncoder(WPI_TalonSRX frmotor) {
-        return frmotor.getSensorCollection().getQuadraturePosition();
-    }
+    // public int getRightEncoder(WPI_TalonSRX frmotor) {
+    //     return frmotor.getSensorCollection().getQuadraturePosition();
+    // }
     
-    public int getLeftEncoder(WPI_TalonSRX rlmotor) {
-        return rlmotor.getSensorCollection().getQuadraturePosition();
-    }
+    // public int getLeftEncoder(WPI_TalonSRX rlmotor) {
+    //     return rlmotor.getSensorCollection().getQuadraturePosition();
+    // }
 
 
 
@@ -144,30 +146,63 @@ public class Auto extends SequentialCommandGroup{
         // }
 
         //SmartDashboard.putNumber("Driving Time", endTime);
+                // startDelayTimer();
+                // if (delayTimer.get() <=delay) {
+                //     standardDrive(0);
+                //     //test without delayTimer.get() >= delay and see if order works
+                // } else if (delayTimer.get() >= delay && delayTimer.get() <= delay+ standardFirstDrivingTime) {
+                //     standardDrive(0.4);
+                //     //test without delayTimer.get() >=  delay+ standardFirstDrivingTime and see if order works --> switch to else
+                // } else if (delayTimer.get() >=  delay+ standardFirstDrivingTime) {
+                //     int desiredAngle = 150;
+                //     if (desiredAngle - m_gyro.getAngle() >= 0) {
+                //         standardTurn(0.6);
+                //     //check if rotation is finished
+                //     } else if (m_gyro.getAngle() > 160) {
+                //         //moving to tarmac
+                //         if (delayTimer.get() <= delay + standardSecondDrivingTime) {
+                //             standardDrive(0.4);
+                //         } else {
+                //             standardDrive(0);
+                //         }
+                //     } else {
+                //         standardDrive(0);
+                //         System.out.println("I have reached the second failsafe");
+                //     }
+                // }
+
+
                 startDelayTimer();
                 if (delayTimer.get() <=delay) {
                     standardDrive(0);
+                    System.out.println("I am in delay");
                     //test without delayTimer.get() >= delay and see if order works
-                } else if (delayTimer.get() >= delay && delayTimer.get() <= delay+ standardFirstDrivingTime) {
-                    standardDrive(0.6);
+                } else if (delayTimer.get() <= delay+ standardFirstDrivingTime) {
+                    standardDrive(0.4);
+                    System.out.println("Intake is running");
                     //test without delayTimer.get() >=  delay+ standardFirstDrivingTime and see if order works --> switch to else
-                } else if (delayTimer.get() >=  delay+ standardFirstDrivingTime) {
-                    int desiredAngle = 165;
+                
+                } else {
+                    int desiredAngle = 150;
                     if (desiredAngle - m_gyro.getAngle() >= 0) {
-                        standardTurn(0.7);
+                        standardTurn(0.6);
+                        System.out.println("Stop intake");
                     //check if rotation is finished
-                    } else if (m_gyro.getAngle() > 165) {
+                     } else {
                         //moving to tarmac
                         if (delayTimer.get() <= delay + standardSecondDrivingTime) {
-                            standardDrive(0.7);
+                            standardDrive(0.4);
+                            System.out.println("Moving back to tarmac");
                         } else {
                             standardDrive(0);
+                            if (hasShot == false) {
+                                System.out.println("Shoot1");
+                                hasShot = true;
+                            }
                         }
-                    } else {
-                        standardDrive(0);
-                        System.out.println("I have reached the second failsafe");
                     }
                 }
+
             
     }
 
@@ -181,9 +216,9 @@ public class Auto extends SequentialCommandGroup{
 
                 startDelayTimer();
                 if (delayTimer.get() >= delay && delayTimer.get() <= delay+4) {
-                    m_myRobot.tankDrive(0.6,-0.6);
+                    standardDrive(0.4);
                 } else if (delayTimer.get() <= delay) {
-                    m_myRobot.tankDrive(0, 0);
+                    standardDrive(0);
                 } 
 
         SmartDashboard.putString("is simple running", "yes");
@@ -192,14 +227,11 @@ public class Auto extends SequentialCommandGroup{
 
     public void autoTurn180(DifferentialDrive m_myRobot, ADIS16470_IMU m_gyro){
         System.out.println("I am turning");
-        int desiredAngle = 165;
-    if (desiredAngle - m_gyro.getAngle() >= 0) {
-      m_myRobot.tankDrive(-0.7, -0.7);
-    } else {
-      m_myRobot.tankDrive(0,0);
-    }
-
-
-
+        int desiredAngle = 170;
+        if (desiredAngle - m_gyro.getAngle() >= 0) {
+        m_myRobot.tankDrive(-0.5, -0.5);
+        } else {
+        m_myRobot.tankDrive(0,0);
+        }
     }
 }

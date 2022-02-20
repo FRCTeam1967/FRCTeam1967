@@ -6,7 +6,7 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.XboxController;
@@ -24,28 +24,30 @@ import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 
 import edu.wpi.first.wpilibj.AnalogGyro;
+import edu.wpi.first.wpilibj.motorcontrol.PWMTalonFX;
 
 
 public class Robot extends TimedRobot {
 
   //idk when we use this either
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  // private static final String kDefaultAuto = "Default";
+  // private static final String kCustomAuto = "My Auto";
+  // private String m_autoSelected;
+  // private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(0);
-  private MotorController m_leftFollower = new PWMVictorSPX(3);
-  private WPI_TalonSRX m_rightLeader = new WPI_TalonSRX(1);
-  private MotorController m_rightFollower = new PWMVictorSPX(4);
-  private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
-  private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
-  public DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+    private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);//m2
+    private WPI_TalonFX rlmotor = new WPI_TalonFX(3);//m3
+    private WPI_TalonFX frmotor = new WPI_TalonFX(1);//m1
+    private WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(0);//m0
+
+    private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, rlmotor);
+    private MotorControllerGroup m_right = new MotorControllerGroup(frmotor, m_rightFollower);
+    DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+    //DifferentialDrive m_myRobot = new DifferentialDrive(m_leftFollower,m_rightLeader);
+
   PIDController pidDistance = new PIDController(0.05, 0, 0);
   PIDController pidAngle = new PIDController(0.01, 0, 0);
 
-  WPI_TalonSRX rlmotor = new WPI_TalonSRX(0);
-  WPI_TalonSRX frmotor = new WPI_TalonSRX(1);
 
   
 
@@ -68,18 +70,19 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
+    selector.DisplayAutoOptions();
+    pathSelector.DisplayActualAutoOptions();
     //initializing the gyro --> 4 seconds don't touch the robot bc callibration.
     m_gyro = new ADIS16470_IMU();
     autoCaseNum = 0;
     m_gyro.reset();
     rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
     rlmotor.setSelectedSensorPosition(0, 0, 10);
-    rlmotor.getSensorCollection().setQuadraturePosition(0,10);
+    //rlmotor.getSensorCollection().setQuadraturePosition(0,10);
     frmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
     frmotor.setSelectedSensorPosition(0, 0, 10);
-    frmotor.getSensorCollection().setQuadraturePosition(0,10);
-    selector.DisplayAutoOptions();
-    pathSelector.DisplayActualAutoOptions();
+    //frmotor.getSensorCollection().setQuadraturePosition(0,10);
+    
     
 }
 
@@ -90,6 +93,9 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     
+    selector.DisplayAutoOptions();
+    pathSelector.DisplayActualAutoOptions();
+
     Auto.delay = selector.getAutoMode();
 
    //making the path selector
@@ -109,9 +115,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    
 //figuring out what the gyro angle
     SmartDashboard.putNumber("triaxis angle" , m_gyro.getAngle());
     SmartDashboard.putNumber("triaxis rate" , m_gyro.getRate());
+
     
 //which auto path we should run based on what is selected
     if (Auto.autoPathFinal == simplePath){
@@ -133,13 +141,14 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    
+    //m_myRobot.tankDrive(0.6, 0.6);
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-  
+    m_myRobot.tankDrive(0.6, -0.6);
+
   }
 
   /** This function is called once when the robot is disabled. */
