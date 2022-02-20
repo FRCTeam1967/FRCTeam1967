@@ -31,10 +31,6 @@ public class Robot extends TimedRobot {
   private final int PCM_CHANNEL = 0;
   private final int MID_LATCH_CHANNEL_L = 2;
   private final int MID_LATCH_CHANNEL_R = 3;
-  private final int HIGH_LATCH_CHANNEL_L = 4;
-  private final int HIGH_LATCH_CHANNEL_R = 5;
-  private final int PIVOT_HOOK_CHANNEL_L = 6;
-  private final int PIVOT_HOOK_CHANNEL_R = 7;
 
   //joystick variables
   /*
@@ -67,8 +63,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
 
     if (climbMech == null){
-      climbMech = new Climb2(WINCH_MOTOR_CHANNEL_L, WINCH_MOTOR_CHANNEL_R, PCM_CHANNEL, MID_LATCH_CHANNEL_L, MID_LATCH_CHANNEL_R, 
-      HIGH_LATCH_CHANNEL_L, HIGH_LATCH_CHANNEL_R, PIVOT_HOOK_CHANNEL_L, PIVOT_HOOK_CHANNEL_R);
+      climbMech = new Climb2(WINCH_MOTOR_CHANNEL_L, WINCH_MOTOR_CHANNEL_R, PCM_CHANNEL, MID_LATCH_CHANNEL_L, MID_LATCH_CHANNEL_R);
 
     }
     

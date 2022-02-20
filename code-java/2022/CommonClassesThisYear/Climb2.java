@@ -3,8 +3,12 @@
 package org.janksters.CommonClassesThisYear;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
+
+import javax.naming.ConfigurationException;
+
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX; //potential issue since it's not the one on WPILib
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.PS4Controller.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -16,13 +20,9 @@ public class Climb2 extends JankyStateMachine{
     
     private Solenoid midBarLatchL;
     private Solenoid midBarLatchR;
-    private Solenoid highBarLatchL;
-    private Solenoid highBarLatchR;
-
-    private Solenoid pivotHookSwingL;
-    private Solenoid pivotHookSwingR;
 
     private Timer climbTimer;
+    private Timer climbTestTimer;
 
     private jankyXboxJoystick XboxController;
 
@@ -31,27 +31,44 @@ public class Climb2 extends JankyStateMachine{
     private final double WINCH_MOTOR_STOP = 0.0;
     private final double WINCH_MOTOR_GENTLE = 0.1;
     private final double PULSES_PER_REVOLUTION = 2048; //2048 for falcon integrated, 4096 for MAG
-    private final double LATCH_TIME = 7.0; //check value - in seconds
-    private final double HOOK_TIME = 1.0; //check value - in seconds
+    private final double LATCH_TIME = 1.0; //check value - in seconds
+    private final double TESTING_TIME = 7.0;
     private final double WINCH_UP_DISTANCE = 28; //in inches
     private final int WINCH_FINAL_DISTANCE = 2; //in inches
-    private final int kTimeoutMs = 1;
     private final double WINCH_ENCODER_DIFFERENCE = 2000;
     private final double WINCH_ENCODER_DOWN = 1000;
     private final double HOOKED_ON_CURRENT = 1;
     private final double TOO_FAR_DOWN = 26;
+    private final double POS_FACTOR = 10;
+    private final double GEAR_RATIO = 34/66;  //motor to winch
+
+    //pid
+    private final int kTimeoutMs = 1;
+    private final int kPIDLoopIdx = 0;
+
+    private final double winchDownKP = 0.15;
+    private final double winchDownKI = 0.0;
+    private final double winchDownKD = 1.0;
+    private final double winchDownKF = 0.0;
+
+    private final double manualWinchKP = 0.15;
+    private final double manualWinchKI = 0.0;
+    private final double manualWinchKD = 1.0;
+    private final double manualWinchKF = 0.0;
 
     //states
     private final int IDLE = 0; //keep bar down
-    private final int READY_TO_CLIMB = 1;
-    private final int LATCH_MID_BAR = 2;
-    private final int WINCH_UP = 3;
-    private final int RELEASE = 4;
-    private final int UNLATCH_MID_BAR = 5; 
-    private final int WINCH_FINAL = 6;
-    private final int WINCH_DOWN = 7;
-    private final int UNLATCH_MID_BAR_TO_EXIT = 8;
-    private final int DO_NOTHING = 9;
+    private final int LIFTER_DOWN = 1;
+    private final int READY_TO_CLIMB = 2;
+    private final int LATCH_MID_BAR = 3;
+    private final int WINCH_UP = 4;
+    private final int RELEASE = 5;
+    private final int MANUAL_WINCH = 6;
+    private final int UNLATCH_MID_BAR = 7; 
+    private final int WINCH_FINAL = 8;
+    private final int WINCH_DOWN = 9;
+    private final int UNLATCH_MID_BAR_TO_EXIT = 10;
+    private final int DO_NOTHING = 11;
 
     boolean climbYAxisUp;
     boolean climbYAxisWasUp = false;
@@ -68,26 +85,20 @@ public class Climb2 extends JankyStateMachine{
     boolean startButtonPressed;
     boolean startButtonWasPressed = false;
 
-    boolean runClimbStateMachine = false; //note: this variable is useful if xbox is in robot.java, 
-                                          //but not as useful when controls is inside state machine
+    boolean runClimbStateMachine = false; 
 
     boolean testing = true;
+    double targetPositionRotations = 0; 
     
     public Climb2(int winchMotorChannelL, int winchMotorChannelR,
-    int PCMChannel, int midLatchChannelL, int midLatchChannelR,
-    int highLatchChannelL, int highLatchChannelR,
-    int pivotHookChannelL, int pivotHookChannelR){
+    int PCMChannel, int midLatchChannelL, int midLatchChannelR){
         winchMotorL = new WPI_TalonFX(winchMotorChannelL);
         winchMotorR = new WPI_TalonFX(winchMotorChannelR);
 
         midBarLatchL = new Solenoid(PCMChannel, PneumaticsModuleType.CTREPCM, midLatchChannelL);
         midBarLatchR = new Solenoid(PCMChannel, PneumaticsModuleType.CTREPCM, midLatchChannelR);
-        highBarLatchL = new Solenoid(PCMChannel, PneumaticsModuleType.CTREPCM, highLatchChannelL);
-        highBarLatchR = new Solenoid(PCMChannel, PneumaticsModuleType.CTREPCM, highLatchChannelR);
-
-        pivotHookSwingL = new Solenoid(PCMChannel, PneumaticsModuleType.CTREPCM, pivotHookChannelL);
-        pivotHookSwingR = new Solenoid(PCMChannel, PneumaticsModuleType.CTREPCM, pivotHookChannelR);
         climbTimer = new Timer();
+        climbTestTimer = new Timer();
 
         XboxController= new jankyXboxJoystick(2);
 
@@ -95,10 +106,12 @@ public class Climb2 extends JankyStateMachine{
 
         SetMachineName("JankyStateMachineClimb");
         SetName(IDLE,"Idle");
+        SetName(LIFTER_DOWN, "LifterDown");
         SetName(READY_TO_CLIMB, "ReadyToClimb");
         SetName(LATCH_MID_BAR,"LatchMidBar");
         SetName(WINCH_UP,"WinchUp");
         SetName(RELEASE,"Release");
+        SetName(MANUAL_WINCH, "ManualWinch");
         SetName(UNLATCH_MID_BAR,"UnlatchMidBar");
         SetName(WINCH_FINAL,"WinchFinal");
         SetName(WINCH_DOWN,"WinchDown");
@@ -156,34 +169,58 @@ public class Climb2 extends JankyStateMachine{
         midBarLatchR.set(false);
     }
 
-    private void latchHighBar(){
-        highBarLatchL.set(true);
-        highBarLatchR.set(true);
-    }
-
-    private void unlatchHighBar(){
-        highBarLatchL.set(false);
-        highBarLatchR.set(false);
-    }
-
-    private void hookPivotDown(){
-        pivotHookSwingL.set(true);
-        pivotHookSwingR.set(true);
-    }
-
-    private void hookPivotUp(){
-        pivotHookSwingL.set(false);
-        pivotHookSwingR.set(false);
-    }
-
     private void setUpWinchEncoder(){
+        /* left setup */
         winchMotorL.configFactoryDefault();
-        winchMotorL.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, kTimeoutMs);
+        winchMotorL.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
         winchMotorL.setSensorPhase(true);
+        winchMotorL.setInverted(false);
 
+        /* right setup */
         winchMotorR.configFactoryDefault();
-        winchMotorR.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, 0, kTimeoutMs);
+        winchMotorR.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, kPIDLoopIdx, kTimeoutMs);
         winchMotorR.setSensorPhase(true);
+        winchMotorR.setInverted(false); //to check
+
+        /* left min/max */
+        winchMotorL.configNominalOutputForward(0, kTimeoutMs);
+        winchMotorL.configNominalOutputReverse(0, kTimeoutMs);
+        winchMotorL.configPeakOutputForward(1, kTimeoutMs);
+		winchMotorL.configPeakOutputReverse(-1, kTimeoutMs);
+        
+        /* right min/max */
+        winchMotorR.configNominalOutputForward(0, kTimeoutMs);
+        winchMotorR.configNominalOutputReverse(0, kTimeoutMs);
+        winchMotorR.configPeakOutputForward(1, kTimeoutMs);
+		winchMotorR.configPeakOutputReverse(-1, kTimeoutMs);
+        
+        /* allowable error */
+        winchMotorL.configAllowableClosedloopError(0, kPIDLoopIdx, kTimeoutMs);
+        winchMotorR.configAllowableClosedloopError(0, kPIDLoopIdx, kTimeoutMs);
+
+        /* left PID config */
+        winchMotorL.config_kF(kPIDLoopIdx, winchDownKF, kTimeoutMs);
+		winchMotorL.config_kP(kPIDLoopIdx, winchDownKP, kTimeoutMs);
+		winchMotorL.config_kI(kPIDLoopIdx, winchDownKI, kTimeoutMs);
+		winchMotorL.config_kD(kPIDLoopIdx, winchDownKD, kTimeoutMs);
+
+        /* right PID config */
+        winchMotorR.config_kF(kPIDLoopIdx, winchDownKF, kTimeoutMs);
+		winchMotorR.config_kP(kPIDLoopIdx, winchDownKP, kTimeoutMs);
+		winchMotorR.config_kI(kPIDLoopIdx, winchDownKI, kTimeoutMs);
+		winchMotorR.config_kD(kPIDLoopIdx, winchDownKD, kTimeoutMs);
+    }
+
+    private void configurePIDForManualClimb(){
+        winchMotorL.config_kF(kPIDLoopIdx, manualWinchKF, kTimeoutMs);
+		winchMotorL.config_kP(kPIDLoopIdx, manualWinchKD, kTimeoutMs);
+		winchMotorL.config_kI(kPIDLoopIdx, manualWinchKI, kTimeoutMs);
+		winchMotorL.config_kD(kPIDLoopIdx, manualWinchKD, kTimeoutMs);
+
+        winchMotorR.config_kF(kPIDLoopIdx, manualWinchKF, kTimeoutMs);
+		winchMotorR.config_kP(kPIDLoopIdx, manualWinchKP, kTimeoutMs);
+		winchMotorR.config_kI(kPIDLoopIdx, manualWinchKI, kTimeoutMs);
+		winchMotorR.config_kD(kPIDLoopIdx, manualWinchKD, kTimeoutMs);
     }
 
     private double getWinchEncoderCountL(){
@@ -211,7 +248,11 @@ public class Climb2 extends JankyStateMachine{
     }
 
     private double getAvgWinchEncoderDistance(){ //in inches
-        return getAvgWinchEncoderCount() * (PULSES_PER_REVOLUTION); //to do: figure out distance per revolution, gear ratio
+        return getAvgWinchEncoderCount() * GEAR_RATIO / (PULSES_PER_REVOLUTION); //to do: figure out distance per revolution
+    }
+
+    private double winchDistanceToEncoderCount(double distance){ //in inches
+        return distance / GEAR_RATIO * (PULSES_PER_REVOLUTION); //to do: figure out distance per revolution
     }
 
     public void startClimbStateMachine() {
@@ -223,14 +264,14 @@ public class Climb2 extends JankyStateMachine{
     }
 
     public void resetForClimb(){
-        hookPivotDown();
         unlatchMidBar();
-        unlatchHighBar();
         stopWinchString();
     }
 
     private void keepArmDown(){
-        //to do
+        targetPositionRotations = 0;
+        winchMotorL.set(TalonFXControlMode.Position, targetPositionRotations);
+        winchMotorR.set(TalonFXControlMode.Position, targetPositionRotations);
     }
 
     private double getWinchStatorCurrent(){
@@ -242,6 +283,9 @@ public class Climb2 extends JankyStateMachine{
     public void StateEngine(int curState, boolean onStateEntered){
         SmartDashboard.putNumber("climb state", GetCurrentState());
         SmartDashboard.putNumber("climb timer", climbTimer.get());
+        SmartDashboard.putNumber("climb test timer", climbTestTimer.get());
+        SmartDashboard.putNumber("climb encoder position", getAvgWinchEncoderDistance());
+        
         if(XboxController.GetButtonB()) { //stop button pressed
             runClimbStateMachine=false;
         }
@@ -249,15 +293,32 @@ public class Climb2 extends JankyStateMachine{
             case IDLE:
                 keepArmDown();
                 if (XboxController.GetRightStickButton()){
-                    NewState(READY_TO_CLIMB, "right stick button was pressed");
+                    NewState(LIFTER_DOWN, "right stick button was pressed");
                 }
                 break;
 
+            case LIFTER_DOWN:
+                if(onStateEntered){
+                    climbTestTimer.reset();
+                    climbTestTimer.start();
+                }
+                //bring intake shooter down
+                //if(intake is down && !testing){
+                //NewState(READY_TO_CLIMB, "lifter is down");
+                //}
+                if(testing && climbTestTimer.get()>=TESTING_TIME){
+                    NewState(READY_TO_CLIMB, "lifter is down");
+                }
+                if (XboxController.GetButtonB()){
+                    NewState(IDLE, "stop button pressed");
+                }
+                break;
+                
             case READY_TO_CLIMB:
                 if (onStateEntered){
                     resetForClimb();
                 }
-                //--- JOYSTICK UP ---//
+                /*** joystick up ***/
                 climbYAxisUp = XboxController.GetRightYAxis() > 0.2;
                 if (climbYAxisUp && !climbYAxisWasUp) { 
                     //raise winch string
@@ -268,7 +329,7 @@ public class Climb2 extends JankyStateMachine{
                     climbYAxisWasUp = false;
                 }
                 
-                //--- JOYSTICK DOWN ---// 
+                /*** joystick down ***/
                 climbYAxisDown = XboxController.GetRightYAxis() < -0.2;
                 if (climbYAxisDown && !climbYAxisWasDown) { 
                     //lower winch string
@@ -279,7 +340,7 @@ public class Climb2 extends JankyStateMachine{
                     climbYAxisWasDown = false;
                 }  
 
-                 //--- MID LATCH ---//
+                 /*** mid latch ***/
                  xButtonPressed = XboxController.GetButtonX();
                  if (xButtonPressed && !xButtonWasPressed) {
                      latchMidBar();
@@ -288,16 +349,16 @@ public class Climb2 extends JankyStateMachine{
                      xButtonWasPressed = false;
                  }
  
-                 //--- MID UNLATCH ---//
-                 bButtonPressed = XboxController.GetButtonB();
-                 if (bButtonPressed && !bButtonWasPressed) {
+                 /*** mid unlatch ***/
+                 yButtonPressed = XboxController.GetButtonY();
+                 if (yButtonPressed && !yButtonWasPressed) {
                      latchMidBar();
-                     bButtonWasPressed = true;
-                 } else if (!bButtonPressed && bButtonWasPressed) {
-                     bButtonWasPressed = false;
+                     yButtonWasPressed = true;
+                 } else if (!yButtonPressed && yButtonWasPressed) {
+                     yButtonWasPressed = false;
                  }
 
-                if (XboxController.GetButtonY()){
+                if (XboxController.GetButtonA()){
                     runClimbStateMachine=true; 
                 }
 
@@ -341,47 +402,56 @@ public class Climb2 extends JankyStateMachine{
             case WINCH_UP:
                 if (onStateEntered){
                     resetWinchEncoders(); //change to PID and current instead of encoders?
-                    climbTimer.start();
-                    climbTimer.reset();
+                    climbTestTimer.reset();
+                    climbTestTimer.start();
                 }
-                raiseWinchString();
-
-                //stop button pressed
-                if (!runClimbStateMachine) {
+                raiseWinchString();                
+                if (!runClimbStateMachine) { //stop button pressed
                     stopWinchString();
                     NewState(WINCH_DOWN,"no longer going to winch up");
                 }
-                else if (getAvgWinchEncoderDistance()>=WINCH_UP_DISTANCE&&!testing){
+                if (getAvgWinchEncoderDistance()>=WINCH_UP_DISTANCE&&!testing){
+                    stopWinchString();
+                    NewState(RELEASE,"reached full winch distance");
+                } else if(testing && climbTestTimer.get()>=TESTING_TIME){
                     stopWinchString();
                     NewState(RELEASE,"reached full winch distance");
                 }
-                else if(testing && climbTimer.get()>=LATCH_TIME){
-                    stopWinchString();
-                    NewState(RELEASE,"reached full winch distance");
+                if(XboxController.GetButtonX()){
+                    //use PID to hold it at this position
+                    targetPositionRotations = getAvgWinchEncoderCount();
+                    winchMotorL.set(TalonFXControlMode.Position, targetPositionRotations);
+                    winchMotorR.set(TalonFXControlMode.Position, targetPositionRotations);
+
+                    NewState(MANUAL_WINCH,"decided to move to manual");
                 }
-                
+
+                if(XboxController.GetButtonX()){
+
+                }
+    
                 break;
 
             case WINCH_DOWN:
                 if(onStateEntered){
-                    climbTimer.reset();
-                    climbTimer.start();
+                    climbTestTimer.reset();
+                    climbTestTimer.start();
                 }
                 lowerWinchString();
                 if (getAvgWinchEncoderDistance() == WINCH_ENCODER_DOWN && !testing){
                     stopWinchString();
                     NewState(UNLATCH_MID_BAR_TO_EXIT,"reached full winch down distance");
-                }
-                if(testing && climbTimer.get()>=LATCH_TIME){
+                } else if(testing && climbTestTimer.get()>=TESTING_TIME){
                     stopWinchString();
                     NewState(UNLATCH_MID_BAR_TO_EXIT,"reached full winch down distance");
                 }
+
                 break;
 
             case RELEASE:
                 if(onStateEntered){
-                    climbTimer.reset();
-                    climbTimer.start();
+                    climbTestTimer.reset();
+                    climbTestTimer.start();
                 }
                 releaseWinchString();
                 if (!runClimbStateMachine) {
@@ -391,15 +461,48 @@ public class Climb2 extends JankyStateMachine{
                 if (getWinchStatorCurrent() < HOOKED_ON_CURRENT && !testing){
                     stopWinchString();
                     NewState(UNLATCH_MID_BAR," current is < hooked on current");
-                }
-                if(testing && climbTimer.get()>=LATCH_TIME){
+                } else if(testing && climbTestTimer.get()>=TESTING_TIME){
                     stopWinchString();
                     NewState(UNLATCH_MID_BAR," current is < hooked on current");
                 }
-                //if (getAvgWinchEncoderDistance()< TOO_FAR_DOWN){
-                if(XboxController.GetButtonStart()){
+                if (getAvgWinchEncoderDistance()< TOO_FAR_DOWN && !testing){
                     stopWinchString();
                     NewState(WINCH_UP," distance is too far down");
+                } else if(testing && XboxController.GetButtonStart()){ //just testing
+                    stopWinchString();
+                    NewState(WINCH_UP," pressed button start in testing");
+                }
+                if(XboxController.GetButtonX()){
+                    //keep at speed
+                    NewState(MANUAL_WINCH,"decided to move to manual");
+                }
+                break;
+
+            case MANUAL_WINCH:
+                if (onStateEntered){
+                    configurePIDForManualClimb();
+                    targetPositionRotations = getAvgWinchEncoderCount();
+                }
+                winchMotorL.set(TalonFXControlMode.Position, targetPositionRotations);
+                winchMotorR.set(TalonFXControlMode.Position, targetPositionRotations);
+
+                if(XboxController.GetRightYAxis()>= 0.2){
+                    double targetPositionChangeInches = XboxController.GetRightYAxis() * POS_FACTOR;
+                    targetPositionRotations += winchDistanceToEncoderCount(targetPositionChangeInches);
+                    //targetPositionRotations +=  * POS_FACTOR * PULSES_PER_REVOLUTION;
+                }
+                if(XboxController.GetRightYAxis()<= -0.2){
+                    double targetPositionChangeInches = XboxController.GetRightYAxis() * POS_FACTOR; //inches?
+                    targetPositionRotations += winchDistanceToEncoderCount(targetPositionChangeInches);
+                    //targetPositionRotations += XboxController.GetRightYAxis() * POS_FACTOR * PULSES_PER_REVOLUTION;
+                }
+                //manual cotrol with PID
+                if(XboxController.GetButtonY()){
+                    NewState(UNLATCH_MID_BAR, "done with manual winch");
+                }
+
+                if(!runClimbStateMachine){
+                    NewState(WINCH_DOWN, "stopping climb state machine");
                 }
                 break;
 
@@ -420,18 +523,19 @@ public class Climb2 extends JankyStateMachine{
 
             case WINCH_FINAL:
                 if (onStateEntered){
-                    resetWinchEncoders(); //change to PID and current instead of encoders?
-                    climbTimer.reset(); //to test state machine
-                    climbTimer.start();
+                    resetWinchEncoders(); //change to current instead of encoders?
+                    climbTestTimer.reset();
+                    climbTestTimer.start();
                 }
                 raiseWinchString();
                 if (!runClimbStateMachine) {
                     stopWinchString();
                     NewState(DO_NOTHING,"stopping sequence");
                 }
-                //if (getAvgWinchEncoderDistance()>=WINCH_FINAL_DISTANCE){
-                if (XboxController.GetButtonStart()){
-                    climbTimer.stop();
+                if (getAvgWinchEncoderDistance()>=WINCH_FINAL_DISTANCE && !testing){
+                    stopWinchString();
+                    NewState(DO_NOTHING,"slightly pulling up winch finished");
+                } else if (testing && climbTestTimer.get()>=TESTING_TIME){
                     stopWinchString();
                     NewState(DO_NOTHING,"slightly pulling up winch finished");
                 }
