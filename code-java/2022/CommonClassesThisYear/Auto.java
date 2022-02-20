@@ -46,7 +46,7 @@ public class Auto extends SequentialCommandGroup{
     Timer delayTimer = new Timer();
     Timer drivingTimer = new Timer();
     boolean hasShot = false;
-
+    boolean armUp = false; 
     public static int delay;
     public static int autoPathFinal;
     boolean autoForwardIsFinished = false;
@@ -195,9 +195,13 @@ public class Auto extends SequentialCommandGroup{
                             System.out.println("Moving back to tarmac");
                         } else {
                             standardDrive(0);
-                            if (hasShot == false) {
-                                System.out.println("Shoot1");
-                                hasShot = true;
+                            System.out.println("Move arm up");
+                            //arm up --> checking the state
+                            if (armUp == true) {
+                                if (hasShot == false) {
+                                    System.out.println("Shoot1");
+                                    hasShot = true;
+                                }
                             }
                         }
                     }
