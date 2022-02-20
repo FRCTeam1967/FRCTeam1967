@@ -117,46 +117,24 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
-  
-  /*  if (m_arcadeJoystickP1.getRawButton(3)){// do seeking
-     m_myRobot.tankDrive(-0.3, 0.3);
-    }
-    else if (m_arcadeJoystickP2.getRawButton(3)){
-      m_myRobot.tankDrive(0.3, -0.3);
-    }*/
-    //making an if statement for if button pressed vision driving (for shooting)
-    if (m_arcadeJoystickP1.getRawButton(4)&& m_LimelightHasValidTarget){ 
-      m_myRobot.tankDrive(-pidDistance.calculate(limeLight.getDistance(), 100)+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
+    if (m_arcadeJoystickP1.getRawButton(4)&& limeLight.targetValid()){ 
+      //m_myRobot.tankDrive(-pidDistance.calculate(limeLight.getDistance(), 100)+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
+      SmartDashboard.putNumber("Distance to target:", limeLight.getDistance());
     } else {
         switch (m_DriveSelected) {
           case kArcadeDrive:
             double rotateSpeed = m_arcadeJoystickP1.getRawAxis(1);
             double moveSpeed = m_arcadeJoystickP1.getRawAxis(0);
-            m_myRobot.arcadeDrive(moveSpeed, -rotateSpeed); //- working arcade drive
-            //MOVE SPEED SHOULD BE + AND ROTATE SPEED SHOULD BE -
+            m_myRobot.arcadeDrive(moveSpeed, -rotateSpeed); // + move , - rot
             break;
           case kCurvatureDrive:
             // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
             m_myRobot.curvatureDrive(m_arcadeJoystickP1.getX(), -m_arcadeJoystickP1.getY(), !m_arcadeJoystickP1.getTrigger());//maybe take out negative?
-            SmartDashboard.putNumber("wheel Y-axis", m_arcadeJoystickP1.getY());
-            SmartDashboard.putNumber("wheel X-axis", m_arcadeJoystickP1.getX());
-            SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP2.getY());
-            SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP2.getX());
-            //make a drive straight button
-            //System.out.println("Curvature Drive"); Hello!
             break;  
           case kSteeringWheel:
             double rSpeed = m_arcadeJoystickP1.getRawAxis(0);//10% works DON'T CHANGE
             double mSpeed = m_arcadeJoystickP2.getRawAxis(1);
-            m_myRobot.arcadeDrive(rSpeed, -mSpeed); //- working arcade drive
-            //SmartDashboard.putNumber("Steering Wheel", m_arcadeJoystickP1.getY());
-            //SmartDashboard.putNumber("Joystick", m_arcadeJoystickP2.getY());
-            SmartDashboard.putNumber("wheel Y-axis", m_arcadeJoystickP1.getY());
-            SmartDashboard.putNumber("wheel X-axis", m_arcadeJoystickP1.getX());
-            SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP2.getY());
-            SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP2.getX());
-            //System.out.println("Steering Wheel");
-            //testing going on, robot turns when pushing the joystick
+            m_myRobot.arcadeDrive(rSpeed, -mSpeed); 
             break;
           default:
             speed = (m_arcadeJoystickP1.getY() + m_arcadeJoystickP2.getY()) / 2;
@@ -166,11 +144,8 @@ public class Robot extends TimedRobot {
               m_myRobot.tankDrive(-m_arcadeJoystickP1.getY(), m_arcadeJoystickP2.getY());
             }
             break;
-    
-        }
-       
+        } 
     } 
-        
   }
   /** This function is called once when the robot is disabled. */
   @Override

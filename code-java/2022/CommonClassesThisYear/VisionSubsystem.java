@@ -72,6 +72,7 @@ public class VisionSubsystem extends JankyTask{
         distance = 156.15637194655 - (36.746837632824 * Math.log(ta)); //Unit- centimeters 
         System.out.println("distance" + distance);
         return pidDistance.calculate(distance, 100); //Current distance, setpoint (desired distance from target)
+        //get rid of pidcontrol in Vision
     }
 
     public double getDistance(){
@@ -82,6 +83,9 @@ public class VisionSubsystem extends JankyTask{
     }
     public double xOffset(){
         return tx;
+    }
+    public boolean targetValid(){
+        return m_LimelightHasValidTarget;
     }
     
 }
