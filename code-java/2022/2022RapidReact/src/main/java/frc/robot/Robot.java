@@ -143,7 +143,7 @@ public class Robot extends TimedRobot {
             SmartDashboard.putNumber("Joystick Y-axis", m_arcadeJoystickP2.getY());
             SmartDashboard.putNumber("Joystick X-axis", m_arcadeJoystickP2.getX());
             //make a drive straight button
-            //System.out.println("Curvature Drive"); Hello
+            //System.out.println("Curvature Drive"); Hello!
             break;  
           case kSteeringWheel:
             double rSpeed = m_arcadeJoystickP1.getRawAxis(0);//10% works DON'T CHANGE
