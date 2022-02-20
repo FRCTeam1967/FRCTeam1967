@@ -62,7 +62,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends TimedRobot {
     /** Hardware */
 	WPI_TalonFX _talon = new WPI_TalonFX(1, "rio");
-	jankyXboxJoystick _joy = new jankyXboxJoystick(0);
+	jankyXboxJoystick _joy = new jankyXboxJoystick(2);
 	
     /** Used to create string thoughout loop */
 	StringBuilder _sb = new StringBuilder();

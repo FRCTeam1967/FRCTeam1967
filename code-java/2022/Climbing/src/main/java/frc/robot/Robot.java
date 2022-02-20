@@ -9,7 +9,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.janksters.CommonClassesThisYear.*;
-import org.janksters.jankyLib.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -26,8 +25,8 @@ public class Robot extends TimedRobot {
   //private jankyXboxJoystick XboxController;
 
   //all channel numbers - to edit
-  private final int WINCH_MOTOR_CHANNEL_L = 0;
-  private final int WINCH_MOTOR_CHANNEL_R = 0;
+  private final int WINCH_MOTOR_CHANNEL_L = 1;
+  private final int WINCH_MOTOR_CHANNEL_R = 2;
   private final int PCM_CHANNEL = 0;
   private final int MID_LATCH_CHANNEL_L = 2;
   private final int MID_LATCH_CHANNEL_R = 3;
@@ -49,8 +48,6 @@ public class Robot extends TimedRobot {
   boolean startButtonPressed;
   boolean startButtonWasPressed = false;
   */
-
-  
 
   /**
    * This function is run when the robot is first started up and should be used for any
