@@ -271,6 +271,7 @@ public class Robot extends TimedRobot {
       drive.tankDrive(avg, avg);
     }
 
+  
     //chassis encoder:
     SmartDashboard.putNumber("left Encoder teleop", rlmotor.getSensorCollection().getQuadraturePosition());
     SmartDashboard.putNumber("right Encoder teleop", frmotor.getSensorCollection().getQuadraturePosition());

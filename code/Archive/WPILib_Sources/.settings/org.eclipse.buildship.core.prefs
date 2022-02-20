@@ -1,3 +1,6 @@
+=\=\=\=\=\=\=
+<<<<<<<=Updated upstream
+>>>>>>>=Stashed changes
 arguments=
 auto.sync=false
 build.scans.enabled=false
@@ -5,7 +8,7 @@ connection.gradle.distribution=GRADLE_DISTRIBUTION(VERSION(7.1.1))
 connection.project.dir=
 eclipse.preferences.version=1
 gradle.user.home=
-java.home=/Users/joyceyang/wpilib/2022/jdk
+java.home=/Users/Kara/wpilib/2022/jdk
 jvm.arguments=
 offline.mode=false
 override.workspace.settings=true
