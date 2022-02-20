@@ -14,6 +14,10 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
+import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
+
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 
@@ -35,10 +39,10 @@ public class Robot extends TimedRobot {
 
 
   //Chassis in a Day - Lazlo
-    /*WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);
-    MotorController m_leftFollower = new PWMVictorSPX(3);
-    WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);
-    MotorController m_rightFollower = new PWMVictorSPX(0);*/
+    /*private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);
+    private PWMVictorSPX m_leftFollower = new PWMVictorSPX(3);
+    private WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);
+    private PWMVictorSPX m_rightFollower = new PWMVictorSPX(0);*/
 
   //2022 Janky
     private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);//m2
@@ -119,7 +123,6 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     if (m_arcadeJoystickP1.getRawButton(4)&& limeLight.targetValid()){ 
       //m_myRobot.tankDrive(-pidDistance.calculate(limeLight.getDistance(), 100)+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
-      SmartDashboard.putNumber("Distance to target:", limeLight.getDistance());
     } else {
         switch (m_DriveSelected) {
           case kArcadeDrive:

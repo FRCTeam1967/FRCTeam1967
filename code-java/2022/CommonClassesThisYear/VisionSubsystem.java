@@ -37,13 +37,13 @@ public class VisionSubsystem extends JankyTask{
         
         updateLimelightTracking();
 
-        distance = pidCalcDistance();
+        distance = pidCalcDistance(); //returns the power the robot needs to reach setpoint
         angle = pidCalcAngle();
 
         SmartDashboard.putBoolean("Limelight Has Valid Target", m_LimelightHasValidTarget);
         SmartDashboard.putNumber("Limelight Horizontal offset", tx);
         SmartDashboard.putNumber("Limelight Vertical offset ", ty);
-        SmartDashboard.putNumber("Limelight Distance ", distance);        
+        SmartDashboard.putNumber("Limelight Distance ", distance); 
     }
 
     private void updateLimelightTracking(){        
@@ -69,9 +69,9 @@ public class VisionSubsystem extends JankyTask{
 
     private double pidCalcDistance(){
         ta = table.getEntry("ta").getDouble(0);
-        distance = 156.15637194655 - (36.746837632824 * Math.log(ta)); //Unit- centimeters 
-        System.out.println("distance" + distance);
-        return pidDistance.calculate(distance, 100); //Current distance, setpoint (desired distance from target)
+        distance = 84.4 + (-46.9 * Math.log(ta)); //Unit - inches 
+        System.out.println("distance: " + distance);
+        return pidDistance.calculate(distance, 39.3701); //Current distance, setpoint (desired distance from target)
         //get rid of pidcontrol in Vision
     }
 
