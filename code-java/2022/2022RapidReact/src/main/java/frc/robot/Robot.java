@@ -61,6 +61,7 @@ public class Robot extends TimedRobot {
   VisionSubsystem limeLight = new VisionSubsystem();
 
   Shooter shooter = new Shooter();
+  Lifter lifter = new Lifter();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -123,6 +124,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
+    //LIFTER
+    lifter.displayCurrentState();
 
     //SHOOTER
     shooter.displayCurrentState();
