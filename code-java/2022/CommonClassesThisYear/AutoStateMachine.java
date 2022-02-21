@@ -123,8 +123,15 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
             case firstMove:
                 m_myRobot.tankDrive(0.4, -0.4);
+                System.out.println(inchesToEncoder(10));
+                System.out.println(getAverageEncoderValues());
+                if (inchesToEncoder(10) <= getAverageEncoderValues()) {
+                    m_myRobot.tankDrive(0, 0);
+                    NewState(turn, "reached average encoder for distance");
+                }
                 break;
             case turn:
+                //m_myRobot.tankDrive(0.4, 0.4);
                 System.out.println("Turn state entered");
                 break;
             case secondMove:
@@ -144,11 +151,11 @@ public class AutoStateMachine extends JankyStateMachine {
         return newEncoderValue;
     }
 
-    // public double getAverageEncoderValues() {
-    //     double frmotorEncoder = frmotor.getSensorCollection().getIntegratedSensorPosition();
-    //     double rlmotorEncoder = rlmotor.getSensorCollection().getIntegratedSensorPosition();
-    //     double motorEncoderAverage = (frmotorEncoder + rlmotorEncoder) / 2;
-    //     return motorEncoderAverage;
-    // }
+    public double getAverageEncoderValues() {
+        double frmotorEncoder = frmotor.getSensorCollection().getIntegratedSensorPosition();
+        double rlmotorEncoder = rlmotor.getSensorCollection().getIntegratedSensorPosition();
+        double motorEncoderAverage = (frmotorEncoder + rlmotorEncoder) / 2;
+        return motorEncoderAverage;
+    }
 }
 
