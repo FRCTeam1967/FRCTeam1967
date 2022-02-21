@@ -35,15 +35,15 @@ public class Robot extends TimedRobot {
   // private String m_autoSelected;
   // private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-    private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);//m2
-    private WPI_TalonFX rlmotor = new WPI_TalonFX(3);//m3
-    private WPI_TalonFX frmotor = new WPI_TalonFX(1);//m1
-    private WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(0);//m0
+    // private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);//m2
+    // private WPI_TalonFX rlmotor = new WPI_TalonFX(3);//m3
+    // private WPI_TalonFX frmotor = new WPI_TalonFX(1);//m1
+    // private WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(0);//m0
 
-    private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, rlmotor);
-    private MotorControllerGroup m_right = new MotorControllerGroup(frmotor, m_rightFollower);
-    DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
-    //DifferentialDrive m_myRobot = new DifferentialDrive(m_leftFollower,m_rightLeader);
+    // private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, rlmotor);
+    // private MotorControllerGroup m_right = new MotorControllerGroup(frmotor, m_rightFollower);
+    // DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
+    // //DifferentialDrive m_myRobot = new DifferentialDrive(m_leftFollower,m_rightLeader);
 
   PIDController pidDistance = new PIDController(0.05, 0, 0);
   PIDController pidAngle = new PIDController(0.01, 0, 0);
@@ -51,8 +51,9 @@ public class Robot extends TimedRobot {
 
   
 
-  Auto generalAuto = new Auto(frmotor, rlmotor, m_myRobot);
-  AutoSelector selector =  new AutoSelector();
+  //Auto generalAuto = new Auto(frmotor, rlmotor, m_myRobot);
+  AutoStateMachine autoSM;
+  //AutoSelector selector =  new AutoSelector();
   AutoSelector pathSelector = new AutoSelector();
 
   public ADIS16470_IMU m_gyro;
@@ -70,17 +71,17 @@ public class Robot extends TimedRobot {
 
   @Override
   public void robotInit() {
-    selector.DisplayAutoOptions();
+    //selector.DisplayAutoOptions();
     pathSelector.DisplayActualAutoOptions();
     //initializing the gyro --> 4 seconds don't touch the robot bc callibration.
     m_gyro = new ADIS16470_IMU();
     autoCaseNum = 0;
     m_gyro.reset();
-    rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
-    rlmotor.setSelectedSensorPosition(0, 0, 10);
+  //rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+    //rlmotor.setSelectedSensorPosition(0, 0, 10);
     //rlmotor.getSensorCollection().setQuadraturePosition(0,10);
-    frmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
-    frmotor.setSelectedSensorPosition(0, 0, 10);
+    //frmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+    //frmotor.setSelectedSensorPosition(0, 0, 10);
     //frmotor.getSensorCollection().setQuadraturePosition(0,10);
     
     
@@ -93,10 +94,11 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     
-    selector.DisplayAutoOptions();
-    pathSelector.DisplayActualAutoOptions();
+    //selector.DisplayAutoOptions();
+    //pathSelector.DisplayActualAutoOptions();
 
-    Auto.delay = selector.getAutoMode();
+    // selector.DisplayAutoOptions();
+    //AutoStateMachine.delay = selector.getAutoMode();
 
    //making the path selector
     Auto.autoPathFinal = pathSelector.getActualAutoMode();
@@ -104,12 +106,13 @@ public class Robot extends TimedRobot {
     //idk where we use this but we are keeping it just in case
     autoCaseNum = 0;
   
-    SmartDashboard.putNumber("initial auto delay: ", Auto.delay);
+    //smartDashboard.putNumber("initial auto delay: ", Auto.delay);
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
     //making sure delay timer = 0
-    generalAuto.resetDelayTimer();
-    m_gyro.reset();
-    
+    //autoSM.resetDelayTimer();
+    //m_gyro.reset();
+
+    autoSM = new AutoStateMachine();
   }
 
   /** This function is called periodically during autonomous. */
@@ -117,26 +120,29 @@ public class Robot extends TimedRobot {
   public void autonomousPeriodic() {
     
 //figuring out what the gyro angle
-    SmartDashboard.putNumber("triaxis angle" , m_gyro.getAngle());
-    SmartDashboard.putNumber("triaxis rate" , m_gyro.getRate());
+    //SmartDashboard.putNumber("triaxis angle" , m_gyro.getAngle());
+   // SmartDashboard.putNumber("triaxis rate" , m_gyro.getRate());
+    autoSM.displayCurrentState();
 
     
 //which auto path we should run based on what is selected
-    if (Auto.autoPathFinal == simplePath){
-      //just moving forward
-      generalAuto.AutoSequenceSimple(m_myRobot,  selector.getAutoMode(), m_gyro, 0);
-    }
-    else if (Auto.autoPathFinal == standardPath){
-      //moving forward, getting ball, moving back, shooting
-      generalAuto.AutoSequenceStandard(m_myRobot,  selector.getAutoMode(), m_gyro, 0);
-    }else if (Auto.autoPathFinal == turnPath){
-      //just for testing purposes, turning
-      generalAuto.autoTurn180(m_myRobot, m_gyro);
-    } else{
-      m_myRobot.tankDrive(0, 0);
-    }
+    // if (Auto.autoPathFinal == simplePath){
+    //   //just moving forward
+    //   generalAuto.AutoSequenceSimple(m_myRobot,  selector.getAutoMode(), m_gyro, 0);
+    // }
+    // else if (Auto.autoPathFinal == standardPath){
+    //   //moving forward, getting ball, moving back, shooting
+    //   generalAuto.AutoSequenceStandard(m_myRobot,  selector.getAutoMode(), m_gyro, 0);
+    // }else if (Auto.autoPathFinal == turnPath){
+    //   //just for testing purposes, turning
+    //   generalAuto.autoTurn180(m_myRobot, m_gyro);
+    // } else{
+    //   m_myRobot.tankDrive(0, 0);
+    // }
 
-  }
+    
+
+   } 
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -147,7 +153,7 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    m_myRobot.tankDrive(0.6, -0.6);
+    //m_myRobot.tankDrive(0.6, -0.6);
 
   }
 
