@@ -5,7 +5,8 @@ public class Constants {
     public static final double WINCH_MOTOR_SPEED = 0.3;
     public static final double WINCH_MOTOR_STOP = 0.0;
     public static final double WINCH_MOTOR_GENTLE = 0.1;
-    public static final double PULSES_PER_REVOLUTION = 2048; //2048 for falcon integrated, 4096 for MAG
+    public static final double PULSES_PER_REVOLUTION = 2048; //2048 for falcon integrated, 4096 for MAG 
+     //to do: figure out distance per revolution
     public static final double LATCH_TIME = 1.0; //check value - in seconds
     public static final double TESTING_TIME = 3.0;
     public static final double WINCH_UP_DISTANCE = 28; //in inches
