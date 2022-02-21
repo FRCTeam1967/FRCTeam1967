@@ -2,8 +2,12 @@ package org.janksters.CommonClassesThisYear;
 
 public class Constants {
     /* climb constants */
-    public static final double WINCH_MOTOR_SPEED = 0.3;
+    public static final double WINCH_MOTOR_UP_FACTOR = 1;
+    public static final double WINCH_MOTOR_DOWN_FACTOR = 0.5;
     public static final double WINCH_MOTOR_STOP = 0.0;
+    public static final double ROBOT_UP_SPEED_SEQUENCE = 0.5;
+    public static final double ROBOT_DOWN_SPEED_SEQUENCE = 0.5;
+    public static final double ARM_UP_SPEED_SEQUENCE = 0.2;
     public static final double WINCH_MOTOR_GENTLE = 0.1;
     public static final double PULSES_PER_REVOLUTION = 2048; //2048 for falcon integrated, 4096 for MAG 
      //to do: figure out distance per revolution
@@ -12,7 +16,7 @@ public class Constants {
     public static final double WINCH_UP_DISTANCE = 28; //in inches
     public static final int WINCH_FINAL_DISTANCE = 2; //in inches
     public static final double WINCH_ENCODER_DIFFERENCE = 2000;
-    public static final double WINCH_ENCODER_DOWN = 1000;
+    public static final double WINCH_ENCODER_DOWN = -2000;
     public static final double HOOKED_ON_CURRENT = 1;
     public static final double TOO_FAR_DOWN = 26;
     public static final double POS_FACTOR = 10;
