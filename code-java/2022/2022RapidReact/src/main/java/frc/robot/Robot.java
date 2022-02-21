@@ -3,7 +3,7 @@
 // the WPILib BSD license file in the root directory of this project.
 
 package frc.robot;
-import org.janksters.CommonClassesThisYear.VisionSubsystem;
+import org.janksters.CommonClassesThisYear.*;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -59,6 +59,8 @@ public class Robot extends TimedRobot {
   PIDController pidAngle = new PIDController(0.1, 0, 0);
 
   VisionSubsystem limeLight = new VisionSubsystem();
+
+  Shooter shooter = new Shooter();
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -121,6 +123,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
+
+    //SHOOTER
+    shooter.displayCurrentState();
+
+    //CHASSIS
     if (m_arcadeJoystickP1.getRawButton(4)&& limeLight.targetValid()){ 
       //m_myRobot.tankDrive(-pidDistance.calculate(limeLight.getDistance(), 100)+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
     } else {
