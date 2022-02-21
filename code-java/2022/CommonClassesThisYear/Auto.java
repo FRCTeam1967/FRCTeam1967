@@ -106,20 +106,6 @@ public class Auto extends SequentialCommandGroup{
         delayTimer.reset();
     }
 
-    // public void  resetEncoders() {
-    //     rlmotor.getSensorCollection().setQuadraturePosition(0,10);
-    //     frmotor.getSensorCollection().setQuadraturePosition(0,10);
-    // } 
-
-    // public int getRightEncoder(WPI_TalonSRX frmotor) {
-    //     return frmotor.getSensorCollection().getQuadraturePosition();
-    // }
-    
-    // public int getLeftEncoder(WPI_TalonSRX rlmotor) {
-    //     return rlmotor.getSensorCollection().getQuadraturePosition();
-    // }
-
-
 
 
     public void AutoSequenceStandard(DifferentialDrive m_myrobot, int delay, ADIS16470_IMU m_gyro, int caseNum) {
@@ -130,46 +116,6 @@ public class Auto extends SequentialCommandGroup{
         SmartDashboard.putNumber("Delay Desired", delay);
         SmartDashboard.putNumber("Case Number", caseNum);
         SmartDashboard.putBoolean("Did Auto Go Forward? Probably not.", autoForwardIsFinished);
-        // int endTime;
-        
-        // if (delay <= 3){
-        //     endTime = 12;
-        // }
-        // // else if (delay == 2){
-        // //     endTime = 10;
-        // // }
-        // else if (delay == 5){
-        //     endTime = 15;
-        // }
-        // else {
-        //     endTime = 10;
-        // }
-
-        //SmartDashboard.putNumber("Driving Time", endTime);
-                // startDelayTimer();
-                // if (delayTimer.get() <=delay) {
-                //     standardDrive(0);
-                //     //test without delayTimer.get() >= delay and see if order works
-                // } else if (delayTimer.get() >= delay && delayTimer.get() <= delay+ standardFirstDrivingTime) {
-                //     standardDrive(0.4);
-                //     //test without delayTimer.get() >=  delay+ standardFirstDrivingTime and see if order works --> switch to else
-                // } else if (delayTimer.get() >=  delay+ standardFirstDrivingTime) {
-                //     int desiredAngle = 150;
-                //     if (desiredAngle - m_gyro.getAngle() >= 0) {
-                //         standardTurn(0.6);
-                //     //check if rotation is finished
-                //     } else if (m_gyro.getAngle() > 160) {
-                //         //moving to tarmac
-                //         if (delayTimer.get() <= delay + standardSecondDrivingTime) {
-                //             standardDrive(0.4);
-                //         } else {
-                //             standardDrive(0);
-                //         }
-                //     } else {
-                //         standardDrive(0);
-                //         System.out.println("I have reached the second failsafe");
-                //     }
-                // }
 
 
                 startDelayTimer();
