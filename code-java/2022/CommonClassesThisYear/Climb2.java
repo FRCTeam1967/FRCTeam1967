@@ -210,6 +210,12 @@ public class Climb2 extends JankyStateMachine{
     private double getAvgWinchEncoderCount(){
         if (Math.abs(getWinchEncoderCountL() - getWinchEncoderCountR()) > Constants.WINCH_ENCODER_DIFFERENCE) {
             SmartDashboard.putBoolean("climb winch encoders working?", false);
+<<<<<<< Updated upstream
+=======
+            SmartDashboard.putNumber("left climb encoders", getWinchEncoderCountL());
+            SmartDashboard.putNumber("right climb encoders", getWinchEncoderCountR());
+
+>>>>>>> Stashed changes
             //if one of the encoders gets stuck, disregard it
             if (previousCountL == getWinchEncoderCountL()) {
                 return getWinchEncoderCountR();

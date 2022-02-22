@@ -376,6 +376,10 @@ public class Robot extends TimedRobot {
 
     //CHASSIS
     //chassis
+    SmartDashboard.putNumber("Left Joystick", leftJoystick.getY());
+    SmartDashboard.putNumber("Right Joystick", rightJoystick.getY());
+    drive.tankDrive(-1.0 * leftJoystick.getY(), 1.0 * rightJoystick.getY());
+    /*
     boolean buttonPressed = false;
     boolean drivingToggle = leftJoystick.getRawButton(4);
 
@@ -413,6 +417,7 @@ public class Robot extends TimedRobot {
       double avg = ((leftJoystick.getY()) + (rightJoystick.getY())) / 2;
       drive.tankDrive(avg, avg);
     }
+    */
 
     //chassis encoder:
     SmartDashboard.putNumber("left Encoder teleop", rlmotor.getSensorCollection().getQuadraturePosition());
