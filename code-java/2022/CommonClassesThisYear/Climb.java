@@ -11,7 +11,7 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.janksters.jankyLib.*;
 
-public class Climb2 extends JankyStateMachine{
+public class Climb extends JankyStateMachine{
     private JankyTalonFX winchMotorL; //left
     private JankyTalonFX winchMotorR; //right
     
@@ -48,7 +48,7 @@ public class Climb2 extends JankyStateMachine{
     double previousCountL;
     double previousCountR;
     
-    public Climb2(int winchMotorChannelL, int winchMotorChannelR,
+    public Climb(int winchMotorChannelL, int winchMotorChannelR,
     int PCMChannel, int midLatchChannelL, int midLatchChannelR){
         winchMotorL = new JankyTalonFX(winchMotorChannelL);
         winchMotorR = new JankyTalonFX(winchMotorChannelR);
@@ -210,12 +210,9 @@ public class Climb2 extends JankyStateMachine{
     private double getAvgWinchEncoderCount(){
         if (Math.abs(getWinchEncoderCountL() - getWinchEncoderCountR()) > Constants.WINCH_ENCODER_DIFFERENCE) {
             SmartDashboard.putBoolean("climb winch encoders working?", false);
-<<<<<<< Updated upstream
-=======
             SmartDashboard.putNumber("left climb encoders", getWinchEncoderCountL());
             SmartDashboard.putNumber("right climb encoders", getWinchEncoderCountR());
 
->>>>>>> Stashed changes
             //if one of the encoders gets stuck, disregard it
             if (previousCountL == getWinchEncoderCountL()) {
                 return getWinchEncoderCountR();

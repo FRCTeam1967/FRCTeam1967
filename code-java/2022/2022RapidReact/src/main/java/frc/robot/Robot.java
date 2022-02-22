@@ -62,6 +62,7 @@ public class Robot extends TimedRobot {
 
   Shooter shooter = new Shooter();
   Pivot pivot = new Pivot();
+  private Climb climbMech;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -77,6 +78,10 @@ public class Robot extends TimedRobot {
 
     m_arcadeJoystickP1 = new Joystick(0);  //whatever is in port 1 - P1 stands for port1
     m_arcadeJoystickP2 = new Joystick(1); //whatever is in port  2
+
+    if (climbMech == null){
+      climbMech = new Climb(Constants.WINCH_MOTOR_CHANNEL_L, Constants.WINCH_MOTOR_CHANNEL_R, Constants.PCM_CHANNEL, Constants.MID_LATCH_CHANNEL_L, Constants.MID_LATCH_CHANNEL_R);
+    }
 
     m_myRobot.setMaxOutput(0.5); //default is 1
 

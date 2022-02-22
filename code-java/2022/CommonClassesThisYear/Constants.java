@@ -25,7 +25,6 @@ public class Constants {
     public static final double ROBOT_DOWN_SPEED_SEQUENCE = 0.5;
     public static final double ARM_UP_SPEED_SEQUENCE = 0.2;
     public static final double WINCH_MOTOR_GENTLE = 0.1;
-    public static final double PULSES_PER_REVOLUTION = 2048; //2048 for falcon integrated, 4096 for MAG 
      //to do: figure out distance per revolution
     public static final double LATCH_TIME = 1.0; //check value - in seconds
     public static final double TESTING_TIME = 3.0;
@@ -50,4 +49,11 @@ public class Constants {
     public static double manualWinchKI = 0.0;
     public static double manualWinchKD = 1.0;
     public static double manualWinchKF = 0.0;
+
+    //climb constants
+    public static final int WINCH_MOTOR_CHANNEL_L = 1;
+    public static final int WINCH_MOTOR_CHANNEL_R = 2;
+    public static final int PCM_CHANNEL = 0;
+    public static final int MID_LATCH_CHANNEL_L = 2;
+    public static final int MID_LATCH_CHANNEL_R = 3;
 }
