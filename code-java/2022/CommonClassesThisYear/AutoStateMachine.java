@@ -2,7 +2,6 @@ package frc.robot;
 import org.janksters.CommonClassesThisYear.*;
 import org.janksters.jankyLib.JankyStateMachine;
 
-
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -20,6 +19,11 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
 
 
 import com.ctre.phoenix.sensors.CANCoder;
@@ -58,6 +62,11 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int secondMove = 3;
     private final int liftAndShoot = 4;
     private final int finishAuto = 5;
+    
+    boolean armLifted = false;
+    boolean hasShoot = false;
+
+    public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
 
     public void resetDelayTimer(){
         delayTimer.reset();
@@ -95,6 +104,11 @@ public class AutoStateMachine extends JankyStateMachine {
         m_left = new MotorControllerGroup(m_leftLeader, rlmotor);
         m_right = new MotorControllerGroup(frmotor, m_rightFollower);
         m_myRobot = new DifferentialDrive(m_left,m_right);
+
+        frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+        rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+
+        m_gyro.reset();
     
 
         SetMachineName("auto");
@@ -104,7 +118,8 @@ public class AutoStateMachine extends JankyStateMachine {
         SetName(secondMove, "secondMove");
         SetName(liftAndShoot, "liftAndShoot");
         SetName(finishAuto, "finishAuto");
-        start();
+
+        start();  
 
     }
 
@@ -123,22 +138,44 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
             case firstMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                System.out.println(inchesToEncoder(10));
+                System.out.println(inchesToEncoder(50));
                 System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(10) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(50) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(turn, "reached average encoder for distance");
                 }
                 break;
             case turn:
-                //m_myRobot.tankDrive(0.4, 0.4);
-                System.out.println("Turn state entered");
+                SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
+                m_myRobot.tankDrive(-0.4, -0.4);
+                int desiredAngle = 180;
+                if(m_gyro.getAngle() >= desiredAngle) {
+                    NewState(secondMove, "reached desired gyro angle");
+                }
+                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+
                 break;
             case secondMove:
+                m_myRobot.tankDrive(0.4, -0.4);
+                System.out.println(inchesToEncoder(50));
+                System.out.println(getAverageEncoderValues());
+                if (inchesToEncoder(70) <= getAverageEncoderValues()) {
+                    m_myRobot.tankDrive(0, 0);
+                    NewState(liftAndShoot, "reached average encoder for distance 2");
+                }
                 break;
             case liftAndShoot:
+                System.out.println("Lift Arm and shoot");
+                armLifted = true;
+                hasShoot = true;
+
+                if (armLifted && hasShoot) {
+                    NewState(finishAuto, "Arm is up and finished shooting");
+                }
                 break;
             case finishAuto:
+                Terminate();
                 break;
         }
     }
@@ -154,7 +191,7 @@ public class AutoStateMachine extends JankyStateMachine {
     public double getAverageEncoderValues() {
         double frmotorEncoder = frmotor.getSensorCollection().getIntegratedSensorPosition();
         double rlmotorEncoder = rlmotor.getSensorCollection().getIntegratedSensorPosition();
-        double motorEncoderAverage = (frmotorEncoder + rlmotorEncoder) / 2;
+        double motorEncoderAverage = (Math.abs(frmotorEncoder) + Math.abs(rlmotorEncoder)) / 2;
         return motorEncoderAverage;
     }
 }

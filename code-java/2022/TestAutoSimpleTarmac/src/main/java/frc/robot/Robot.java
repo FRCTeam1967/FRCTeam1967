@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
   //AutoSelector selector =  new AutoSelector();
   AutoSelector pathSelector = new AutoSelector();
 
-  public ADIS16470_IMU m_gyro;
+  // public ADIS16470_IMU m_gyro;
 
   int autoCaseNum;
 
@@ -74,9 +74,9 @@ public class Robot extends TimedRobot {
     //selector.DisplayAutoOptions();
     pathSelector.DisplayActualAutoOptions();
     //initializing the gyro --> 4 seconds don't touch the robot bc callibration.
-    m_gyro = new ADIS16470_IMU();
+    //m_gyro = new ADIS16470_IMU();
     autoCaseNum = 0;
-    m_gyro.reset();
+    //m_gyro.reset();
   //rlmotor.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
     //rlmotor.setSelectedSensorPosition(0, 0, 10);
     //rlmotor.getSensorCollection().setQuadraturePosition(0,10);
