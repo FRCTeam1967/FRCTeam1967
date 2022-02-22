@@ -64,12 +64,29 @@ public class Robot extends TimedRobot {
   Pivot pivot = new Pivot();
   private Climb climbMech;
 
+  //AUTO
+  AutoStateMachine autoSM;
+  AutoSelector pathSelector = new AutoSelector();
+  int autoCaseNum;
+
+  //move forward
+  final int simplePath = 0;
+  //move forward, get ball, turn, move, shoot
+  final int standardPath = 1;
+  //turn 180 degrees
+  final int turnPath = 2;
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
   @Override
   public void robotInit() {
+    //AUTO
+    pathSelector.DisplayActualAutoOptions();
+    autoCaseNum = 0;
+
+    //CHASSIS
     m_driveChooser.setDefaultOption("Tank Drive", kTankDrive);
     m_driveChooser.addOption("Arcade Drive", kArcadeDrive);
     m_driveChooser.addOption("Curvature Drive", kCurvatureDrive);
@@ -111,12 +128,21 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    //making the path selector
+    Auto.autoPathFinal = pathSelector.getActualAutoMode();
+   
+    //idk where we use this but we are keeping it just in case
+    autoCaseNum = 0;
+
+    SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
+
+    autoSM = new AutoStateMachine();
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    
+    autoSM.displayCurrentState();
   }
 
   /** This function is called once when teleop is enabled. */
