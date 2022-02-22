@@ -60,8 +60,8 @@ public class Flywheel {
     }
 
     public void SetRPM(){
-        desiredRPM = (5.4545 * distanceToVisionTarget) + 4000;
-        //desiredRPM = (5.4545 * distanceToVisionTarget) + 1000; //for testing range
+        //desiredRPM = (5.4545 * distanceToVisionTarget) + 4000;
+        desiredRPM = (5.4545 * distanceToVisionTarget) + 1000; //for testing range
         // desiredRPM = (3.7272 * distanceToVisionTarget) + 5500; //when using vision
         targetVelocity_UnitsPer100ms = desiredRPM * 2048 / 600;
 
@@ -103,13 +103,13 @@ public class Flywheel {
 
     public void SetSelectorVisionDistance(int selectorZone){
         if (selectorZone == shootingZoneOne) {
-            distanceToVisionTarget = 265; //in inches //10 for range
+            distanceToVisionTarget = 0; //in inches //10 for range, 265 for normal
         } else if (selectorZone == shootingZoneTwo) {
-            distanceToVisionTarget = 100; //250 for range(good speed for 2022)
+            distanceToVisionTarget = 10; //250 for range(good speed for 2022), 100 for normal
         } else if (selectorZone == shootingZoneThree) {
-            distanceToVisionTarget = 150; //500 for range
+            distanceToVisionTarget = 50; //500 for range, 150 for normal
         } else if (selectorZone == shootingZoneFour) {
-            distanceToVisionTarget = 250; //1000 for range
+            distanceToVisionTarget = 200; //1000 for range, 250 for normal
         } else {
             System.out.println("No distance to vision target!");
         }
