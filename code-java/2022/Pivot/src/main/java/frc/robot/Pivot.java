@@ -26,8 +26,6 @@ public class Pivot extends JankyStateMachine {
     private final int CLIMB_CONFIG = 5; // lowers arm to climbing position
     private final int CLIMB_CONFIG_ACHIEVED = 6; // ☑ completed climbing config
 
-    private double targetPositionRotations = 0;
-
     // Flags
     boolean startingConfigAchieved = false;
     boolean goIntakeConfig = false;
@@ -60,90 +58,109 @@ public class Pivot extends JankyStateMachine {
     public void StateEngine(int curState, boolean onStateEntered) {
         switch (curState) {
             case IDLE:
-                intakeConfigAchieved = false;
-                shooterConfigAchieved = false;
-                climbConfigAchieved = false;
+                if (onStateEntered) {
+                    intakeConfigAchieved = false;
+                    shooterConfigAchieved = false;
+                    climbConfigAchieved = false;
+                }
+
                 setStartPos();
+
                 if (topLimitSwitch.get()) {
                     // Switch to Start Config, set current position as 0
                     startingConfigAchieved = true;
-                    pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10);
                     NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 }
                 break;
             case STARTING_CONFIG:
-                intakeConfigAchieved = false;
-                shooterConfigAchieved = false;
-                climbConfigAchieved = false;
-                holdStartPos(); 
-                if (XboxController.GetButtonBack()){
+                if (onStateEntered) {
+                    pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10); // define position 0
+                    intakeConfigAchieved = false;
+                    shooterConfigAchieved = false;
+                    climbConfigAchieved = false;
+                }
+
+                holdStartPos();
+
+                if (XboxController.GetButtonBack()) {
                     flagIntakeConfig();
                 }
+
                 if (goIntakeConfig) {
                     goIntakeConfig = false;
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
-                if (XboxController.GetButtonStart()){
+
+                if (XboxController.GetButtonStart()) {
                     flagShooterConfig();
                 }
+
                 if (goShooterConfig) {
                     goShooterConfig = false;
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
-                //TODO use encoder values or limit switch to check if true
-                startingConfigAchieved = true;
+
                 break;
             case INTAKE_CONFIG:
-                shooterConfigAchieved = false;
-                climbConfigAchieved = false;
-                startingConfigAchieved = false;
+                if (onStateEntered) {
+                    shooterConfigAchieved = false;
+                    climbConfigAchieved = false;
+                    startingConfigAchieved = false;
+                }
                 setIntakePos();
-                if (XboxController.GetButtonStart()){
+                if (XboxController.GetButtonStart()) {
                     flagShooterConfig();
                 }
                 if (goShooterConfig) {
                     goShooterConfig = false;
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
-                if (goClimbConfig){
+                if (goClimbConfig) {
                     goClimbConfig = false;
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
-                //TODO use encoder values or limit switch to check if true
-                intakeConfigAchieved = true;
+
+                if (checkPosition(Constants.INTAKE_ANGLE_PULSES)) {
+                    intakeConfigAchieved = true;
+                }
                 break;
             case SHOOTER_CONFIG:
                 intakeConfigAchieved = false;
                 climbConfigAchieved = false;
                 startingConfigAchieved = false;
                 setShooterConfig();
-                if (XboxController.GetButtonBack()){
+                if (XboxController.GetButtonBack()) {
                     flagIntakeConfig();
                 }
-                if (goIntakeConfig){
+                if (goIntakeConfig) {
                     goIntakeConfig = false;
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
-                if (goClimbConfig){
+                if (goClimbConfig) {
                     goClimbConfig = false;
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
-                //TODO use encoder values to check if true
-                shooterConfigAchieved = true;
+
+                if (checkPosition(Constants.SHOOTER_ANGLE_PULSES)) {
+                    shooterConfigAchieved = true;
+                }
                 break;
             case CLIMB_CONFIG:
-                intakeConfigAchieved = false;
-                startingConfigAchieved = false;                
-                shooterConfigAchieved = false;
-                setClimbConfig(); 
-                //TODO use encoder values to check if true
-                climbConfigAchieved = true;
-                if (climbConfigAchieved){
+                if (onStateEntered) {
+                    intakeConfigAchieved = false;
+                    startingConfigAchieved = false;
+                    shooterConfigAchieved = false;
+                }
+
+                setClimbConfig();
+
+                if (checkPosition(Constants.CLIMB_ANGLE_PULSES) && GetCurrentState() == CLIMB_CONFIG) {
+                    climbConfigAchieved = true;
                     NewState(CLIMB_CONFIG_ACHIEVED, "climb config achieved flag set to true");
                 }
                 break;
             case CLIMB_CONFIG_ACHIEVED:
-                setClimbConfig();
+                setClimbConfig(); // Hold pivot in climb config position
                 break;
         }
     }
@@ -172,14 +189,16 @@ public class Pivot extends JankyStateMachine {
         pivotMotor.config_kD(Constants.kPIDLoopIdx, Constants.kD, Constants.kTimeoutMs);
     }
 
+    public double getEncoder() {
+        return pivotMotor.getSensorCollection().getIntegratedSensorPosition();
+    }
+
     public void setStartPos() {
-        // Input is speed, value between -1 and 1
-        pivotMotor.set(8); // TBD
+        pivotMotor.set(TalonFXControlMode.Position, Constants.STARTING_ANGLE_PULSES); // TBD
     }
 
     public void holdStartPos() {
-        targetPositionRotations = 0;
-        pivotMotor.set(TalonFXControlMode.Position, targetPositionRotations);
+        pivotMotor.set(TalonFXControlMode.Position, Constants.STARTING_ANGLE_PULSES);
     }
 
     public void flagIntakeConfig() {
@@ -187,26 +206,38 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setIntakePos() {
-        targetPositionRotations = 8; // TBD
-        pivotMotor.set(TalonFXControlMode.Position, targetPositionRotations);
+        pivotMotor.set(TalonFXControlMode.Position, Constants.INTAKE_ANGLE_PULSES);
     }
 
-    public void flagShooterConfig(){
+    public void flagShooterConfig() {
         goShooterConfig = true;
     }
 
-    public void setShooterConfig(){
-        targetPositionRotations = 8; // TBD
-        pivotMotor.set(TalonFXControlMode.Position, targetPositionRotations);
+    public void setShooterConfig() {
+        pivotMotor.set(TalonFXControlMode.Position, Constants.SHOOTER_ANGLE_PULSES);
     }
-    
-    public void flagClimbConfig(){
+
+    // Auto calls this to check if shooter config is reached
+    public boolean checkShooterFlag() {
+        return shooterConfigAchieved;
+    }
+
+    // Climb mech calls this to trigger pivot into climb config state
+    public void flagClimbConfig() {
         goClimbConfig = true;
     }
 
-    public void setClimbConfig(){
-        targetPositionRotations = 8; //TBD
-        pivotMotor.set(TalonFXControlMode.Position, targetPositionRotations);
+    public void setClimbConfig() {
+        pivotMotor.set(TalonFXControlMode.Position, Constants.CLIMB_ANGLE_PULSES);
+    }
+
+    // Used by climb mech to check if pivot has entered CLIMB_CONFIG_ACHIEVED state
+    public boolean checkClimbConfigAchieved() {
+        return GetCurrentState() == CLIMB_CONFIG_ACHIEVED;
+    }
+
+    public boolean checkPosition(double desiredPos) {
+        return (Math.abs(getEncoder() - desiredPos) < 8); // returns true if in range
     }
 
 }
