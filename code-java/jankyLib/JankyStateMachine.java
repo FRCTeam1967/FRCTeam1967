@@ -1,4 +1,3 @@
-
 package org.janksters.jankyLib;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
