@@ -56,4 +56,15 @@ public class Constants {
     public static final int PCM_CHANNEL = 0;
     public static final int MID_LATCH_CHANNEL_L = 2;
     public static final int MID_LATCH_CHANNEL_R = 3;
+
+    //pivot constants
+    public static final double INTAKE_ANGLE = 105; 
+    public static final double STARTING_ANGLE = 0;
+    public static final double SHOOTER_ANGLE = 15; 
+    public static final double CLIMB_ANGLE = 85; 
+
+    public static final double INTAKE_ANGLE_PULSES = INTAKE_ANGLE / 360 * GEAR_RATIO * PULSES_PER_REVOLUTION; 
+    public static final double STARTING_ANGLE_PULSES = STARTING_ANGLE / 360 * GEAR_RATIO * PULSES_PER_REVOLUTION;
+    public static final double SHOOTER_ANGLE_PULSES = SHOOTER_ANGLE / 360 * GEAR_RATIO * PULSES_PER_REVOLUTION;
+    public static final double CLIMB_ANGLE_PULSES = CLIMB_ANGLE / 360 * GEAR_RATIO * PULSES_PER_REVOLUTION;
 }
