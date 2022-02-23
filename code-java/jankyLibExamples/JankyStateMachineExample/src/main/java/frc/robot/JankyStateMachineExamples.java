@@ -4,34 +4,46 @@ import org.janksters.jankyLib.JankyStateMachine;
 import org.janksters.jankyLib.jankyXboxJoystick;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class JankyStateMachineExamples extends JankyStateMachine{
-    
-    private final int Idle = 0;
-    private final int Pause5S = 1;
-    private final int PrintIterations = 2;
-    private final int PrintYPressed = 3;
-    private final int Pause2S = 4;
-    private final int DoNothing = 5;
+enum ExampleState {
+    Idle,
+    Pause5S,
+    PrintIterations,
+    PrintYPressed,
+    Pause2S,
+    DoNothing;
 
+    // By default, Java will provide a toString() method that will return a string value
+    // identical to the constants used above. We can override that if we want to customize
+    // the strings that would be used. 
+    public String toString() {
+        switch (this) {
+            case Pause2S:
+                return "Pause for 2s";
+            case Pause5S:
+                return "Pause for 5s";
+            default:
+                // Use the default for everything else
+                return super.toString();
+        }
+    }
+};
+
+public class JankyStateMachineExamples extends JankyStateMachine<ExampleState> {
     private Timer timer;
     private int i;
     private jankyXboxJoystick XboxController;
 
     public JankyStateMachineExamples(){
+        super(ExampleState.Idle);
         XboxController = new jankyXboxJoystick(2);
         timer=new Timer();
         i=0;
         SetMachineName("JankyStateMachineExamples");
-        SetName(Idle,"Idle");
-        SetName(Pause5S,"Pause5S");
-        SetName(PrintIterations,"PrintIterations");
-        SetName(PrintYPressed,"PrintYPressed");
-        SetName(Pause2S,"Pause2S");
-        SetName(DoNothing,"DoNothing");
 
         start();
     }
-    public void StateEngine(int curState, boolean onStateEntered){
+
+    public void StateEngine(ExampleState curState, boolean onStateEntered){
         switch (curState){
             case Idle:
                 break;
@@ -46,19 +58,19 @@ public class JankyStateMachineExamples extends JankyStateMachine{
                 //System.out.print(timer.get() + " ");
                 System.out.println("\n");
                 if (timer.get()>=5){
-                    NewState(PrintIterations,"timer reached 5");
+                    NewState(ExampleState.PrintIterations,"timer reached 5");
                 }
                 break;
             case PrintIterations:
                 SmartDashboard.putNumber("iteration", i++);
                 SmartDashboard.putBoolean("ButtonX", XboxController.GetButtonX());
                 if (XboxController.GetButtonX()) {
-                    NewState(Pause2S,"x button pressed");
+                    NewState(ExampleState.Pause2S,"x button pressed");
                 }
                 SmartDashboard.putBoolean("ButtonY",XboxController.GetButtonY() );
 
                 if (XboxController.GetButtonY()) {
-                    NewState(PrintYPressed,"y button pressed");
+                    NewState(ExampleState.PrintYPressed,"y button pressed");
                 } 
                 
                 break;
@@ -71,12 +83,12 @@ public class JankyStateMachineExamples extends JankyStateMachine{
                 SmartDashboard.putBoolean("onStateEntered value", onStateEntered);
                 SmartDashboard.putNumber("timer", timer.get());
                 if (timer.get()>=2){
-                    NewState(DoNothing,"timer reached 2");
+                    NewState(ExampleState.DoNothing,"timer reached 2");
                 }
                 break;
             case PrintYPressed:
                 System.out.println("\nY was pressed");
-                NewState(DoNothing,"straight from Y pressed");
+                NewState(ExampleState.DoNothing,"straight from Y pressed");
                 break;
             case DoNothing:
                 break;
@@ -85,8 +97,8 @@ public class JankyStateMachineExamples extends JankyStateMachine{
     }
 
     public void startStateMachine(){
-        if (GetCurrentState() == Idle) {
-            NewState(Pause5S, "starting state machine");
+        if (GetCurrentState() == ExampleState.Idle) {
+            NewState(ExampleState.Pause5S, "starting state machine");
         }
     }
 
@@ -99,7 +111,7 @@ public class JankyStateMachineExamples extends JankyStateMachine{
     }
     
     public void DisplayCurrentState(){
-        SmartDashboard.putNumber("current state", GetCurrentState());
+        SmartDashboard.putString("current state ", GetCurrentState().toString());
     }
 
     public void DisplayButtonX(){

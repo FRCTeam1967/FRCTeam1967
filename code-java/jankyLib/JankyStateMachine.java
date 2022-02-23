@@ -1,38 +1,33 @@
 package org.janksters.jankyLib;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public abstract class JankyStateMachine extends JankyTask{
-    private final int MAX_NAMES = 30;
-
-	private int currentState;
-	private int priorState;
+public abstract class JankyStateMachine<T extends Enum<T>> extends JankyTask{
+	private T currentState;
+	private T priorState;
 	private String machineName;
+	private boolean isFirstRun;
 
-    protected String[] names = new String[MAX_NAMES];
-
-    public JankyStateMachine(){
+    public JankyStateMachine(T initialState) {
         System.out.println("JankyStateMachine() constructor\n");
         
-        for (int i=0; i< MAX_NAMES; i++){
-            SetName(i, "State-Default-"+i);
-        }
-        
         machineName = "DefaultMachine";
-        currentState = 0;		// Make a sane initial choice.
-        priorState = -1;
+        currentState = initialState;
+        priorState = initialState;
+        isFirstRun = true;
     }
     
     
     public void SetMachineName(String machine){
         machineName = machine;
     }
-    public int GetCurrentState(){
+    public T GetCurrentState(){
         return currentState;
     }
     
     public void Run(){
-        if (priorState != currentState){
+        if (priorState != currentState || isFirstRun){
             StateEngine(currentState, true);
+            isFirstRun = false;
             priorState = currentState;
         } else {
             StateEngine(currentState, false);
@@ -40,24 +35,12 @@ public abstract class JankyStateMachine extends JankyTask{
         //priorState = currentState;
     }
     
-    public void NewState(int newState, String reason){
-        if (newState < MAX_NAMES){
-            System.out.println("STATECHANGE: " +machineName+" OLD: "+names[currentState]+" NEW: "+names[newState]+" REASON: "+reason);
-            SmartDashboard.putString("new", names[newState]);
-            SmartDashboard.putString("old", names[currentState]);
-            currentState = newState;
-        } else {
-            System.out.println("JankyStateMachine NewState ERROR invalid newState");
-        }
+    public void NewState(T newState, String reason){
+        System.out.println("STATECHANGE: " +machineName+" OLD: "+currentState.toString()+" NEW: "+newState.toString()+" REASON: "+reason);
+        SmartDashboard.putString("new", newState.toString());
+        SmartDashboard.putString("old", currentState.toString());
+        currentState = newState;
     }
     
-    public void SetName(int state, String stateName) {
-        if (state < MAX_NAMES){   
-            names[state] = stateName;
-        } else {
-            System.out.println("JankyStateMachine SetName Bad state value/name");
-        }
-    }
-
-    protected abstract void StateEngine(int curState, boolean onStateEntered);
+    protected abstract void StateEngine(T curState, boolean onStateEntered);
 }
