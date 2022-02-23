@@ -54,7 +54,6 @@ public class AutoStateMachine extends JankyStateMachine {
 
     Timer delayTimer = new Timer();
     public static int delay;
-    //DifferentialDrive m_myRobot = new DifferentialDrive(m_leftFollower,m_rightLeader);
 
     private final int firstDelay = 0;
     private final int firstMove = 1;
@@ -62,7 +61,7 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int secondMove = 3;
     private final int liftAndShoot = 4;
     private final int finishAuto = 5;
-    
+
     boolean armLifted = false;
     boolean hasShoot = false;
 
@@ -131,15 +130,17 @@ public class AutoStateMachine extends JankyStateMachine {
                 }
                 if (delayTimer.get() <=delay) {
                     m_myRobot.tankDrive(0, 0);
-                    System.out.println("I am in delay");
+                    //For testing purposes - test later on carpet
+                    //System.out.println("I am in delay");
                 } else {
                     NewState(firstMove, "Delay timer has ended");
                 }
                 break;
             case firstMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                System.out.println(inchesToEncoder(50));
-                System.out.println(getAverageEncoderValues());
+                //For testing purposes - test later on carpet
+                //System.out.println(inchesToEncoder(50));
+                //System.out.println(getAverageEncoderValues());
                 if (inchesToEncoder(50) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(turn, "reached average encoder for distance");
@@ -154,19 +155,21 @@ public class AutoStateMachine extends JankyStateMachine {
                 }
                 frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-
                 break;
             case secondMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                System.out.println(inchesToEncoder(50));
-                System.out.println(getAverageEncoderValues());
+                //For testing purposes - test later on carpet
+                //System.out.println(inchesToEncoder(50));
+                //System.out.println(getAverageEncoderValues());
                 if (inchesToEncoder(70) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(liftAndShoot, "reached average encoder for distance 2");
                 }
                 break;
             case liftAndShoot:
-                System.out.println("Lift Arm and shoot");
+                if (onStateEntered) {
+                    System.out.println("Lift Arm and shoot");
+                }
                 armLifted = true;
                 hasShoot = true;
 
