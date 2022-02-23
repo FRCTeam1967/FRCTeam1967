@@ -22,6 +22,7 @@ public class Climb extends JankyStateMachine{
     private Timer climbTestTimer;
 
     private jankyXboxJoystick XboxController;
+    private Pivot pivot;
 
     //states
     private final int IDLE = 0; //keep bar down
@@ -49,7 +50,7 @@ public class Climb extends JankyStateMachine{
     double previousCountR;
     
     public Climb(int winchMotorChannelL, int winchMotorChannelR,
-    int PCMChannel, int midLatchChannelL, int midLatchChannelR){
+    int PCMChannel, int midLatchChannelL, int midLatchChannelR, Pivot _pivot){
         winchMotorL = new JankyTalonFX(winchMotorChannelL);
         winchMotorR = new JankyTalonFX(winchMotorChannelR);
 
@@ -59,6 +60,8 @@ public class Climb extends JankyStateMachine{
         climbTestTimer = new Timer();
 
         XboxController= new jankyXboxJoystick(2);
+
+        pivot = _pivot;
 
         setUpWinchEncoder();
 
@@ -293,10 +296,10 @@ public class Climb extends JankyStateMachine{
                     climbTestTimer.reset();
                     climbTestTimer.start();
                 }
-                //bring intake shooter down
-                //if(intake is down && !testing){
-                //NewState(READY_TO_CLIMB, "lifter is down");
-                //}
+                pivot.flagClimbConfig();
+                if(pivot.checkClimbConfigAchieved() && !testing){
+                    NewState(READY_TO_CLIMB, "lifter is down");
+                }
                 if(testing && climbTestTimer.get()>=Constants.TESTING_TIME){
                     NewState(READY_TO_CLIMB, "testing - lifter timer is done");
                 }

@@ -97,7 +97,8 @@ public class Robot extends TimedRobot {
     m_arcadeJoystickP2 = new Joystick(1); //whatever is in port  2
 
     if (climbMech == null){
-      climbMech = new Climb(Constants.WINCH_MOTOR_CHANNEL_L, Constants.WINCH_MOTOR_CHANNEL_R, Constants.PCM_CHANNEL, Constants.MID_LATCH_CHANNEL_L, Constants.MID_LATCH_CHANNEL_R);
+      climbMech = new Climb(Constants.WINCH_MOTOR_CHANNEL_L, Constants.WINCH_MOTOR_CHANNEL_R,
+      Constants.PCM_CHANNEL, Constants.MID_LATCH_CHANNEL_L, Constants.MID_LATCH_CHANNEL_R, pivot);
     }
 
     m_myRobot.setMaxOutput(0.5); //default is 1
@@ -136,7 +137,7 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
 
-    autoSM = new AutoStateMachine();
+    autoSM = new AutoStateMachine(pivot, shooter);
   }
 
   /** This function is called periodically during autonomous. */

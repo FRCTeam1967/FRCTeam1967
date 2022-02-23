@@ -60,13 +60,17 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int firstMove = 1;
     private final int turn = 2;
     private final int secondMove = 3;
-    private final int liftAndShoot = 4;
-    private final int finishAuto = 5;
+    private final int lift = 4;
+    private final int shoot = 5;
+    private final int finishAuto = 6;
     
     boolean armLifted = false;
     boolean hasShoot = false;
 
     public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+
+    Pivot pivot; 
+    Shooter shooter;
 
     public void resetDelayTimer(){
         delayTimer.reset();
@@ -93,7 +97,7 @@ public class AutoStateMachine extends JankyStateMachine {
         delayTimer.reset();
     }
 
-    public AutoStateMachine() {
+    public AutoStateMachine(Pivot _pivot, Shooter _shooter) {
         delay = 3;
 
         m_leftLeader = new WPI_TalonSRX(2);//m2
@@ -104,6 +108,9 @@ public class AutoStateMachine extends JankyStateMachine {
         m_left = new MotorControllerGroup(m_leftLeader, rlmotor);
         m_right = new MotorControllerGroup(frmotor, m_rightFollower);
         m_myRobot = new DifferentialDrive(m_left,m_right);
+
+        pivot = _pivot;
+        shooter = _shooter;
 
         frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
         rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
@@ -116,7 +123,8 @@ public class AutoStateMachine extends JankyStateMachine {
         SetName(firstMove, "firstMove");
         SetName(turn, "turn");
         SetName(secondMove, "secondMove");
-        SetName(liftAndShoot, "liftAndShoot");
+        SetName(lift, "lift");
+        SetName(shoot, "shoot");
         SetName(finishAuto, "finishAuto");
 
         start();  
@@ -162,18 +170,33 @@ public class AutoStateMachine extends JankyStateMachine {
                 System.out.println(getAverageEncoderValues());
                 if (inchesToEncoder(70) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
-                    NewState(liftAndShoot, "reached average encoder for distance 2");
+                    NewState(lift, "reached average encoder for distance 2");
                 }
                 break;
-            case liftAndShoot:
-                System.out.println("Lift Arm and shoot");
-                armLifted = true;
-                hasShoot = true;
+            case lift:
+                pivot.flagShooterConfig();
+                if (pivot.checkShooterFlag()) {
+                    NewState(shoot, "Lift is complete");
+                }
+                break;
+            
+            case shoot:
+                shooter.shooterRevUp();
+                if (shooter.fireComplete()) {
+                    NewState(finishAuto, "Shooting was completed");
+                }
+                break;
 
-                if (armLifted && hasShoot) {
-                    NewState(finishAuto, "Arm is up and finished shooting");
-                }
-                break;
+            // case liftAndShoot:
+            //     System.out.println("Lift Arm and shoot");
+            //     armLifted = true;
+            //     hasShoot = true;
+
+            //     if (armLifted && hasShoot) {
+            //         NewState(finishAuto, "Arm is up and finished shooting");
+            //     }
+            //     break;
+
             case finishAuto:
                 Terminate();
                 break;

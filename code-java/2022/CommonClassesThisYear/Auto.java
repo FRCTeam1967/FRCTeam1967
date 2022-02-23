@@ -118,40 +118,40 @@ public class Auto extends SequentialCommandGroup{
         SmartDashboard.putBoolean("Did Auto Go Forward? Probably not.", autoForwardIsFinished);
 
 
-                startDelayTimer();
-                if (delayTimer.get() <=delay) {
-                    standardDrive(0);
-                    System.out.println("I am in delay");
-                    //test without delayTimer.get() >= delay and see if order works
-                } else if (delayTimer.get() <= delay+ standardFirstDrivingTime) {
-                    standardDrive(0.4);
-                    System.out.println("Intake is running");
-                    //test without delayTimer.get() >=  delay+ standardFirstDrivingTime and see if order works --> switch to else
-                
+        startDelayTimer();
+        if (delayTimer.get() <=delay) {
+            standardDrive(0);
+            System.out.println("I am in delay");
+            //test without delayTimer.get() >= delay and see if order works
+        } else if (delayTimer.get() <= delay+ standardFirstDrivingTime) {
+            standardDrive(0.4);
+            System.out.println("Intake is running");
+            //test without delayTimer.get() >=  delay+ standardFirstDrivingTime and see if order works --> switch to else
+        
+        } else {
+            int desiredAngle = 150;
+            if (desiredAngle - m_gyro.getAngle() >= 0) {
+                standardTurn(0.6);
+                System.out.println("Stop intake");
+            //check if rotation is finished
                 } else {
-                    int desiredAngle = 150;
-                    if (desiredAngle - m_gyro.getAngle() >= 0) {
-                        standardTurn(0.6);
-                        System.out.println("Stop intake");
-                    //check if rotation is finished
-                     } else {
-                        //moving to tarmac
-                        if (delayTimer.get() <= delay + standardSecondDrivingTime) {
-                            standardDrive(0.4);
-                            System.out.println("Moving back to tarmac");
-                        } else {
-                            standardDrive(0);
-                            System.out.println("Move arm up");
-                            //arm up --> checking the state
-                            if (armUp == true) {
-                                if (hasShot == false) {
-                                    System.out.println("Shoot1");
-                                    hasShot = true;
-                                }
-                            }
+                //moving to tarmac
+                if (delayTimer.get() <= delay + standardSecondDrivingTime) {
+                    standardDrive(0.4);
+                    System.out.println("Moving back to tarmac");
+                } else {
+                    standardDrive(0);
+                    System.out.println("Move arm up");
+                    //arm up --> checking the state
+                    if (armUp == true) {
+                        if (hasShot == false) {
+                            System.out.println("Shoot1");
+                            hasShot = true;
                         }
                     }
                 }
+            }
+        }
 
             
     }

@@ -53,6 +53,9 @@ public class Shooter extends JankyStateMachine {
     private static final double TOP_ROLLER_FIRE_SPEED = 4000; 
     private static final double BOTTOM_ROLLER_FIRE_SPEED = 4000;
 
+    private boolean revUpFlag = false;
+    private boolean fireCompleteFlag = false;
+
     public Shooter() {
         XboxController = new jankyXboxJoystick(0); 
         table = NetworkTableInstance.getDefault().getTable("limelight");
@@ -114,6 +117,10 @@ public class Shooter extends JankyStateMachine {
                 if ((XboxController.GetButtonLB() == true) && (XboxController.GetButtonRB() == true)) {
                     NewState(RevUp, "LB and RB pressed");
                 }
+                if(revUpFlag){
+                    NewState(RevUp, "revUpFlag is true");
+                    revUpFlag = false;
+                }
                 if (XboxController.GetButtonStart() == true) {
                     NewState(SlowEject, "RB pressed");
                 }
@@ -145,10 +152,12 @@ public class Shooter extends JankyStateMachine {
                 if (onStateEntered) {
                     fireTimer.reset();
                     fireTimer.start();
+                    fireCompleteFlag = false; //set to false somewhere else?
                 }
                 setTopVelocity();
                 if (fireTimer.get() >= .5) {
                     fireTimer.stop();
+                    fireCompleteFlag = true;
                     NewState(Idle, "finished firing sequence");
                 }
                 break;
@@ -203,6 +212,15 @@ public class Shooter extends JankyStateMachine {
 
     public void displayCurrentState() {
         SmartDashboard.putNumber("current state", GetCurrentState());
+    }
+
+    //auto calls this to take shooter to rev up state
+    public void shooterRevUp(){
+        revUpFlag = true;
+    }
+
+    public boolean fireComplete(){
+        return fireCompleteFlag;
     }
 
 }
