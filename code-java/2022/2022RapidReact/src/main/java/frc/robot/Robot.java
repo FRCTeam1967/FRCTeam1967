@@ -60,14 +60,14 @@ public class Robot extends TimedRobot {
 
   VisionSubsystem limeLight = new VisionSubsystem();
 
-  Shooter shooter = new Shooter();
+  /*Shooter shooter = new Shooter();
   Pivot pivot = new Pivot();
   private Climb climbMech;
 
   //AUTO
   AutoStateMachine autoSM;
   AutoSelector pathSelector = new AutoSelector();
-  int autoCaseNum;
+  int autoCaseNum;*/
 
   //move forward
   final int simplePath = 0;
@@ -83,8 +83,8 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     //AUTO
-    pathSelector.DisplayActualAutoOptions();
-    autoCaseNum = 0;
+   /* pathSelector.DisplayActualAutoOptions();
+    autoCaseNum = 0;*/
 
     //CHASSIS
     m_driveChooser.setDefaultOption("Tank Drive", kTankDrive);
@@ -96,10 +96,10 @@ public class Robot extends TimedRobot {
     m_arcadeJoystickP1 = new Joystick(0);  //whatever is in port 1 - P1 stands for port1
     m_arcadeJoystickP2 = new Joystick(1); //whatever is in port  2
 
-    if (climbMech == null){
+    /*if (climbMech == null){
       climbMech = new Climb(Constants.WINCH_MOTOR_CHANNEL_L, Constants.WINCH_MOTOR_CHANNEL_R,
       Constants.PCM_CHANNEL, Constants.MID_LATCH_CHANNEL_L, Constants.MID_LATCH_CHANNEL_R, pivot);
-    }
+    }*/
 
     m_myRobot.setMaxOutput(0.5); //default is 1
 
@@ -129,7 +129,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    //making the path selector
+    /*//making the path selector
     Auto.autoPathFinal = pathSelector.getActualAutoMode();
    
     //idk where we use this but we are keeping it just in case
@@ -137,13 +137,13 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
 
-    autoSM = new AutoStateMachine(pivot, shooter);
+    autoSM = new AutoStateMachine(pivot, shooter);*/
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    autoSM.displayCurrentState();
+    //autoSM.displayCurrentState();
   }
 
   /** This function is called once when teleop is enabled. */
@@ -159,11 +159,11 @@ public class Robot extends TimedRobot {
 
 
     //SHOOTER
-    shooter.displayCurrentState();
+    //shooter.displayCurrentState();
 
     //CHASSIS
     if (m_arcadeJoystickP1.getRawButton(4)&& limeLight.targetValid()){ 
-      //m_myRobot.tankDrive(-pidDistance.calculate(limeLight.getDistance(), 100)+limeLight.getAngle(), limeLight.getDistance()-limeLight.getAngle());//Call pidCalcAngle() subtract from one side, add to another 
+      m_myRobot.tankDrive(-limeLight.getDistance(),limeLight.getDistance());//Call limeLight.getAngle() subtract from one side, add to another 
     } else {
         switch (m_DriveSelected) {
           case kArcadeDrive:
