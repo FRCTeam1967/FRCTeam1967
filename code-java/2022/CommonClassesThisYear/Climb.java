@@ -234,14 +234,14 @@ public class Climb extends JankyStateMachine{
         if (testing) {
             return getAvgWinchEncoderCount() / (Constants.PULSES_PER_REVOLUTION);
         }
-        return getAvgWinchEncoderCount() * Constants.GEAR_RATIO / (Constants.PULSES_PER_REVOLUTION);
+        return getAvgWinchEncoderCount() * Constants.CLIMB_GEAR_RATIO / (Constants.PULSES_PER_REVOLUTION);
     }
 
     private double winchDistanceToEncoderCount(double distance){ //in inches
         if (testing) {
             return distance * (Constants.PULSES_PER_REVOLUTION);
         }
-        return distance / Constants.GEAR_RATIO * (Constants.PULSES_PER_REVOLUTION);
+        return distance / Constants.CLIMB_GEAR_RATIO * (Constants.PULSES_PER_REVOLUTION);
         
     }
 

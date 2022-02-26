@@ -121,7 +121,7 @@ public class Shooter extends JankyStateMachine {
                     NewState(RevUp, "revUpFlag is true");
                     revUpFlag = false;
                 }
-                if (XboxController.GetButtonStart() == true) {
+                if (XboxController.GetLeftStickButton() == true) {
                     NewState(SlowEject, "RB pressed");
                 }
                 break;

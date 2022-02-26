@@ -17,7 +17,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
-
 import javax.swing.text.AbstractDocument.LeafElement;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
@@ -66,12 +65,14 @@ public class Robot extends TimedRobot {
 
   Shooter shooter = new Shooter();
   Pivot pivot = new Pivot();
-  private Climb climbMech;
+  //private Climb climbMech;
 
   //AUTO
+  /*
   AutoStateMachine autoSM;
   AutoSelector pathSelector = new AutoSelector();
   int autoCaseNum;
+  */
 
   //move forward
   final int simplePath = 0;
@@ -86,9 +87,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    //AUTO
+    //AUTO 
+    /*
     pathSelector.DisplayActualAutoOptions();
     autoCaseNum = 0;
+    */
 
     //CHASSIS
     driveChooser.setDefaultOption("Tank Drive", kTankDrive);
@@ -98,14 +101,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Drive choices", driveChooser);
 
     leftJoystick = new Joystick(0);  //whatever is in port 0
-    rightJoystick = new Joystick(1); //whatever is in port  0
+    rightJoystick = new Joystick(1); //whatever is in port 0
 
+    /*
     if (climbMech == null){
       climbMech = new Climb(Constants.WINCH_MOTOR_CHANNEL_L, Constants.WINCH_MOTOR_CHANNEL_R,
       Constants.PCM_CHANNEL, Constants.MID_LATCH_CHANNEL_L, Constants.MID_LATCH_CHANNEL_R, pivot);
     }
+    */
 
-    myRobot.setMaxOutput(0.5); //default is 1
+    myRobot.setMaxOutput(0.7); //default is 1
 
     System.out.println("Passed through initialization");
   }
@@ -134,6 +139,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     //making the path selector
+    /*
     Auto.autoPathFinal = pathSelector.getActualAutoMode();
    
     //idk where we use this but we are keeping it just in case
@@ -141,13 +147,13 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
 
-    autoSM = new AutoStateMachine(pivot, shooter);
+    autoSM = new AutoStateMachine(pivot, shooter); */
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    autoSM.displayCurrentState();
+    //autoSM.displayCurrentState();
   }
 
   /** This function is called once when teleop is enabled. */
@@ -160,8 +166,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
-
-
     //SHOOTER
     shooter.displayCurrentState();
 
@@ -190,7 +194,8 @@ public class Robot extends TimedRobot {
             if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
               myRobot.tankDrive(-averageSpeed, averageSpeed);
             } else {
-            myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
+              myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
+              SmartDashboard.putString("drive being run", DriveSelected);
             }
             break;
         } 

@@ -6,6 +6,7 @@ import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 
 import org.janksters.jankyLib.JankyStateMachine;
 import org.janksters.jankyLib.jankyXboxJoystick;
@@ -35,6 +36,8 @@ public class Pivot extends JankyStateMachine {
     boolean goClimbConfig = false;
     boolean climbConfigAchieved = false;
 
+    private Timer timer;
+
     public Pivot() {
         pivotMotor = new WPI_TalonFX(Constants.MOTOR_ID);
         XboxController = new jankyXboxJoystick(Constants.CONTROLLER_PORT_ID);
@@ -52,6 +55,8 @@ public class Pivot extends JankyStateMachine {
         SetName(CLIMB_CONFIG, "Climb Config");
         SetName(CLIMB_CONFIG_ACHIEVED, "Climb Config Achieved");
 
+        timer = new Timer();
+
         start();
     }
 
@@ -62,15 +67,24 @@ public class Pivot extends JankyStateMachine {
                     intakeConfigAchieved = false;
                     shooterConfigAchieved = false;
                     climbConfigAchieved = false;
+                    timer.reset();
+                    timer.start();
                 }
 
                 setStartPos();
 
+                if (timer.get() >= 1){
+                    timer.stop();
+                    startingConfigAchieved = true;
+                    NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
+                }
+                /**
                 if (topLimitSwitch.get()) {
                     // Switch to Start Config, set current position as 0
                     startingConfigAchieved = true;
                     NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 }
+                 */
                 break;
             case STARTING_CONFIG:
                 if (onStateEntered) {
@@ -83,7 +97,8 @@ public class Pivot extends JankyStateMachine {
                 holdStartPos();
 
                 if (XboxController.GetButtonBack()) {
-                    flagIntakeConfig();
+                    //flagIntakeConfig();
+                    NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
 
                 if (goIntakeConfig) {
@@ -92,7 +107,8 @@ public class Pivot extends JankyStateMachine {
                 }
 
                 if (XboxController.GetButtonStart()) {
-                    flagShooterConfig();
+                    //flagShooterConfig();
+                    NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
 
                 if (goShooterConfig) {
@@ -108,9 +124,12 @@ public class Pivot extends JankyStateMachine {
                     startingConfigAchieved = false;
                 }
                 setIntakePos();
+                
                 if (XboxController.GetButtonStart()) {
-                    flagShooterConfig();
+                    //flagShooterConfig();
+                    NewState(SHOOTER_CONFIG, "intake config flag is true");
                 }
+
                 if (goShooterConfig) {
                     goShooterConfig = false;
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
@@ -130,7 +149,8 @@ public class Pivot extends JankyStateMachine {
                 startingConfigAchieved = false;
                 setShooterConfig();
                 if (XboxController.GetButtonBack()) {
-                    flagIntakeConfig();
+                    //flagIntakeConfig();
+                    NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
                 if (goIntakeConfig) {
                     goIntakeConfig = false;
@@ -176,8 +196,8 @@ public class Pivot extends JankyStateMachine {
         /* min/max */
         pivotMotor.configNominalOutputForward(0, Constants.kTimeoutMs);
         pivotMotor.configNominalOutputReverse(0, Constants.kTimeoutMs);
-        pivotMotor.configPeakOutputForward(1, Constants.kTimeoutMs);
-        pivotMotor.configPeakOutputReverse(-1, Constants.kTimeoutMs);
+        pivotMotor.configPeakOutputForward(1, Constants.kTimeoutMs); //1
+        pivotMotor.configPeakOutputReverse(-1, Constants.kTimeoutMs); //-1
 
         /* allowable error */
         pivotMotor.configAllowableClosedloopError(0, Constants.kPIDLoopIdx, Constants.kTimeoutMs);
