@@ -11,7 +11,7 @@ public class VisionSubsystem extends JankyTask{
     PIDController pidDistance = new PIDController(0.1, 0, 0);
     PIDController pidAngle = new PIDController(0.1, 0, 0);
 
-    private boolean m_LimelightHasValidTarget = false;
+    private boolean limelightHasValidTarget = false;
     private double distance;
     private double angle;
     private NetworkTable table;
@@ -40,7 +40,7 @@ public class VisionSubsystem extends JankyTask{
         distance = pidCalcDistance(); //returns the power the robot needs to reach setpoint
         angle = pidCalcAngle();
 
-        SmartDashboard.putBoolean("Limelight Has Valid Target", m_LimelightHasValidTarget);
+        SmartDashboard.putBoolean("Limelight Has Valid Target", limelightHasValidTarget);
         SmartDashboard.putNumber("Limelight Horizontal offset", tx);
         SmartDashboard.putNumber("Limelight Vertical offset ", ty);
         SmartDashboard.putNumber("Limelight Distance ", distance); 
@@ -57,9 +57,9 @@ public class VisionSubsystem extends JankyTask{
         tv = table.getEntry("tv").getDouble(0);
 
         if (tv < 1.0) {
-        m_LimelightHasValidTarget = false;
+        limelightHasValidTarget = false;
         } else {
-        m_LimelightHasValidTarget = true;
+        limelightHasValidTarget = true;
         }
     }
     private double pidCalcAngle(){
@@ -85,7 +85,7 @@ public class VisionSubsystem extends JankyTask{
         return tx;
     }
     public boolean targetValid(){
-        return m_LimelightHasValidTarget;
+        return limelightHasValidTarget;
     }
     
 }

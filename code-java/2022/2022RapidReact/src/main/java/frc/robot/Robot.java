@@ -18,6 +18,8 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 
+import javax.swing.text.AbstractDocument.LeafElement;
+
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 
@@ -28,46 +30,48 @@ public class Robot extends TimedRobot {
   private static final String kCurvatureDrive = "Curvature Drive";
   private static final String kSteeringWheel = "Steering Wheel";
 
-  private String m_DriveSelected;
-  private final SendableChooser<String> m_driveChooser = new SendableChooser<>();
+  private String DriveSelected;
+  private final SendableChooser<String> driveChooser = new SendableChooser<>();
 
-  Joystick m_arcadeJoystickP1;
-  Joystick m_arcadeJoystickP2;
-  double speed;
-
-  private boolean m_LimelightHasValidTarget = false;
-
+  Joystick leftJoystick;
+  Joystick rightJoystick;
+  double averageSpeed;
 
   //Chassis in a Day - Lazlo
-    /*private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);
-    private PWMVictorSPX m_leftFollower = new PWMVictorSPX(3);
-    private WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);
-    private PWMVictorSPX m_rightFollower = new PWMVictorSPX(0);*/
+    /*private WPI_TalonSRX leftLeader = new WPI_TalonSRX(2);
+    private PWMVictorSPX leftFollower = new PWMVictorSPX(3);
+    private WPI_TalonFX rightLeader = new WPI_TalonFX(1);
+    private PWMVictorSPX rightFollower = new PWMVictorSPX(0);*/
 
-  //2022 Janky
-    private WPI_TalonSRX m_leftLeader = new WPI_TalonSRX(2);//m2
-    private WPI_TalonFX m_leftFollower = new WPI_TalonFX(3);//m3
-    private WPI_TalonFX m_rightLeader = new WPI_TalonFX(1);//m1
-    private WPI_TalonSRX m_rightFollower = new WPI_TalonSRX(0);//m0
+  //2022 Real Bot (wifi is bob)
+    private WPI_TalonFX leftLeader = new WPI_TalonFX(2);//m2
+    private WPI_TalonFX leftFollower = new WPI_TalonFX(3);//m3
+    private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
+    private WPI_TalonFX rightFollower = new WPI_TalonFX(0);//m0
 
-    private MotorControllerGroup m_left = new MotorControllerGroup(m_leftLeader, m_leftFollower);
-    private MotorControllerGroup m_right = new MotorControllerGroup(m_rightLeader, m_rightFollower);
-    DifferentialDrive m_myRobot = new DifferentialDrive(m_left,m_right);
-    //DifferentialDrive m_myRobot = new DifferentialDrive(m_leftFollower,m_rightLeader);
+  //2022 Janky (wifi is C1Day)
+    /*private WPI_TalonSRX leftLeader = new WPI_TalonSRX(2);//m2
+    private WPI_TalonFX leftFollower = new WPI_TalonFX(3);//m3
+    private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
+    private WPI_TalonSRX rightFollower = new WPI_TalonSRX(0);//m0*/
+
+  private MotorControllerGroup left = new MotorControllerGroup(leftLeader, leftFollower);
+  private MotorControllerGroup right = new MotorControllerGroup(rightLeader, rightFollower);
+  DifferentialDrive myRobot = new DifferentialDrive(left,right);
 
   PIDController pidDistance = new PIDController(0.1, 0, 0);
   PIDController pidAngle = new PIDController(0.1, 0, 0);
 
   VisionSubsystem limeLight = new VisionSubsystem();
 
-  /*Shooter shooter = new Shooter();
+  Shooter shooter = new Shooter();
   Pivot pivot = new Pivot();
   private Climb climbMech;
 
   //AUTO
   AutoStateMachine autoSM;
   AutoSelector pathSelector = new AutoSelector();
-  int autoCaseNum;*/
+  int autoCaseNum;
 
   //move forward
   final int simplePath = 0;
@@ -83,25 +87,25 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     //AUTO
-   /* pathSelector.DisplayActualAutoOptions();
-    autoCaseNum = 0;*/
+    pathSelector.DisplayActualAutoOptions();
+    autoCaseNum = 0;
 
     //CHASSIS
-    m_driveChooser.setDefaultOption("Tank Drive", kTankDrive);
-    m_driveChooser.addOption("Arcade Drive", kArcadeDrive);
-    m_driveChooser.addOption("Curvature Drive", kCurvatureDrive);
-    m_driveChooser.addOption("Steering Wheel", kSteeringWheel);
-    SmartDashboard.putData("Drive choices", m_driveChooser);
+    driveChooser.setDefaultOption("Tank Drive", kTankDrive);
+    driveChooser.addOption("Arcade Drive", kArcadeDrive);
+    driveChooser.addOption("Curvature Drive", kCurvatureDrive);
+    driveChooser.addOption("Steering Wheel", kSteeringWheel);
+    SmartDashboard.putData("Drive choices", driveChooser);
 
-    m_arcadeJoystickP1 = new Joystick(0);  //whatever is in port 1 - P1 stands for port1
-    m_arcadeJoystickP2 = new Joystick(1); //whatever is in port  2
+    leftJoystick = new Joystick(0);  //whatever is in port 0
+    rightJoystick = new Joystick(1); //whatever is in port  0
 
-    /*if (climbMech == null){
+    if (climbMech == null){
       climbMech = new Climb(Constants.WINCH_MOTOR_CHANNEL_L, Constants.WINCH_MOTOR_CHANNEL_R,
       Constants.PCM_CHANNEL, Constants.MID_LATCH_CHANNEL_L, Constants.MID_LATCH_CHANNEL_R, pivot);
-    }*/
+    }
 
-    m_myRobot.setMaxOutput(0.5); //default is 1
+    myRobot.setMaxOutput(0.5); //default is 1
 
     System.out.println("Passed through initialization");
   }
@@ -129,7 +133,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    /*//making the path selector
+    //making the path selector
     Auto.autoPathFinal = pathSelector.getActualAutoMode();
    
     //idk where we use this but we are keeping it just in case
@@ -137,20 +141,20 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
 
-    autoSM = new AutoStateMachine(pivot, shooter);*/
+    autoSM = new AutoStateMachine(pivot, shooter);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    //autoSM.displayCurrentState();
+    autoSM.displayCurrentState();
   }
 
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    m_DriveSelected = m_driveChooser.getSelected();
-    System.out.println("Drive selected: " + m_DriveSelected);
+    DriveSelected = driveChooser.getSelected();
+    System.out.println("Drive selected: " + DriveSelected);
   }
 
   /** This function is called periodically during operator control. :) */
@@ -159,33 +163,34 @@ public class Robot extends TimedRobot {
 
 
     //SHOOTER
-    //shooter.displayCurrentState();
+    shooter.displayCurrentState();
 
     //CHASSIS
-    if (m_arcadeJoystickP1.getRawButton(4)&& limeLight.targetValid()){ 
-      m_myRobot.tankDrive(-limeLight.getDistance(),limeLight.getDistance());//Call limeLight.getAngle() subtract from one side, add to another 
+    if (leftJoystick.getRawButton(4)&& limeLight.targetValid()){ 
+      myRobot.tankDrive(-limeLight.getDistance()-limeLight.getAngle(),limeLight.getDistance() + limeLight.getAngle());//Call limeLight.getAngle() subtract from one side, add to another 
     } else {
-        switch (m_DriveSelected) {
+        switch (DriveSelected) {
           case kArcadeDrive:
-            double rotateSpeed = m_arcadeJoystickP1.getRawAxis(1);
-            double moveSpeed = m_arcadeJoystickP1.getRawAxis(0);
-            m_myRobot.arcadeDrive(moveSpeed, -rotateSpeed); // + move , - rot
+            double rotateSpeed = leftJoystick.getRawAxis(1);
+            double moveSpeed = leftJoystick.getRawAxis(0);
+            myRobot.arcadeDrive(moveSpeed, -rotateSpeed); // + move , - rot
             break;
           case kCurvatureDrive:
             // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
-            m_myRobot.curvatureDrive(m_arcadeJoystickP1.getX(), -m_arcadeJoystickP1.getY(), !m_arcadeJoystickP1.getTrigger());//maybe take out negative?
+            myRobot.curvatureDrive(leftJoystick.getX(), -leftJoystick.getY(), leftJoystick.getTrigger());//maybe take out negative?
             break;  
           case kSteeringWheel:
-            double rSpeed = m_arcadeJoystickP1.getRawAxis(0);//10% works DON'T CHANGE
-            double mSpeed = m_arcadeJoystickP2.getRawAxis(1);
-            m_myRobot.arcadeDrive(rSpeed, -mSpeed); 
+            //put if statement for printing instructions on how to use 
+            double rSpeed = leftJoystick.getRawAxis(0);//10% works DON'T CHANGE
+            double mSpeed = rightJoystick.getRawAxis(1);
+            myRobot.arcadeDrive(rSpeed, -mSpeed); 
             break;
           default:
-            speed = (m_arcadeJoystickP1.getY() + m_arcadeJoystickP2.getY()) / 2;
-            if (m_arcadeJoystickP1.getRawButton(3) || m_arcadeJoystickP2.getRawButton(3)) {
-              m_myRobot.tankDrive(-speed, speed);
+            averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
+            if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
+              myRobot.tankDrive(-averageSpeed, averageSpeed);
             } else {
-              m_myRobot.tankDrive(-m_arcadeJoystickP1.getY(), m_arcadeJoystickP2.getY());
+            myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
             }
             break;
         } 

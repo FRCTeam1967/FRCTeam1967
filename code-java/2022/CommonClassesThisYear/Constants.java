@@ -4,8 +4,8 @@ package org.janksters.CommonClassesThisYear;
 public class Constants {
     public static final int PULSES_PER_REVOLUTION = 2048;
     public static final int MOTOR_ID = 8; //TBD
-    public static final int CONTROLLER_PORT_ID = 8; //TBD
-    public static final int TOP_LIMIT_SWITCH_ID = 8; //TBD
+    public static final int CONTROLLER_PORT_ID = 2; //TBD 2022 real
+    public static final int TOP_LIMIT_SWITCH_ID = 9; //TBD 2022 real
     public static final int BOTTOM_LIMIT_SWITCH_ID = 8; //TBD
 
     // PID 

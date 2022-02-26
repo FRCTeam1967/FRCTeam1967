@@ -37,8 +37,8 @@ public class Shooter extends JankyStateMachine {
     private SparkMaxPIDController bottomPIDController;
     public RelativeEncoder bottomMotorEncoder;
 
-    private static final int topRollerMotorID = 17; 
-    private static final int bottomRollerMotorID = 18;
+    private static final int topRollerMotorID = 7; 
+    private static final int bottomRollerMotorID = 8;
     
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
 
@@ -57,7 +57,7 @@ public class Shooter extends JankyStateMachine {
     private boolean fireCompleteFlag = false;
 
     public Shooter() {
-        XboxController = new jankyXboxJoystick(0); 
+        XboxController = new jankyXboxJoystick(2); 
         table = NetworkTableInstance.getDefault().getTable("limelight");
 
         topRollerMotor = new CANSparkMax(topRollerMotorID, MotorType.kBrushless);
@@ -144,7 +144,7 @@ public class Shooter extends JankyStateMachine {
                 break;
             case RevUp:
                 setBottomVelocity();
-                if (bottomMotorEncoder.getVelocity() >= 4000){
+                if (bottomMotorEncoder.getVelocity() >= 3500){
                     NewState(Fire, "finished bottom roller running");
                 }
                 break;
