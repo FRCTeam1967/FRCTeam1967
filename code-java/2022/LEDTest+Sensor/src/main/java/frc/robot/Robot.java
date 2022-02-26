@@ -33,13 +33,16 @@ public class Robot extends TimedRobot {
 
   // Color sensor configuration
   private ColorSensor m_colorSensor;
-  private final Color kBlueTarget = new Color(0.143, 0.427, 0.429);
-  private final Color kGreenTarget = new Color(0.197, 0.561, 0.240);
-  private final Color kRedTarget = new Color(0.561, 0.232, 0.114);
-  private final Color kYellowTarget = new Color(0.361, 0.524, 0.113);
-  private final Color kBlackTarget = new Color (0.000,0.000,0.000);
-  private final Color kBlack1Target = new Color (0.5,0.5,0.0);
-  private final Color kGrayTarget = new Color(0.38, 0.41, 0.21);
+  private static final double m_ConfidenceThreshold = 0.85;
+
+  // Average 3 samples
+  private final Color kRedBallTarget = new Color((0.5825 + 0.57764 + 0.5712) / 3,
+    (0.3091 + 0.3122 + 0.3188) / 3,
+    (0.1086 + 0.1108 + 0.1104) / 3);
+
+  private final Color kBlueBallTarget = new Color((0.1323 + 0.1232 + 0.1323) / 3,
+    (0.3621 + 0.3613 + 0.3618)/3,
+    (0.5059 + 0.5068 + 0.5061)/3);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -57,9 +60,9 @@ public class Robot extends TimedRobot {
     // Init ColorSensor subsystem
     I2C.Port i2cPort = I2C.Port.kOnboard;
     m_colorSensor = new ColorSensor(i2cPort);
-    Color colorsToMatch[] = {kBlueTarget, kGreenTarget, kRedTarget, kYellowTarget, kBlack1Target,
-    kBlackTarget, kGrayTarget};
+    Color colorsToMatch[] = {kRedBallTarget, kBlueBallTarget};
     m_colorSensor.setColorMatches(colorsToMatch);
+    m_colorSensor.setConfidenceThreshold(m_ConfidenceThreshold);
   }
 
   /**
@@ -75,37 +78,22 @@ public class Robot extends TimedRobot {
 
     // Use .match() to get a match or null if nothing 
     // matches. Use .closestMatch() to force a match
-    ColorMatchResult closestMatch = m_colorSensor.closestMatch();
-    Color displayColor = new Color(0.1, 0.1, 0.1);
+    ColorMatchResult closestMatch = m_colorSensor.match();
+    Color displayColor = new Color(0, 0, 0);
     double confidence = 0.0;
 
     if (closestMatch != null) { 
       Color color = closestMatch.color;
       confidence = closestMatch.confidence;
 
-      if (color == kBlueTarget) {
+      if (color == kBlueBallTarget) {
         System.out.println("Blue");
         SmartDashboard.putString("Color Match", "Blue");
         displayColor = Color.kBlue;
-      } else if (color == kRedTarget) {
+      } else if (color == kRedBallTarget) {
         System.out.println("Red");
         SmartDashboard.putString("Color Match", "Red");
         displayColor = Color.kRed;
-      } else if (color == kGreenTarget) {
-        SmartDashboard.putString("Color Match", "Green");
-        System.out.println("Green");
-      } else if (color == kYellowTarget) {
-        System.out.println("Yellow");
-        SmartDashboard.putString("Color Match", "Yellow");
-        displayColor = Color.kYellow;
-      } else if (color == kBlackTarget || color == kBlack1Target) {
-        System.out.println("Black");
-        SmartDashboard.putString("Color Match", "Black");
-        displayColor = Color.kBlack;
-      } else if (color == kGrayTarget) {
-        System.out.println("Gray");
-        SmartDashboard.putString("Color Match", "Gray");
-        displayColor = Color.kSlateGray;
       } else {
         System.out.println("No Match");
         SmartDashboard.putString("Color Match", "None");
@@ -130,6 +118,9 @@ public class Robot extends TimedRobot {
 
     SmartDashboard.putNumber("Proximity", proximity);
     SmartDashboard.putNumber("Confidence", confidence);
+    SmartDashboard.putNumber("Observed red", observedColor.red);
+    SmartDashboard.putNumber("Observed green", observedColor.green);
+    SmartDashboard.putNumber("Observed blue", observedColor.blue);
 
     m_ledPanel.commit();
   }
@@ -141,14 +132,6 @@ public class Robot extends TimedRobot {
         m_ledPanel.setPixelByXY(col, startRow + meterRow, col < meterValue ? meterColor : Color.kBlack);
       }
     }
-  }
-
-  public void setConfidenceMeter(double confidence) {
-
-  }
-
-  public void setColorMeter(Color color) {
-
   }
 
   /**

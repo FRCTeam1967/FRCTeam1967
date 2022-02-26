@@ -62,4 +62,8 @@ public class ColorSensor {
     public int getProximity() {
         return m_colorSensor.getProximity();
     }
+
+    public void setConfidenceThreshold(double threshhold) {
+        m_colorMatcher.setConfidenceThreshold(threshhold);
+    }
 }
