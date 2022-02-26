@@ -99,6 +99,26 @@ public class LEDPanel {
         }
     }
 
+    // Pass a starting hue (0-180). Will return the next hue that should be passed in if you want
+    // to make it move.
+    public int setRainbow(int startingHue) {
+        // For every pixel
+        for (var i = 0; i < m_ledBuffer.getLength(); i++) {
+            // Calculate the hue - hue is easier for rainbows because the color
+            // shape is a circle so only one value needs to precess
+            final var hue = (startingHue + (int)(i * 180.0 / m_ledBuffer.getLength())) % 180;
+            // Set the value
+            m_ledBuffer.setHSV(i, hue, 255, (int)(255 * m_brightness));
+        }
+        // Increase by to make the rainbow "move"
+        startingHue += 3;
+        // Check bounds
+        startingHue %= 180;
+
+        return startingHue;
+    }
+    
+
     // Commit the buffer so it's written to the pixels at the next update
     public void commit() {
         m_led.setData(m_ledBuffer);

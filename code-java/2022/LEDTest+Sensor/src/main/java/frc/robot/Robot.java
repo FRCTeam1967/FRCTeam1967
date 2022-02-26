@@ -35,6 +35,9 @@ public class Robot extends TimedRobot {
   private ColorSensor m_colorSensor;
   private static final double m_ConfidenceThreshold = 0.85;
 
+  // Rainbow hue
+  private int m_nextRainbowHueStart = 0;
+
   // Average 3 samples
   private final Color kRedBallTarget = new Color((0.5825 + 0.57764 + 0.5712) / 3,
     (0.3091 + 0.3122 + 0.3188) / 3,
@@ -121,6 +124,9 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Observed red", observedColor.red);
     SmartDashboard.putNumber("Observed green", observedColor.green);
     SmartDashboard.putNumber("Observed blue", observedColor.blue);
+
+    // This will clobber everything that's already been drawn above.
+    // m_nextRainbowHueStart = m_ledPanel.setRainbow(m_nextRainbowHueStart);
 
     m_ledPanel.commit();
   }
