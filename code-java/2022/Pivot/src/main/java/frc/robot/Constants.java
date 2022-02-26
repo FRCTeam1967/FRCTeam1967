@@ -3,10 +3,10 @@ package frc.robot;
 //8 values are TBD
 public class Constants {
     public static final int PULSES_PER_REVOLUTION = 2048;
-    public static final int MOTOR_ID = 8; //TBD
-    public static final int CONTROLLER_PORT_ID = 8; //TBD
+    public static final int MOTOR_ID = 1; //TBD
+    public static final int CONTROLLER_PORT_ID = 2; //TBD
     public static final int TOP_LIMIT_SWITCH_ID = 8; //TBD
-    public static final int BOTTOM_LIMIT_SWITCH_ID = 8; //TBD
+    public static final int BOTTOM_LIMIT_SWITCH_ID = 9; //TBD
     public static final int GEAR_RATIO = 100;
 
     // PID 
@@ -20,7 +20,7 @@ public class Constants {
     
     //TBD
     public static final double INTAKE_ANGLE = 105; 
-    public static final double STARTING_ANGLE = 0;
+    public static final double STARTING_ANGLE = 0; //Not moving in IDLE 
     public static final double SHOOTER_ANGLE = 15; 
     public static final double CLIMB_ANGLE = 85; 
 
