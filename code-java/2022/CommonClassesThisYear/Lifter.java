@@ -23,7 +23,7 @@ public class Lifter extends JankyStateMachine {
     private jankyXboxJoystick XboxController;
 
     private WPI_TalonFX m_motor;
-    private static final int M_MOTOR_ID = 8; // TBD
+    private static final int M_MOTOR_ID = 4; // TBD
 
     public Lifter() {
         XboxController = new jankyXboxJoystick(0); // TBD

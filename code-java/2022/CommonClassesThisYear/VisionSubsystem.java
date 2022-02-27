@@ -70,7 +70,7 @@ public class VisionSubsystem extends JankyTask{
     private double pidCalcDistance(){
         ta = table.getEntry("ta").getDouble(0);
         distance = 93.4 + (-46.9 * Math.log(ta)); //Unit - inches 
-        System.out.println("distance: " + distance);
+        //System.out.println("distance: " + distance);
         return pidDistance.calculate(distance, 39.3701); //Current distance, setpoint (desired distance from target)
         //get rid of pidcontrol in Vision
     }

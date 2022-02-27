@@ -61,9 +61,9 @@ public class Constants {
     public static final int MID_LATCH_CHANNEL_R = 3;
 
     //pivot constants
-    public static final double INTAKE_ANGLE = 95; 
+    public static final double INTAKE_ANGLE = 72; 
     public static final double STARTING_ANGLE = 0;
-    public static final double SHOOTER_ANGLE = 15; 
+    public static final double SHOOTER_ANGLE = 0; 
     public static final double CLIMB_ANGLE = 85; 
 
     public static final double INTAKE_ANGLE_PULSES = (INTAKE_ANGLE / 360) * PIVOT_GEAR_RATIO * PULSES_PER_REVOLUTION; 

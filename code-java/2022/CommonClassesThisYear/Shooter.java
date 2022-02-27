@@ -37,8 +37,8 @@ public class Shooter extends JankyStateMachine {
     private SparkMaxPIDController bottomPIDController;
     public RelativeEncoder bottomMotorEncoder;
 
-    private static final int topRollerMotorID = 7; 
-    private static final int bottomRollerMotorID = 8;
+    private static final int topRollerMotorID = 20; 
+    private static final int bottomRollerMotorID = 21;
     
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
 
@@ -50,8 +50,8 @@ public class Shooter extends JankyStateMachine {
     // PID controller set reference takes RPM values, max 5700
     private static final double INTAKE_ROLLER_SPEED = 0.2;
     private static final double SLOW_EJECT_SPEED = 0.15;
-    private static final double TOP_ROLLER_FIRE_SPEED = 4000; 
-    private static final double BOTTOM_ROLLER_FIRE_SPEED = 4000;
+    private static final double TOP_ROLLER_FIRE_SPEED = 4500; 
+    private static final double BOTTOM_ROLLER_FIRE_SPEED = 4500;
 
     private boolean revUpFlag = false;
     private boolean fireCompleteFlag = false;
@@ -144,7 +144,7 @@ public class Shooter extends JankyStateMachine {
                 break;
             case RevUp:
                 setBottomVelocity();
-                if (bottomMotorEncoder.getVelocity() >= 3500){
+                if (bottomMotorEncoder.getVelocity() >= 3800){
                     NewState(Fire, "finished bottom roller running");
                 }
                 break;

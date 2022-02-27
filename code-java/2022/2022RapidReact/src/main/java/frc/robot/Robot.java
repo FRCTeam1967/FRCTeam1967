@@ -15,12 +15,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import javax.swing.text.AbstractDocument.LeafElement;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
+
 
 
 public class Robot extends TimedRobot {
@@ -32,6 +34,7 @@ public class Robot extends TimedRobot {
   private String DriveSelected;
   private final SendableChooser<String> driveChooser = new SendableChooser<>();
 
+  public int ledCounter = 0;
   Joystick leftJoystick;
   Joystick rightJoystick;
   double averageSpeed;
@@ -47,6 +50,7 @@ public class Robot extends TimedRobot {
     private WPI_TalonFX leftFollower = new WPI_TalonFX(3);//m3
     private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
     private WPI_TalonFX rightFollower = new WPI_TalonFX(0);//m0
+
 
   //2022 Janky (wifi is C1Day)
     /*private WPI_TalonSRX leftLeader = new WPI_TalonSRX(2);//m2
@@ -65,6 +69,7 @@ public class Robot extends TimedRobot {
 
   Shooter shooter = new Shooter();
   Pivot pivot = new Pivot();
+  LED led = new LED(1, 500, 9); 
   //private Climb climbMech;
 
   //AUTO
@@ -87,6 +92,12 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    leftLeader.setNeutralMode(NeutralMode.Brake);
+    leftFollower.setNeutralMode(NeutralMode.Brake);
+    rightLeader.setNeutralMode(NeutralMode.Brake);
+    rightFollower.setNeutralMode(NeutralMode.Brake);
+
     //AUTO 
     /*
     pathSelector.DisplayActualAutoOptions();
@@ -166,6 +177,9 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
+    ledCounter = led.setRainbow(ledCounter);
+    led.commit();
+
     //SHOOTER
     shooter.displayCurrentState();
 
