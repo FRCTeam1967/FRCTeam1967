@@ -5,7 +5,6 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.Timer;
 
 import org.janksters.jankyLib.JankyStateMachine;
@@ -39,10 +38,10 @@ public class Pivot extends JankyStateMachine {
     private Timer timer;
 
     public Pivot() {
-        pivotMotor = new WPI_TalonFX(Constants.MOTOR_ID);
-        XboxController = new jankyXboxJoystick(Constants.CONTROLLER_PORT_ID);
-        DigitalInput topLimitSwitch = new DigitalInput(Constants.TOP_LIMIT_SWITCH_ID);
-        DigitalInput bottomLimitSwitch = new DigitalInput(Constants.BOTTOM_LIMIT_SWITCH_ID);
+        pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
+        XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
+        DigitalInput topLimitSwitch = new DigitalInput(Constants.PIVOT_TOP_LIMIT_SWITCH_ID);
+        DigitalInput bottomLimitSwitch = new DigitalInput(Constants.PIVOT_BOTTOM_LIMIT_SWITCH_ID);
 
         setUpPivot();
 
@@ -71,14 +70,17 @@ public class Pivot extends JankyStateMachine {
                     timer.start();
                 }
 
-                setStartPos();
-
+                //to hit limit switch
+                //setStartPos();
+                
+                NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
+                /*
                 if (timer.get() >= 1){
                     timer.stop();
                     startingConfigAchieved = true;
                     NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 }
-                /**
+                
                 if (topLimitSwitch.get()) {
                     // Switch to Start Config, set current position as 0
                     startingConfigAchieved = true;
@@ -139,7 +141,7 @@ public class Pivot extends JankyStateMachine {
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
 
-                if (checkPosition(Constants.INTAKE_ANGLE_PULSES)) {
+                if (checkPosition(Constants.PIVOT_INTAKE_ANGLE_PULSES)) {
                     intakeConfigAchieved = true;
                 }
                 break;
@@ -161,7 +163,7 @@ public class Pivot extends JankyStateMachine {
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
 
-                if (checkPosition(Constants.SHOOTER_ANGLE_PULSES)) {
+                if (checkPosition(Constants.PIVOT_SHOOTER_ANGLE_PULSES)) {
                     shooterConfigAchieved = true;
                 }
                 break;
@@ -174,7 +176,7 @@ public class Pivot extends JankyStateMachine {
 
                 setClimbConfig();
 
-                if (checkPosition(Constants.CLIMB_ANGLE_PULSES) && GetCurrentState() == CLIMB_CONFIG) {
+                if (checkPosition(Constants.PIVOT_CLIMB_ANGLE_PULSES) && GetCurrentState() == CLIMB_CONFIG) {
                     climbConfigAchieved = true;
                     NewState(CLIMB_CONFIG_ACHIEVED, "climb config achieved flag set to true");
                 }
@@ -188,25 +190,25 @@ public class Pivot extends JankyStateMachine {
     private void setUpPivot() {
         /* setup */
         pivotMotor.configFactoryDefault();
-        pivotMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, Constants.kPIDLoopIdx,
-                Constants.kTimeoutMs);
+        pivotMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, Constants.PIVOT_kPIDLoopIdx,
+                Constants.PIVOT_kTimeoutMs);
         pivotMotor.setSensorPhase(true);
         pivotMotor.setInverted(false); // TBD
 
         /* min/max */
-        pivotMotor.configNominalOutputForward(0, Constants.kTimeoutMs);
-        pivotMotor.configNominalOutputReverse(0, Constants.kTimeoutMs);
-        pivotMotor.configPeakOutputForward(1, Constants.kTimeoutMs); //1
-        pivotMotor.configPeakOutputReverse(-1, Constants.kTimeoutMs); //-1
+        pivotMotor.configNominalOutputForward(0, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.configNominalOutputReverse(0, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.configPeakOutputForward(1, Constants.PIVOT_kTimeoutMs); //1
+        pivotMotor.configPeakOutputReverse(-1, Constants.PIVOT_kTimeoutMs); //-1
 
         /* allowable error */
-        pivotMotor.configAllowableClosedloopError(0, Constants.kPIDLoopIdx, Constants.kTimeoutMs);
+        pivotMotor.configAllowableClosedloopError(0, Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kTimeoutMs);
 
         /* PID config */
-        pivotMotor.config_kF(Constants.kPIDLoopIdx, Constants.kF, Constants.kTimeoutMs);
-        pivotMotor.config_kP(Constants.kPIDLoopIdx, Constants.kP, Constants.kTimeoutMs);
-        pivotMotor.config_kI(Constants.kPIDLoopIdx, Constants.kI, Constants.kTimeoutMs);
-        pivotMotor.config_kD(Constants.kPIDLoopIdx, Constants.kD, Constants.kTimeoutMs);
+        pivotMotor.config_kF(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kF, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.config_kI(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kI, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.config_kD(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kD, Constants.PIVOT_kTimeoutMs);
     }
 
     public double getEncoder() {
@@ -214,11 +216,11 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setStartPos() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.STARTING_ANGLE_PULSES); // TBD
+        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_STARTING_ANGLE_PULSES); // TBD
     }
 
     public void holdStartPos() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.STARTING_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_STARTING_ANGLE_PULSES);
     }
 
     public void flagIntakeConfig() {
@@ -226,7 +228,7 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setIntakePos() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.INTAKE_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_INTAKE_ANGLE_PULSES);
     }
 
     public void flagShooterConfig() {
@@ -234,7 +236,7 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setShooterConfig() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.SHOOTER_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_SHOOTER_ANGLE_PULSES);
     }
 
     // Auto calls this to check if shooter config is reached
@@ -248,7 +250,7 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setClimbConfig() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.CLIMB_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_CLIMB_ANGLE_PULSES);
     }
 
     // Used by climb mech to check if pivot has entered CLIMB_CONFIG_ACHIEVED state

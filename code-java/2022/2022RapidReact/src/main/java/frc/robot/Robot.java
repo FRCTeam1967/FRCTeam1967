@@ -4,7 +4,6 @@
 
 package frc.robot;
 import org.janksters.CommonClassesThisYear.*;
-
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -116,8 +115,8 @@ public class Robot extends TimedRobot {
 
     /*
     if (climbMech == null){
-      climbMech = new Climb(Constants.WINCH_MOTOR_CHANNEL_L, Constants.WINCH_MOTOR_CHANNEL_R,
-      Constants.PCM_CHANNEL, Constants.MID_LATCH_CHANNEL_L, Constants.MID_LATCH_CHANNEL_R, pivot);
+      climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
+      Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL_L, Constants.CLIMB_MID_LATCH_CHANNEL_R, pivot);
     }
     */
 
