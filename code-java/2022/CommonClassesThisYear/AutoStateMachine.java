@@ -55,15 +55,29 @@ public class AutoStateMachine extends JankyStateMachine {
     Timer delayTimer = new Timer();
     public static int delay;
 
+    // private final int firstDelay = 0;
+    // private final int firstMove = 1;
+    // private final int turn = 2;
+    // private final int secondMove = 3;
+    // private final int liftAndShoot = 4;
+    // private final int finishAuto = 5;
+
     private final int firstDelay = 0;
-    private final int firstMove = 1;
-    private final int turn = 2;
-    private final int secondMove = 3;
-    private final int liftAndShoot = 4;
-    private final int finishAuto = 5;
+    private final int firstShoot = 1;
+    private final int loweredArm = 2;
+    private final int firstMove = 3;
+    private final int firstTurn = 4;
+    private final int secondMove = 5;
+    private final int secondTurn = 6;
+    private final int thirdMove = 7;
+    private final int thirdTurn = 8;
+    private final int fourthMove = 9;
+    private final int liftAndShoot = 10;
+    private final int finishAuto = 11;
 
     boolean armLifted = false;
     boolean hasShoot = false;
+    boolean armLowered = false;
 
     public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
 
@@ -108,15 +122,29 @@ public class AutoStateMachine extends JankyStateMachine {
         rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
 
         m_gyro.reset();
-    
 
-        SetMachineName("auto");
+        SetMachineName("autoSupreme");
         SetName(firstDelay, "firstDelay");
+        SetName(firstShoot, "firstShoot");
+        SetName(loweredArm, "loweredArm");
         SetName(firstMove, "firstMove");
-        SetName(turn, "turn");
+        SetName(firstTurn, "firstTurn");
         SetName(secondMove, "secondMove");
+        SetName(secondTurn, "secondTurn");
+        SetName(thirdMove, "thirdMove");
+        SetName(thirdTurn, "thirdTurn");
+        SetName(fourthMove, "fourthMove");
         SetName(liftAndShoot, "liftAndShoot");
         SetName(finishAuto, "finishAuto");
+    
+
+        // SetMachineName("auto");
+        // SetName(firstDelay, "firstDelay");
+        // SetName(firstMove, "firstMove");
+        // SetName(turn, "turn");
+        // SetName(secondMove, "secondMove");
+        // SetName(liftAndShoot, "liftAndShoot");
+        // SetName(finishAuto, "finishAuto");
 
         start();  
 
@@ -133,23 +161,44 @@ public class AutoStateMachine extends JankyStateMachine {
                     //For testing purposes - test later on carpet
                     //System.out.println("I am in delay");
                 } else {
-                    NewState(firstMove, "Delay timer has ended");
+                    NewState(firstShoot, "Delay timer has ended");
                 }
                 break;
+            case firstShoot:
+                if (onStateEntered) {
+                    System.out.println("Shoot");
+                }
+                hasShoot = true;
+
+                if (hasShoot) {
+                    hasShoot = false;
+                    NewState(loweredArm, "Finished shooting");
+                }
+            case loweredArm:
+                if (onStateEntered) {
+                    System.out.println("Lowered Arm");
+                }
+                armLowered = true;
+                
+                if (armLowered) {
+                    armLowered = false;
+                    NewState(firstMove, "Arm is down");
+                }
             case firstMove:
-                m_myRobot.tankDrive(0.4, -0.4);
+                m_myRobot.tankDrive(-0.4, 0.4);
                 //For testing purposes - test later on carpet
                 //System.out.println(inchesToEncoder(50));
                 //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(50) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(70) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
-                    NewState(turn, "reached average encoder for distance");
+                    NewState(firstTurn, "reached average encoder for distance");
                 }
                 break;
-            case turn:
+            case firstTurn:
                 SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
                 m_myRobot.tankDrive(-0.4, -0.4);
-                int desiredAngle = 167;
+                int desiredAngle = 166; //supposed to be 180 but gyro is off by 14 degrees
+                System.out.println(m_gyro.getAngle() + 14);
                 if(m_gyro.getAngle() >= desiredAngle) {
                     NewState(secondMove, "reached desired gyro angle");
                 }
@@ -161,7 +210,49 @@ public class AutoStateMachine extends JankyStateMachine {
                 //For testing purposes - test later on carpet
                 //System.out.println(inchesToEncoder(50));
                 //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(70) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(20) <= getAverageEncoderValues()) {
+                    m_myRobot.tankDrive(0, 0);
+                    NewState(secondTurn, "reached average encoder for distance 2");
+                }
+                m_gyro.reset();
+                break;
+            case secondTurn:
+                SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
+                m_myRobot.tankDrive(-0.4, -0.4);
+                desiredAngle = 46; //60 - 14
+                System.out.println(m_gyro.getAngle() + 14);
+                if(m_gyro.getAngle() >= desiredAngle) {
+                    NewState(finishAuto, "reached desired gyro angle");
+                }
+                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                break;
+            case thirdMove:
+                m_myRobot.tankDrive(0.4, -0.4);
+                //For testing purposes - test later on carpet
+                //System.out.println(inchesToEncoder(50));
+                //System.out.println(getAverageEncoderValues());
+                if (inchesToEncoder(117) <= getAverageEncoderValues()) {
+                    m_myRobot.tankDrive(0, 0);
+                    NewState(thirdTurn, "reached average encoder for distance 2");
+                }
+                break;
+            case thirdTurn:
+                SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
+                m_myRobot.tankDrive(-0.4, -0.4);
+                desiredAngle = 50; //63 - 13
+                if(m_gyro.getAngle() >= desiredAngle) {
+                    NewState(fourthMove, "reached desired gyro angle");
+                }
+                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                break;
+            case fourthMove:
+                m_myRobot.tankDrive(0.4, -0.4);
+                //For testing purposes - test later on carpet
+                //System.out.println(inchesToEncoder(50));
+                //System.out.println(getAverageEncoderValues());
+                if (inchesToEncoder(115) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(liftAndShoot, "reached average encoder for distance 2");
                 }
@@ -182,6 +273,67 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
         }
     }
+
+    // public void StateEngine(int curState, boolean onStateEntered) {
+    //     switch (curState) {
+    //         case firstDelay:
+    //             if (onStateEntered) {
+    //                 delayTimer.start();
+    //             }
+    //             if (delayTimer.get() <=delay) {
+    //                 m_myRobot.tankDrive(0, 0);
+    //                 //For testing purposes - test later on carpet
+    //                 //System.out.println("I am in delay");
+    //             } else {
+    //                 NewState(firstMove, "Delay timer has ended");
+    //             }
+    //             break;
+    //         case firstMove:
+    //             m_myRobot.tankDrive(0.4, -0.4);
+    //             //For testing purposes - test later on carpet
+    //             //System.out.println(inchesToEncoder(50));
+    //             //System.out.println(getAverageEncoderValues());
+    //             if (inchesToEncoder(50) <= getAverageEncoderValues()) {
+    //                 m_myRobot.tankDrive(0, 0);
+    //                 NewState(turn, "reached average encoder for distance");
+    //             }
+    //             break;
+    //         case turn:
+    //             SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
+    //             m_myRobot.tankDrive(-0.4, -0.4);
+    //             int desiredAngle = 167;
+    //             if(m_gyro.getAngle() >= desiredAngle) {
+    //                 NewState(secondMove, "reached desired gyro angle");
+    //             }
+    //             frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+    //             rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+    //             break;
+    //         case secondMove:
+    //             m_myRobot.tankDrive(0.4, -0.4);
+    //             //For testing purposes - test later on carpet
+    //             //System.out.println(inchesToEncoder(50));
+    //             //System.out.println(getAverageEncoderValues());
+    //             if (inchesToEncoder(70) <= getAverageEncoderValues()) {
+    //                 m_myRobot.tankDrive(0, 0);
+    //                 NewState(liftAndShoot, "reached average encoder for distance 2");
+    //             }
+    //             break;
+    //         case liftAndShoot:
+    //             if (onStateEntered) {
+    //                 System.out.println("Lift Arm and shoot");
+    //             }
+    //             armLifted = true;
+    //             hasShoot = true;
+
+    //             if (armLifted && hasShoot) {
+    //                 NewState(finishAuto, "Arm is up and finished shooting");
+    //             }
+    //             break;
+    //         case finishAuto:
+    //             Terminate();
+    //             break;
+    //     }
+    // }
     public void displayCurrentState() {
         SmartDashboard.putNumber("current state", GetCurrentState());
     }
