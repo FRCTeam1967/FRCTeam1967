@@ -21,7 +21,7 @@ public class Constants {
         /* pivot constants */
         public static final double PIVOT_INTAKE_ANGLE = 68; 
         public static final double PIVOT_STARTING_ANGLE = 0;
-        public static final double PIVOT_SHOOTER_ANGLE = -17.75; 
+        public static final double PIVOT_SHOOTER_ANGLE = -15; 
         public static final double PIVOT_CLIMB_ANGLE = 70; 
 
         public static final double PIVOT_INTAKE_ANGLE_PULSES = (PIVOT_INTAKE_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION; 

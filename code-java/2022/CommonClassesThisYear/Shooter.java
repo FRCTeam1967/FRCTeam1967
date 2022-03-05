@@ -48,8 +48,8 @@ public class Shooter extends JankyStateMachine {
 
     // Remember, velocity values are between -1.0 and 1.0 for motor.set
     // PID controller set reference takes RPM values, max 5700
-    private static final double INTAKE_ROLLER_SPEED = 0.2;
-    private static final double SLOW_EJECT_SPEED = 0.15;
+    private static final double INTAKE_ROLLER_SPEED = 1200;
+    private static final double SLOW_EJECT_SPEED = 0.2;
     private static final double TOP_ROLLER_FIRE_SPEED = 4500; 
     private static final double BOTTOM_ROLLER_FIRE_SPEED = 4500;
 
@@ -74,7 +74,7 @@ public class Shooter extends JankyStateMachine {
         revTimer = new Timer();
         slowEjectTimer = new Timer();
 
-        kP = 0.00003;
+        kP = 0.00015;
         kI = 0;
         kD = 0;
         kIz = 0;
@@ -174,8 +174,10 @@ public class Shooter extends JankyStateMachine {
     public void runIntake() {
         // TODO: check diagram, test directions
         // Top roller goes out, bottom goes in
-        topRollerMotor.set(INTAKE_ROLLER_SPEED);
-        bottomRollerMotor.set(-INTAKE_ROLLER_SPEED);
+        // topRollerMotor.set(INTAKE_ROLLER_SPEED);
+        // bottomRollerMotor.set(-INTAKE_ROLLER_SPEED);
+        topPIDController.setReference(INTAKE_ROLLER_SPEED, CANSparkMax.ControlType.kVelocity);
+        bottomPIDController.setReference(-INTAKE_ROLLER_SPEED, CANSparkMax.ControlType.kVelocity);
     }
 
     public void runSlowEject() {

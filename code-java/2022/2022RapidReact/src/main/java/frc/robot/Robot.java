@@ -201,6 +201,8 @@ public class Robot extends TimedRobot {
             myRobot.arcadeDrive(rSpeed, -mSpeed); 
             break;
           default:
+            SmartDashboard.putNumber("left joystick", leftJoystick.getY());
+            SmartDashboard.putNumber("right joystick", rightJoystick.getY());
             averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
             if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
               myRobot.tankDrive(-averageSpeed, averageSpeed);
@@ -216,14 +218,14 @@ public class Robot extends TimedRobot {
               if (rightY > 0) {
                 rightPos = true;
               }
-              leftY = leftY * leftY;
-              rightY = rightY * rightY;
-              if (!leftPos) {
+              leftY = Math.pow(leftY, 5);
+              rightY = Math.pow(rightY, 5);
+              /*if (!leftPos) {
                 leftY = -1.0 * leftY;
               }
               if (!rightPos) {
                 rightY = -1.0 * rightY;
-              }
+              }*/
 
               myRobot.tankDrive(-leftY, rightY);
               
@@ -236,7 +238,14 @@ public class Robot extends TimedRobot {
   }
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    /*
+    leftLeader.setNeutralMode(NeutralMode.Coast);
+    leftFollower.setNeutralMode(NeutralMode.Coast);
+    rightLeader.setNeutralMode(NeutralMode.Coast);
+    rightFollower.setNeutralMode(NeutralMode.Coast);
+    */
+  }
 
   /** This function is called periodically when disabled. */
   @Override
