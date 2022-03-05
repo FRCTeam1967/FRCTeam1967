@@ -22,8 +22,6 @@ import javax.swing.text.AbstractDocument.LeafElement;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 
-
-
 public class Robot extends TimedRobot {
   private static final String kTankDrive = "Tank Drive";
   private static final String kArcadeDrive = "Arcade Drive";
@@ -68,7 +66,7 @@ public class Robot extends TimedRobot {
 
   Shooter shooter = new Shooter();
   Pivot pivot = new Pivot();
-  LED led = new LED(1, 500, 9); 
+  // LED led = new LED(1, 500, 9); 
   //private Climb climbMech;
 
   //AUTO
@@ -176,8 +174,8 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
-    ledCounter = led.setRainbow(ledCounter);
-    led.commit();
+      // ledCounter = led.setRainbow(ledCounter);
+      // led.commit();
 
     //SHOOTER
     shooter.displayCurrentState();
@@ -207,7 +205,29 @@ public class Robot extends TimedRobot {
             if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
               myRobot.tankDrive(-averageSpeed, averageSpeed);
             } else {
-              myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
+              //change sensitivity by squaring values from joystick
+              boolean leftPos = false;
+              boolean rightPos = false;
+              double leftY = leftJoystick.getY();
+              double rightY = rightJoystick.getY();
+              if (leftY > 0) {
+                leftPos = true;
+              }
+              if (rightY > 0) {
+                rightPos = true;
+              }
+              leftY = leftY * leftY;
+              rightY = rightY * rightY;
+              if (!leftPos) {
+                leftY = -1.0 * leftY;
+              }
+              if (!rightPos) {
+                rightY = -1.0 * rightY;
+              }
+
+              myRobot.tankDrive(-leftY, rightY);
+              
+              //myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
               SmartDashboard.putString("drive being run", DriveSelected);
             }
             break;

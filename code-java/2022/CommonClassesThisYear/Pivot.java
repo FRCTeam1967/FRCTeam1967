@@ -72,14 +72,15 @@ public class Pivot extends JankyStateMachine {
 
                 //to hit limit switch
                 //setStartPos();
+
+                //NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 
-                NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
-                /*
                 if (timer.get() >= 1){
                     timer.stop();
                     startingConfigAchieved = true;
                     NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 }
+                /*
                 
                 if (topLimitSwitch.get()) {
                     // Switch to Start Config, set current position as 0
@@ -234,7 +235,7 @@ public class Pivot extends JankyStateMachine {
     public void flagShooterConfig() {
         goShooterConfig = true;
     }
-
+    
     public void setShooterConfig() {
         pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_SHOOTER_ANGLE_PULSES);
     }
