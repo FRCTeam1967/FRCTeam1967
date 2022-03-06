@@ -14,7 +14,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
+import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import javax.swing.text.AbstractDocument.LeafElement;
@@ -55,9 +61,9 @@ public class Robot extends TimedRobot {
     private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
     private WPI_TalonSRX rightFollower = new WPI_TalonSRX(0);//m0*/
 
-  private MotorControllerGroup left = new MotorControllerGroup(leftLeader, leftFollower);
-  private MotorControllerGroup right = new MotorControllerGroup(rightLeader, rightFollower);
-  DifferentialDrive myRobot = new DifferentialDrive(left,right);
+  //private MotorControllerGroup left = new MotorControllerGroup(leftLeader, leftFollower);
+  //private MotorControllerGroup right = new MotorControllerGroup(rightLeader, rightFollower);
+  //DifferentialDrive myRobot = new DifferentialDrive(left,right);
 
   PIDController pidDistance = new PIDController(0.1, 0, 0);
   PIDController pidAngle = new PIDController(0.1, 0, 0);
@@ -111,6 +117,55 @@ public class Robot extends TimedRobot {
     leftJoystick = new Joystick(0);  //whatever is in port 0
     rightJoystick = new Joystick(1); //whatever is in port 0
 
+    leftLeader.configFactoryDefault();
+    leftLeader.configNeutralDeadband(0.001, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
+
+    leftFollower.configFactoryDefault();
+    leftFollower.configNeutralDeadband(0.001);
+    leftFollower.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
+
+    rightLeader.configFactoryDefault();
+    rightLeader.configNeutralDeadband(0.001);
+    rightLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
+    //rightLeader.setInverted(true);
+    
+    rightFollower.configFactoryDefault();
+    rightFollower.configNeutralDeadband(0.001);
+    rightFollower.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
+    
     /*
     if (climbMech == null){
       climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
@@ -118,7 +173,7 @@ public class Robot extends TimedRobot {
     }
     */
 
-    myRobot.setMaxOutput(0.7); //default is 1
+    //myRobot.setMaxOutput(0.7); //default is 1
 
     System.out.println("Passed through initialization");
   }
@@ -182,30 +237,35 @@ public class Robot extends TimedRobot {
 
     //CHASSIS
     if (leftJoystick.getRawButton(4)&& limeLight.targetValid()){ 
-      myRobot.tankDrive(-limeLight.getDistance()-limeLight.getAngle(),limeLight.getDistance() + limeLight.getAngle());//Call limeLight.getAngle() subtract from one side, add to another 
+      //myRobot.tankDrive(-limeLight.getDistance()-limeLight.getAngle(),limeLight.getDistance() + limeLight.getAngle());//Call limeLight.getAngle() subtract from one side, add to another 
     } else {
         switch (DriveSelected) {
           case kArcadeDrive:
             double rotateSpeed = leftJoystick.getRawAxis(1);
             double moveSpeed = leftJoystick.getRawAxis(0);
-            myRobot.arcadeDrive(moveSpeed, -rotateSpeed); // + move , - rot
+            //myRobot.arcadeDrive(moveSpeed, -rotateSpeed); // + move , - rot
             break;
           case kCurvatureDrive:
             // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
-            myRobot.curvatureDrive(leftJoystick.getX(), -leftJoystick.getY(), leftJoystick.getTrigger());//maybe take out negative?
+            //myRobot.curvatureDrive(leftJoystick.getX(), -leftJoystick.getY(), leftJoystick.getTrigger());//maybe take out negative?
             break;  
           case kSteeringWheel:
             //put if statement for printing instructions on how to use 
             double rSpeed = leftJoystick.getRawAxis(0);//10% works DON'T CHANGE
             double mSpeed = rightJoystick.getRawAxis(1);
-            myRobot.arcadeDrive(rSpeed, -mSpeed); 
+            //myRobot.arcadeDrive(rSpeed, -mSpeed); 
             break;
           default:
             SmartDashboard.putNumber("left joystick", leftJoystick.getY());
             SmartDashboard.putNumber("right joystick", rightJoystick.getY());
             averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
-            if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
-              myRobot.tankDrive(-averageSpeed, averageSpeed);
+            if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) { // was butto 3
+              double chassisTargetVelocity = averageSpeed * Constants.CHASSIS_RPM * Constants.FALCON_PULSES_PER_REVOLUTION / 600.0; //units per 100 seconds
+              leftLeader.set(TalonFXControlMode.Velocity, -1.0 * chassisTargetVelocity);
+              leftFollower.set(TalonFXControlMode.Velocity, -1.0 * chassisTargetVelocity);
+              rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocity);
+              rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocity);
+              //myRobot.tankDrive(-averageSpeed, averageSpeed);
             } else {
               //change sensitivity by squaring values from joystick
               boolean leftPos = false;
@@ -218,17 +278,36 @@ public class Robot extends TimedRobot {
               if (rightY > 0) {
                 rightPos = true;
               }
-              leftY = Math.pow(leftY, 5);
-              rightY = Math.pow(rightY, 5);
-              /*if (!leftPos) {
+              leftY = Math.pow(leftY, 3);
+              rightY = Math.pow(rightY, 3);
+              /*
+              if (!leftPos) {
                 leftY = -1.0 * leftY;
               }
               if (!rightPos) {
                 rightY = -1.0 * rightY;
               }*/
 
-              myRobot.tankDrive(-leftY, rightY);
+              //myRobot.tankDrive(-leftY, rightY);
+              double chassisTargetVelocityLeft = -1.0 * leftY * Constants.CHASSIS_RPM * Constants.FALCON_PULSES_PER_REVOLUTION / 600.0; //units per 100 seconds
+              double chassisTargetVelocityRight = rightY * Constants.CHASSIS_RPM * Constants.FALCON_PULSES_PER_REVOLUTION / 600.0;
+              if(Math.abs(leftJoystick.getY()) < 0.1){ //deadband
+                chassisTargetVelocityLeft = 0;
+              }
+              if(Math.abs(rightJoystick.getY()) < 0.1){
+                chassisTargetVelocityRight = 0;
+              }
+              leftLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
+              leftFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
+              rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
+              rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
               
+              SmartDashboard.putNumber("chassis left target velocity", chassisTargetVelocityLeft);
+              SmartDashboard.putNumber("chassis right target velocity", chassisTargetVelocityRight);
+              SmartDashboard.putNumber("Left leader motor output", leftLeader.getMotorOutputPercent());
+              SmartDashboard.putNumber("Left follower motor output", leftFollower.getMotorOutputPercent());
+              SmartDashboard.putNumber("right leader motor output", rightLeader.getMotorOutputPercent());
+              SmartDashboard.putNumber("right follower motor output", rightFollower.getMotorOutputPercent());
               //myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
               SmartDashboard.putString("drive being run", DriveSelected);
             }

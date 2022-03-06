@@ -73,4 +73,21 @@ public class Constants {
         public static final int CLIMB_MID_LATCH_CHANNEL_R = 3;
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_R = 5;
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_L = 6;
+
+    /* all chassis constant */
+        public static final int CHASSIS_K_PID_LOOP_IDX = 0;
+        public static final int CHASSIS_K_TIMEOUT_MS = 30;
+        public static final double CHASSIS_kP = 0.1;
+        public static final double CHASSIS_kI = 0.0;
+        public static final double CHASSIS_kD = 0;
+        public static final double CHASSIS_kF = 0.0;//1023.0/20660.0;
+        public static final double CHASSIS_Iz = 300;
+        public static final double CHASSIS_PeakOut = 1.00;
+        public static final double CHASSIS_RPM = 5000; //was 2000
+
+
+
+
+
+
 }
