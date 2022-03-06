@@ -174,6 +174,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     hasShoot = false;
                     NewState(loweredArm, "Finished shooting");
                 }
+                break;
             case loweredArm:
                 if (onStateEntered) {
                     System.out.println("Lowered Arm");
@@ -184,76 +185,96 @@ public class AutoStateMachine extends JankyStateMachine {
                     armLowered = false;
                     NewState(firstMove, "Arm is down");
                 }
+                break;
             case firstMove:
                 m_myRobot.tankDrive(-0.4, 0.4);
                 //For testing purposes - test later on carpet
                 //System.out.println(inchesToEncoder(50));
                 //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(70) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(60) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                     NewState(firstTurn, "reached average encoder for distance");
                 }
                 break;
             case firstTurn:
                 SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
-                m_myRobot.tankDrive(-0.4, -0.4);
-                int desiredAngle = 166; //supposed to be 180 but gyro is off by 14 degrees
-                System.out.println(m_gyro.getAngle() + 14);
+                m_myRobot.tankDrive(-0.5, -0.5);
+                int desiredAngle = 177; //supposed to be 180 but gyro is off by 14 degrees
+                System.out.println(m_gyro.getAngle());
+
                 if(m_gyro.getAngle() >= desiredAngle) {
-                    NewState(secondMove, "reached desired gyro angle");
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    System.out.println(getAverageEncoderValues() + "reset encoder");
+                    //Waiting for encoder reset to take effect (until value <= 1000)
+                    if(getAverageEncoderValues() <= 1000){
+                        m_gyro.reset();
+                        NewState(secondMove, "reached desired gyro angle");
+                    } 
                 }
-                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                
                 break;
             case secondMove:
+                //SmartDashboard.putNumber("inchesToEncoder", getAverageEncoderValues());
+                System.out.println(getAverageEncoderValues());
                 m_myRobot.tankDrive(0.4, -0.4);
                 //For testing purposes - test later on carpet
                 //System.out.println(inchesToEncoder(50));
                 //System.out.println(getAverageEncoderValues());
                 if (inchesToEncoder(20) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                     NewState(secondTurn, "reached average encoder for distance 2");
                 }
                 m_gyro.reset();
                 break;
             case secondTurn:
                 SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
-                m_myRobot.tankDrive(-0.4, -0.4);
-                desiredAngle = 46; //60 - 14
-                System.out.println(m_gyro.getAngle() + 14);
+                m_myRobot.tankDrive(-0.5, -0.5);
+                desiredAngle = 88;
+                System.out.println("Second Turn Gyro: " + m_gyro.getAngle());
                 if(m_gyro.getAngle() >= desiredAngle) {
-                    NewState(finishAuto, "reached desired gyro angle");
+                    m_gyro.reset();
+                    NewState(thirdMove, "reached desired gyro angle");
                 }
-                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 break;
             case thirdMove:
                 m_myRobot.tankDrive(0.4, -0.4);
+                System.out.println("Third Move Gyro: " + m_gyro.getAngle());
                 //For testing purposes - test later on carpet
                 //System.out.println(inchesToEncoder(50));
                 //System.out.println(getAverageEncoderValues());
                 if (inchesToEncoder(117) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                     NewState(thirdTurn, "reached average encoder for distance 2");
                 }
                 break;
             case thirdTurn:
                 SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
-                m_myRobot.tankDrive(-0.4, -0.4);
-                desiredAngle = 50; //63 - 13
+                m_myRobot.tankDrive(-0.5, -0.5);
+                desiredAngle = 140; //63 - 13
                 if(m_gyro.getAngle() >= desiredAngle) {
+                    m_gyro.reset();
+                    System.out.println("Third Turn Gyro Reset: " + m_gyro.getAngle());
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                     NewState(fourthMove, "reached desired gyro angle");
                 }
-                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 break;
             case fourthMove:
                 m_myRobot.tankDrive(0.4, -0.4);
                 //For testing purposes - test later on carpet
                 //System.out.println(inchesToEncoder(50));
                 //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(115) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(80) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                     NewState(liftAndShoot, "reached average encoder for distance 2");
                 }
                 break;
