@@ -19,8 +19,8 @@ public class AutoConstants {
     public static int FiveDelay = 5;
 
     public static int SimpleTarmac = 0;
-    public static int Standard = 1;
-    public static int  HailJulie = 2;
+    public static int twoBall = 1;
+    public static int  threeBall = 2;
 
 
     //robot used:

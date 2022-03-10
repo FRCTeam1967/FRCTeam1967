@@ -51,35 +51,38 @@ public class AutoStateMachine extends JankyStateMachine {
     private MotorControllerGroup m_left;
     private MotorControllerGroup m_right;
     DifferentialDrive m_myRobot;
+    public ADIS16470_IMU gyroClassLevel;
 
     Timer delayTimer = new Timer();
     public static int delay;
+    public int stateMachineSelected;
+    private final int twoBFirstDelay = 0;
+    private final int twoBFirstMove = 1;
+    private final int twoBTurn = 2;
+    private final int twoBSecondMove = 3;
+    private final int twoBLiftAndShoot = 4;
+    private final int twoBFinishAuto = 5;
 
-    // private final int firstDelay = 0;
-    // private final int firstMove = 1;
-    // private final int turn = 2;
-    // private final int secondMove = 3;
-    // private final int liftAndShoot = 4;
-    // private final int finishAuto = 5;
+    private final int threeBFirstDelay = 0;
+    private final int threeBFirstShoot = 1;
+    private final int threeBLoweredArm = 2;
+    private final int threeBFirstMove = 3;
+    private final int threeBFirstTurn = 4;
+    private final int threeBSecondMove = 5;
+    private final int threeBSecondTurn = 6;
+    private final int threeBThirdMove = 7;
+    private final int threeBThirdTurn = 8;
+    private final int threeBFourthMove = 9;
+    private final int threeBLiftAndShoot = 10;
+    private final int threeBFinishAuto = 11;
 
-    private final int firstDelay = 0;
-    private final int firstShoot = 1;
-    private final int loweredArm = 2;
-    private final int firstMove = 3;
-    private final int firstTurn = 4;
-    private final int secondMove = 5;
-    private final int secondTurn = 6;
-    private final int thirdMove = 7;
-    private final int thirdTurn = 8;
-    private final int fourthMove = 9;
-    private final int liftAndShoot = 10;
-    private final int finishAuto = 11;
+    private final int simpleDelay = 0;
+    private final int simpleMove = 1;
+    private final int simpleFinishAuto = 2;
 
     boolean armLifted = false;
     boolean hasShoot = false;
     boolean armLowered = false;
-
-    public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
 
     public void resetDelayTimer(){
         delayTimer.reset();
@@ -106,9 +109,9 @@ public class AutoStateMachine extends JankyStateMachine {
         delayTimer.reset();
     }
 
-    public AutoStateMachine() {
-        delay = 3;
-
+    public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro) {
+        delay = _delay;
+        gyroClassLevel = m_gyro;
         m_leftLeader = new WPI_TalonSRX(2);//m2
         rlmotor = new WPI_TalonFX(3);//m3
         frmotor = new WPI_TalonFX(1);//m1
@@ -122,163 +125,191 @@ public class AutoStateMachine extends JankyStateMachine {
         rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
 
         m_gyro.reset();
+        
+        if (autoPathSelected == 2) {
+            SetMachineName("autoSupreme");
+            SetName(threeBFirstDelay, "threeBFirstDelay");
+            SetName(threeBFirstShoot, "threeBFirstShoot");
+            SetName(threeBLoweredArm, "threeBLoweredArm");
+            SetName(threeBFirstMove, "threeBFirstMove");
+            SetName(threeBFirstTurn, "threeBFirstTurn");
+            SetName(threeBSecondMove, "threeBSecondMove");
+            SetName(threeBSecondTurn, "threeBSecondTurn");
+            SetName(threeBThirdMove, "threeBThirdMove");
+            SetName(threeBThirdTurn, "threeBThirdTurn");
+            SetName(threeBFourthMove, "threeBFourthMove");
+            SetName(threeBLiftAndShoot, "threeBLiftAndShoot");
+            SetName(threeBFinishAuto, "threeBFinishAuto");
+            stateMachineSelected = 2;
+            start();
+        } else if (autoPathSelected == 1) {
+            SetMachineName("auto");
+            SetName(twoBFirstDelay, "twoBFirstDelay");
+            SetName(twoBFirstMove, "twoBFirstMove");
+            SetName(twoBTurn, "twoBTurn");
+            SetName(twoBSecondMove, "twoBSecondMove");
+            SetName(twoBLiftAndShoot, "twoBLiftAndShoot");
+            SetName(twoBFinishAuto, "twoBFinishAuto");
+            stateMachineSelected = 1;
+            start();
+        }  else {
+            SetMachineName ("simpleTarmac");
+            SetName (simpleDelay, "simpleDelay");
+            SetName(simpleMove, "simpleMove");
+            SetName (simpleFinishAuto, "simpleFinishAuto");
+            stateMachineSelected = 0;
+            start();
 
-        SetMachineName("autoSupreme");
-        SetName(firstDelay, "firstDelay");
-        SetName(firstShoot, "firstShoot");
-        SetName(loweredArm, "loweredArm");
-        SetName(firstMove, "firstMove");
-        SetName(firstTurn, "firstTurn");
-        SetName(secondMove, "secondMove");
-        SetName(secondTurn, "secondTurn");
-        SetName(thirdMove, "thirdMove");
-        SetName(thirdTurn, "thirdTurn");
-        SetName(fourthMove, "fourthMove");
-        SetName(liftAndShoot, "liftAndShoot");
-        SetName(finishAuto, "finishAuto");
-    
-
-        // SetMachineName("auto");
-        // SetName(firstDelay, "firstDelay");
-        // SetName(firstMove, "firstMove");
-        // SetName(turn, "turn");
-        // SetName(secondMove, "secondMove");
-        // SetName(liftAndShoot, "liftAndShoot");
-        // SetName(finishAuto, "finishAuto");
-
-        start();  
+        }
 
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
-        switch (curState) {
-            case firstDelay:
+        if (stateMachineSelected == 2) {  
+            switch (curState) {
+                case threeBFirstDelay:
+                    if (onStateEntered) {
+                        delayTimer.start();
+                    }
+                    if (delayTimer.get() <=delay) {
+                        m_myRobot.tankDrive(0, 0);
+                    } else {
+                        NewState(threeBFirstShoot, "Delay timer has ended");
+                    }
+                    break;
+                case threeBFirstShoot:
+                    if (onStateEntered) {
+                        System.out.println("Shoot");
+                    }
+                    hasShoot = true;
+
+                    if (hasShoot) {
+                        hasShoot = false;
+                        NewState(threeBLoweredArm, "Finished shooting");
+                    }
+                case threeBLoweredArm:
+                    if (onStateEntered) {
+                        System.out.println("Lowered Arm");
+                    }
+                    armLowered = true;
+                    
+                    if (armLowered) {
+                        armLowered = false;
+                        NewState(threeBFirstMove, "Arm is down");
+                    }
+                case threeBFirstMove:
+                    m_myRobot.tankDrive(-0.4, 0.4);
+                    if (inchesToEncoder(70) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(threeBFirstTurn, "reached average encoder for distance");
+                    }
+                    break;
+                case threeBFirstTurn:
+                    SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
+                    m_myRobot.tankDrive(-0.4, -0.4);
+                    int desiredAngle = 166; //supposed to be 180 but gyro is off by 14 degrees
+                    System.out.println(gyroClassLevel.getAngle() + 14);
+                    if(gyroClassLevel.getAngle() >= desiredAngle) {
+                        NewState(threeBSecondMove, "reached desired gyro angle");
+                    }
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    break;
+                case threeBSecondMove:
+                    m_myRobot.tankDrive(0.4, -0.4);
+                    if (inchesToEncoder(20) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(threeBSecondTurn, "reached average encoder for distance 2");
+                    }
+                    gyroClassLevel.reset();
+                    break;
+                case threeBSecondTurn:
+                    SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
+                    m_myRobot.tankDrive(-0.4, -0.4);
+                    desiredAngle = 46; //60 - 14
+                    System.out.println(gyroClassLevel.getAngle() + 14);
+                    if(gyroClassLevel.getAngle() >= desiredAngle) {
+                        NewState(threeBThirdMove, "reached desired gyro angle");
+                    }
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    break;
+                case threeBThirdMove:
+                    m_myRobot.tankDrive(0.4, -0.4);
+                    if (inchesToEncoder(117) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(threeBThirdTurn, "reached average encoder for distance 2");
+                    }
+                    break;
+                case threeBThirdTurn:
+                    SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
+                    m_myRobot.tankDrive(-0.4, -0.4);
+                    desiredAngle = 50; //63 - 13
+                    if(gyroClassLevel.getAngle() >= desiredAngle) {
+                        NewState(threeBFourthMove, "reached desired gyro angle");
+                    }
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    break;
+                case threeBFourthMove:
+                    m_myRobot.tankDrive(0.4, -0.4);
+                    if (inchesToEncoder(115) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(threeBLiftAndShoot, "reached average encoder for distance 2");
+                    }
+                    break;
+                case threeBLiftAndShoot:
+                    if (onStateEntered) {
+                        System.out.println("Lift Arm and shoot");
+                    }
+                    armLifted = true;
+                    hasShoot = true;
+
+                    if (armLifted && hasShoot) {
+                        NewState(threeBFinishAuto, "Arm is up and finished shooting");
+                    }
+                    break;
+                case threeBFinishAuto:
+                    Terminate();
+                    break;
+            }
+        } else if (stateMachineSelected == 1) {
+            switch (curState) {
+            case twoBFirstDelay:
                 if (onStateEntered) {
                     delayTimer.start();
                 }
                 if (delayTimer.get() <=delay) {
                     m_myRobot.tankDrive(0, 0);
-                    //For testing purposes - test later on carpet
-                    //System.out.println("I am in delay");
                 } else {
-                    NewState(firstShoot, "Delay timer has ended");
+                    NewState(twoBFirstMove, "Delay timer has ended");
                 }
                 break;
-            case firstShoot:
-                if (onStateEntered) {
-                    System.out.println("Shoot");
-                }
-                hasShoot = true;
-
-                if (hasShoot) {
-                    hasShoot = false;
-                    NewState(loweredArm, "Finished shooting");
-                }
-                break;
-            case loweredArm:
-                if (onStateEntered) {
-                    System.out.println("Lowered Arm");
-                }
-                armLowered = true;
-                
-                if (armLowered) {
-                    armLowered = false;
-                    NewState(firstMove, "Arm is down");
-                }
-                break;
-            case firstMove:
-                m_myRobot.tankDrive(-0.4, 0.4);
-                //For testing purposes - test later on carpet
-                //System.out.println(inchesToEncoder(50));
-                //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(60) <= getAverageEncoderValues()) {
-                    m_myRobot.tankDrive(0, 0);
-                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    NewState(firstTurn, "reached average encoder for distance");
-                }
-                break;
-            case firstTurn:
-                SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
-                m_myRobot.tankDrive(-0.5, -0.5);
-                int desiredAngle = 177; //supposed to be 180 but gyro is off by 14 degrees
-                System.out.println(m_gyro.getAngle());
-
-                if(m_gyro.getAngle() >= desiredAngle) {
-                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    System.out.println(getAverageEncoderValues() + "reset encoder");
-                    //Waiting for encoder reset to take effect (until value <= 1000)
-                    if(getAverageEncoderValues() <= 1000){
-                        m_gyro.reset();
-                        NewState(secondMove, "reached desired gyro angle");
-                    } 
-                }
-                
-                break;
-            case secondMove:
-                //SmartDashboard.putNumber("inchesToEncoder", getAverageEncoderValues());
-                System.out.println(getAverageEncoderValues());
+            case twoBFirstMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                //For testing purposes - test later on carpet
-                //System.out.println(inchesToEncoder(50));
-                //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(20) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(50) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
-                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    NewState(secondTurn, "reached average encoder for distance 2");
-                }
-                m_gyro.reset();
-                break;
-            case secondTurn:
-                SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
-                m_myRobot.tankDrive(-0.5, -0.5);
-                desiredAngle = 88;
-                System.out.println("Second Turn Gyro: " + m_gyro.getAngle());
-                if(m_gyro.getAngle() >= desiredAngle) {
-                    m_gyro.reset();
-                    NewState(thirdMove, "reached desired gyro angle");
+                    NewState(twoBTurn, "reached average encoder for distance");
                 }
                 break;
-            case thirdMove:
+            case twoBTurn:
+                SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
+                m_myRobot.tankDrive(-0.4, -0.4);
+                int desiredAngle = 167;
+                if(gyroClassLevel.getAngle() >= desiredAngle) {
+                    NewState(twoBSecondMove, "reached desired gyro angle");
+                }
+                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                break;
+            case twoBSecondMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                System.out.println("Third Move Gyro: " + m_gyro.getAngle());
-                //For testing purposes - test later on carpet
-                //System.out.println(inchesToEncoder(50));
-                //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(117) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(70) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
-                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    NewState(thirdTurn, "reached average encoder for distance 2");
+                    NewState(twoBLiftAndShoot, "reached average encoder for distance 2");
                 }
                 break;
-            case thirdTurn:
-                SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
-                m_myRobot.tankDrive(-0.5, -0.5);
-                desiredAngle = 140; //63 - 13
-                if(m_gyro.getAngle() >= desiredAngle) {
-                    m_gyro.reset();
-                    System.out.println("Third Turn Gyro Reset: " + m_gyro.getAngle());
-                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    NewState(fourthMove, "reached desired gyro angle");
-                }
-                break;
-            case fourthMove:
-                m_myRobot.tankDrive(0.4, -0.4);
-                //For testing purposes - test later on carpet
-                //System.out.println(inchesToEncoder(50));
-                //System.out.println(getAverageEncoderValues());
-                if (inchesToEncoder(80) <= getAverageEncoderValues()) {
-                    m_myRobot.tankDrive(0, 0);
-                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                    NewState(liftAndShoot, "reached average encoder for distance 2");
-                }
-                break;
-            case liftAndShoot:
+            case twoBLiftAndShoot:
                 if (onStateEntered) {
                     System.out.println("Lift Arm and shoot");
                 }
@@ -286,75 +317,39 @@ public class AutoStateMachine extends JankyStateMachine {
                 hasShoot = true;
 
                 if (armLifted && hasShoot) {
-                    NewState(finishAuto, "Arm is up and finished shooting");
+                    NewState(twoBFinishAuto, "Arm is up and finished shooting");
                 }
                 break;
-            case finishAuto:
+            case twoBFinishAuto:
                 Terminate();
                 break;
         }
+        } else if (stateMachineSelected == 0) {
+            switch (curState) {
+                case simpleDelay:
+                    if (onStateEntered) {
+                        delayTimer.start();
+                    }
+                    if (delayTimer.get() <=delay) {
+                        m_myRobot.tankDrive(0, 0);
+                    } else {
+                        NewState(simpleMove, "Delay timer has ended");
+                    }
+                    break;
+                case simpleMove:
+                    m_myRobot.tankDrive(0.4, -0.4);
+                    if (inchesToEncoder(50) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(simpleFinishAuto, "reached average encoder for distance");
+                    }
+                    break;
+                case simpleFinishAuto:
+                    Terminate();
+                    break;
+            }
+        }
     }
-
-    // public void StateEngine(int curState, boolean onStateEntered) {
-    //     switch (curState) {
-    //         case firstDelay:
-    //             if (onStateEntered) {
-    //                 delayTimer.start();
-    //             }
-    //             if (delayTimer.get() <=delay) {
-    //                 m_myRobot.tankDrive(0, 0);
-    //                 //For testing purposes - test later on carpet
-    //                 //System.out.println("I am in delay");
-    //             } else {
-    //                 NewState(firstMove, "Delay timer has ended");
-    //             }
-    //             break;
-    //         case firstMove:
-    //             m_myRobot.tankDrive(0.4, -0.4);
-    //             //For testing purposes - test later on carpet
-    //             //System.out.println(inchesToEncoder(50));
-    //             //System.out.println(getAverageEncoderValues());
-    //             if (inchesToEncoder(50) <= getAverageEncoderValues()) {
-    //                 m_myRobot.tankDrive(0, 0);
-    //                 NewState(turn, "reached average encoder for distance");
-    //             }
-    //             break;
-    //         case turn:
-    //             SmartDashboard.putNumber("gyro angle new", m_gyro.getAngle());
-    //             m_myRobot.tankDrive(-0.4, -0.4);
-    //             int desiredAngle = 167;
-    //             if(m_gyro.getAngle() >= desiredAngle) {
-    //                 NewState(secondMove, "reached desired gyro angle");
-    //             }
-    //             frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-    //             rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-    //             break;
-    //         case secondMove:
-    //             m_myRobot.tankDrive(0.4, -0.4);
-    //             //For testing purposes - test later on carpet
-    //             //System.out.println(inchesToEncoder(50));
-    //             //System.out.println(getAverageEncoderValues());
-    //             if (inchesToEncoder(70) <= getAverageEncoderValues()) {
-    //                 m_myRobot.tankDrive(0, 0);
-    //                 NewState(liftAndShoot, "reached average encoder for distance 2");
-    //             }
-    //             break;
-    //         case liftAndShoot:
-    //             if (onStateEntered) {
-    //                 System.out.println("Lift Arm and shoot");
-    //             }
-    //             armLifted = true;
-    //             hasShoot = true;
-
-    //             if (armLifted && hasShoot) {
-    //                 NewState(finishAuto, "Arm is up and finished shooting");
-    //             }
-    //             break;
-    //         case finishAuto:
-    //             Terminate();
-    //             break;
-    //     }
-    // }
+        
     public void displayCurrentState() {
         SmartDashboard.putNumber("current state", GetCurrentState());
     }
