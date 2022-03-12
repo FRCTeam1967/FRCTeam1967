@@ -60,8 +60,9 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int twoBFirstMove = 1;
     private final int twoBTurn = 2;
     private final int twoBSecondMove = 3;
-    private final int twoBLiftAndShoot = 4;
-    private final int twoBFinishAuto = 5;
+    private final int twoBSecondTurn = 4;
+    private final int twoBLiftAndShoot = 5;
+    private final int twoBFinishAuto = 6;
 
     private final int threeBFirstDelay = 0;
     private final int threeBFirstShoot = 1;
@@ -109,6 +110,8 @@ public class AutoStateMachine extends JankyStateMachine {
         delayTimer.reset();
     }
 
+
+
     public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro) {
         delay = _delay;
         gyroClassLevel = m_gyro;
@@ -148,6 +151,7 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(twoBFirstMove, "twoBFirstMove");
             SetName(twoBTurn, "twoBTurn");
             SetName(twoBSecondMove, "twoBSecondMove");
+            SetName(twoBSecondTurn, "twoBSecondTurn");
             SetName(twoBLiftAndShoot, "twoBLiftAndShoot");
             SetName(twoBFinishAuto, "twoBFinishAuto");
             stateMachineSelected = 1;
@@ -187,6 +191,7 @@ public class AutoStateMachine extends JankyStateMachine {
                         hasShoot = false;
                         NewState(threeBLoweredArm, "Finished shooting");
                     }
+                    break;
                 case threeBLoweredArm:
                     if (onStateEntered) {
                         System.out.println("Lowered Arm");
@@ -197,6 +202,7 @@ public class AutoStateMachine extends JankyStateMachine {
                         armLowered = false;
                         NewState(threeBFirstMove, "Arm is down");
                     }
+                    break;
                 case threeBFirstMove:
                     m_myRobot.tankDrive(-0.4, 0.4);
                     if (inchesToEncoder(70) <= getAverageEncoderValues()) {
@@ -293,7 +299,7 @@ public class AutoStateMachine extends JankyStateMachine {
                 }
                 break;
             case twoBTurn:
-                SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
+                SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
                 m_myRobot.tankDrive(-0.4, -0.4);
                 int desiredAngle = 167;
                 if(gyroClassLevel.getAngle() >= desiredAngle) {
@@ -304,9 +310,18 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
             case twoBSecondMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                if (inchesToEncoder(70) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(60) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
-                    NewState(twoBLiftAndShoot, "reached average encoder for distance 2");
+                    NewState(twoBSecondTurn, "reached average encoder for distance 2");
+                }
+                gyroClassLevel.reset();
+                break;
+            case twoBSecondTurn:
+                SmartDashboard.putNumber("gyro angle second turn", gyroClassLevel.getAngle());
+                m_myRobot.tankDrive(-0.4, -0.4);
+                desiredAngle = 30;
+                if(gyroClassLevel.getAngle() >= desiredAngle) {
+                    NewState(twoBLiftAndShoot, "reached desired gyro angle 2");
                 }
                 break;
             case twoBLiftAndShoot:
@@ -352,6 +367,11 @@ public class AutoStateMachine extends JankyStateMachine {
         
     public void displayCurrentState() {
         SmartDashboard.putNumber("current state", GetCurrentState());
+    }
+
+    public void endStateMachine() {
+        Terminate();
+        System.out.println("auto state machine terminate");
     }
 
     public double inchesToEncoder(int inches) {

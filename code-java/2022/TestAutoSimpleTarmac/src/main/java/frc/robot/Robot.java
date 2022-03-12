@@ -34,12 +34,9 @@ public class Robot extends TimedRobot {
 
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
   
-  AutoStateMachine autoSM;
+  AutoStateMachine autoSM = null;
   AutoSelector delaySelector =  new AutoSelector();
   AutoSelector pathSelector = new AutoSelector();
-
-
-  int autoCaseNum;
 
 
 
@@ -47,7 +44,6 @@ public class Robot extends TimedRobot {
   public void robotInit() {
     delaySelector.DisplayDelayOptions();
     pathSelector.DisplayPathOptions();
-    autoCaseNum = 0;
   }
 
   @Override
@@ -56,7 +52,6 @@ public class Robot extends TimedRobot {
 
   @Override
   public void autonomousInit() {
-    autoCaseNum = 0;
     
     autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro);
   }
@@ -70,6 +65,10 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+
+    if (autoSM != null) {
+      autoSM.endStateMachine();
+    }
     
   }
 
