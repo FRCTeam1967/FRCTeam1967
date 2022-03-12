@@ -95,11 +95,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-
-    leftLeader.setNeutralMode(NeutralMode.Brake);
-    leftFollower.setNeutralMode(NeutralMode.Brake);
-    rightLeader.setNeutralMode(NeutralMode.Brake);
-    rightFollower.setNeutralMode(NeutralMode.Brake);
+    
+    // leftLeader.setNeutralMode(NeutralMode.Brake);
+    // leftFollower.setNeutralMode(NeutralMode.Brake);
+    // rightLeader.setNeutralMode(NeutralMode.Brake);
+    // rightFollower.setNeutralMode(NeutralMode.Brake);
 
     //AUTO 
     /*
@@ -268,33 +268,35 @@ public class Robot extends TimedRobot {
               //myRobot.tankDrive(-averageSpeed, averageSpeed);
             } else {
               //change sensitivity by squaring values from joystick
-              boolean leftPos = false;
-              boolean rightPos = false;
-              double leftY = leftJoystick.getY();
-              double rightY = rightJoystick.getY();
-              if (leftY > 0) {
-                leftPos = true;
+              double origLeftY = leftJoystick.getY();
+              double origRightY = rightJoystick.getY();
+
+              /* boolean leftPositive = false;
+              boolean rightPositive = false;
+              if (origLeftY > 0 && origLeftY <1) {
+                leftPositive = true;
               }
-              if (rightY > 0) {
-                rightPos = true;
+              if (origRightY > 0 && origRightY <1) {
+                rightPositive = true;
               }
-              leftY = Math.pow(leftY, 3);
-              rightY = Math.pow(rightY, 3);
-              /*
+              
               if (!leftPos) {
                 leftY = -1.0 * leftY;
               }
               if (!rightPos) {
                 rightY = -1.0 * rightY;
               }*/
+              
+              double leftY = Math.pow(origLeftY, 3);
+              double rightY = Math.pow(origRightY, 3);
 
               //myRobot.tankDrive(-leftY, rightY);
               double chassisTargetVelocityLeft = -1.0 * leftY * Constants.CHASSIS_RPM * Constants.FALCON_PULSES_PER_REVOLUTION / 600.0; //units per 100 seconds
               double chassisTargetVelocityRight = rightY * Constants.CHASSIS_RPM * Constants.FALCON_PULSES_PER_REVOLUTION / 600.0;
-              if(Math.abs(leftJoystick.getY()) < 0.1){ //deadband
+              if(Math.abs(origLeftY) < 0.05){ //deadband
                 chassisTargetVelocityLeft = 0;
               }
-              if(Math.abs(rightJoystick.getY()) < 0.1){
+              if(Math.abs(origRightY) < 0.05){
                 chassisTargetVelocityRight = 0;
               }
               leftLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
