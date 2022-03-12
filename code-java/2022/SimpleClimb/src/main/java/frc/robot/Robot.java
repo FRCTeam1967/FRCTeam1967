@@ -11,7 +11,6 @@ import edu.wpi.first.wpilibj.PneumaticsControlModule;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import org.janksters.jankyLib.*;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.wpilibj.Joystick;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
@@ -141,13 +140,7 @@ public class Robot extends TimedRobot {
     //   solenoid1.set(false);
     //   //solenoid2.set(false);
     // }
-    if(XboxController.GetLeftYAxis() > 0.2 ){
-      falconL.set(0.01);
-      falconR.set(0.01);
-    } else if(XboxController.GetLeftYAxis() < -0.2 ){
-      falconL.set(-0.01);
-      falconR.set(-0.01);
-    } else if (XboxController.GetRightYAxis() > 0.2 || XboxController.GetRightYAxis() < -0.2) {
+    if (XboxController.GetRightYAxis() > 0.2 || XboxController.GetRightYAxis() < -0.2) {
       falconL.set(XboxController.GetRightYAxis() * WINCH_FACTOR);
       falconR.set(XboxController.GetRightYAxis() * WINCH_FACTOR);
     } else {
