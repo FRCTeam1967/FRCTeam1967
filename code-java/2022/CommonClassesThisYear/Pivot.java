@@ -245,6 +245,10 @@ public class Pivot extends JankyStateMachine {
         return shooterConfigAchieved;
     }
 
+    public boolean checkIntakeFlag() {
+        return intakeConfigAchieved;
+    }
+
     // Climb mech calls this to trigger pivot into climb config state
     public void flagClimbConfig() {
         goClimbConfig = true;

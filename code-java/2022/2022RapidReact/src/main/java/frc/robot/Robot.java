@@ -5,6 +5,10 @@
 package frc.robot;
 import org.janksters.CommonClassesThisYear.*;
 
+
+import edu.wpi.first.cscore.UsbCamera;
+import edu.wpi.first.cameraserver.CameraServer;
+
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -31,6 +35,11 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 
 public class Robot extends TimedRobot {
+
+  private static final int CAMERA_DEV_NUMBER = 0;
+  private UsbCamera camera;
+
+
   private static final String kTankDrive = "Tank Drive";
   private static final String kArcadeDrive = "Arcade Drive";
   private static final String kCurvatureDrive = "Curvature Drive";
@@ -104,6 +113,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    camera = CameraServer.startAutomaticCapture(CAMERA_DEV_NUMBER);
+    camera.setResolution(160, 120);
+    camera.setFPS(5);
     
     // leftLeader.setNeutralMode(NeutralMode.Brake);
     // leftFollower.setNeutralMode(NeutralMode.Brake);
@@ -224,9 +237,8 @@ public class Robot extends TimedRobot {
 
     autoSM = new AutoStateMachine(pivot, shooter); */
 
-    autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro);
+    autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro, shooter,pivot);
 
-    
   }
 
   /** This function is called periodically during autonomous. */
