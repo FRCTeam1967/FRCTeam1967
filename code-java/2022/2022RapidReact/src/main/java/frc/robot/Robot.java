@@ -4,6 +4,8 @@
 
 package frc.robot;
 import org.janksters.CommonClassesThisYear.*;
+
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -72,6 +74,13 @@ public class Robot extends TimedRobot {
 
   Shooter shooter = new Shooter();
   Pivot pivot = new Pivot();
+
+  AutoStateMachine autoSM = null;
+  public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+
+  AutoSelector delaySelector =  new AutoSelector();
+  AutoSelector pathSelector = new AutoSelector();
+
   // LED led = new LED(1, 500, 9); 
   //private Climb climbMech;
 
@@ -175,6 +184,9 @@ public class Robot extends TimedRobot {
 
     //myRobot.setMaxOutput(0.7); //default is 1
 
+    delaySelector.DisplayDelayOptions();
+    pathSelector.DisplayPathOptions();
+
     System.out.println("Passed through initialization");
   }
 
@@ -211,12 +223,16 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
 
     autoSM = new AutoStateMachine(pivot, shooter); */
+
+    autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro);
+
+    
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    //autoSM.displayCurrentState();
+    autoSM.displayCurrentState();
   }
 
   /** This function is called once when teleop is enabled. */
@@ -224,6 +240,10 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     DriveSelected = driveChooser.getSelected();
     System.out.println("Drive selected: " + DriveSelected);
+
+    if (autoSM != null) {
+      autoSM.endStateMachine();
+    }
   }
 
   /** This function is called periodically during operator control. :) */

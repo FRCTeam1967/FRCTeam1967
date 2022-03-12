@@ -127,8 +127,8 @@ public class AutoStateMachine extends JankyStateMachine {
         m_right = new MotorControllerGroup(frmotor, m_rightFollower);
         m_myRobot = new DifferentialDrive(m_left,m_right);
 
-        pivot = _pivot;
-        shooter = _shooter;
+        // pivot = _pivot;
+        // shooter = _shooter;
 
         frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
         rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
