@@ -24,6 +24,7 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   private static final int CAMERA_DEV_NUMBER = 0;
+  private UsbCamera camera;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -35,7 +36,6 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    UsbCamera camera;
     //camera = CameraServer.getInstance().startAutomaticCapture(); //getInstance used in c++, but deprecated
     //camera = CameraServer.startAutomaticCapture();
     camera = CameraServer.startAutomaticCapture(CAMERA_DEV_NUMBER);
