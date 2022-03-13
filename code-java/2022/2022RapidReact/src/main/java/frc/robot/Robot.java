@@ -82,7 +82,7 @@ public class Robot extends TimedRobot {
   AutoSelector pathSelector = new AutoSelector();
 
   // LED led = new LED(1, 500, 9); 
-  //private Climb climbMech;
+  private Climb climbMech = null;
 
   //AUTO
   /*
@@ -98,6 +98,10 @@ public class Robot extends TimedRobot {
   //turn 180 degrees
   final int turnPath = 2;
 
+  public void instantiateClimb(){
+    climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
+    Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivot);
+  }
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -175,15 +179,11 @@ public class Robot extends TimedRobot {
     rightFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
     rightFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
     
-    /*
     if (climbMech == null){
-      climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
-      Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL_L, Constants.CLIMB_MID_LATCH_CHANNEL_R, pivot);
+      instantiateClimb();
     }
-    */
 
     //myRobot.setMaxOutput(0.7); //default is 1
-
     delaySelector.DisplayDelayOptions();
     pathSelector.DisplayPathOptions();
 
@@ -225,8 +225,6 @@ public class Robot extends TimedRobot {
     autoSM = new AutoStateMachine(pivot, shooter); */
 
     autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro);
-
-    
   }
 
   /** This function is called periodically during autonomous. */
@@ -240,7 +238,6 @@ public class Robot extends TimedRobot {
   public void teleopInit() {
     DriveSelected = driveChooser.getSelected();
     System.out.println("Drive selected: " + DriveSelected);
-
     if (autoSM != null) {
       autoSM.endStateMachine();
     }
@@ -340,6 +337,11 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    if(!climbMech.isInIdle()){
+      climbMech.killStateMachine();
+      instantiateClimb();
+      System.out.println("instantiated climb in disabledInit()");
+    }
     /*
     leftLeader.setNeutralMode(NeutralMode.Coast);
     leftFollower.setNeutralMode(NeutralMode.Coast);

@@ -1,5 +1,4 @@
 package org.janksters.CommonClassesThisYear;
-
 public class Constants {
     public static final int FALCON_PULSES_PER_REVOLUTION = 2048;
     
@@ -38,7 +37,7 @@ public class Constants {
         public static final double CLIMB_ROBOT_DOWN_SPEED_SEQUENCE = -0.3;
         public static final double CLIMB_ARM_UP_SPEED_SEQUENCE = 0.2;
         public static final double CLIMB_WINCH_MOTOR_GENTLE = 0.1;
-        public static final double WINCH_CURCUMFERENCE = 3.14; //estimate
+        public static final double WINCH_CIRCUMFERENCE = 3.14; //estimate, diameter was about 1
         public static final double CLIMB_DEADBAND = 0.07;
         //to do: figure out distance per revolution
         public static final double CLIMB_LATCH_TIME = 1.0; //check value - in seconds TBD
@@ -46,6 +45,7 @@ public class Constants {
         public static final double CLIMB_WINCH_UP_DISTANCE = -3; //in inches TBD, was 28, should be neg if encoders reset (8 since it started at 12?)
         public static final double CLIMB_WINCH_FINAL_DISTANCE = 2.0; //in inches TBD
         public static final double CLIMB_WINCH_ENCODER_DIFFERENCE = 10000; //TBD
+        public static final double CLIMB_HIGH_BAR_DISTANCE = CLIMB_WINCH_UP_DISTANCE + 2.0; //TBD
         public static final double CLIMB_WINCH_ENCODER_DOWN = -2000;
         public static final double CLIMB_HOOKED_ON_CURRENT = 0; //tbd
         public static final double CLIMB_TOO_FAR_DOWN = 12;
@@ -64,18 +64,19 @@ public class Constants {
         public static double CLIMB_WINCH_DOWN_KD = 0.1;
         public static double CLIMB_WINCH_DOWN_KF = 0.0;
 
-        public static double CLIMB_MANUAL_WINCH_KP = 0.15;
-        public static double CLIMB_MANUAL_WINCH_KI = 0.0;
-        public static double CLIMB_MANUAL_WINCH_KD = 1.0;
-        public static double CLIMB_MANUAL_WINCH_KF = 0.0;
+        public static double CLIMB_ROBOT_WEIGHT_KP = 0.15;
+        public static double CLIMB_ROBOT_WEIGHT_KI = 0.0;
+        public static double CLIMB_ROBOT_WEIGHT_KD = 1.0;
+        public static double CLIMB_ROBOT_WEIGHT_KF = 0.0;
 
         public static final int CLIMB_K_TIMEOUT_MS = 1;
         public static final int CLIMB_K_PID_LOOP_IDX = 0;
 
+        public static final double CLIMB_ROBOT_WEIGHT_PEAK = 0.3;
+
         /* climb channels */
         public static final int CLIMB_PCM_CHANNEL = 12;
-        public static final int CLIMB_MID_LATCH_CHANNEL_L = 2;
-        public static final int CLIMB_MID_LATCH_CHANNEL_R = 3;
+        public static final int CLIMB_MID_LATCH_CHANNEL = 2; //probably not right
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_L = 6;
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_R = 5;
 
@@ -85,7 +86,7 @@ public class Constants {
         public static final double CHASSIS_kP = 0.1;
         public static final double CHASSIS_kI = 0.0;
         public static final double CHASSIS_kD = 0;
-        public static final double CHASSIS_kF = 0.0;//1023.0/20660.0;
+        public static final double CHASSIS_kF = 0.0; //1023.0/20660.0;
         public static final double CHASSIS_Iz = 300;
         public static final double CHASSIS_PeakOut = 1.00;
         public static final double CHASSIS_RPM = 5000; //was 2000
