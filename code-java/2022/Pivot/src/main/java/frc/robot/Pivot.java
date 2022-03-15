@@ -15,7 +15,7 @@ import org.janksters.jankyLib.jankyXboxJoystick;
 public class Pivot extends JankyStateMachine {
     private WPI_TalonFX pivotMotor;
     private jankyXboxJoystick XboxController;
-    private DigitalInput topLimitSwitch, bottomLimitSwitch;
+    //private DigitalInput topLimitSwitch, bottomLimitSwitch;
 
     // Declaring states
     private final int IDLE = 0; // homing sequence
@@ -36,10 +36,18 @@ public class Pivot extends JankyStateMachine {
     boolean climbConfigAchieved = false;
 
     public Pivot() {
+<<<<<<< Updated upstream:code-java/2022/Pivot/src/main/java/frc/robot/Pivot.java
         pivotMotor = new WPI_TalonFX(Constants.MOTOR_ID);
         XboxController = new jankyXboxJoystick(Constants.CONTROLLER_PORT_ID);
         DigitalInput topLimitSwitch = new DigitalInput(Constants.TOP_LIMIT_SWITCH_ID);
         DigitalInput bottomLimitSwitch = new DigitalInput(Constants.BOTTOM_LIMIT_SWITCH_ID);
+=======
+        //pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
+        pivotMotor = new WPI_TalonFX(13);
+        XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
+        //DigitalInput topLimitSwitch = new DigitalInput(Constants.PIVOT_TOP_LIMIT_SWITCH_ID);
+        //DigitalInput bottomLimitSwitch = new DigitalInput(Constants.PIVOT_BOTTOM_LIMIT_SWITCH_ID);
+>>>>>>> Stashed changes:code-java/2022/CommonClassesThisYear/Pivot.java
 
         setUpPivot();
 
@@ -64,7 +72,14 @@ public class Pivot extends JankyStateMachine {
                     climbConfigAchieved = false;
                 }
 
+<<<<<<< Updated upstream:code-java/2022/Pivot/src/main/java/frc/robot/Pivot.java
                 setStartPos();
+=======
+                pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10); // define position 0
+
+                //to hit limit switch
+                //setStartPos();
+>>>>>>> Stashed changes:code-java/2022/CommonClassesThisYear/Pivot.java
 
                 if (topLimitSwitch.get()) {
                     // Switch to Start Config, set current position as 0
@@ -74,7 +89,7 @@ public class Pivot extends JankyStateMachine {
                 break;
             case STARTING_CONFIG:
                 if (onStateEntered) {
-                    pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10); // define position 0
+                    //pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10); // define position 0
                     intakeConfigAchieved = false;
                     shooterConfigAchieved = false;
                     climbConfigAchieved = false;
