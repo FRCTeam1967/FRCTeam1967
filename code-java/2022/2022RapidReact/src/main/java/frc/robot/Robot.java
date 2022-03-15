@@ -82,7 +82,8 @@ public class Robot extends TimedRobot {
   VisionSubsystem limeLight = new VisionSubsystem();
 
   Shooter shooter = new Shooter();
-  Pivot pivot = new Pivot();
+  //Pivot pivot = new Pivot();
+  PivotMagic pivotmagic = null;
 
   AutoStateMachine autoSM = null;
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
@@ -90,8 +91,8 @@ public class Robot extends TimedRobot {
   AutoSelector delaySelector =  new AutoSelector();
   AutoSelector pathSelector = new AutoSelector();
 
-  // LED led = new LED(1, 500, 9); 
-  //private Climb climbMech;
+  // LED led = new LED(1, 500, 9);
+  private Climb climbMech = null;
 
   //AUTO
   /*
@@ -107,6 +108,14 @@ public class Robot extends TimedRobot {
   //turn 180 degrees
   final int turnPath = 2;
 
+  public void instantiateClimb(){
+    climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
+    Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivotmagic);
+  }
+
+  public void instantiatePivotMagic(){
+    pivotmagic = new PivotMagic();
+  }
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -117,13 +126,13 @@ public class Robot extends TimedRobot {
     camera = CameraServer.startAutomaticCapture(CAMERA_DEV_NUMBER);
     camera.setResolution(160, 120);
     camera.setFPS(5);
-    
+
     // leftLeader.setNeutralMode(NeutralMode.Brake);
     // leftFollower.setNeutralMode(NeutralMode.Brake);
     // rightLeader.setNeutralMode(NeutralMode.Brake);
     // rightFollower.setNeutralMode(NeutralMode.Brake);
 
-    //AUTO 
+    //AUTO
     /*
     pathSelector.DisplayActualAutoOptions();
     autoCaseNum = 0;
@@ -149,7 +158,7 @@ public class Robot extends TimedRobot {
     leftLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
     leftLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
     leftLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
+    leftLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
 
     leftFollower.configFactoryDefault();
     leftFollower.configNeutralDeadband(0.001);
@@ -161,7 +170,7 @@ public class Robot extends TimedRobot {
     leftFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
     leftFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
     leftFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
+    leftFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
 
     rightLeader.configFactoryDefault();
     rightLeader.configNeutralDeadband(0.001);
@@ -173,9 +182,9 @@ public class Robot extends TimedRobot {
     rightLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
     rightLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
     rightLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
+    rightLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
     //rightLeader.setInverted(true);
-    
+
     rightFollower.configFactoryDefault();
     rightFollower.configNeutralDeadband(0.001);
     rightFollower.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
@@ -186,17 +195,13 @@ public class Robot extends TimedRobot {
     rightFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
     rightFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
     rightFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);  
-    
-    /*
+    rightFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+
     if (climbMech == null){
-      climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
-      Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL_L, Constants.CLIMB_MID_LATCH_CHANNEL_R, pivot);
+      instantiateClimb();
     }
-    */
 
     //myRobot.setMaxOutput(0.7); //default is 1
-
     delaySelector.DisplayDelayOptions();
     pathSelector.DisplayPathOptions();
 
@@ -229,7 +234,7 @@ public class Robot extends TimedRobot {
     //making the path selector
     /*
     Auto.autoPathFinal = pathSelector.getActualAutoMode();
-   
+
     //idk where we use this but we are keeping it just in case
     autoCaseNum = 0;
 
@@ -237,8 +242,7 @@ public class Robot extends TimedRobot {
 
     autoSM = new AutoStateMachine(pivot, shooter); */
 
-    autoSM = new AutoStateMachine(0,1, m_gyro, shooter,pivot);
-
+    autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro);
   }
 
   /** This function is called periodically during autonomous. */
@@ -250,9 +254,11 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    if (pivotmagic == null){
+      instantiatePivotMagic();
+    }
     DriveSelected = driveChooser.getSelected();
     System.out.println("Drive selected: " + DriveSelected);
-
     if (autoSM != null) {
       autoSM.endStateMachine();
     }
@@ -268,8 +274,8 @@ public class Robot extends TimedRobot {
     shooter.displayCurrentState();
 
     //CHASSIS
-    if (leftJoystick.getRawButton(4)&& limeLight.targetValid()){ 
-      //myRobot.tankDrive(-limeLight.getDistance()-limeLight.getAngle(),limeLight.getDistance() + limeLight.getAngle());//Call limeLight.getAngle() subtract from one side, add to another 
+    if (leftJoystick.getRawButton(4)&& limeLight.targetValid()){
+      //myRobot.tankDrive(-limeLight.getDistance()-limeLight.getAngle(),limeLight.getDistance() + limeLight.getAngle());//Call limeLight.getAngle() subtract from one side, add to another
     } else {
         switch (DriveSelected) {
           case kArcadeDrive:
@@ -280,12 +286,12 @@ public class Robot extends TimedRobot {
           case kCurvatureDrive:
             // Curvature drive with a given forward and turn rate, as well as a button for turning in-place.
             //myRobot.curvatureDrive(leftJoystick.getX(), -leftJoystick.getY(), leftJoystick.getTrigger());//maybe take out negative?
-            break;  
+            break;
           case kSteeringWheel:
-            //put if statement for printing instructions on how to use 
+            //put if statement for printing instructions on how to use
             double rSpeed = leftJoystick.getRawAxis(0);//10% works DON'T CHANGE
             double mSpeed = rightJoystick.getRawAxis(1);
-            //myRobot.arcadeDrive(rSpeed, -mSpeed); 
+            //myRobot.arcadeDrive(rSpeed, -mSpeed);
             break;
           default:
             SmartDashboard.putNumber("left joystick", leftJoystick.getY());
@@ -311,14 +317,14 @@ public class Robot extends TimedRobot {
               if (origRightY > 0 && origRightY <1) {
                 rightPositive = true;
               }
-              
+
               if (!leftPos) {
                 leftY = -1.0 * leftY;
               }
               if (!rightPos) {
                 rightY = -1.0 * rightY;
               }*/
-              
+
               double leftY = Math.pow(origLeftY, 3);
               double rightY = Math.pow(origRightY, 3);
 
@@ -335,7 +341,7 @@ public class Robot extends TimedRobot {
               leftFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
               rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
               rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
-              
+
               SmartDashboard.putNumber("chassis left target velocity", chassisTargetVelocityLeft);
               SmartDashboard.putNumber("chassis right target velocity", chassisTargetVelocityRight);
               SmartDashboard.putNumber("Left leader motor output", leftLeader.getMotorOutputPercent());
@@ -346,12 +352,23 @@ public class Robot extends TimedRobot {
               SmartDashboard.putString("drive being run", DriveSelected);
             }
             break;
-        } 
-    } 
+        }
+    }
   }
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    if((pivotmagic != null) && (!pivotmagic.isInIdle())){
+      pivotmagic.killStateMachine();
+      pivotmagic = null;
+      //instantiatePivotMagic();
+      System.out.println("instantiated pivot in disabledInit()");
+    }
+    if(!climbMech.isInIdle()){
+      climbMech.killStateMachine();
+      instantiateClimb();
+      System.out.println("instantiated climb in disabledInit()");
+    }
     /*
     leftLeader.setNeutralMode(NeutralMode.Coast);
     leftFollower.setNeutralMode(NeutralMode.Coast);

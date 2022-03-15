@@ -27,3 +27,8 @@
 Debug/
 language.settings.xml
 .DS_Store
+bin/
+build/
+.gradle/
+*.lock
+*.class

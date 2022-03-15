@@ -3,19 +3,19 @@ package org.janksters.CommonClassesThisYear;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import org.janksters.jankyLib.JankyStateMachine;
 import org.janksters.jankyLib.jankyXboxJoystick;
 
-//8 values are TBD
-
-public class Pivot extends JankyStateMachine {
+public class PivotMagic extends JankyStateMachine {
     private WPI_TalonFX pivotMotor;
     private jankyXboxJoystick XboxController;
-    //private DigitalInput topLimitSwitch, bottomLimitSwitch;
+    private Timer timer;
+    private double lifterTargetValue = 0.0;
 
     // Declaring states
     private final int IDLE = 0; // homing sequence
@@ -24,7 +24,7 @@ public class Pivot extends JankyStateMachine {
     private final int SHOOTER_CONFIG = 3; // raises arm
     private final int SHOOTER_CONFIG_ACHIEVED = 4; // completed shooter config
     private final int CLIMB_CONFIG = 5; // lowers arm to climbing position
-    private final int CLIMB_CONFIG_ACHIEVED = 6; // ☑ completed climbing config
+    private final int CLIMB_CONFIG_ACHIEVED = 6; // completed climbing config
 
     // Flags
     boolean startingConfigAchieved = false;
@@ -35,14 +35,12 @@ public class Pivot extends JankyStateMachine {
     boolean goClimbConfig = false;
     boolean climbConfigAchieved = false;
 
-    private Timer timer;
 
-    public Pivot() {
+    public PivotMagic() {
         pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
         XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
-        DigitalInput topLimitSwitch = new DigitalInput(Constants.PIVOT_TOP_LIMIT_SWITCH_ID);
-        DigitalInput bottomLimitSwitch = new DigitalInput(Constants.PIVOT_BOTTOM_LIMIT_SWITCH_ID);
-
+        timer = new Timer();
+        
         setUpPivot();
 
         SetMachineName("Pivot");
@@ -54,53 +52,46 @@ public class Pivot extends JankyStateMachine {
         SetName(CLIMB_CONFIG, "Climb Config");
         SetName(CLIMB_CONFIG_ACHIEVED, "Climb Config Achieved");
 
-        timer = new Timer();
-
         start();
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
+        setShooterAngle();
         switch (curState) {
             case IDLE:
                 if (onStateEntered) {
+                    pivotMotor.setSelectedSensorPosition(0);
+                    //pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10);
                     intakeConfigAchieved = false;
                     shooterConfigAchieved = false;
                     climbConfigAchieved = false;
                     timer.reset();
-                    timer.start();
                 }
 
-                setStartPos();
-
-                //RMW
-                //NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
+                SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
+                timer.start();
+                pivotMotor.set(TalonFXControlMode.MotionMagic, 0);
                 
-                if (timer.get() >= 1){
+                if (timer.get() >= 0.5){ //timer tbd
                     timer.stop();
                     startingConfigAchieved = true;
                     NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 }
-                /*
                 
-                if (topLimitSwitch.get()) {
-                    // Switch to Start Config, set current position as 0
-                    startingConfigAchieved = true;
-                    NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
-                }
-                 */
                 break;
             case STARTING_CONFIG:
                 if (onStateEntered) {
-                    //pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10); // define position 0
                     intakeConfigAchieved = false;
                     shooterConfigAchieved = false;
                     climbConfigAchieved = false;
                 }
 
-                holdStartPos();
+                setStartPos();
+                
+                SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
+                SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_STARTING_ANGLE_PULSES);
 
                 if (XboxController.GetButtonBack()) {
-                    //flagIntakeConfig();
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
 
@@ -110,7 +101,6 @@ public class Pivot extends JankyStateMachine {
                 }
 
                 if (XboxController.GetButtonStart()) {
-                    //flagShooterConfig();
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
 
@@ -126,10 +116,13 @@ public class Pivot extends JankyStateMachine {
                     climbConfigAchieved = false;
                     startingConfigAchieved = false;
                 }
+
                 setIntakePos();
+
+                SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
+                SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_INTAKE_ANGLE_PULSES);
                 
                 if (XboxController.GetButtonStart()) {
-                    //flagShooterConfig();
                     NewState(SHOOTER_CONFIG, "intake config flag is true");
                 }
 
@@ -150,9 +143,13 @@ public class Pivot extends JankyStateMachine {
                 intakeConfigAchieved = false;
                 climbConfigAchieved = false;
                 startingConfigAchieved = false;
+                
                 setShooterConfig();
+                
+                SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
+                SmartDashboard.putNumber("pivotMotor Target Value", (lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION);
+                
                 if (XboxController.GetButtonBack()) {
-                    //flagIntakeConfig();
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
                 if (goIntakeConfig) {
@@ -164,7 +161,7 @@ public class Pivot extends JankyStateMachine {
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
 
-                if (checkPosition(Constants.PIVOT_SHOOTER_ANGLE_PULSES)) {
+                if (checkPosition((lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION)) {
                     shooterConfigAchieved = true;
                 }
                 break;
@@ -176,6 +173,9 @@ public class Pivot extends JankyStateMachine {
                 }
 
                 setClimbConfig();
+                SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
+                SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_CLIMB_ANGLE_PULSES);
+                
 
                 if (checkPosition(Constants.PIVOT_CLIMB_ANGLE_PULSES) && GetCurrentState() == CLIMB_CONFIG) {
                     climbConfigAchieved = true;
@@ -184,6 +184,8 @@ public class Pivot extends JankyStateMachine {
                 break;
             case CLIMB_CONFIG_ACHIEVED:
                 setClimbConfig(); // Hold pivot in climb config position
+                SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
+                SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_CLIMB_ANGLE_PULSES);
                 break;
         }
     }
@@ -195,6 +197,13 @@ public class Pivot extends JankyStateMachine {
                 Constants.PIVOT_kTimeoutMs);
         pivotMotor.setSensorPhase(true);
         pivotMotor.setInverted(false); // TBD
+        
+        /* set deadband to super small 0.001 (0.1 %).
+			The default deadband is 0.04 (4 %) */
+        pivotMotor.configNeutralDeadband(0.001, Constants.PIVOT_kTimeoutMs);
+
+        pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, Constants.PIVOT_kTimeoutMs);
+		pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.PIVOT_kTimeoutMs);
 
         /* min/max */
         pivotMotor.configNominalOutputForward(0, Constants.PIVOT_kTimeoutMs);
@@ -210,6 +219,9 @@ public class Pivot extends JankyStateMachine {
         pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP, Constants.PIVOT_kTimeoutMs);
         pivotMotor.config_kI(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kI, Constants.PIVOT_kTimeoutMs);
         pivotMotor.config_kD(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kD, Constants.PIVOT_kTimeoutMs);
+
+        pivotMotor.configMotionCruiseVelocity(22500, Constants.PIVOT_kTimeoutMs); //15000
+		pivotMotor.configMotionAcceleration(13500, Constants.PIVOT_kTimeoutMs); //6000
     }
 
     public double getEncoder() {
@@ -217,11 +229,11 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setStartPos() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_STARTING_ANGLE_PULSES); // TBD
+        pivotMotor.set(TalonFXControlMode.MotionMagic, Constants.PIVOT_STARTING_ANGLE_PULSES); // TBD
     }
 
     public void holdStartPos() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_STARTING_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.MotionMagic, Constants.PIVOT_STARTING_ANGLE_PULSES);
     }
 
     public void flagIntakeConfig() {
@@ -229,7 +241,7 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setIntakePos() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_INTAKE_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.MotionMagic, Constants.PIVOT_INTAKE_ANGLE_PULSES);
     }
 
     public void flagShooterConfig() {
@@ -237,16 +249,12 @@ public class Pivot extends JankyStateMachine {
     }
     
     public void setShooterConfig() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_SHOOTER_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.MotionMagic, (lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION);
     }
 
     // Auto calls this to check if shooter config is reached
     public boolean checkShooterFlag() {
         return shooterConfigAchieved;
-    }
-
-    public boolean checkIntakeFlag() {
-        return intakeConfigAchieved;
     }
 
     // Climb mech calls this to trigger pivot into climb config state
@@ -255,7 +263,7 @@ public class Pivot extends JankyStateMachine {
     }
 
     public void setClimbConfig() {
-        pivotMotor.set(TalonFXControlMode.Position, Constants.PIVOT_CLIMB_ANGLE_PULSES);
+        pivotMotor.set(TalonFXControlMode.MotionMagic, Constants.PIVOT_CLIMB_ANGLE_PULSES);
     }
 
     // Used by climb mech to check if pivot has entered CLIMB_CONFIG_ACHIEVED state
@@ -267,4 +275,28 @@ public class Pivot extends JankyStateMachine {
         return (Math.abs(getEncoder() - desiredPos) < 8); // returns true if in range
     }
 
+    public void displayDpadOutput(){
+        SmartDashboard.putNumber("D-pad output", XboxController.getPOV());
+    }
+
+    public void setShooterAngle(){
+        if (XboxController.getPOV() == 0){
+            lifterTargetValue = Constants.PIVOT_SHOOTER_ANGLE;
+        } else if (XboxController.getPOV() == 90){
+            lifterTargetValue =  Constants.PIVOT_SHOOTER_MIDANGLE;
+        } else if (XboxController.getPOV() == 180){
+            lifterTargetValue =  Constants.PIVOT_SHOOTER_LOWANGLE;
+        } else if (XboxController.getPOV() == 270){
+            lifterTargetValue = Constants.PIVOT_SHOOTER_LOWESTANGLE;
+        }
+        SmartDashboard.putNumber("lifterTargetValue", lifterTargetValue);
+    }
+
+    public boolean isInIdle(){
+        return (GetCurrentState() == IDLE);
+    }
+
+    public void killStateMachine(){
+        Terminate();
+    }
 }
