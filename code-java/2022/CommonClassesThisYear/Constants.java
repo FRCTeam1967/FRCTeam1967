@@ -18,7 +18,7 @@ public class Constants {
         public static final double PIVOT_kF = 0.0;
 
         /* pivot constants */
-        public static final double PIVOT_INTAKE_ANGLE = 83; //68
+        public static final double PIVOT_INTAKE_ANGLE = 86; //68
         public static final double PIVOT_STARTING_ANGLE = -3; //0
         public static final double PIVOT_SHOOTER_ANGLE = 0; //-15
         public static final double PIVOT_SHOOTER_MIDANGLE = 10;

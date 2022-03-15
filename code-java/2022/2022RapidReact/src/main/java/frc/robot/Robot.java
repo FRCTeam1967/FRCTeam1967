@@ -73,7 +73,8 @@ public class Robot extends TimedRobot {
   VisionSubsystem limeLight = new VisionSubsystem();
 
   Shooter shooter = new Shooter();
-  Pivot pivot = new Pivot();
+  //Pivot pivot = new Pivot();
+  PivotMagic pivotmagic = null;
 
   AutoStateMachine autoSM = null;
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
@@ -100,7 +101,11 @@ public class Robot extends TimedRobot {
 
   public void instantiateClimb(){
     climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
-    Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivot);
+    Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivotmagic);
+  }
+
+  public void instantiatePivotMagic(){
+    pivotmagic = new PivotMagic();
   }
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -236,6 +241,9 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
+    if (pivotmagic == null){
+      instantiatePivotMagic();
+    }
     DriveSelected = driveChooser.getSelected();
     System.out.println("Drive selected: " + DriveSelected);
     if (autoSM != null) {
@@ -337,6 +345,12 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
+    if((pivotmagic != null) && (!pivotmagic.isInIdle())){
+      pivotmagic.killStateMachine();
+      pivotmagic = null;
+      //instantiatePivotMagic();
+      System.out.println("instantiated pivot in disabledInit()");
+    }
     if(!climbMech.isInIdle()){
       climbMech.killStateMachine();
       instantiateClimb();

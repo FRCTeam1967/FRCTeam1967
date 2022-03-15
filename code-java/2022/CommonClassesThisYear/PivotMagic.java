@@ -72,7 +72,7 @@ public class PivotMagic extends JankyStateMachine {
                 timer.start();
                 pivotMotor.set(TalonFXControlMode.MotionMagic, 0);
                 
-                if (timer.get() >= 5){
+                if (timer.get() >= 0.5){ //timer tbd
                     timer.stop();
                     startingConfigAchieved = true;
                     NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
@@ -91,7 +91,7 @@ public class PivotMagic extends JankyStateMachine {
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_STARTING_ANGLE_PULSES);
 
-                if (XboxController.GetButtonA()) {
+                if (XboxController.GetButtonBack()) {
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
 
@@ -100,7 +100,7 @@ public class PivotMagic extends JankyStateMachine {
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
 
-                if (XboxController.GetButtonY()) {
+                if (XboxController.GetButtonStart()) {
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
 
@@ -122,7 +122,7 @@ public class PivotMagic extends JankyStateMachine {
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_INTAKE_ANGLE_PULSES);
                 
-                if (XboxController.GetButtonY()) {
+                if (XboxController.GetButtonStart()) {
                     NewState(SHOOTER_CONFIG, "intake config flag is true");
                 }
 
@@ -149,7 +149,7 @@ public class PivotMagic extends JankyStateMachine {
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", (lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION);
                 
-                if (XboxController.GetButtonA()) {
+                if (XboxController.GetButtonBack()) {
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
                 if (goIntakeConfig) {

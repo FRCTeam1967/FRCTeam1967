@@ -23,7 +23,7 @@ public class Climb extends JankyStateMachine{
     private Timer climbTestTimer;
 
     private jankyXboxJoystick XboxController;
-    private Pivot pivot;
+    private PivotMagic pivot;
 
     //states
     private final int IDLE = 0; //keep bar down
@@ -49,7 +49,7 @@ public class Climb extends JankyStateMachine{
     double previousCountL = 0;
     double previousCountR = 0;
     
-    public Climb(int winchMotorChannelL, int winchMotorChannelR, int PCMChannel, int midLatchChannel, Pivot _pivot){
+    public Climb(int winchMotorChannelL, int winchMotorChannelR, int PCMChannel, int midLatchChannel, PivotMagic _pivot){
         winchMotorL = new JankyTalonFX(winchMotorChannelL);
         winchMotorR = new JankyTalonFX(winchMotorChannelR);
         
