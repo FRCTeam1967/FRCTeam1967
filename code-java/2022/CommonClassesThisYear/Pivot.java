@@ -38,10 +38,10 @@ public class Pivot extends JankyStateMachine {
     private Timer timer;
 
     public Pivot() {
-        pivotMotor = new WPI_TalonFX(Constants.MOTOR_ID);
-        XboxController = new jankyXboxJoystick(Constants.CONTROLLER_PORT_ID);
-        DigitalInput topLimitSwitch = new DigitalInput(Constants.TOP_LIMIT_SWITCH_ID);
-        DigitalInput bottomLimitSwitch = new DigitalInput(Constants.BOTTOM_LIMIT_SWITCH_ID);
+        pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
+        XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
+        DigitalInput topLimitSwitch = new DigitalInput(Constants.PIVOT_TOP_LIMIT_SWITCH_ID);
+        DigitalInput bottomLimitSwitch = new DigitalInput(Constants.PIVOT_BOTTOM_LIMIT_SWITCH_ID);
 
         setUpPivot();
 
