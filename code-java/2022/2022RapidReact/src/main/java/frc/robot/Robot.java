@@ -275,7 +275,21 @@ public class Robot extends TimedRobot {
 
     //CHASSIS
     if (leftJoystick.getRawButton(4)&& limeLight.targetValid()){
-      //myRobot.tankDrive(-limeLight.getDistance()-limeLight.getAngle(),limeLight.getDistance() + limeLight.getAngle());//Call limeLight.getAngle() subtract from one side, add to another
+     if ((limeLight.xOffset() < -2) && (limeLight.xOffset() > -20)) {
+       //turn right slow
+       leftLeader.set(TalonFXControlMode.Velocity, -0.1);
+       leftFollower.set(TalonFXControlMode.Velocity, -0.1);
+       rightLeader.set(TalonFXControlMode.Velocity, -0.1);
+       rightFollower.set(TalonFXControlMode.Velocity, -0.1);
+     }
+     if ((limeLight.xOffset() > 2) && limeLight.xOffset() < 20) {
+       //turn left slow
+       leftLeader.set(TalonFXControlMode.Velocity, 0.1);
+       leftFollower.set(TalonFXControlMode.Velocity, 0.1);
+       rightLeader.set(TalonFXControlMode.Velocity,  0.1);
+       rightFollower.set(TalonFXControlMode.Velocity, 0.1);
+     }
+
     } else {
         switch (DriveSelected) {
           case kArcadeDrive:
