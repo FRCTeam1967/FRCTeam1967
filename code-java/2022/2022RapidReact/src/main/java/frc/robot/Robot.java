@@ -81,7 +81,7 @@ public class Robot extends TimedRobot {
   AutoSelector delaySelector =  new AutoSelector();
   AutoSelector pathSelector = new AutoSelector();
 
-  // LED led = new LED(1, 500, 9); 
+  LED led = new LED(1, 500, 9); 
   private Climb climbMech = null;
 
   //AUTO
@@ -100,7 +100,7 @@ public class Robot extends TimedRobot {
 
   public void instantiateClimb(){
     climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
-    Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivot);
+    Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivot, led);
   }
   /**
    * This function is run when the robot is first started up and should be used for any

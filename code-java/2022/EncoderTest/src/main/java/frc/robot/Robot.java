@@ -45,6 +45,8 @@ public class Robot extends TimedRobot {
 
   private boolean xWasPressed = false;
   private boolean xPressed = false;
+  private boolean yWasPressed = false;
+  private boolean yPressed = false;
 
 
   
@@ -138,11 +140,22 @@ public class Robot extends TimedRobot {
     if(xPressed && !xWasPressed){
       double timeBefore = RobotController.getFPGATime();
       ErrorCode encoderReset = talon.getSensorCollection().setIntegratedSensorPosition(0, 10);
-      SmartDashboard.putNumber("Time to reset", RobotController.getFPGATime() - timeBefore); //in microseconds
-      SmartDashboard.putString("encoderReset?", encoderReset.name()); 
+      SmartDashboard.putNumber("Time to reset 1", RobotController.getFPGATime() - timeBefore); //in microseconds
+      SmartDashboard.putString("encoderReset 1?", encoderReset.name()); 
       xWasPressed = true;
     } else if (!xPressed && xWasPressed){
       xWasPressed = false;
+    }
+
+    yPressed = xbox.GetButtonY();
+    if(yPressed && !yWasPressed){
+      double timeBefore = RobotController.getFPGATime();
+      ErrorCode encoderReset = talon.setSelectedSensorPosition(0);
+      SmartDashboard.putNumber("Time to reset 2", RobotController.getFPGATime() - timeBefore); //in microseconds
+      SmartDashboard.putString("encoderReset 2?", encoderReset.name()); 
+      yWasPressed = true;
+    } else if (!yPressed && yWasPressed){
+      yWasPressed = false;
     }
   }
 
