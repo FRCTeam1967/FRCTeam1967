@@ -1,3 +1,4 @@
+//prewritten auto selector class written for the delay and path selectors --> used in Auto.java and AutoStateMachine.java
 package org.janksters.CommonClassesThisYear;
 
 
@@ -11,7 +12,7 @@ public class AutoSelector {
     SendableChooser<Integer> pathSelector = new SendableChooser<>(); //= new SendableChooser<>();
 
 
-//     // paths for the delay
+    // paths for the delay
     private int ZeroDelay = AutoConstants.ZeroDelay;
     private int OneDelay = AutoConstants.OneDelay;
     private int TwoDelay = AutoConstants.TwoDelay;

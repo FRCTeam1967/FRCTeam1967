@@ -1,3 +1,5 @@
+//used for the climb flags and the color sensor (tbd for monterey)
+
 package org.janksters.CommonClassesThisYear;
 
 import edu.wpi.first.wpilibj.AddressableLED;

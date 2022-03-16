@@ -1,3 +1,6 @@
+//Currently not in use, backup for auto routine in place of AutoStateMachine
+//Class Auto- if statement logic for simple tarmac and 2-ball auto 
+
 package org.janksters.CommonClassesThisYear;
 import org.janksters.CommonClassesThisYear.*;
 
@@ -109,14 +112,10 @@ public class Auto extends SequentialCommandGroup{
 
 
     public void AutoSequenceStandard(DifferentialDrive m_myrobot, int delay, ADIS16470_IMU m_gyro, int caseNum) {
-
-
-        
         SmartDashboard.putNumber("Delay Timer", delayTimer.get());
         SmartDashboard.putNumber("Delay Desired", delay);
         SmartDashboard.putNumber("Case Number", caseNum);
         SmartDashboard.putBoolean("Did Auto Go Forward? Probably not.", autoForwardIsFinished);
-
 
         startDelayTimer();
         if (delayTimer.get() <=delay) {
@@ -157,8 +156,6 @@ public class Auto extends SequentialCommandGroup{
     }
 
     public void AutoSequenceSimple(DifferentialDrive m_myrobot, int delay, ADIS16470_IMU m_gyro, int caseNum) {
-
-
         SmartDashboard.putNumber("Delay Timer", delayTimer.get());
         SmartDashboard.putNumber("Delay Desired", delay);
         SmartDashboard.putNumber("Case Number", caseNum);

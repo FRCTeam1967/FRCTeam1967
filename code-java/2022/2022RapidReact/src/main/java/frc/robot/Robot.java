@@ -242,7 +242,7 @@ public class Robot extends TimedRobot {
 
     autoSM = new AutoStateMachine(pivot, shooter); */
 
-    autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro);
+    autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro, shooter, pivotmagic);
   }
 
   /** This function is called periodically during autonomous. */

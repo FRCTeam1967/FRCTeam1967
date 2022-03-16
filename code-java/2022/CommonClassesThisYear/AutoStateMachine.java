@@ -1,3 +1,5 @@
+//Main Auto State Machine files - has paths and delay for two ball, three ball, and simple Tarmac Path
+
 package org.janksters.CommonClassesThisYear;
 import org.janksters.CommonClassesThisYear.*;
 import org.janksters.jankyLib.JankyStateMachine;
@@ -86,7 +88,7 @@ public class AutoStateMachine extends JankyStateMachine {
     boolean hasShoot = false;
     boolean armLowered = false;
 
-    Pivot pivot;
+    PivotMagic pivot;
     Shooter shooter;
 
     public void resetDelayTimer(){
@@ -116,7 +118,7 @@ public class AutoStateMachine extends JankyStateMachine {
 
 
 
-    public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro, Shooter _shooter, Pivot _pivot) {
+    public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro, Shooter _shooter, PivotMagic _pivot) {
         delay = _delay;
         gyroClassLevel = m_gyro;
         m_leftLeader = new WPI_TalonSRX(2);//m2

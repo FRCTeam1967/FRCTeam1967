@@ -1,3 +1,5 @@
+//updated pivot code --> using motion magic for smoother control
+
 package org.janksters.CommonClassesThisYear;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -246,6 +248,10 @@ public class PivotMagic extends JankyStateMachine {
 
     public void flagShooterConfig() {
         goShooterConfig = true;
+    }
+    
+    public boolean checkIntakeFlag() {
+        return intakeConfigAchieved;
     }
     
     public void setShooterConfig() {

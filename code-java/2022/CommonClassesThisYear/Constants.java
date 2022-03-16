@@ -1,3 +1,5 @@
+//All constants for 2022 season
+
 package org.janksters.CommonClassesThisYear;
 public class Constants {
     public static final int FALCON_PULSES_PER_REVOLUTION = 2048;
