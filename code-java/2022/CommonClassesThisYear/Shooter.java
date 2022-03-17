@@ -1,3 +1,4 @@
+//main shooter code --> also used for robot.java and in tandem with pivotmagic code
 package org.janksters.CommonClassesThisYear;
 
 import org.janksters.jankyLib.JankyStateMachine;

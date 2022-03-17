@@ -1,6 +1,9 @@
 # This gitignore has been specially created by the WPILib team.
 # If you remove items from this file, intellisense might break.
 
+## Mac
+.DS_Store
+
 ### C++ ###
 # Prerequisites
 *.d
@@ -138,6 +141,8 @@ $RECYCLE.BIN/
 ### Gradle ###
 .gradle
 /build/
+.gradle/
+build/
 
 # Ignore Gradle GUI config
 gradle-app.setting

@@ -1,7 +1,8 @@
+//Main Auto State Machine files - has paths and delay for two ball, three ball, and simple Tarmac Path
+
 package org.janksters.CommonClassesThisYear;
 import org.janksters.CommonClassesThisYear.*;
 import org.janksters.jankyLib.JankyStateMachine;
-
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
@@ -57,12 +58,13 @@ public class AutoStateMachine extends JankyStateMachine {
     public static int delay;
     public int stateMachineSelected;
     private final int twoBFirstDelay = 0;
-    private final int twoBFirstMove = 1;
-    private final int twoBTurn = 2;
-    private final int twoBSecondMove = 3;
-    private final int twoBSecondTurn = 4;
-    private final int twoBLiftAndShoot = 5;
-    private final int twoBFinishAuto = 6;
+    private final int twoBLowerArm = 1;
+    private final int twoBFirstMove = 2;
+    private final int twoBTurn = 3;
+    private final int twoBSecondMove = 4;
+    private final int twoBLift = 5;
+    private final int twoBShoot = 6;
+    private final int twoBFinishAuto = 7;
 
     private final int threeBFirstDelay = 0;
     private final int threeBFirstShoot = 1;
@@ -74,8 +76,9 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int threeBThirdMove = 7;
     private final int threeBThirdTurn = 8;
     private final int threeBFourthMove = 9;
-    private final int threeBLiftAndShoot = 10;
-    private final int threeBFinishAuto = 11;
+    private final int threeBLift = 10;
+    private final int threeBShoot = 11;
+    private final int threeBFinishAuto = 12;
 
     private final int simpleDelay = 0;
     private final int simpleMove = 1;
@@ -85,7 +88,7 @@ public class AutoStateMachine extends JankyStateMachine {
     boolean hasShoot = false;
     boolean armLowered = false;
 
-    Pivot pivot;
+    PivotMagic pivot;
     Shooter shooter;
 
     public void resetDelayTimer(){
@@ -115,7 +118,7 @@ public class AutoStateMachine extends JankyStateMachine {
 
 
 
-    public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro) {
+    public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro, Shooter _shooter, PivotMagic _pivot) {
         delay = _delay;
         gyroClassLevel = m_gyro;
         m_leftLeader = new WPI_TalonSRX(2);//m2
@@ -127,15 +130,15 @@ public class AutoStateMachine extends JankyStateMachine {
         m_right = new MotorControllerGroup(frmotor, m_rightFollower);
         m_myRobot = new DifferentialDrive(m_left,m_right);
 
-        // pivot = _pivot;
-        // shooter = _shooter;
+        pivot = _pivot;
+        shooter = _shooter;
 
         frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
         rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
 
         m_gyro.reset();
 
-        if (autoPathSelected == 2) {
+        if (autoPathSelected == 2) { //three ball path
             SetMachineName("autoSupreme");
             SetName(threeBFirstDelay, "threeBFirstDelay");
             SetName(threeBFirstShoot, "threeBFirstShoot");
@@ -147,22 +150,24 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(threeBThirdMove, "threeBThirdMove");
             SetName(threeBThirdTurn, "threeBThirdTurn");
             SetName(threeBFourthMove, "threeBFourthMove");
-            SetName(threeBLiftAndShoot, "threeBLiftAndShoot");
+            SetName(threeBLift, "threeBLift");
+            SetName(threeBShoot, "threeBShoot");
             SetName(threeBFinishAuto, "threeBFinishAuto");
             stateMachineSelected = 2;
             start();
-        } else if (autoPathSelected == 1) {
+        } else if (autoPathSelected == 1) { //two ball path
             SetMachineName("auto");
             SetName(twoBFirstDelay, "twoBFirstDelay");
+            SetName(twoBLowerArm, "twoBLowerArm");
             SetName(twoBFirstMove, "twoBFirstMove");
             SetName(twoBTurn, "twoBTurn");
             SetName(twoBSecondMove, "twoBSecondMove");
-            SetName(twoBSecondTurn, "twoBSecondTurn");
-            SetName(twoBLiftAndShoot, "twoBLiftAndShoot");
+            SetName(twoBLift, "twoBLift");
+            SetName(twoBShoot, "twoBShoot");
             SetName(twoBFinishAuto, "twoBFinishAuto");
             stateMachineSelected = 1;
             start();
-        }  else {
+        }  else { //leaving tarmac path
             SetMachineName ("simpleTarmac");
             SetName (simpleDelay, "simpleDelay");
             SetName(simpleMove, "simpleMove");
@@ -175,7 +180,8 @@ public class AutoStateMachine extends JankyStateMachine {
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
-        if (stateMachineSelected == 2) {
+
+        if (stateMachineSelected == 2) { //three ball path
             switch (curState) {
                 case threeBFirstDelay:
                     if (onStateEntered) {
@@ -188,29 +194,20 @@ public class AutoStateMachine extends JankyStateMachine {
                     }
                     break;
                 case threeBFirstShoot:
-                    if (onStateEntered) {
-                        System.out.println("Shoot");
-                    }
-                    hasShoot = true;
-
-                    if (hasShoot) {
-                        hasShoot = false;
-                        NewState(threeBLoweredArm, "Finished shooting");
+                    shooter.shooterRevUp();
+                    if(shooter.fireComplete()) {
+                        NewState(threeBLoweredArm, "Shooting Complete");
                     }
                     break;
                 case threeBLoweredArm:
-                    if (onStateEntered) {
-                        System.out.println("Lowered Arm");
-                    }
-                    armLowered = true;
-
-                    if (armLowered) {
-                        armLowered = false;
-                        NewState(threeBFirstMove, "Arm is down");
+                    pivot.flagIntakeConfig();
+                    if(pivot.checkIntakeFlag()) {
+                        NewState(threeBFirstMove, "Lift Complete");
                     }
                     break;
                 case threeBFirstMove:
                     m_myRobot.tankDrive(-0.4, 0.4);
+                    shooter.runIntake();
                     if (inchesToEncoder(70) <= getAverageEncoderValues()) {
                         m_myRobot.tankDrive(0, 0);
                         NewState(threeBFirstTurn, "reached average encoder for distance");
@@ -229,6 +226,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     break;
                 case threeBSecondMove:
                     m_myRobot.tankDrive(0.4, -0.4);
+                    shooter.runIntake();
                     if (inchesToEncoder(20) <= getAverageEncoderValues()) {
                         m_myRobot.tankDrive(0, 0);
                         NewState(threeBSecondTurn, "reached average encoder for distance 2");
@@ -248,6 +246,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     break;
                 case threeBThirdMove:
                     m_myRobot.tankDrive(0.4, -0.4);
+                    shooter.runIntake();
                     if (inchesToEncoder(117) <= getAverageEncoderValues()) {
                         m_myRobot.tankDrive(0, 0);
                         NewState(threeBThirdTurn, "reached average encoder for distance 2");
@@ -267,25 +266,26 @@ public class AutoStateMachine extends JankyStateMachine {
                     m_myRobot.tankDrive(0.4, -0.4);
                     if (inchesToEncoder(115) <= getAverageEncoderValues()) {
                         m_myRobot.tankDrive(0, 0);
-                        NewState(threeBLiftAndShoot, "reached average encoder for distance 2");
+                        NewState(threeBLift, "reached average encoder for distance 2");
                     }
                     break;
-                case threeBLiftAndShoot:
-                    if (onStateEntered) {
-                        System.out.println("Lift Arm and shoot");
+                case threeBLift:
+                    pivot.flagShooterConfig();
+                    if(pivot.checkShooterFlag()) {
+                        NewState(threeBShoot, "Lift Complete");
                     }
-                    armLifted = true;
-                    hasShoot = true;
-
-                    if (armLifted && hasShoot) {
-                        NewState(threeBFinishAuto, "Arm is up and finished shooting");
+                    break;
+                case threeBShoot:
+                    shooter.shooterRevUp();
+                    if(shooter.fireComplete()) {
+                        NewState(twoBFinishAuto, "Shooting Complete");
                     }
                     break;
                 case threeBFinishAuto:
                     Terminate();
                     break;
             }
-        } else if (stateMachineSelected == 1) {
+        } else if (stateMachineSelected == 1) { //two ball path
             switch (curState) {
             case twoBFirstDelay:
                 if (onStateEntered) {
@@ -294,12 +294,22 @@ public class AutoStateMachine extends JankyStateMachine {
                 if (delayTimer.get() <=delay) {
                     m_myRobot.tankDrive(0, 0);
                 } else {
-                    NewState(twoBFirstMove, "Delay timer has ended");
+                    NewState(twoBLowerArm, "Delay timer has ended");
+                }
+                break;
+
+            case twoBLowerArm: 
+                pivot.flagIntakeConfig();
+                System.out.println("flag deployed");
+                System.out.println(pivot.checkIntakeFlag());
+                if(pivot.checkIntakeFlag()) {
+                    NewState(twoBFirstMove, "Lift Complete");
                 }
                 break;
             case twoBFirstMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                if (inchesToEncoder(50) <= getAverageEncoderValues()) {
+                shooter.runIntake();
+                if (inchesToEncoder(80) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(twoBTurn, "reached average encoder for distance");
                 }
@@ -307,7 +317,7 @@ public class AutoStateMachine extends JankyStateMachine {
             case twoBTurn:
                 SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
                 m_myRobot.tankDrive(-0.4, -0.4);
-                int desiredAngle = 167;
+                int desiredAngle = 150;
                 if(gyroClassLevel.getAngle() >= desiredAngle) {
                     NewState(twoBSecondMove, "reached desired gyro angle");
                 }
@@ -316,36 +326,29 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
             case twoBSecondMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                if (inchesToEncoder(60) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(50) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
-                    NewState(twoBSecondTurn, "reached average encoder for distance 2");
+                    NewState(twoBLift, "reached average encoder for distance 2");
                 }
                 gyroClassLevel.reset();
                 break;
-            case twoBSecondTurn:
-                SmartDashboard.putNumber("gyro angle second turn", gyroClassLevel.getAngle());
-                m_myRobot.tankDrive(-0.4, -0.4);
-                desiredAngle = 30;
-                if(gyroClassLevel.getAngle() >= desiredAngle) {
-                    NewState(twoBLiftAndShoot, "reached desired gyro angle 2");
+            case twoBLift:
+                pivot.flagShooterConfig();
+                if(pivot.checkShooterFlag()) {
+                    NewState(twoBShoot, "Lift Complete");
                 }
                 break;
-            case twoBLiftAndShoot:
-                if (onStateEntered) {
-                    System.out.println("Lift Arm and shoot");
-                }
-                armLifted = true;
-                hasShoot = true;
-
-                if (armLifted && hasShoot) {
-                    NewState(twoBFinishAuto, "Arm is up and finished shooting");
+            case twoBShoot: 
+                shooter.shooterRevUp();
+                if(shooter.fireComplete()) {
+                    NewState(twoBFinishAuto, "Shooting Complete");
                 }
                 break;
             case twoBFinishAuto:
                 Terminate();
                 break;
         }
-        } else if (stateMachineSelected == 0) {
+        } else if (stateMachineSelected == 0) { //leaving tarmac path
             switch (curState) {
                 case simpleDelay:
                     if (onStateEntered) {
@@ -372,12 +375,13 @@ public class AutoStateMachine extends JankyStateMachine {
     }
 
     public void displayCurrentState() {
-        SmartDashboard.putNumber("current state", GetCurrentState());
+        SmartDashboard.putNumber("auto current state", GetCurrentState()); //displays auto current state
     }
 
     public void endStateMachine() {
+        System.out.println("auto state machine terminating");
         Terminate();
-        System.out.println("auto state machine terminate");
+        System.out.println("auto state machine terminated");
     }
 
     public double inchesToEncoder(int inches) {

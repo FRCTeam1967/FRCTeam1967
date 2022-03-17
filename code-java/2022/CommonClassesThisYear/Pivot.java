@@ -1,3 +1,5 @@
+//old pivot code --> backup for updated pivot magic
+
 package org.janksters.CommonClassesThisYear;
 
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -15,7 +17,7 @@ import org.janksters.jankyLib.jankyXboxJoystick;
 public class Pivot extends JankyStateMachine {
     private WPI_TalonFX pivotMotor;
     private jankyXboxJoystick XboxController;
-    private DigitalInput topLimitSwitch, bottomLimitSwitch;
+    //private DigitalInput topLimitSwitch, bottomLimitSwitch;
 
     // Declaring states
     private final int IDLE = 0; // homing sequence
@@ -70,9 +72,9 @@ public class Pivot extends JankyStateMachine {
                     timer.start();
                 }
 
-                //to hit limit switch
-                //setStartPos();
+                setStartPos();
 
+                //RMW
                 //NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 
                 if (timer.get() >= 1){
@@ -91,7 +93,7 @@ public class Pivot extends JankyStateMachine {
                 break;
             case STARTING_CONFIG:
                 if (onStateEntered) {
-                    pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10); // define position 0
+                    //pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10); // define position 0
                     intakeConfigAchieved = false;
                     shooterConfigAchieved = false;
                     climbConfigAchieved = false;
@@ -243,6 +245,10 @@ public class Pivot extends JankyStateMachine {
     // Auto calls this to check if shooter config is reached
     public boolean checkShooterFlag() {
         return shooterConfigAchieved;
+    }
+
+    public boolean checkIntakeFlag() {
+        return intakeConfigAchieved;
     }
 
     // Climb mech calls this to trigger pivot into climb config state

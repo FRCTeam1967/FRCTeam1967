@@ -1,3 +1,5 @@
+//All constants for 2022 season
+
 package org.janksters.CommonClassesThisYear;
 public class Constants {
     public static final int FALCON_PULSES_PER_REVOLUTION = 2048;
@@ -12,16 +14,19 @@ public class Constants {
         /* shooter/pivot PID constants */
         public static final int PIVOT_kTimeoutMs = 1;
         public static final int PIVOT_kPIDLoopIdx = 0;
-        public static final double PIVOT_kP = 0.015;
+        public static final double PIVOT_kP = 0.5; //0.015
         public static final double PIVOT_kI = 0.0;
-        public static final double PIVOT_kD = 1.0;
+        public static final double PIVOT_kD = 3.2;
         public static final double PIVOT_kF = 0.0;
 
         /* pivot constants */
-        public static final double PIVOT_INTAKE_ANGLE = 68; 
-        public static final double PIVOT_STARTING_ANGLE = 0;
-        public static final double PIVOT_SHOOTER_ANGLE = -15; 
-        public static final double PIVOT_CLIMB_ANGLE = 70; 
+        public static final double PIVOT_INTAKE_ANGLE = 86; //68
+        public static final double PIVOT_STARTING_ANGLE = -3; //0
+        public static final double PIVOT_SHOOTER_ANGLE = 0; //-15
+        public static final double PIVOT_SHOOTER_MIDANGLE = 10;
+        public static final double PIVOT_SHOOTER_LOWANGLE = 20;
+        public static final double PIVOT_SHOOTER_LOWESTANGLE = 30;
+        public static final double PIVOT_CLIMB_ANGLE = 70; //70
 
         public static final double PIVOT_INTAKE_ANGLE_PULSES = (PIVOT_INTAKE_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION; 
         public static final double PIVOT_STARTING_ANGLE_PULSES = (PIVOT_STARTING_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;

@@ -1,0 +1,82 @@
+// 1. All classes should be declared in the robot class WITH a '= null;' assignment
+// Example:
+private Climb climbMech = null;
+private PivotMagic pivot = null;
+
+// 2. This should already be known, but these State Machine based classes should be declared at 
+//    the Robot class level - never as local variables to methods.
+
+// 3. We will no longer use robotInit() for instantiating these intertwined State Machines
+//    Instead, we'll use teleopInit() and autonomousInit() to do so.
+//    This has NOT been the case in the past as we tend to use teleop for much of our testing
+//    and yet in a real match, the events are: 
+//      robotInit, autonomousInit, autonomousPeriodic, teleopInit, teleopPeriodic
+//
+//    If we do this right...we can automate this startup condition without danger code-wise.
+//    We'll use a method like below ... jankyInstantiation()
+
+private void robotInit() {
+
+  // Instantiate what is normally instantiated...
+  ...
+  ...
+
+  // Do NOT instantiate the typical State Machine stuff here.	
+}
+
+private teleopInit() {
+	// Initialize whatever is needed for teleop
+	...
+	jankyInstantiation();
+}
+
+private autonomousInit() {
+	// Initialize whatever is needed for autonomous
+	...
+	jankyInstantiation();
+}
+
+private void jankyInstantiation() {
+	// Do the instantiation in the same kind of order as would have been done in robotInit()...
+
+	if (pivot == null) {
+	  pivot = new PivotMagic(....);
+	}
+
+	if (climbMech==null) {
+	  climbMech = new Climb(...., pivot);
+	}
+}
+
+// 4. Finally, to support the notion of NOT needing to "restart robot code", we'll utilize disabledInit()
+//    to take the opportunity to kill the tasks associated with the State Machines and prep them
+//    for "restart".
+//
+// 4.1 It is critical that every state machine can start up without any physical assumptions - for
+//     instance, the lifter needs to be able to "home" itself without assuming the arm is already
+//     in a relatively known place like it is at the start of a match. The reason this is crucial
+//     is for using the enable/disable button on the driver station for practice and ALSO to make sure
+//     if we're in a match and we have some issue that requires us to disable and re-enable, the
+//     software can get "in sync" with the motors/positions/etc without any assumptions.
+
+private void disabledInit() {
+	// We can kill all of the State Machines but we need to be careful in handling objects/pointers
+	if (climbMech != null) {
+	  climbMech.killStateMachine(); // This has to be implemented in your JankyStateMachine or we could
+	                                // modify the JankyStateMachine and add a standard method for
+	                                // terminating the JankyTask
+	  climbMech = null;  // MUST re-set the object to null so that re-instantiation happens automagically
+	}
+	if (pivot != null) {
+		pivot.killStateMachine();
+		pivot = null;
+	}
+	// Kill off all of the tasks in the reverse order that they are created, preferably.
+	...
+	...
+}
+
+// Now, In your State Machine class (or just add this to JankyStateMachine base class?)
+public void killStateMachine() {
+	Terminate();
+}
