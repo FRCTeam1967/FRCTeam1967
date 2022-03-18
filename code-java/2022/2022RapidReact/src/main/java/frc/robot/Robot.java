@@ -48,6 +48,11 @@ public class Robot extends TimedRobot {
   private String DriveSelected;
   private final SendableChooser<String> driveChooser = new SendableChooser<>();
 
+  private int autoPathSelected;
+  private int autoDelaySelected;
+  private final SendableChooser<Integer> autoPathChooser = new SendableChooser<>();
+  private final SendableChooser<Integer> autoDelayChooser = new SendableChooser<>();
+
   public int ledCounter = 0;
   Joystick leftJoystick;
   Joystick rightJoystick;
@@ -139,6 +144,25 @@ public class Robot extends TimedRobot {
     autoCaseNum = 0;
     */
 
+    //AUTO 
+    autoPathChooser.setDefaultOption("Simple Tarmac", AutoConstants.SimpleTarmac);
+    autoPathChooser.addOption("Two Ball", AutoConstants.twoBall);
+    autoPathChooser.addOption("Three Ball", AutoConstants.threeBall);
+    SmartDashboard.putData("Auto Path Chooser", autoPathChooser);
+
+    autoDelayChooser.setDefaultOption("0", AutoConstants.ZeroDelay);
+    autoDelayChooser.setDefaultOption("1", AutoConstants.OneDelay);
+    autoDelayChooser.setDefaultOption("2", AutoConstants.TwoDelay);
+    autoDelayChooser.setDefaultOption("3", AutoConstants.ThreeDelay);
+    autoDelayChooser.setDefaultOption("4", AutoConstants.FourDelay);
+    autoDelayChooser.setDefaultOption("5", AutoConstants.FiveDelay);
+    SmartDashboard.putData("Auto Delay Chooser", autoDelayChooser);
+
+    // autoPathSelected = autoPathChooser.getSelected();
+    // SmartDashboard.putNumber("Auto Path Selected" , autoPathSelected);
+    // autoDelaySelected = autoDelayChooser.getSelected();
+    // SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
+
     //CHASSIS
     driveChooser.setDefaultOption("Tank Drive", kTankDrive);
     driveChooser.addOption("Arcade Drive", kArcadeDrive);
@@ -203,8 +227,8 @@ public class Robot extends TimedRobot {
     }
 
     //myRobot.setMaxOutput(0.7); //default is 1
-    delaySelector.DisplayDelayOptions();
-    pathSelector.DisplayPathOptions();
+    //delaySelector.DisplayDelayOptions();
+    //pathSelector.DisplayPathOptions();
 
     System.out.println("Passed through initialization");
   }
@@ -218,6 +242,11 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+
+    autoPathSelected = autoPathChooser.getSelected();
+    SmartDashboard.putNumber("Auto Path Selected" , autoPathSelected);
+    autoDelaySelected = autoDelayChooser.getSelected();
+    SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
   }
 
   /**
@@ -243,7 +272,7 @@ public class Robot extends TimedRobot {
 
     autoSM = new AutoStateMachine(pivot, shooter); */
 
-    autoSM = new AutoStateMachine(delaySelector.getDelaySelected(),pathSelector.getPathSelected(), m_gyro, shooter, pivotmagic);
+    autoSM = new AutoStateMachine(autoDelaySelected,autoPathSelected, m_gyro, shooter, pivotmagic);
   }
 
   /** This function is called periodically during autonomous. */
