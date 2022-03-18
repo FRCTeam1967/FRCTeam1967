@@ -19,6 +19,7 @@ public class ClimbMBR extends JankyStateMachine{
     private jankyXboxJoystick XboxController;
     private PivotMagic pivot;
     private LED led;
+    private double rightYAxis;
 
     //states
     private final int IDLE = 0; //keep bar down
@@ -73,14 +74,15 @@ public class ClimbMBR extends JankyStateMachine{
         switch (curState){
             case IDLE:
                 if (XboxController.GetRightStickButton()){
-                    NewState(LIFTER_DOWN, "right stick button was pressed");
+                    NewState(MANUAL_ARM, "right stick button was pressed");
                 }
                 break;
 
             case LIFTER_DOWN:
-                //pivot.flagClimbConfig(); //TODO: uncomment once we want to use lifter
+                //TODO: uncomment once we want to use lifter
+                //pivot.flagClimbConfig();
                 //if(!testing && pivot.checkClimbConfigAchieved()){
-                    NewState(READY_TO_CLIMB, "lifter is down");
+                    NewState(MANUAL_ARM, "lifter is down");
                 //}
                 break;
                 
@@ -91,7 +93,7 @@ public class ClimbMBR extends JankyStateMachine{
                     //TODO: make sure other groups don't use at this point
                 }
                 
-                double rightYAxis = XboxController.GetRightYAxis();
+                rightYAxis = XboxController.GetRightYAxis();
                 if (Math.abs(rightYAxis) > Constants.CLIMB_DEADBAND) {
                     moveWinchString(Constants.CLIMB_MBR_WINCH_ARM_FACTOR * rightYAxis);
                 } else {
@@ -109,7 +111,7 @@ public class ClimbMBR extends JankyStateMachine{
                 }
 
                 //joystick
-                double rightYAxis = XboxController.GetRightYAxis();
+                rightYAxis = XboxController.GetRightYAxis();
                 if (Math.abs(rightYAxis) > Constants.CLIMB_DEADBAND) {
                     moveWinchString(Constants.CLIMB_MBR_WINCH_ROBOT_FACTOR * rightYAxis);
                 } else {
