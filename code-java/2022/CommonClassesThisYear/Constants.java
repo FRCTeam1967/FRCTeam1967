@@ -1,5 +1,4 @@
 //All constants for 2022 season
-
 package org.janksters.CommonClassesThisYear;
 public class Constants {
     public static final int FALCON_PULSES_PER_REVOLUTION = 2048;
@@ -34,7 +33,14 @@ public class Constants {
         public static final double PIVOT_CLIMB_ANGLE_PULSES = (PIVOT_CLIMB_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
 
     /* all climb constants */
-        public static final double CLIMB_WINCH_MOTOR_UP_FACTOR = -1.0;
+    // MBR
+        public static final double CLIMB_MBR_WINCH_ARM_FACTOR = -0.5;
+        public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = -0.3;
+        public static final double CLIMB_WINCH_MOTOR_STOP = 0.0;
+        public static final double CLIMB_DEADBAND = 0.07;
+
+    //SVR for future
+    /*  public static final double CLIMB_WINCH_MOTOR_UP_FACTOR = -1.0;
         public static final double CLIMB_WINCH_MOTOR_DOWN_FACTOR = 0.5;
         public static final double CLIMB_WINCH_MOTOR_STOP = 0.0;
         public static final double CLIMB_WINCH_MOTOR_LOWER_SPEED = -0.2;
@@ -60,7 +66,7 @@ public class Constants {
         public static final double CLIMB_ENCODER_RESET_TIMER = 1;
         public static final double CLIMB_ENCODER_RESET_ALLOWABLE_ERROR = 1000;
 
-        /* climb PID constants */
+        // climb PID constants
         //not final because we will use input from smartdashboard to edit them during the testing process, will eventually be final
         public static int CLIMB_TESTING_ERROR = 0; //just for testing
         public static int CLIMB_ALLOWABLE_ERROR = 0;
@@ -80,9 +86,10 @@ public class Constants {
 
         public static final double CLIMB_ROBOT_WEIGHT_PEAK = 0.3;
 
-        /* climb channels */
+        // climb channels
         public static final int CLIMB_PCM_CHANNEL = 12;
         public static final int CLIMB_MID_LATCH_CHANNEL = 2; //probably not right
+        */
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_L = 6;
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_R = 5;
 

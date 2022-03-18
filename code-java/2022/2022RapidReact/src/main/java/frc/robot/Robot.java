@@ -92,7 +92,7 @@ public class Robot extends TimedRobot {
   AutoSelector pathSelector = new AutoSelector();
 
   LED led = new LED(1, 500, 9); 
-  private Climb climbMech = null;
+  private ClimbMBR climbMech = null;
 
   //AUTO
   /*
@@ -109,8 +109,9 @@ public class Robot extends TimedRobot {
   final int turnPath = 2;
 
   public void instantiateClimb(){
-    climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
-    Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivotmagic, led);
+    climbMech = new ClimbMBR(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R, pivotmagic, led);
+    // climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
+    // Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivotmagic, led);
   }
 
   public void instantiatePivotMagic(){

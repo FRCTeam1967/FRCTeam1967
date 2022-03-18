@@ -1,4 +1,5 @@
 //climbing code with manual stop button options in state machine
+/*
 package org.janksters.CommonClassesThisYear;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
@@ -189,6 +190,7 @@ public class Climb extends JankyStateMachine{
         SmartDashboard.putString("RWinch Encoder Error", rightWinchEncoderError.name());
         previousCountR = 0;
         */
+        /*
         winchMotorL.setSelectedSensorPosition(0);
         winchMotorR.setSelectedSensorPosition(0);
 
@@ -277,7 +279,7 @@ public class Climb extends JankyStateMachine{
         Constants.CLIMB_ROBOT_WEIGHT_KI = SmartDashboard.getNumber("CLIMB_ROBOT_WEIGHT_KI", Constants.CLIMB_ROBOT_WEIGHT_KI);
         Constants.CLIMB_ROBOT_WEIGHT_KD = SmartDashboard.getNumber("CLIMB_ROBOT_WEIGHT_KD", Constants.CLIMB_ROBOT_WEIGHT_KD);
         Constants.CLIMB_ROBOT_WEIGHT_KF = SmartDashboard.getNumber("CLIMB_ROBOT_WEIGHT_KF", Constants.CLIMB_ROBOT_WEIGHT_KF); */
-        
+        /*
         switch (curState){
             case IDLE:
                 if(onStateEntered){
@@ -515,3 +517,4 @@ public class Climb extends JankyStateMachine{
         }
     }  
 }
+*/
