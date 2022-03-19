@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.hal.I2CJNI;
 
 import edu.wpi.first.wpilibj.util.Color;
 
@@ -32,13 +33,15 @@ public class Robot extends TimedRobot {
   private LEDPanel m_ledPanel;
 
   // Color sensor configuration
-  private ColorSensor m_colorSensor;
+  private ColorSensor m_colorSensorT; // Onboard
+  private ColorSensor m_colorSensorB; // MXP
   private static final double m_ConfidenceThreshold = 0.85;
+  private Boolean m_isFirstTimeInit = true;
 
   // Rainbow hue
   private int m_nextRainbowHueStart = 0;
 
-  // Average 3 samples
+  // Average of 3 samples we observed using real game pieces
   private final Color kRedBallTarget = new Color((0.5825 + 0.57764 + 0.5712) / 3,
     (0.3091 + 0.3122 + 0.3188) / 3,
     (0.1086 + 0.1108 + 0.1104) / 3);
@@ -59,13 +62,40 @@ public class Robot extends TimedRobot {
 
     // Init LED subsystem
     m_ledPanel = new LEDPanel(m_ledWidth, m_ledHeight, m_ledPWMPin);
+  }
+
+  public void sensorInit() {
+    if (m_colorSensorT != null || m_colorSensorB != null) {
+      m_colorSensorT = null;
+      m_colorSensorB = null;
+    }
+
+    // Force re-initialize the expansion I2C port?
+    if (m_isFirstTimeInit) {
+      m_isFirstTimeInit = false;
+    } else {
+      I2CJNI.i2CInitialize(I2C.Port.kMXP.value);
+    }
 
     // Init ColorSensor subsystem
-    I2C.Port i2cPort = I2C.Port.kOnboard;
-    m_colorSensor = new ColorSensor(i2cPort);
     Color colorsToMatch[] = {kRedBallTarget, kBlueBallTarget};
-    m_colorSensor.setColorMatches(colorsToMatch);
-    m_colorSensor.setConfidenceThreshold(m_ConfidenceThreshold);
+
+    // Setup the "top" sensor using the on-board i2c port
+    I2C.Port i2cPortT = I2C.Port.kOnboard;
+    m_colorSensorT = new ColorSensor(i2cPortT);
+    m_colorSensorT.setColorMatches(colorsToMatch);
+    m_colorSensorT.setConfidenceThreshold(m_ConfidenceThreshold);
+
+    // Setup the "bottom" sensor using the expansion i2c port
+    I2C.Port i2cPortB = I2C.Port.kMXP;
+    m_colorSensorB = new ColorSensor(i2cPortB);
+    m_colorSensorB.setColorMatches(colorsToMatch);
+    m_colorSensorB.setConfidenceThreshold(m_ConfidenceThreshold);
+  }
+
+  public void sensorDeinit() {
+    m_colorSensorT = null;
+    m_colorSensorB = null;
   }
 
   /**
@@ -77,58 +107,89 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    int proximity = m_colorSensor.getProximity();
-
-    // Use .match() to get a match or null if nothing 
-    // matches. Use .closestMatch() to force a match
-    ColorMatchResult closestMatch = m_colorSensor.match();
-    Color displayColor = new Color(0, 0, 0);
-    double confidence = 0.0;
-
-    if (closestMatch != null) { 
-      Color color = closestMatch.color;
-      confidence = closestMatch.confidence;
-
-      if (color == kBlueBallTarget) {
-        System.out.println("Blue");
-        SmartDashboard.putString("Color Match", "Blue");
-        displayColor = Color.kBlue;
-      } else if (color == kRedBallTarget) {
-        System.out.println("Red");
-        SmartDashboard.putString("Color Match", "Red");
-        displayColor = Color.kRed;
-      } else {
-        System.out.println("No Match");
-        SmartDashboard.putString("Color Match", "None");
-      }
+    if (m_colorSensorT == null || m_colorSensorB == null) {
+      return;
     }
 
     // Paint the whole panel the match color
-    m_ledPanel.setColor(displayColor);
+    m_ledPanel.setColor(Color.kBlack);
 
-    // Write out a confidence
-    setOutputMeter(0, 2, confidence, Color.kWhite);
+    // Use .match() to get a match or null if nothing 
+    // matches. Use .closestMatch() to force a match
+    Color observedColorT = m_colorSensorT.rawColor();
+    ColorMatchResult closestMatchT = m_colorSensorT.match();
+    int proximityT = m_colorSensorT.getProximity();
+    double confidenceT = closestMatchT != null ? closestMatchT.confidence : 0.0;
+    Color matchColorT = closestMatchT != null ? closestMatchT.color : null;
 
-    // Write out the individual RGB values we see
-    Color observedColor = m_colorSensor.rawColor();
-    setOutputMeter(2, 2, observedColor.red, Color.kRed);
-    setOutputMeter(4, 2, observedColor.green, Color.kGreen);
-    setOutputMeter(6, 2, observedColor.blue, Color.kBlue);
+    Color observedColorB = m_colorSensorB.rawColor();
+    ColorMatchResult closestMatchB = m_colorSensorB.match();
+    int proximityB = m_colorSensorB.getProximity();
+    double confidenceB = closestMatchB != null ? closestMatchB.confidence : 0.0;
+    Color matchColorB = closestMatchB != null ? closestMatchB.color : null;
 
-    // Write out proximity, which appears to scale from ~100 to 2048
-    double proximityPercent = (double)m_colorSensor.getProximity() / 2048;
-    setOutputMeter(8, 2, proximityPercent, Color.kPurple);
+    // We have 16 rows to the display to work with. Let's do:
+    // 0  - T Proximity
+    // 1  - T Confidence
+    // 2  - T Observed Red
+    // 3  - T Observed Green
+    // 4  - T Observed Blue
+    // 5  - Match color (if any)
+    // 6  - Match color (if any)
+    // 7  - (blank)
+    // 8  - (blank)
+    // 9  - B Proximity
+    // 10 - B Confidence
+    // 11 - B Observed Red
+    // 12 - B Observed Green
+    // 13 - B Observed Blue
+    // 14 - Match color (if any)
+    // 15 - Match color (if any)
 
-    SmartDashboard.putNumber("Proximity", proximity);
-    SmartDashboard.putNumber("Confidence", confidence);
-    SmartDashboard.putNumber("Observed red", observedColor.red);
-    SmartDashboard.putNumber("Observed green", observedColor.green);
-    SmartDashboard.putNumber("Observed blue", observedColor.blue);
-
-    // This will clobber everything that's already been drawn above.
-    // m_nextRainbowHueStart = m_ledPanel.setRainbow(m_nextRainbowHueStart);
+    setSensorDisplay(0, confidenceT, observedColorT, matchColorT, proximityT, "T");
+    setSensorDisplay(9, confidenceB, observedColorB, matchColorB, proximityB, "B");
 
     m_ledPanel.commit();
+  }
+
+  public void setSensorDisplay(int startRow, double confidence, Color observedColor, Color matchedColor, double proximity, String label) {
+        // Write out proximity, which appears to scale from ~100 to 2048
+        double proximityPercent = (double)proximity / 2048;
+        setOutputMeter(startRow, 1, proximityPercent, Color.kPurple);
+
+        // Write out a confidence
+        setOutputMeter(startRow + 1, 1, confidence, Color.kWhite);
+    
+        setOutputMeter(startRow + 2, 1, observedColor.red, Color.kRed);
+        setOutputMeter(startRow + 3, 1, observedColor.green, Color.kGreen);
+        setOutputMeter(startRow + 4, 1, observedColor.blue, Color.kBlue);
+
+        // Pass 1.0 so the whole row is colored. 
+        if (matchedColor != null) { 
+          if (matchedColor == kRedBallTarget) {
+            setOutputMeter(startRow + 5, 2, 1.0, Color.kRed);
+          } else if (matchedColor == kBlueBallTarget) {
+            setOutputMeter(startRow + 5, 2, 1.0, Color.kBlue);
+          }
+        }
+
+        // Update SmartDashboard with stuff.
+        SmartDashboard.putNumber(label + " Proximity", proximity);
+        SmartDashboard.putNumber(label + " Confidence", confidence);
+        SmartDashboard.putNumber(label + " Observed red", observedColor.red);
+        SmartDashboard.putNumber(label + " Observed green", observedColor.green);
+        SmartDashboard.putNumber(label + " Observed blue", observedColor.blue);
+
+        if (matchedColor == kBlueBallTarget) {
+          // System.out.println(label + " sees Blue");
+          SmartDashboard.putString(label + " Color Match", "Blue");
+        } else if (matchedColor == kRedBallTarget) {
+          // System.out.println(label+ " sees Red");
+          SmartDashboard.putString(label + " Color Match", "Red");
+        } else {
+          // System.out.println(label + " didn't match");
+          SmartDashboard.putString(label + " Color Match", "None");
+        }
   }
 
   public void setOutputMeter(int startRow, int meterHeight, double fraction, Color meterColor) {
@@ -155,6 +216,8 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
+    sensorInit();
   }
 
   /** This function is called periodically during autonomous. */
@@ -173,7 +236,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    sensorInit();
+  }
 
   /** This function is called periodically during operator control. */
   @Override
@@ -181,7 +246,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    sensorDeinit();
+  }
 
   /** This function is called periodically when disabled. */
   @Override
