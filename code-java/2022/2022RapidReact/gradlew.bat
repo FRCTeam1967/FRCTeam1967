@@ -1,7 +1,7 @@
 @rem
 
 @rem Run Janksters java-build script
-call ../JanksterNewProjectSetup/WindowsModsScript.bat
+call ..\JanksterNewProjectSetup\WindowsModsScript.bat
 
 @rem Copyright 2015 the original author or authors.
 @rem
