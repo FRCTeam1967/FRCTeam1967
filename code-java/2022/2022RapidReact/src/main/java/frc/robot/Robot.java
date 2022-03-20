@@ -34,11 +34,14 @@ import javax.swing.text.AbstractDocument.LeafElement;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
 
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.util.Color;
+import com.revrobotics.ColorMatchResult;
+
 public class Robot extends TimedRobot {
 
   private static final int CAMERA_DEV_NUMBER = 0;
   private UsbCamera camera;
-
 
   private static final String kTankDrive = "Tank Drive";
   private static final String kArcadeDrive = "Arcade Drive";
@@ -70,7 +73,6 @@ public class Robot extends TimedRobot {
     private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
     private WPI_TalonFX rightFollower = new WPI_TalonFX(0);//m0
 
-
   //2022 Janky (wifi is C1Day)
     /*private WPI_TalonSRX leftLeader = new WPI_TalonSRX(2);//m2
     private WPI_TalonFX leftFollower = new WPI_TalonFX(3);//m3
@@ -80,6 +82,20 @@ public class Robot extends TimedRobot {
   //private MotorControllerGroup left = new MotorControllerGroup(leftLeader, leftFollower);
   //private MotorControllerGroup right = new MotorControllerGroup(rightLeader, rightFollower);
   //DifferentialDrive myRobot = new DifferentialDrive(left,right);
+
+  // Color sensor configuration
+  private ColorSensor m_colorSensorRight;
+  private ColorSensor m_colorSensorLeft;
+  private static final double m_ConfidenceThreshold = 0.85;
+
+  // Average 3 samples
+  private final Color kRedBallTarget = new Color((0.5825 + 0.57764 + 0.5712) / 3,
+    (0.3091 + 0.3122 + 0.3188) / 3,
+    (0.1086 + 0.1108 + 0.1104) / 3);
+
+  private final Color kBlueBallTarget = new Color((0.1323 + 0.1232 + 0.1323) / 3,
+    (0.3621 + 0.3613 + 0.3618)/3,
+    (0.5059 + 0.5068 + 0.5061)/3);
 
   PIDController pidDistance = new PIDController(0.1, 0, 0);
   PIDController pidAngle = new PIDController(0.1, 0, 0);
@@ -128,6 +144,17 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+
+    // Init ColorSensor subsystem
+    I2C.Port i2cPort = I2C.Port.kOnboard;
+    m_colorSensorRight = new ColorSensor(i2cPort);
+    Color colorsToMatch[] = {kRedBallTarget, kBlueBallTarget};
+    m_colorSensorRight.setColorMatches(colorsToMatch);
+    m_colorSensorRight.setConfidenceThreshold(m_ConfidenceThreshold);
+
+    m_colorSensorLeft = new ColorSensor(i2cPort);
+    m_colorSensorLeft.setColorMatches(colorsToMatch);
+    m_colorSensorLeft.setConfidenceThreshold(m_ConfidenceThreshold);
 
     camera = CameraServer.startAutomaticCapture(CAMERA_DEV_NUMBER);
     camera.setResolution(160, 120);
@@ -247,6 +274,61 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Auto Path Selected" , autoPathSelected);
     autoDelaySelected = autoDelayChooser.getSelected();
     SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
+
+    int proximityRight = m_colorSensorRight.getProximity();
+    int proximityLeft = m_colorSensorLeft.getProximity();
+
+    // Use .match() to get a match or null if nothing 
+    // matches. Use .closestMatch() to force a match
+    ColorMatchResult closestMatchRight = m_colorSensorRight.match();
+    Color displayColorRight = new Color(0, 0, 0);
+    double confidenceRight = 0.0;
+
+    ColorMatchResult closestMatchLeft = m_colorSensorLeft.match();
+    Color displayColorLeft = new Color(0, 0, 0);
+    double confidenceLeft = 0.0;
+
+    if (closestMatchRight != null) { 
+      Color colorRight = closestMatchRight.color;
+      confidenceRight = closestMatchRight.confidence;
+
+      if (colorRight == kBlueBallTarget) {
+        System.out.println("Blue");
+        SmartDashboard.putString("Right Color Match", "Blue");
+        displayColorRight = Color.kBlue;
+      } else if (colorRight == kRedBallTarget) {
+        System.out.println("Red");
+        SmartDashboard.putString("Right Color Match", "Red");
+        displayColorRight = Color.kRed;
+      } else {
+        System.out.println("No Match");
+        SmartDashboard.putString("Right Color Match", "None"); 
+      }
+    }
+
+    if (closestMatchLeft != null) { 
+      Color colorLeft = closestMatchLeft.color;
+      confidenceLeft = closestMatchLeft.confidence;
+
+      if (colorLeft == kBlueBallTarget) {
+        System.out.println("Blue");
+        SmartDashboard.putString("Left Color Match", "Blue");
+        displayColorLeft = Color.kBlue;
+      } else if (colorLeft == kRedBallTarget) {
+        System.out.println("Red");
+        SmartDashboard.putString("Left Color Match", "Red");
+        displayColorLeft = Color.kRed;
+      } else {
+        System.out.println("No Match");
+        SmartDashboard.putString("Left Color Match", "None"); 
+      }
+    }
+
+    SmartDashboard.putNumber("Right Color Sensor Proximity", proximityRight);
+    SmartDashboard.putNumber("Right Color Sensor Confidence", confidenceRight);
+    
+    SmartDashboard.putNumber("Left Color Sensor Proximity", proximityLeft);
+    SmartDashboard.putNumber("Left Color Sensor Confidence", confidenceLeft);
   }
 
   /**

@@ -201,7 +201,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     break;
                 case threeBLoweredArm:
                     pivot.flagIntakeConfig();
-                    if(pivot.checkIntakeFlag()) {
+                    if(pivot.isIntakeConfigAchieved()) {
                         NewState(threeBFirstMove, "Lift Complete");
                     }
                     break;
@@ -271,7 +271,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     break;
                 case threeBLift:
                     pivot.flagShooterConfig();
-                    if(pivot.checkShooterFlag()) {
+                    if(pivot.isShooterConfigAchieved()) {
                         NewState(threeBShoot, "Lift Complete");
                     }
                     break;
@@ -301,8 +301,8 @@ public class AutoStateMachine extends JankyStateMachine {
             case twoBLowerArm: 
                 pivot.flagIntakeConfig();
                 System.out.println("flag deployed");
-                System.out.println(pivot.checkIntakeFlag());
-                if(pivot.checkIntakeFlag()) {
+                System.out.println(pivot.isIntakeConfigAchieved());
+                if(pivot.isIntakeConfigAchieved()) {
                     NewState(twoBFirstMove, "Lift Complete");
                 }
                 break;
@@ -334,7 +334,7 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
             case twoBLift:
                 pivot.flagShooterConfig();
-                if(pivot.checkShooterFlag()) {
+                if(pivot.isShooterConfigAchieved()) {
                     NewState(twoBShoot, "Lift Complete");
                 }
                 break;

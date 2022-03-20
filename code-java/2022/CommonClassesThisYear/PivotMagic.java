@@ -29,14 +29,9 @@ public class PivotMagic extends JankyStateMachine {
     private final int CLIMB_CONFIG_ACHIEVED = 6; // completed climbing config
 
     // Flags
-    boolean startingConfigAchieved = false;
     boolean goIntakeConfig = false;
-    boolean intakeConfigAchieved = false;
     boolean goShooterConfig = false;
-    boolean shooterConfigAchieved = false;
     boolean goClimbConfig = false;
-    boolean climbConfigAchieved = false;
-
 
     public PivotMagic() {
         pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
@@ -64,9 +59,6 @@ public class PivotMagic extends JankyStateMachine {
                 if (onStateEntered) {
                     pivotMotor.setSelectedSensorPosition(0);
                     //pivotMotor.getSensorCollection().setIntegratedSensorPosition(0, 10);
-                    intakeConfigAchieved = false;
-                    shooterConfigAchieved = false;
-                    climbConfigAchieved = false;
                     timer.reset();
                 }
 
@@ -76,16 +68,12 @@ public class PivotMagic extends JankyStateMachine {
                 
                 if (timer.get() >= 0.5){ //timer tbd
                     timer.stop();
-                    startingConfigAchieved = true;
                     NewState(STARTING_CONFIG, "top limit switch pressed, reached start config");
                 }
                 
                 break;
             case STARTING_CONFIG:
                 if (onStateEntered) {
-                    intakeConfigAchieved = false;
-                    shooterConfigAchieved = false;
-                    climbConfigAchieved = false;
                 }
 
                 setStartPos();
@@ -114,9 +102,6 @@ public class PivotMagic extends JankyStateMachine {
                 break;
             case INTAKE_CONFIG:
                 if (onStateEntered) {
-                    shooterConfigAchieved = false;
-                    climbConfigAchieved = false;
-                    startingConfigAchieved = false;
                 }
 
                 setIntakePos();
@@ -137,15 +122,8 @@ public class PivotMagic extends JankyStateMachine {
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
 
-                if (checkPosition(Constants.PIVOT_INTAKE_ANGLE_PULSES)) {
-                    intakeConfigAchieved = true;
-                }
                 break;
             case SHOOTER_CONFIG:
-                intakeConfigAchieved = false;
-                climbConfigAchieved = false;
-                startingConfigAchieved = false;
-                
                 setShooterConfig();
                 
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
@@ -163,15 +141,9 @@ public class PivotMagic extends JankyStateMachine {
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
 
-                if (checkPosition((lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION)) {
-                    shooterConfigAchieved = true;
-                }
                 break;
             case CLIMB_CONFIG:
                 if (onStateEntered) {
-                    intakeConfigAchieved = false;
-                    startingConfigAchieved = false;
-                    shooterConfigAchieved = false;
                 }
 
                 setClimbConfig();
@@ -180,7 +152,6 @@ public class PivotMagic extends JankyStateMachine {
                 
 
                 if (checkPosition(Constants.PIVOT_CLIMB_ANGLE_PULSES) && GetCurrentState() == CLIMB_CONFIG) {
-                    climbConfigAchieved = true;
                     NewState(CLIMB_CONFIG_ACHIEVED, "climb config achieved flag set to true");
                 }
                 break;
@@ -249,18 +220,9 @@ public class PivotMagic extends JankyStateMachine {
     public void flagShooterConfig() {
         goShooterConfig = true;
     }
-    
-    public boolean checkIntakeFlag() {
-        return intakeConfigAchieved;
-    }
-    
+
     public void setShooterConfig() {
         pivotMotor.set(TalonFXControlMode.MotionMagic, (lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION);
-    }
-
-    // Auto calls this to check if shooter config is reached
-    public boolean checkShooterFlag() {
-        return shooterConfigAchieved;
     }
 
     // Climb mech calls this to trigger pivot into climb config state
@@ -278,7 +240,7 @@ public class PivotMagic extends JankyStateMachine {
     }
 
     public boolean checkPosition(double desiredPos) {
-        return (Math.abs(getEncoder() - desiredPos) < 8); // returns true if in range
+        return (Math.abs(getEncoder() - desiredPos) < 1000); // returns true if in range
     }
 
     public void displayDpadOutput(){
@@ -304,5 +266,17 @@ public class PivotMagic extends JankyStateMachine {
 
     public void killStateMachine(){
         Terminate();
+    }
+
+    public boolean isShooterConfigAchieved(){
+        return (checkPosition((lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION));
+    }
+
+    public boolean isIntakeConfigAchieved(){
+        return checkPosition(Constants.PIVOT_INTAKE_ANGLE_PULSES);
+    }
+
+    public boolean isClimbConfigAchieved(){
+        return (checkPosition(Constants.PIVOT_CLIMB_ANGLE_PULSES) && GetCurrentState() == CLIMB_CONFIG);
     }
 }

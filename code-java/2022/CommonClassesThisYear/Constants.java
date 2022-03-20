@@ -13,14 +13,14 @@ public class Constants {
         /* shooter/pivot PID constants */
         public static final int PIVOT_kTimeoutMs = 1;
         public static final int PIVOT_kPIDLoopIdx = 0;
-        public static final double PIVOT_kP = 0.5; //0.015
+        public static final double PIVOT_kP = 0.7; //0.015
         public static final double PIVOT_kI = 0.0;
         public static final double PIVOT_kD = 3.2;
         public static final double PIVOT_kF = 0.0;
 
         /* pivot constants */
         public static final double PIVOT_INTAKE_ANGLE = 86; //68
-        public static final double PIVOT_STARTING_ANGLE = -3; //0
+        public static final double PIVOT_STARTING_ANGLE = -1; //0
         public static final double PIVOT_SHOOTER_ANGLE = 0; //-15
         public static final double PIVOT_SHOOTER_MIDANGLE = 10;
         public static final double PIVOT_SHOOTER_LOWANGLE = 20;
@@ -38,6 +38,8 @@ public class Constants {
         public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = -0.3;
         public static final double CLIMB_WINCH_MOTOR_STOP = 0.0;
         public static final double CLIMB_DEADBAND = 0.07;
+        public static final int CLIMB_K_TIMEOUT_MS = 1;
+        public static final int CLIMB_K_PID_LOOP_IDX = 0;
 
     //SVR for future
     /*  public static final double CLIMB_WINCH_MOTOR_UP_FACTOR = -1.0;

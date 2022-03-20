@@ -38,8 +38,8 @@ public class Shooter extends JankyStateMachine {
     private SparkMaxPIDController bottomPIDController;
     public RelativeEncoder bottomMotorEncoder;
 
-    private static final int topRollerMotorID = 20; 
-    private static final int bottomRollerMotorID = 21;
+    private static final int topRollerMotorID = 7; 
+    private static final int bottomRollerMotorID = 8;
     
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
 
@@ -49,10 +49,10 @@ public class Shooter extends JankyStateMachine {
 
     // Remember, velocity values are between -1.0 and 1.0 for motor.set
     // PID controller set reference takes RPM values, max 5700
-    private static final double INTAKE_ROLLER_SPEED = 1200;
+    private static final double INTAKE_ROLLER_SPEED = 2000;
     private static final double SLOW_EJECT_SPEED = 0.2;
-    private static final double TOP_ROLLER_FIRE_SPEED = 2000; 
-    private static final double BOTTOM_ROLLER_FIRE_SPEED = 2000;
+    private static final double TOP_ROLLER_FIRE_SPEED = 4000; 
+    private static final double BOTTOM_ROLLER_FIRE_SPEED = 4000;
 
     private boolean revUpFlag = false;
     private boolean fireCompleteFlag = false;

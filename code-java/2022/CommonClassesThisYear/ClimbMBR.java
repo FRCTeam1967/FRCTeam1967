@@ -34,7 +34,7 @@ public class ClimbMBR extends JankyStateMachine{
         pivot = _pivot;
         led = _led;
 
-        setUpWinchBrake();
+        setUpWinchMotors();
 
         SetMachineName("JankyStateMachineClimb");
 
@@ -46,7 +46,26 @@ public class ClimbMBR extends JankyStateMachine{
         start();
     } 
 
-     private void setUpWinchBrake(){
+    private void setUpWinchMotors(){
+
+        winchMotorL.configFactoryDefault();
+        winchMotorL.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CLIMB_K_PID_LOOP_IDX, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorL.setInverted(TalonFXInvertType.Clockwise);
+        //winchMotorL.setSensorPhase(false);
+        winchMotorL.configNominalOutputForward(0, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorL.configNominalOutputReverse(0, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorL.configPeakOutputForward(1, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorL.configPeakOutputReverse(-1, Constants.CLIMB_K_TIMEOUT_MS);
+
+        winchMotorR.configFactoryDefault();
+        winchMotorR.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CLIMB_K_PID_LOOP_IDX, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorR.setInverted(TalonFXInvertType.CounterClockwise);
+        //winchMotorR.setSensorPhase(false);
+        winchMotorR.configNominalOutputForward(0, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorR.configNominalOutputReverse(0, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorR.configPeakOutputForward(1, Constants.CLIMB_K_TIMEOUT_MS);
+        winchMotorR.configPeakOutputReverse(-1, Constants.CLIMB_K_TIMEOUT_MS);
+
         winchMotorL.setNeutralMode(NeutralMode.Brake);
         winchMotorR.setNeutralMode(NeutralMode.Brake);
     }
@@ -120,5 +139,5 @@ public class ClimbMBR extends JankyStateMachine{
 
                 break;
         }
-    }  
+    }   
 }
