@@ -19,8 +19,8 @@ public class Constants {
         public static final double PIVOT_kF = 0.0;
 
         /* pivot constants */
-        public static final double PIVOT_INTAKE_ANGLE = 86; //68
-        public static final double PIVOT_STARTING_ANGLE = -1; //0
+        public static final double PIVOT_INTAKE_ANGLE = 88; //68, was 86
+        public static final double PIVOT_STARTING_ANGLE = -2; //0
         public static final double PIVOT_SHOOTER_ANGLE = 0; //-15
         public static final double PIVOT_SHOOTER_MIDANGLE = 10;
         public static final double PIVOT_SHOOTER_LOWANGLE = 20;
@@ -31,11 +31,11 @@ public class Constants {
         public static final double PIVOT_STARTING_ANGLE_PULSES = (PIVOT_STARTING_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
         public static final double PIVOT_SHOOTER_ANGLE_PULSES = (PIVOT_SHOOTER_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
         public static final double PIVOT_CLIMB_ANGLE_PULSES = (PIVOT_CLIMB_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
-
+    
     /* all climb constants */
     // MBR
         public static final double CLIMB_MBR_WINCH_ARM_FACTOR = -0.5;
-        public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = -0.3;
+        public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = 0.3;
         public static final double CLIMB_WINCH_MOTOR_STOP = 0.0;
         public static final double CLIMB_DEADBAND = 0.07;
         public static final int CLIMB_K_TIMEOUT_MS = 1;
@@ -104,5 +104,5 @@ public class Constants {
         public static final double CHASSIS_kF = 0.0; //1023.0/20660.0;
         public static final double CHASSIS_Iz = 300;
         public static final double CHASSIS_PeakOut = 1.00;
-        public static final double CHASSIS_RPM = 5000; //was 2000
+        public static final double CHASSIS_RPM = 3750; //was 2500, was 5000
 }

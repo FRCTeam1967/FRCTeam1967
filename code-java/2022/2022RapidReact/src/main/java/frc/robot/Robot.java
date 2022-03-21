@@ -41,7 +41,7 @@ import com.revrobotics.ColorMatchResult;
 public class Robot extends TimedRobot {
 
   private static final int CAMERA_DEV_NUMBER = 0;
-  private UsbCamera camera;
+  // private UsbCamera camera;
 
   private static final String kTankDrive = "Tank Drive";
   private static final String kArcadeDrive = "Arcade Drive";
@@ -144,27 +144,35 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    if (pivotmagic == null){
+      instantiatePivotMagic();
+    }
+    // // Init ColorSensor subsystem
+    // I2C.Port i2cPort = I2C.Port.kOnboard;
+    // m_colorSensorRight = new ColorSensor(i2cPort);
+    // Color colorsToMatch[] = {kRedBallTarget, kBlueBallTarget};
+    // m_colorSensorRight.setColorMatches(colorsToMatch);
+    // m_colorSensorRight.setConfidenceThreshold(m_ConfidenceThreshold);
 
-    // Init ColorSensor subsystem
-    I2C.Port i2cPort = I2C.Port.kOnboard;
-    m_colorSensorRight = new ColorSensor(i2cPort);
-    Color colorsToMatch[] = {kRedBallTarget, kBlueBallTarget};
-    m_colorSensorRight.setColorMatches(colorsToMatch);
-    m_colorSensorRight.setConfidenceThreshold(m_ConfidenceThreshold);
+    // m_colorSensorLeft = new ColorSensor(i2cPort);
+    // m_colorSensorLeft.setColorMatches(colorsToMatch);
+    // m_colorSensorLeft.setConfidenceThreshold(m_ConfidenceThreshold);
 
-    m_colorSensorLeft = new ColorSensor(i2cPort);
-    m_colorSensorLeft.setColorMatches(colorsToMatch);
-    m_colorSensorLeft.setConfidenceThreshold(m_ConfidenceThreshold);
-
-    camera = CameraServer.startAutomaticCapture(CAMERA_DEV_NUMBER);
-    camera.setResolution(160, 120);
-    camera.setFPS(5);
+    // camera = CameraServer.startAutomaticCapture(CAMERA_DEV_NUMBER);
+    // //camera.setResolution(160, 120);
+    // camera.setResolution(80, 60);
+    // //camera.setFPS(5);
+    // camera.setFPS(3);
 
     // leftLeader.setNeutralMode(NeutralMode.Brake);
     // leftFollower.setNeutralMode(NeutralMode.Brake);
     // rightLeader.setNeutralMode(NeutralMode.Brake);
     // rightFollower.setNeutralMode(NeutralMode.Brake);
 
+    leftLeader.setNeutralMode(NeutralMode.Coast);
+    leftFollower.setNeutralMode(NeutralMode.Coast);
+    rightLeader.setNeutralMode(NeutralMode.Coast);
+    rightFollower.setNeutralMode(NeutralMode.Coast);
     //AUTO
     /*
     pathSelector.DisplayActualAutoOptions();
@@ -178,16 +186,18 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto Path Chooser", autoPathChooser);
 
     autoDelayChooser.setDefaultOption("0", AutoConstants.ZeroDelay);
-    autoDelayChooser.setDefaultOption("1", AutoConstants.OneDelay);
-    autoDelayChooser.setDefaultOption("2", AutoConstants.TwoDelay);
-    autoDelayChooser.setDefaultOption("3", AutoConstants.ThreeDelay);
-    autoDelayChooser.setDefaultOption("4", AutoConstants.FourDelay);
+    autoDelayChooser.addOption("1", AutoConstants.OneDelay); //why set default?
+    autoDelayChooser.addOption("2", AutoConstants.TwoDelay);
+    autoDelayChooser.addOption("3", AutoConstants.ThreeDelay);
+    autoDelayChooser.addOption("4", AutoConstants.FourDelay);
     autoDelayChooser.setDefaultOption("5", AutoConstants.FiveDelay);
     SmartDashboard.putData("Auto Delay Chooser", autoDelayChooser);
 
-    // autoPathSelected = autoPathChooser.getSelected();
+     autoPathSelected = autoPathChooser.getSelected();
+    // autoPathSelected = AutoConstants.twoBall;
     // SmartDashboard.putNumber("Auto Path Selected" , autoPathSelected);
-    // autoDelaySelected = autoDelayChooser.getSelected();
+     autoDelaySelected = autoDelayChooser.getSelected();
+    // autoDelaySelected = AutoConstants.ZeroDelay;
     // SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
 
     //CHASSIS
@@ -275,60 +285,60 @@ public class Robot extends TimedRobot {
     autoDelaySelected = autoDelayChooser.getSelected();
     SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
 
-    int proximityRight = m_colorSensorRight.getProximity();
-    int proximityLeft = m_colorSensorLeft.getProximity();
+    // int proximityRight = m_colorSensorRight.getProximity();
+    // int proximityLeft = m_colorSensorLeft.getProximity();
 
-    // Use .match() to get a match or null if nothing 
-    // matches. Use .closestMatch() to force a match
-    ColorMatchResult closestMatchRight = m_colorSensorRight.match();
-    Color displayColorRight = new Color(0, 0, 0);
-    double confidenceRight = 0.0;
+    // // Use .match() to get a match or null if nothing 
+    // // matches. Use .closestMatch() to force a match
+    // ColorMatchResult closestMatchRight = m_colorSensorRight.match();
+    // Color displayColorRight = new Color(0, 0, 0);
+    // double confidenceRight = 0.0;
 
-    ColorMatchResult closestMatchLeft = m_colorSensorLeft.match();
-    Color displayColorLeft = new Color(0, 0, 0);
-    double confidenceLeft = 0.0;
+    // ColorMatchResult closestMatchLeft = m_colorSensorLeft.match();
+    // Color displayColorLeft = new Color(0, 0, 0);
+    // double confidenceLeft = 0.0;
 
-    if (closestMatchRight != null) { 
-      Color colorRight = closestMatchRight.color;
-      confidenceRight = closestMatchRight.confidence;
+    // if (closestMatchRight != null) { 
+    //   Color colorRight = closestMatchRight.color;
+    //   confidenceRight = closestMatchRight.confidence;
 
-      if (colorRight == kBlueBallTarget) {
-        System.out.println("Blue");
-        SmartDashboard.putString("Right Color Match", "Blue");
-        displayColorRight = Color.kBlue;
-      } else if (colorRight == kRedBallTarget) {
-        System.out.println("Red");
-        SmartDashboard.putString("Right Color Match", "Red");
-        displayColorRight = Color.kRed;
-      } else {
-        System.out.println("No Match");
-        SmartDashboard.putString("Right Color Match", "None"); 
-      }
-    }
+    //   if (colorRight == kBlueBallTarget) {
+    //     System.out.println("Blue");
+    //     SmartDashboard.putString("Right Color Match", "Blue");
+    //     displayColorRight = Color.kBlue;
+    //   } else if (colorRight == kRedBallTarget) {
+    //     System.out.println("Red");
+    //     SmartDashboard.putString("Right Color Match", "Red");
+    //     displayColorRight = Color.kRed;
+    //   } else {
+    //     System.out.println("No Match");
+    //     SmartDashboard.putString("Right Color Match", "None"); 
+    //   }
+    // }
 
-    if (closestMatchLeft != null) { 
-      Color colorLeft = closestMatchLeft.color;
-      confidenceLeft = closestMatchLeft.confidence;
+    // if (closestMatchLeft != null) { 
+    //   Color colorLeft = closestMatchLeft.color;
+    //   confidenceLeft = closestMatchLeft.confidence;
 
-      if (colorLeft == kBlueBallTarget) {
-        System.out.println("Blue");
-        SmartDashboard.putString("Left Color Match", "Blue");
-        displayColorLeft = Color.kBlue;
-      } else if (colorLeft == kRedBallTarget) {
-        System.out.println("Red");
-        SmartDashboard.putString("Left Color Match", "Red");
-        displayColorLeft = Color.kRed;
-      } else {
-        System.out.println("No Match");
-        SmartDashboard.putString("Left Color Match", "None"); 
-      }
-    }
+    //   if (colorLeft == kBlueBallTarget) {
+    //     System.out.println("Blue");
+    //     SmartDashboard.putString("Left Color Match", "Blue");
+    //     displayColorLeft = Color.kBlue;
+    //   } else if (colorLeft == kRedBallTarget) {
+    //     System.out.println("Red");
+    //     SmartDashboard.putString("Left Color Match", "Red");
+    //     displayColorLeft = Color.kRed;
+    //   } else {
+    //     System.out.println("No Match");
+    //     SmartDashboard.putString("Left Color Match", "None"); 
+    //   }
+    // // }
 
-    SmartDashboard.putNumber("Right Color Sensor Proximity", proximityRight);
-    SmartDashboard.putNumber("Right Color Sensor Confidence", confidenceRight);
+    // SmartDashboard.putNumber("Right Color Sensor Proximity", proximityRight);
+    // SmartDashboard.putNumber("Right Color Sensor Confidence", confidenceRight);
     
-    SmartDashboard.putNumber("Left Color Sensor Proximity", proximityLeft);
-    SmartDashboard.putNumber("Left Color Sensor Confidence", confidenceLeft);
+    // SmartDashboard.putNumber("Left Color Sensor Proximity", proximityLeft);
+    // SmartDashboard.putNumber("Left Color Sensor Confidence", confidenceLeft);
   }
 
   /**
@@ -366,9 +376,9 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    if (pivotmagic == null){
-      instantiatePivotMagic();
-    }
+    // if (pivotmagic == null){
+    //   instantiatePivotMagic();
+    // }
     DriveSelected = driveChooser.getSelected();
     System.out.println("Drive selected: " + DriveSelected);
     if (autoSM != null) {
@@ -487,7 +497,7 @@ public class Robot extends TimedRobot {
     if((pivotmagic != null) && (!pivotmagic.isInIdle())){
       pivotmagic.killStateMachine();
       pivotmagic = null;
-      //instantiatePivotMagic();
+      instantiatePivotMagic();
       System.out.println("instantiated pivot in disabledInit()");
     }
     if(!climbMech.isInIdle()){

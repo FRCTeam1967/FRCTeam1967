@@ -9,15 +9,19 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.DigitalInput;
+
 
 import org.janksters.jankyLib.JankyStateMachine;
 import org.janksters.jankyLib.jankyXboxJoystick;
+
 
 public class PivotMagic extends JankyStateMachine {
     private WPI_TalonFX pivotMotor;
     private jankyXboxJoystick XboxController;
     private Timer timer;
     private double lifterTargetValue = 0.0;
+    private DigitalInput bottomLimitSwitch;
 
     // Declaring states
     private final int IDLE = 0; // homing sequence
@@ -36,11 +40,13 @@ public class PivotMagic extends JankyStateMachine {
     public PivotMagic() {
         pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
         XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
+        bottomLimitSwitch = new DigitalInput(Constants.PIVOT_MOTOR_ID);
+
         timer = new Timer();
         
         setUpPivot();
 
-        SetMachineName("Pivot");
+        SetMachineName("PivotMagic");
         SetName(IDLE, "Idle");
         SetName(STARTING_CONFIG, "Starting Config");
         SetName(INTAKE_CONFIG, "Intake Config");
@@ -53,7 +59,8 @@ public class PivotMagic extends JankyStateMachine {
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
-        setShooterAngle();
+        //setShooterAngle();
+        SmartDashboard.putBoolean("Bottom Limit Switch", bottomLimitSwitch.get());
         switch (curState) {
             case IDLE:
                 if (onStateEntered) {
@@ -104,7 +111,9 @@ public class PivotMagic extends JankyStateMachine {
                 if (onStateEntered) {
                 }
 
-                setIntakePos();
+                //if (bottomLimitSwitch.get()){ //default - always true
+                    setIntakePos();
+                //}
 
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_INTAKE_ANGLE_PULSES);
@@ -140,12 +149,9 @@ public class PivotMagic extends JankyStateMachine {
                     goClimbConfig = false;
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
-
                 break;
-            case CLIMB_CONFIG:
-                if (onStateEntered) {
-                }
 
+            case CLIMB_CONFIG:
                 setClimbConfig();
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_CLIMB_ANGLE_PULSES);
@@ -247,18 +253,18 @@ public class PivotMagic extends JankyStateMachine {
         SmartDashboard.putNumber("D-pad output", XboxController.getPOV());
     }
 
-    public void setShooterAngle(){
-        if (XboxController.getPOV() == 0){
-            lifterTargetValue = Constants.PIVOT_SHOOTER_ANGLE;
-        } else if (XboxController.getPOV() == 90){
-            lifterTargetValue =  Constants.PIVOT_SHOOTER_MIDANGLE;
-        } else if (XboxController.getPOV() == 180){
-            lifterTargetValue =  Constants.PIVOT_SHOOTER_LOWANGLE;
-        } else if (XboxController.getPOV() == 270){
-            lifterTargetValue = Constants.PIVOT_SHOOTER_LOWESTANGLE;
-        }
-        SmartDashboard.putNumber("lifterTargetValue", lifterTargetValue);
-    }
+    // public void setShooterAngle(){
+    //     if (XboxController.getPOV() == 0){
+    //         lifterTargetValue = Constants.PIVOT_SHOOTER_ANGLE;
+    //     } else if (XboxController.getPOV() == 90){
+    //         lifterTargetValue =  Constants.PIVOT_SHOOTER_MIDANGLE;
+    //     } else if (XboxController.getPOV() == 180){
+    //         lifterTargetValue =  Constants.PIVOT_SHOOTER_LOWANGLE;
+    //     } else if (XboxController.getPOV() == 270){
+    //         lifterTargetValue = Constants.PIVOT_SHOOTER_LOWESTANGLE;
+    //     }
+    //     SmartDashboard.putNumber("lifterTargetValue", lifterTargetValue);
+    // }
 
     public boolean isInIdle(){
         return (GetCurrentState() == IDLE);

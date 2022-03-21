@@ -38,7 +38,7 @@ public class Shooter extends JankyStateMachine {
     private SparkMaxPIDController bottomPIDController;
     public RelativeEncoder bottomMotorEncoder;
 
-    private static final int topRollerMotorID = 7; 
+    private static final int topRollerMotorID = 18;  //was 7
     private static final int bottomRollerMotorID = 8;
     
     public double kP, kI, kD, kIz, kFF, kMaxOutput, kMinOutput, maxRPM;
@@ -49,10 +49,20 @@ public class Shooter extends JankyStateMachine {
 
     // Remember, velocity values are between -1.0 and 1.0 for motor.set
     // PID controller set reference takes RPM values, max 5700
-    private static final double INTAKE_ROLLER_SPEED = 2000;
-    private static final double SLOW_EJECT_SPEED = 0.2;
-    private static final double TOP_ROLLER_FIRE_SPEED = 4000; 
-    private static final double BOTTOM_ROLLER_FIRE_SPEED = 4000;
+
+    //no range
+    // private static final double INTAKE_ROLLER_SPEED = 8000; //was 2000
+    // private static final double SLOW_EJECT_SPEED = 0.4;
+    // private static final double TOP_ROLLER_FIRE_SPEED = 8000;  //was 8000
+    // private static final double BOTTOM_ROLLER_FIRE_SPEED = 6000; //was 4000
+
+    //editable with range
+    private static double INTAKE_ROLLER_SPEED = 8000; //was 2000
+    private static double INTAKE_TOP_ROLLER_SPEED = 0.8;
+    private static double SLOW_EJECT_SPEED = 0.4;
+    private static double TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.8;  //was 8000
+    private static double BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.6; //was 4000
+    private static double BOTTOM_ROLLER_FIRE_SPEED = 6000;
 
     private boolean revUpFlag = false;
     private boolean fireCompleteFlag = false;
@@ -109,23 +119,26 @@ public class Shooter extends JankyStateMachine {
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
+
         switch (curState) {
             case Idle:
                 zeroMotors();
                 if ((XboxController.GetLeftThrottle() == 1) && (XboxController.GetRightThrottle() == 1)) {
                     NewState(Intake, "pressed left and right throttle buttons");
                 }
-                if ((XboxController.GetButtonLB() == true) && (XboxController.GetButtonRB() == true)) {
-                    NewState(RevUp, "LB and RB pressed");
+                //if ((XboxController.GetButtonLB() == true) && (XboxController.GetButtonRB() == true)) {
+                if(XboxController.getPOV() != -1){
+                    setShooterSpeed();
+                    NewState(RevUp, "POV pressed");
                 }
                 if(revUpFlag){
                     NewState(RevUp, "revUpFlag is true");
                     revUpFlag = false;
                 }
                 //if (XboxController.GetLeftStickButton() == true) {
-                if (XboxController.GetLeftYAxis() >= 0.2) {
-                    NewState(SlowEject, "left joystick up");
-                }
+                // if (XboxController.GetLeftYAxis() >= 0.2) {
+                //     NewState(SlowEject, "left joystick up");
+                // }
                 break;
             case Intake:
                 runIntake();
@@ -144,9 +157,11 @@ public class Shooter extends JankyStateMachine {
                     NewState(Idle, "slow eject timer reached");
                 }
                 break;
-            case RevUp:
+            case RevUp: 
                 setBottomVelocity();
-                if (bottomMotorEncoder.getVelocity() >= 1800){
+                SmartDashboard.putNumber("bottom motor velocity", bottomMotorEncoder.getVelocity());
+                if (bottomMotorEncoder.getVelocity() >= (BOTTOM_ROLLER_FIRE_SPEED - 200)){ 
+                //if (bottomMotorEncoder.getVelocity() >= 1800){
                     NewState(Fire, "finished bottom roller running");
                 }
                 break;
@@ -177,8 +192,9 @@ public class Shooter extends JankyStateMachine {
         // Top roller goes out, bottom goes in
         // topRollerMotor.set(INTAKE_ROLLER_SPEED);
         // bottomRollerMotor.set(-INTAKE_ROLLER_SPEED);
-        topPIDController.setReference(INTAKE_ROLLER_SPEED, CANSparkMax.ControlType.kVelocity);
-        bottomPIDController.setReference(-INTAKE_ROLLER_SPEED, CANSparkMax.ControlType.kVelocity);
+        topRollerMotor.set(INTAKE_TOP_ROLLER_SPEED);
+        //topPIDController.setReference(INTAKE_ROLLER_SPEED, CANSparkMax.ControlType.kVelocity);
+        bottomPIDController.setReference(-1.0 * INTAKE_ROLLER_SPEED, CANSparkMax.ControlType.kVelocity);
     }
 
     public void runSlowEject() {
@@ -186,6 +202,8 @@ public class Shooter extends JankyStateMachine {
         // Top roller goes in, bottom goes out
         topRollerMotor.set(-SLOW_EJECT_SPEED);
         bottomRollerMotor.set(SLOW_EJECT_SPEED);
+        // bottomPIDController.setReference(BOTTOM_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
+        // topPIDController.setReference(-TOP_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
     }
 
     public double calcVelocity() {
@@ -206,12 +224,15 @@ public class Shooter extends JankyStateMachine {
 
     public void setBottomVelocity() {
         // "Revving" rollers with PID
+        //topRollerMotor.set(TOP_ROLLER_FIRE_SPEED_NOT_PID);
+        //bottomRollerMotor.set(BOTTOM_ROLLER_FIRE_SPEED_NOT_PID);
         bottomPIDController.setReference(BOTTOM_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
     }
 
     public void setTopVelocity() {
         // Second set of rollers
-        topPIDController.setReference(-TOP_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
+        topRollerMotor.set(TOP_ROLLER_FIRE_SPEED_NOT_PID);
+        //topPIDController.setReference(-TOP_ROLLER_FIRE_SPEED, CANSparkMax.ControlType.kVelocity);
     }
 
     public void displayCurrentState() {
@@ -221,10 +242,34 @@ public class Shooter extends JankyStateMachine {
     //auto calls this to take shooter to rev up state
     public void shooterRevUp(){
         revUpFlag = true;
+        TOP_ROLLER_FIRE_SPEED_NOT_PID = -1.0 * SLOW_EJECT_SPEED; //fender speeds
+        BOTTOM_ROLLER_FIRE_SPEED = 2000;
     }
 
     public boolean fireComplete(){
         return fireCompleteFlag;
+    }
+
+    public void setShooterSpeed(){
+        if (XboxController.getPOV() == 0){ //fender
+            TOP_ROLLER_FIRE_SPEED_NOT_PID = -1.0 * SLOW_EJECT_SPEED;
+            BOTTOM_ROLLER_FIRE_SPEED = 2000;
+            //BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = -SLOW_EJECT_SPEED;
+        } else if (XboxController.getPOV() == 90){ //over robot
+            TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.5;
+            BOTTOM_ROLLER_FIRE_SPEED = 3000;
+           //BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.5;
+        } else if (XboxController.getPOV() == 180){ //tarmac
+            TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.8;
+            BOTTOM_ROLLER_FIRE_SPEED = 5000;
+            //BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.6;
+        } else if (XboxController.getPOV() == 270){
+            TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.9;
+            BOTTOM_ROLLER_FIRE_SPEED = 5700;
+            //BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.7;
+        }
+        SmartDashboard.putNumber("topShooterSpeed", TOP_ROLLER_FIRE_SPEED_NOT_PID);
+        SmartDashboard.putNumber("bottomShooterSpeed", BOTTOM_ROLLER_FIRE_SPEED);
     }
 
 }
