@@ -59,7 +59,7 @@ public class Shooter extends JankyStateMachine {
     //editable with range
     private static double INTAKE_ROLLER_SPEED = 8000; //was 2000
     private static double INTAKE_TOP_ROLLER_SPEED = 0.8;
-    private static double SLOW_EJECT_SPEED = 0.4;
+    private static double SLOW_EJECT_SPEED = 0.5; //was 0.4
     private static double TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.8;  //was 8000
     private static double BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.6; //was 4000
     private static double BOTTOM_ROLLER_FIRE_SPEED = 6000;
@@ -172,7 +172,7 @@ public class Shooter extends JankyStateMachine {
                     fireCompleteFlag = false; //set to false somewhere else?
                 }
                 setTopVelocity();
-                if (fireTimer.get() >= .5) {
+                if (fireTimer.get() >= 2) { //it was 0.5
                     fireTimer.stop();
                     fireCompleteFlag = true;
                     NewState(Idle, "finished firing sequence");

@@ -144,9 +144,6 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    if (pivotmagic == null){
-      instantiatePivotMagic();
-    }
     // // Init ColorSensor subsystem
     // I2C.Port i2cPort = I2C.Port.kOnboard;
     // m_colorSensorRight = new ColorSensor(i2cPort);
@@ -259,13 +256,20 @@ public class Robot extends TimedRobot {
     rightFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
     rightFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
 
-    if (climbMech == null){
-      instantiateClimb();
-    }
 
     //myRobot.setMaxOutput(0.7); //default is 1
+
+    
     //delaySelector.DisplayDelayOptions();
     //pathSelector.DisplayPathOptions();
+
+    // if (pivotmagic == null){
+    //   instantiatePivotMagic();
+    // }
+
+    // if (climbMech == null){
+    //   instantiateClimb();
+    // }
 
     System.out.println("Passed through initialization");
   }
@@ -353,6 +357,15 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+
+    if (pivotmagic == null){
+      instantiatePivotMagic();
+   }
+   
+   if (climbMech == null){
+    instantiateClimb();
+  }
+
     //making the path selector
     /*
     Auto.autoPathFinal = pathSelector.getActualAutoMode();
@@ -363,7 +376,6 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
 
     autoSM = new AutoStateMachine(pivot, shooter); */
-
     autoSM = new AutoStateMachine(autoDelaySelected,autoPathSelected, m_gyro, shooter, pivotmagic);
   }
 
@@ -376,13 +388,16 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    // if (pivotmagic == null){
-    //   instantiatePivotMagic();
-    // }
+    if (pivotmagic == null){
+       instantiatePivotMagic();
+    }
     DriveSelected = driveChooser.getSelected();
     System.out.println("Drive selected: " + DriveSelected);
     if (autoSM != null) {
       autoSM.endStateMachine();
+    }
+    if (climbMech == null){
+      instantiateClimb();
     }
   }
 
@@ -500,7 +515,7 @@ public class Robot extends TimedRobot {
       instantiatePivotMagic();
       System.out.println("instantiated pivot in disabledInit()");
     }
-    if(!climbMech.isInIdle()){
+    if((climbMech != null) && (!climbMech.isInIdle())){
       climbMech.killStateMachine();
       instantiateClimb();
       System.out.println("instantiated climb in disabledInit()");

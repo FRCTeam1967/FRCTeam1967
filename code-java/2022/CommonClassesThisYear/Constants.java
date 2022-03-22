@@ -13,7 +13,7 @@ public class Constants {
         /* shooter/pivot PID constants */
         public static final int PIVOT_kTimeoutMs = 1;
         public static final int PIVOT_kPIDLoopIdx = 0;
-        public static final double PIVOT_kP = 0.7; //0.015
+        public static final double PIVOT_kP = 0.88; //0.015
         public static final double PIVOT_kI = 0.0;
         public static final double PIVOT_kD = 3.2;
         public static final double PIVOT_kF = 0.0;

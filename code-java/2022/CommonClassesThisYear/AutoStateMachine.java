@@ -62,9 +62,10 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int twoBFirstMove = 2;
     private final int twoBTurn = 3;
     private final int twoBSecondMove = 4;
-    private final int twoBLift = 5;
-    private final int twoBShoot = 6;
-    private final int twoBFinishAuto = 7;
+    private final int twoBSecondTurn = 5;
+    private final int twoBLift = 6;
+    private final int twoBShoot = 7;
+    private final int twoBFinishAuto = 8;
 
     private final int threeBFirstDelay = 0;
     private final int threeBFirstShoot = 1;
@@ -162,6 +163,7 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(twoBFirstMove, "twoBFirstMove");
             SetName(twoBTurn, "twoBTurn");
             SetName(twoBSecondMove, "twoBSecondMove");
+            SetName(twoBSecondTurn, "twoBSecondTurn");
             SetName(twoBLift, "twoBLift");
             SetName(twoBShoot, "twoBShoot");
             SetName(twoBFinishAuto, "twoBFinishAuto");
@@ -202,41 +204,41 @@ public class AutoStateMachine extends JankyStateMachine {
                 case threeBLoweredArm:
                     pivot.flagIntakeConfig();
                     if(pivot.isIntakeConfigAchieved()) {
-                        NewState(threeBFirstMove, "Lift Complete");
-                    }
-                    break;
-                case threeBFirstMove:
-                    m_myRobot.tankDrive(-0.4, 0.4);
-                    shooter.runIntake();
-                    if (inchesToEncoder(70) <= getAverageEncoderValues()) {
-                        m_myRobot.tankDrive(0, 0);
-                        NewState(threeBFirstTurn, "reached average encoder for distance");
+                        NewState(threeBFirstTurn, "Lift Complete");
                     }
                     break;
                 case threeBFirstTurn:
                     SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
-                    m_myRobot.tankDrive(-0.4, -0.4);
-                    int desiredAngle = 166; //supposed to be 180 but gyro is off by 14 degrees
+                    m_myRobot.tankDrive(-0.3, -0.3);
+                    int desiredAngle = 100; //supposed to be 180 but gyro is off by 14 degrees
                     System.out.println(gyroClassLevel.getAngle() + 14);
                     if(gyroClassLevel.getAngle() >= desiredAngle) {
-                        NewState(threeBSecondMove, "reached desired gyro angle");
+                        NewState(threeBFirstMove, "reached desired gyro angle");
                     }
                     frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                     rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                     break;
-                case threeBSecondMove:
+                case threeBFirstMove:
                     m_myRobot.tankDrive(0.4, -0.4);
                     shooter.runIntake();
-                    if (inchesToEncoder(20) <= getAverageEncoderValues()) {
+                    if (inchesToEncoder(30) <= getAverageEncoderValues()) {
                         m_myRobot.tankDrive(0, 0);
-                        NewState(threeBSecondTurn, "reached average encoder for distance 2");
+                        NewState(threeBSecondTurn, "reached average encoder for distance");
                     }
-                    gyroClassLevel.reset();
                     break;
+                // case threeBSecondMove:
+                //     m_myRobot.tankDrive(0.4, -0.4);
+                //     shooter.runIntake();
+                //     if (inchesToEncoder(20) <= getAverageEncoderValues()) {
+                //         m_myRobot.tankDrive(0, 0);
+                //         NewState(threeBSecondTurn, "reached average encoder for distance 2");
+                //     }
+                //     gyroClassLevel.reset();
+                //     break;
                 case threeBSecondTurn:
                     SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
                     m_myRobot.tankDrive(-0.4, -0.4);
-                    desiredAngle = 46; //60 - 14
+                    desiredAngle = 60; //60 - 14
                     System.out.println(gyroClassLevel.getAngle() + 14);
                     if(gyroClassLevel.getAngle() >= desiredAngle) {
                         NewState(threeBThirdMove, "reached desired gyro angle");
@@ -326,11 +328,21 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
             case twoBSecondMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                if (inchesToEncoder(50) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(35) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(twoBLift, "reached average encoder for distance 2");
                 }
                 gyroClassLevel.reset();
+                break;
+            case twoBSecondTurn: 
+                SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
+                m_myRobot.tankDrive(-0.4, -0.4);
+                desiredAngle = 10;
+                if(gyroClassLevel.getAngle() >= desiredAngle) {
+                    NewState(twoBLift, "reached desired gyro angle");
+                }
+                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 break;
             case twoBLift:
                 pivot.flagShooterConfig();

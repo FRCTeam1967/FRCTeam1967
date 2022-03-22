@@ -21,7 +21,7 @@ public class PivotMagic extends JankyStateMachine {
     private jankyXboxJoystick XboxController;
     private Timer timer;
     private double lifterTargetValue = 0.0;
-    private DigitalInput bottomLimitSwitch;
+    //private DigitalInput bottomLimitSwitch;
 
     // Declaring states
     private final int IDLE = 0; // homing sequence
@@ -40,7 +40,7 @@ public class PivotMagic extends JankyStateMachine {
     public PivotMagic() {
         pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
         XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
-        bottomLimitSwitch = new DigitalInput(Constants.PIVOT_MOTOR_ID);
+        //bottomLimitSwitch = new DigitalInput(Constants.PIVOT_MOTOR_ID);
 
         timer = new Timer();
         
@@ -60,7 +60,7 @@ public class PivotMagic extends JankyStateMachine {
 
     public void StateEngine(int curState, boolean onStateEntered) {
         //setShooterAngle();
-        SmartDashboard.putBoolean("Bottom Limit Switch", bottomLimitSwitch.get());
+        //SmartDashboard.putBoolean("Bottom Limit Switch", bottomLimitSwitch.get());
         switch (curState) {
             case IDLE:
                 if (onStateEntered) {
