@@ -13,14 +13,14 @@ public class Constants {
         /* shooter/pivot PID constants */
         public static final int PIVOT_kTimeoutMs = 1;
         public static final int PIVOT_kPIDLoopIdx = 0;
-        public static final double PIVOT_kP = 0.88; //0.015
+        public static final double PIVOT_kP = 0.95; //0.015
         public static final double PIVOT_kI = 0.0;
         public static final double PIVOT_kD = 3.2;
         public static final double PIVOT_kF = 0.0;
 
         /* pivot constants */
         public static final double PIVOT_INTAKE_ANGLE = 88; //68, was 86
-        public static final double PIVOT_STARTING_ANGLE = -2; //0
+        public static final double PIVOT_STARTING_ANGLE = -1; //0
         public static final double PIVOT_SHOOTER_ANGLE = 0; //-15
         public static final double PIVOT_SHOOTER_MIDANGLE = 10;
         public static final double PIVOT_SHOOTER_LOWANGLE = 20;
@@ -104,5 +104,5 @@ public class Constants {
         public static final double CHASSIS_kF = 0.0; //1023.0/20660.0;
         public static final double CHASSIS_Iz = 300;
         public static final double CHASSIS_PeakOut = 1.00;
-        public static final double CHASSIS_RPM = 3750; //was 2500, was 5000
+        public static final double CHASSIS_RPM = 4250; //was 3750, was 2500, was 5000
 }

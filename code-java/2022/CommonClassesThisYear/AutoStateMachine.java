@@ -319,7 +319,7 @@ public class AutoStateMachine extends JankyStateMachine {
             case twoBTurn:
                 SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
                 m_myRobot.tankDrive(-0.4, -0.4);
-                int desiredAngle = 150;
+                int desiredAngle = 140;
                 if(gyroClassLevel.getAngle() >= desiredAngle) {
                     NewState(twoBSecondMove, "reached desired gyro angle");
                 }

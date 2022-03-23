@@ -263,13 +263,13 @@ public class Robot extends TimedRobot {
     //delaySelector.DisplayDelayOptions();
     //pathSelector.DisplayPathOptions();
 
-    // if (pivotmagic == null){
-    //   instantiatePivotMagic();
-    // }
+    if (pivotmagic == null){
+      instantiatePivotMagic();
+    }
 
-    // if (climbMech == null){
-    //   instantiateClimb();
-    // }
+    if (climbMech == null){
+      instantiateClimb();
+    }
 
     System.out.println("Passed through initialization");
   }
@@ -357,15 +357,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-
     if (pivotmagic == null){
       instantiatePivotMagic();
    }
-   
-   if (climbMech == null){
-    instantiateClimb();
-  }
-
     //making the path selector
     /*
     Auto.autoPathFinal = pathSelector.getActualAutoMode();
