@@ -6,7 +6,6 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 //import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX; //potential issue since it's not the one on WPILib
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import org.janksters.jankyLib.*;
@@ -100,7 +99,7 @@ public class ClimbMBR extends JankyStateMachine{
             case LIFTER_DOWN:
                 //TODO: uncomment once we want to use lifter
                 //pivot.flagClimbConfig();
-                //if(!testing && pivot.checkClimbConfigAchieved()){
+                //if(pivot.checkClimbConfigAchieved()){
                     NewState(MANUAL_ARM, "lifter is down");
                 //}
                 break;

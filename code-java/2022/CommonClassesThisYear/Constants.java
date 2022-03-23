@@ -95,7 +95,8 @@ public class Constants {
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_L = 6;
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_R = 5;
 
-    /* all chassis constant */
+    /* all chassis constants */
+        /* PID */
         public static final int CHASSIS_K_PID_LOOP_IDX = 0;
         public static final int CHASSIS_K_TIMEOUT_MS = 30;
         public static final double CHASSIS_kP = 0.1;
@@ -104,5 +105,15 @@ public class Constants {
         public static final double CHASSIS_kF = 0.0; //1023.0/20660.0;
         public static final double CHASSIS_Iz = 300;
         public static final double CHASSIS_PeakOut = 1.00;
+
         public static final double CHASSIS_RPM = 4250; //was 3750, was 2500, was 5000
+        
+        public static final double MAX_TOTAL_CHASSIS_CURRENT = 180;
+        public static final double SET_CHASSIS_CURRENT_IF_OVER = (MAX_TOTAL_CHASSIS_CURRENT - 20) / 4;
+
+        /* channel numbers */
+        public static final int CHASSIS_L_LEADER_CHANNEL = 2;
+        public static final int CHASSIS_L_FOLLOWER_CHANNEL = 3;
+        public static final int CHASSIS_R_LEADER_CHANNEL = 1;
+        public static final int CHASSIS_R_FOLLOWER_CHANNEL = 0;
 }

@@ -30,6 +30,8 @@ import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import javax.swing.text.AbstractDocument.LeafElement;
+import edu.wpi.first.wpilibj.PowerDistribution;
+
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.controller.PIDController;
@@ -56,6 +58,8 @@ public class Robot extends TimedRobot {
   private final SendableChooser<Integer> autoPathChooser = new SendableChooser<>();
   private final SendableChooser<Integer> autoDelayChooser = new SendableChooser<>();
 
+  private PowerDistribution pdp;
+
   public int ledCounter = 0;
   Joystick leftJoystick;
   Joystick rightJoystick;
@@ -68,10 +72,10 @@ public class Robot extends TimedRobot {
     private PWMVictorSPX rightFollower = new PWMVictorSPX(0);*/
 
   //2022 Real Bot (wifi is bob)
-    private WPI_TalonFX leftLeader = new WPI_TalonFX(2);//m2
-    private WPI_TalonFX leftFollower = new WPI_TalonFX(3);//m3
-    private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
-    private WPI_TalonFX rightFollower = new WPI_TalonFX(0);//m0
+    private WPI_TalonFX leftLeader = new WPI_TalonFX(Constants.CHASSIS_L_LEADER_CHANNEL);//m2
+    private WPI_TalonFX leftFollower = new WPI_TalonFX(Constants.CHASSIS_L_FOLLOWER_CHANNEL);//m3
+    private WPI_TalonFX rightLeader = new WPI_TalonFX(Constants.CHASSIS_R_LEADER_CHANNEL);//m1
+    private WPI_TalonFX rightFollower = new WPI_TalonFX(Constants.CHASSIS_R_FOLLOWER_CHANNEL);//m0
 
   //2022 Janky (wifi is C1Day)
     /*private WPI_TalonSRX leftLeader = new WPI_TalonSRX(2);//m2
@@ -198,6 +202,7 @@ public class Robot extends TimedRobot {
     // SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
 
     //CHASSIS
+    pdp = new PowerDistribution();
     driveChooser.setDefaultOption("Tank Drive", kTankDrive);
     driveChooser.addOption("Arcade Drive", kArcadeDrive);
     driveChooser.addOption("Curvature Drive", kCurvatureDrive);
@@ -482,10 +487,21 @@ public class Robot extends TimedRobot {
               if(Math.abs(origRightY) < 0.05){
                 chassisTargetVelocityRight = 0;
               }
-              leftLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
-              leftFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
-              rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
-              rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
+
+              double totalChassisCurrent = pdp.getCurrent(Constants.CHASSIS_L_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CHANNEL) + 
+              pdp.getCurrent(Constants.CHASSIS_R_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CHANNEL);
+              SmartDashboard.putNumber("total chassis current", totalChassisCurrent);
+              if(leftJoystick.getThrottle() > 70 &&  totalChassisCurrent >= Constants.MAX_TOTAL_CHASSIS_CURRENT){
+                leftLeader.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+                leftFollower.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+                rightLeader.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+                rightFollower.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+              } else{
+                leftLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
+                leftFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
+                rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
+                rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
+              } 
 
               SmartDashboard.putNumber("chassis left target velocity", chassisTargetVelocityLeft);
               SmartDashboard.putNumber("chassis right target velocity", chassisTargetVelocityRight);

@@ -261,7 +261,7 @@ public class Shooter extends JankyStateMachine {
            //BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.5;
         } else if (XboxController.getPOV() == 180){ //tarmac
             TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.8;
-            BOTTOM_ROLLER_FIRE_SPEED = 5000;
+            BOTTOM_ROLLER_FIRE_SPEED = 4150;
             //BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.6;
         } else if (XboxController.getPOV() == 270){
             TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.9;
