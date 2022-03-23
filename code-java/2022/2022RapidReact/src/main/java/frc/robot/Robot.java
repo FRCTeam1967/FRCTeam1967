@@ -491,17 +491,19 @@ public class Robot extends TimedRobot {
               double totalChassisCurrent = pdp.getCurrent(Constants.CHASSIS_L_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CHANNEL) + 
               pdp.getCurrent(Constants.CHASSIS_R_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CHANNEL);
               SmartDashboard.putNumber("total chassis current", totalChassisCurrent);
-              if(leftJoystick.getThrottle() > 70 &&  totalChassisCurrent >= Constants.MAX_TOTAL_CHASSIS_CURRENT){
-                leftLeader.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
-                leftFollower.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
-                rightLeader.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
-                rightFollower.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
-              } else{
-                leftLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
-                leftFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
-                rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
-                rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
-              } 
+              SmartDashboard.putNumber("total current", pdp.getTotalCurrent());
+
+              // if(leftJoystick.getThrottle() > 70 &&  totalChassisCurrent >= Constants.MAX_TOTAL_CHASSIS_CURRENT){
+              //   leftLeader.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+              //   leftFollower.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+              //   rightLeader.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+              //   rightFollower.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
+              // } else{
+              leftLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
+              leftFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityLeft);
+              rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
+              rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocityRight);
+              // } 
 
               SmartDashboard.putNumber("chassis left target velocity", chassisTargetVelocityLeft);
               SmartDashboard.putNumber("chassis right target velocity", chassisTargetVelocityRight);
