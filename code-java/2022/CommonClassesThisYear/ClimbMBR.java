@@ -125,7 +125,7 @@ public class ClimbMBR extends JankyStateMachine{
             
             case MANUAL_ROBOT:
                 if(onStateEntered){
-                    led.setColor(255, 0, 0); //makes it red
+                    led.setColor(255, 0, 255); //makes it purple
                 }
 
                 //joystick
