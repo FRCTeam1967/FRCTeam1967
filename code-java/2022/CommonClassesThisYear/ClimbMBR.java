@@ -17,7 +17,7 @@ public class ClimbMBR extends JankyStateMachine{
 
     private jankyXboxJoystick XboxController;
     private PivotMagic pivot;
-    private LED led;
+    //private LED led;
     private double rightYAxis;
 
     //states
@@ -26,12 +26,12 @@ public class ClimbMBR extends JankyStateMachine{
     private final int MANUAL_ARM = 2;
     private final int MANUAL_ROBOT = 3;
 
-    public ClimbMBR(int winchMotorChannelL, int winchMotorChannelR, PivotMagic _pivot, LED _led){
+    public ClimbMBR(int winchMotorChannelL, int winchMotorChannelR, PivotMagic _pivot){ //removing LED _led
         winchMotorL = new JankyTalonFX(winchMotorChannelL);
         winchMotorR = new JankyTalonFX(winchMotorChannelR);
         XboxController= new jankyXboxJoystick(2);
         pivot = _pivot;
-        led = _led;
+        //led = _led;
 
         setUpWinchMotors();
 
@@ -46,7 +46,6 @@ public class ClimbMBR extends JankyStateMachine{
     } 
 
     private void setUpWinchMotors(){
-
         winchMotorL.configFactoryDefault();
         winchMotorL.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CLIMB_K_PID_LOOP_IDX, Constants.CLIMB_K_TIMEOUT_MS);
         winchMotorL.setInverted(TalonFXInvertType.Clockwise);
@@ -107,7 +106,7 @@ public class ClimbMBR extends JankyStateMachine{
             case MANUAL_ARM:
                 if (onStateEntered){
                     stopWinchString();
-                    led.setColor(0, 255, 0); //makes it green to show that we are in arm speed
+                    //led.setColor(0, 255, 0); //makes it green to show that we are in arm speed
                     //TODO: make sure other groups don't use at this point
                 }
                 
@@ -125,7 +124,7 @@ public class ClimbMBR extends JankyStateMachine{
             
             case MANUAL_ROBOT:
                 if(onStateEntered){
-                    led.setColor(255, 0, 0); //makes it red
+                    //led.setColor(255, 0, 0); //makes it red
                 }
 
                 //joystick

@@ -319,7 +319,7 @@ public class AutoStateMachine extends JankyStateMachine {
             case twoBTurn:
                 SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
                 m_myRobot.tankDrive(-0.4, -0.4);
-                int desiredAngle = 140;
+                int desiredAngle = 150;
                 if(gyroClassLevel.getAngle() >= desiredAngle) {
                     NewState(twoBSecondMove, "reached desired gyro angle");
                 }
@@ -328,7 +328,7 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
             case twoBSecondMove:
                 m_myRobot.tankDrive(0.4, -0.4);
-                if (inchesToEncoder(35) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(55) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(twoBLift, "reached average encoder for distance 2");
                 }

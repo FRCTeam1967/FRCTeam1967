@@ -34,8 +34,8 @@ public class Constants {
     
     /* all climb constants */
     // MBR
-        public static final double CLIMB_MBR_WINCH_ARM_FACTOR = -0.5;
-        public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = 0.3;
+        public static final double CLIMB_MBR_WINCH_ARM_FACTOR = -0.8; //used to be 0.8
+        public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = 0.45;
         public static final double CLIMB_WINCH_MOTOR_STOP = 0.0;
         public static final double CLIMB_DEADBAND = 0.07;
         public static final int CLIMB_K_TIMEOUT_MS = 1;

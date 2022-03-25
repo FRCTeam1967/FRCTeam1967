@@ -51,14 +51,14 @@ public class Robot extends TimedRobot {
   private static final String kSteeringWheel = "Steering Wheel";
 
   private String DriveSelected;
-  private final SendableChooser<String> driveChooser = new SendableChooser<>();
+  //private final SendableChooser<String> driveChooser = new SendableChooser<>();
 
   private int autoPathSelected;
   private int autoDelaySelected;
   private final SendableChooser<Integer> autoPathChooser = new SendableChooser<>();
   private final SendableChooser<Integer> autoDelayChooser = new SendableChooser<>();
 
-  private PowerDistribution pdp;
+  //private PowerDistribution pdp;
 
   public int ledCounter = 0;
   Joystick leftJoystick;
@@ -78,14 +78,14 @@ public class Robot extends TimedRobot {
     private WPI_TalonFX rightFollower = new WPI_TalonFX(Constants.CHASSIS_R_FOLLOWER_CHANNEL);//m0
 
   //2022 Janky (wifi is C1Day)
-    /*private WPI_TalonSRX leftLeader = new WPI_TalonSRX(2);//m2
-    private WPI_TalonFX leftFollower = new WPI_TalonFX(3);//m3
-    private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
-    private WPI_TalonSRX rightFollower = new WPI_TalonSRX(0);//m0*/
+    // private WPI_TalonSRX leftLeader = new WPI_TalonSRX(2);//m2
+    // private WPI_TalonFX leftFollower = new WPI_TalonFX(3);//m3
+    // private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
+    // private WPI_TalonSRX rightFollower = new WPI_TalonSRX(0);//m0
 
-  //private MotorControllerGroup left = new MotorControllerGroup(leftLeader, leftFollower);
-  //private MotorControllerGroup right = new MotorControllerGroup(rightLeader, rightFollower);
-  //DifferentialDrive myRobot = new DifferentialDrive(left,right);
+  private MotorControllerGroup left = new MotorControllerGroup(leftLeader, leftFollower);
+  private MotorControllerGroup right = new MotorControllerGroup(rightLeader, rightFollower);
+  DifferentialDrive myRobot = new DifferentialDrive(left,right);
 
   // Color sensor configuration
   private ColorSensor m_colorSensorRight;
@@ -116,7 +116,7 @@ public class Robot extends TimedRobot {
   AutoSelector delaySelector =  new AutoSelector();
   AutoSelector pathSelector = new AutoSelector();
 
-  LED led = new LED(1, 500, 9); 
+  //LED led = new LED(1, 500, 9); 
   private ClimbMBR climbMech = null;
 
   //AUTO
@@ -134,7 +134,7 @@ public class Robot extends TimedRobot {
   final int turnPath = 2;
 
   public void instantiateClimb(){
-    climbMech = new ClimbMBR(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R, pivotmagic, led);
+    climbMech = new ClimbMBR(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R, pivotmagic);
     // climbMech = new Climb(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R,
     // Constants.CLIMB_PCM_CHANNEL, Constants.CLIMB_MID_LATCH_CHANNEL, pivotmagic, led);
   }
@@ -202,16 +202,18 @@ public class Robot extends TimedRobot {
     // SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
 
     //CHASSIS
-    pdp = new PowerDistribution();
-    driveChooser.setDefaultOption("Tank Drive", kTankDrive);
-    driveChooser.addOption("Arcade Drive", kArcadeDrive);
-    driveChooser.addOption("Curvature Drive", kCurvatureDrive);
-    driveChooser.addOption("Steering Wheel", kSteeringWheel);
-    SmartDashboard.putData("Drive choices", driveChooser);
+    //pdp = new PowerDistribution();
+    // driveChooser.setDefaultOption("Tank Drive", kTankDrive);
+    // driveChooser.addOption("Arcade Drive", kArcadeDrive);
+    // driveChooser.addOption("Curvature Drive", kCurvatureDrive);
+    // driveChooser.addOption("Steering Wheel", kSteeringWheel);
+    // SmartDashboard.putData("Drive choices", driveChooser);
 
     leftJoystick = new Joystick(0);  //whatever is in port 0
     rightJoystick = new Joystick(1); //whatever is in port 0
 
+    
+    /**
     leftLeader.configFactoryDefault();
     leftLeader.configNeutralDeadband(0.001, Constants.CHASSIS_K_TIMEOUT_MS);
     leftLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
@@ -264,7 +266,8 @@ public class Robot extends TimedRobot {
 
     //myRobot.setMaxOutput(0.7); //default is 1
 
-    
+     */
+
     //delaySelector.DisplayDelayOptions();
     //pathSelector.DisplayPathOptions();
 
@@ -375,7 +378,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("initial auto path selected", Auto.autoPathFinal);
 
     autoSM = new AutoStateMachine(pivot, shooter); */
-    autoSM = new AutoStateMachine(autoDelaySelected,autoPathSelected, m_gyro, shooter, pivotmagic);
+    autoSM = new AutoStateMachine(0,1, m_gyro, shooter, pivotmagic);
   }
 
   /** This function is called periodically during autonomous. */
@@ -390,8 +393,8 @@ public class Robot extends TimedRobot {
     if (pivotmagic == null){
        instantiatePivotMagic();
     }
-    DriveSelected = driveChooser.getSelected();
-    System.out.println("Drive selected: " + DriveSelected);
+    //DriveSelected = driveChooser.getSelected();
+    //System.out.println("Drive selected: " + DriveSelected);
     if (autoSM != null) {
       autoSM.endStateMachine();
     }
@@ -410,6 +413,7 @@ public class Robot extends TimedRobot {
     shooter.displayCurrentState();
 
     //CHASSIS
+    /** 
     if (leftJoystick.getRawButton(4)&& limeLight.targetValid()){
      if ((limeLight.xOffset() < -2) && (limeLight.xOffset() > -20)) {
        //turn right slow
@@ -473,7 +477,7 @@ public class Robot extends TimedRobot {
               }
               if (!rightPos) {
                 rightY = -1.0 * rightY;
-              }*/
+              }
 
               double leftY = Math.pow(origLeftY, 3);
               double rightY = Math.pow(origRightY, 3);
@@ -488,10 +492,9 @@ public class Robot extends TimedRobot {
                 chassisTargetVelocityRight = 0;
               }
 
-              double totalChassisCurrent = pdp.getCurrent(Constants.CHASSIS_L_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CHANNEL) + 
-              pdp.getCurrent(Constants.CHASSIS_R_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CHANNEL);
-              SmartDashboard.putNumber("total chassis current", totalChassisCurrent);
-              SmartDashboard.putNumber("total current", pdp.getTotalCurrent());
+              //double totalChassisCurrent = pdp.getCurrent(Constants.CHASSIS_L_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_R_LEADER_CHANNEL) + pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CHANNEL);
+              //SmartDashboard.putNumber("total chassis current", totalChassisCurrent);
+              //SmartDashboard.putNumber("total current", pdp.getTotalCurrent());
 
               // if(leftJoystick.getThrottle() > 70 &&  totalChassisCurrent >= Constants.MAX_TOTAL_CHASSIS_CURRENT){
               //   leftLeader.set(TalonFXControlMode.Current, Constants.SET_CHASSIS_CURRENT_IF_OVER);
@@ -511,13 +514,12 @@ public class Robot extends TimedRobot {
               SmartDashboard.putNumber("Left follower motor output", leftFollower.getMotorOutputPercent());
               SmartDashboard.putNumber("right leader motor output", rightLeader.getMotorOutputPercent());
               SmartDashboard.putNumber("right follower motor output", rightFollower.getMotorOutputPercent());
-              //myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
               SmartDashboard.putString("drive being run", DriveSelected);
-            }
-            break;
+              */
+
+             myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
         }
-    }
-  }
+  
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
