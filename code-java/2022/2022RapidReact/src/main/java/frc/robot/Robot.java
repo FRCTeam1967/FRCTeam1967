@@ -437,8 +437,8 @@ public class Robot extends TimedRobot {
       shooter.topRollerMotor.set(0.7);
       shooter.bottomRollerMotor.set(-0.7);
     } else if (shooter.XboxController.GetButtonB()) {
-      shooter.topRollerMotor.set(-0.45);
-      shooter.bottomRollerMotor.set(0.45);
+      shooter.topRollerMotor.set(-0.6);
+      shooter.bottomRollerMotor.set(0.6);
     }
 
     

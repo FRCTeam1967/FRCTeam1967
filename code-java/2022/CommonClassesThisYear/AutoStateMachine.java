@@ -302,10 +302,10 @@ public class AutoStateMachine extends JankyStateMachine {
                 if (onStateEntered) {
                     delayTimer.start();
                 }
-                if (delayTimer.get() <=delay) {
+                if (delayTimer.get() <= 7) {
                     m_myRobot.tankDrive(0, 0);
                 } else {
-                    NewState(twoBLowerArm, "Delay timer has ended");
+                    NewState(twoBShoot, "Delay timer has ended");
                 }
                 break;
 
@@ -318,11 +318,11 @@ public class AutoStateMachine extends JankyStateMachine {
                 }
                 break;
             case twoBFirstMove:
-                m_myRobot.tankDrive(0.4, -0.4);
-                shooter.runIntake();
+                m_myRobot.tankDrive(-0.4, 0.4);
+                //shooter.runIntake();
                 if (inchesToEncoder(90) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
-                    NewState(twoBTurn, "reached average encoder for distance");
+                    NewState(twoBFinishAuto, "reached average encoder for distance");
                 }
                 break;
             case twoBTurn:
@@ -362,7 +362,7 @@ public class AutoStateMachine extends JankyStateMachine {
             case twoBShoot: 
                 shooter.shooterRevUp();
                 if(shooter.fireComplete()) {
-                    NewState(twoBFinishAuto, "Shooting Complete");
+                    NewState(twoBFirstMove, "Shooting Complete");
                 }
                 break;
             case twoBFinishAuto:
@@ -395,8 +395,13 @@ public class AutoStateMachine extends JankyStateMachine {
         } else if (stateMachineSelected == 3) {
             switch(curState) {
                 case ssShoot:
-                    shooter.shooterRevUp();
-                    if(shooter.fireComplete()) {
+                    if (onStateEntered) {
+                        delayTimer.start();
+                    }
+                    if (delayTimer.get() < 3) {
+                        shooter.topRollerMotor.set(-0.7);
+                        shooter.bottomRollerMotor.set(0.7);
+                    } else {
                         NewState(ssMove, "shooting Complete");
                     }
                     break;

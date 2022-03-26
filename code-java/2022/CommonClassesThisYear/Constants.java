@@ -113,8 +113,8 @@ public class Constants {
 
         /*current limiting*/
         public static final boolean ENABLE_CHASSIS_CURRENT_LIMIT = true;
-        public static final double CHASSIS_CURRENT_LIMIT_MAX = 40;
-        public static final double CHASSIS_TRIGGER_CURRENT = 35;
+        public static final double CHASSIS_CURRENT_LIMIT_MAX = 35;
+        public static final double CHASSIS_TRIGGER_CURRENT = 30;
         public static final double CHASSIS_THRESHOLD_TIME = 0;
 
         /* channel numbers */

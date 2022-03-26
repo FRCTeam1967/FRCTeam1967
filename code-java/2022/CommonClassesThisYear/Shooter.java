@@ -59,7 +59,7 @@ public class Shooter extends JankyStateMachine {
     //editable with range
     private static double INTAKE_ROLLER_SPEED = 8000; //was 2000
     private static double INTAKE_TOP_ROLLER_SPEED = 0.8;
-    private static double SLOW_EJECT_SPEED = 0.6; //was 0.4
+    private static double SLOW_EJECT_SPEED = 0.4; //was 0.4
     private static double TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.8;  //was 8000
     private static double BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.6; //was 4000
     private static double BOTTOM_ROLLER_FIRE_SPEED = 6500; //was 5000
@@ -243,7 +243,7 @@ public class Shooter extends JankyStateMachine {
     public void shooterRevUp(){
         revUpFlag = true;
         TOP_ROLLER_FIRE_SPEED_NOT_PID = -1.0 * SLOW_EJECT_SPEED; //fender speeds
-        BOTTOM_ROLLER_FIRE_SPEED = 3000;
+        BOTTOM_ROLLER_FIRE_SPEED = 2000;
     }
 
     public boolean fireComplete(){
