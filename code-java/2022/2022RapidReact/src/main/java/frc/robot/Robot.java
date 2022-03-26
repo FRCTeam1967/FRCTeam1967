@@ -7,11 +7,15 @@ import org.janksters.CommonClassesThisYear.*;
 
 
 import edu.wpi.first.cscore.UsbCamera;
-import edu.wpi.first.cameraserver.CameraServer;
+//import edu.wpi.first.cameraserver.CameraServer;
+
+import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Joystick;
+import org.janksters.jankyLib.jankyXboxJoystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 // import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
@@ -23,9 +27,12 @@ import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.revrobotics.CANSparkMax;
+
 
 import edu.wpi.first.wpilibj.motorcontrol.PWMMotorController;
 import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
@@ -42,6 +49,12 @@ import com.revrobotics.ColorMatchResult;
 
 public class Robot extends TimedRobot {
 
+  //private CANSparkMax topRollerMotor;
+
+    //private CANSparkMax bottomRollerMotor;
+    
+    //private static final int topRollerMotorID = 18;  //was 7
+    //private static final int bottomRollerMotorID = 8;
   private static final int CAMERA_DEV_NUMBER = 0;
   // private UsbCamera camera;
 
@@ -106,6 +119,9 @@ public class Robot extends TimedRobot {
 
   VisionSubsystem limeLight = new VisionSubsystem();
 
+  private jankyXboxJoystick XboxController;
+
+
   Shooter shooter = new Shooter();
   //Pivot pivot = new Pivot();
   PivotMagic pivotmagic = null;
@@ -148,6 +164,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    XboxController = new jankyXboxJoystick(2); 
+    //topRollerMotor = new CANSparkMax(topRollerMotorID, MotorType.kBrushless);
+    //bottomRollerMotor = new CANSparkMax(bottomRollerMotorID, MotorType.kBrushless);
     // // Init ColorSensor subsystem
     // I2C.Port i2cPort = I2C.Port.kOnboard;
     // m_colorSensorRight = new ColorSensor(i2cPort);
@@ -211,62 +230,69 @@ public class Robot extends TimedRobot {
 
     leftJoystick = new Joystick(0);  //whatever is in port 0
     rightJoystick = new Joystick(1); //whatever is in port 0
-
     
-    /**
+    
+    StatorCurrentLimitConfiguration chassisCurrentLimit = new StatorCurrentLimitConfiguration(true, Constants.CHASSIS_CURRENT_LIMIT_MAX,
+                                                                                             Constants.CHASSIS_TRIGGER_CURRENT, Constants.CHASSIS_THRESHOLD_TIME);
+    
     leftLeader.configFactoryDefault();
-    leftLeader.configNeutralDeadband(0.001, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.configNeutralDeadband(0.001, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftLeader.configStatorCurrentLimit(chassisCurrentLimit); 
 
     leftFollower.configFactoryDefault();
-    leftFollower.configNeutralDeadband(0.001);
-    leftFollower.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    leftFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.configNeutralDeadband(0.001);
+    // leftFollower.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    // leftFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    leftFollower.configStatorCurrentLimit(chassisCurrentLimit);
 
     rightLeader.configFactoryDefault();
-    rightLeader.configNeutralDeadband(0.001);
-    rightLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.configNeutralDeadband(0.001);
+    // rightLeader.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightLeader.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightLeader.configStatorCurrentLimit(chassisCurrentLimit);
+
     //rightLeader.setInverted(true);
 
     rightFollower.configFactoryDefault();
-    rightFollower.configNeutralDeadband(0.001);
-    rightFollower.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
-    rightFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.configNeutralDeadband(0.001);
+    // rightFollower.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.configNominalOutputForward(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.configNominalOutputReverse(0, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.configPeakOutputForward(1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.configPeakOutputReverse(-1, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.config_kF(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kF, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.config_kP(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kP, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
+    // rightFollower.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
+    rightFollower.configStatorCurrentLimit(chassisCurrentLimit);
 
 
     //myRobot.setMaxOutput(0.7); //default is 1
 
-     */
+     
 
     //delaySelector.DisplayDelayOptions();
     //pathSelector.DisplayPathOptions();
@@ -406,6 +432,16 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
+
+    if(shooter.XboxController.GetButtonA()) {
+      shooter.topRollerMotor.set(0.7);
+      shooter.bottomRollerMotor.set(-0.7);
+    } else if (shooter.XboxController.GetButtonB()) {
+      shooter.topRollerMotor.set(-0.45);
+      shooter.bottomRollerMotor.set(0.45);
+    }
+
+    
       // ledCounter = led.setRainbow(ledCounter);
       // led.commit();
 
@@ -428,8 +464,7 @@ public class Robot extends TimedRobot {
        leftFollower.set(TalonFXControlMode.Velocity, 0.1);
        rightLeader.set(TalonFXControlMode.Velocity,  0.1);
        rightFollower.set(TalonFXControlMode.Velocity, 0.1);
-     }
-
+     } 
     } else {
         switch (DriveSelected) {
           case kArcadeDrive:
@@ -449,19 +484,20 @@ public class Robot extends TimedRobot {
             break;
           default:
             SmartDashboard.putNumber("left joystick", leftJoystick.getY());
-            SmartDashboard.putNumber("right joystick", rightJoystick.getY());
+            SmartDashboard.putNumber("right joystick", rightJoystick.getY());*/
             averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
             if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) { // was butto 3
-              double chassisTargetVelocity = averageSpeed * Constants.CHASSIS_RPM * Constants.FALCON_PULSES_PER_REVOLUTION / 600.0; //units per 100 seconds
-              leftLeader.set(TalonFXControlMode.Velocity, -1.0 * chassisTargetVelocity);
-              leftFollower.set(TalonFXControlMode.Velocity, -1.0 * chassisTargetVelocity);
-              rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocity);
-              rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocity);
-              //myRobot.tankDrive(-averageSpeed, averageSpeed);
-            } else {
-              //change sensitivity by squaring values from joystick
-              double origLeftY = leftJoystick.getY();
-              double origRightY = rightJoystick.getY();
+              //double chassisTargetVelocity = averageSpeed * Constants.CHASSIS_RPM * Constants.FALCON_PULSES_PER_REVOLUTION / 600.0; //units per 100 seconds
+              // leftLeader.set(TalonFXControlMode.Velocity, -1.0 * chassisTargetVelocity);
+              // leftFollower.set(TalonFXControlMode.Velocity, -1.0 * chassisTargetVelocity);
+              // rightLeader.set(TalonFXControlMode.Velocity, chassisTargetVelocity);
+              // rightFollower.set(TalonFXControlMode.Velocity, chassisTargetVelocity);
+              myRobot.tankDrive(-averageSpeed, averageSpeed);
+            }
+            // } else {
+            //   //change sensitivity by squaring values from joystick
+            //   double origLeftY = leftJoystick.getY();
+            //   double origRightY = rightJoystick.getY();
 
               /* boolean leftPositive = false;
               boolean rightPositive = false;
@@ -526,12 +562,12 @@ public class Robot extends TimedRobot {
     if((pivotmagic != null) && (!pivotmagic.isInIdle())){
       pivotmagic.killStateMachine();
       pivotmagic = null;
-      instantiatePivotMagic();
+      //instantiatePivotMagic();
       System.out.println("instantiated pivot in disabledInit()");
     }
     if((climbMech != null) && (!climbMech.isInIdle())){
       climbMech.killStateMachine();
-      instantiateClimb();
+      //instantiateClimb();
       System.out.println("instantiated climb in disabledInit()");
     }
     /*

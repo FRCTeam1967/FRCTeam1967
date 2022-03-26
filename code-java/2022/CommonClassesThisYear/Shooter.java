@@ -26,15 +26,15 @@ public class Shooter extends JankyStateMachine {
     private final int RevUp = 3;
     private final int Fire = 4;
 
-    private jankyXboxJoystick XboxController;
+    public jankyXboxJoystick XboxController;
 
     private NetworkTable table;
 
-    private CANSparkMax topRollerMotor;
+    public CANSparkMax topRollerMotor;
     private SparkMaxPIDController topPIDController;
     public RelativeEncoder topMotorEncoder;
 
-    private CANSparkMax bottomRollerMotor;
+    public CANSparkMax bottomRollerMotor;
     private SparkMaxPIDController bottomPIDController;
     public RelativeEncoder bottomMotorEncoder;
 
@@ -59,10 +59,10 @@ public class Shooter extends JankyStateMachine {
     //editable with range
     private static double INTAKE_ROLLER_SPEED = 8000; //was 2000
     private static double INTAKE_TOP_ROLLER_SPEED = 0.8;
-    private static double SLOW_EJECT_SPEED = 0.5; //was 0.4
+    private static double SLOW_EJECT_SPEED = 0.6; //was 0.4
     private static double TOP_ROLLER_FIRE_SPEED_NOT_PID = -0.8;  //was 8000
     private static double BOTTOM_ROLLER_FIRE_SPEED_NOT_PID = 0.6; //was 4000
-    private static double BOTTOM_ROLLER_FIRE_SPEED = 6000;
+    private static double BOTTOM_ROLLER_FIRE_SPEED = 6500; //was 5000
 
     private boolean revUpFlag = false;
     private boolean fireCompleteFlag = false;
@@ -243,7 +243,7 @@ public class Shooter extends JankyStateMachine {
     public void shooterRevUp(){
         revUpFlag = true;
         TOP_ROLLER_FIRE_SPEED_NOT_PID = -1.0 * SLOW_EJECT_SPEED; //fender speeds
-        BOTTOM_ROLLER_FIRE_SPEED = 2000;
+        BOTTOM_ROLLER_FIRE_SPEED = 3000;
     }
 
     public boolean fireComplete(){

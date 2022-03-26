@@ -85,6 +85,10 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int simpleMove = 1;
     private final int simpleFinishAuto = 2;
 
+    private final int ssShoot = 0;
+    private final int ssMove = 1;
+    private final int ssFinishAuto = 2;
+
     boolean armLifted = false;
     boolean hasShoot = false;
     boolean armLowered = false;
@@ -169,7 +173,12 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(twoBFinishAuto, "twoBFinishAuto");
             stateMachineSelected = 1;
             start();
-        }  else { //leaving tarmac path
+        }  else if (autoPathSelected ==3) {
+            SetMachineName("autoSS");
+            SetName(ssShoot, "ssShoot");
+            SetName(ssMove, "ssMove");
+            SetName(ssFinishAuto, "ssFinishAuto");
+        } else { //leaving tarmac path
             SetMachineName ("simpleTarmac");
             SetName (simpleDelay, "simpleDelay");
             SetName(simpleMove, "simpleMove");
@@ -311,44 +320,44 @@ public class AutoStateMachine extends JankyStateMachine {
             case twoBFirstMove:
                 m_myRobot.tankDrive(0.4, -0.4);
                 shooter.runIntake();
-                if (inchesToEncoder(80) <= getAverageEncoderValues()) {
+                if (inchesToEncoder(90) <= getAverageEncoderValues()) {
                     m_myRobot.tankDrive(0, 0);
                     NewState(twoBTurn, "reached average encoder for distance");
                 }
                 break;
             case twoBTurn:
                 SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
-                m_myRobot.tankDrive(-0.4, -0.4);
-                int desiredAngle = 150;
-                if(gyroClassLevel.getAngle() >= desiredAngle) {
-                    NewState(twoBSecondMove, "reached desired gyro angle");
-                }
-                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
-                break;
-            case twoBSecondMove:
-                m_myRobot.tankDrive(0.4, -0.4);
-                if (inchesToEncoder(55) <= getAverageEncoderValues()) {
-                    m_myRobot.tankDrive(0, 0);
-                    NewState(twoBLift, "reached average encoder for distance 2");
-                }
-                gyroClassLevel.reset();
-                break;
-            case twoBSecondTurn: 
-                SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
-                m_myRobot.tankDrive(-0.4, -0.4);
-                desiredAngle = 10;
+                m_myRobot.tankDrive(-0.6, -0.6);
+                int desiredAngle = 160;
                 if(gyroClassLevel.getAngle() >= desiredAngle) {
                     NewState(twoBLift, "reached desired gyro angle");
                 }
                 frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 break;
+            case twoBSecondMove:
+                m_myRobot.tankDrive(0.4, -0.4);
+                if (inchesToEncoder(80) <= getAverageEncoderValues()) {
+                    m_myRobot.tankDrive(0, 0);
+                    NewState(twoBSecondTurn, "reached average encoder for distance 2");
+                }
+                gyroClassLevel.reset();
+                break;
             case twoBLift:
                 pivot.flagShooterConfig();
                 if(pivot.isShooterConfigAchieved()) {
-                    NewState(twoBShoot, "Lift Complete");
+                    NewState(twoBSecondMove, "Lift Complete");
                 }
+                break;
+            case twoBSecondTurn: 
+                SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
+                m_myRobot.tankDrive(-0.6, -0.6);
+                desiredAngle = 30;
+                if(gyroClassLevel.getAngle() >= desiredAngle) {
+                    NewState(twoBShoot, "reached desired gyro angle");
+                }
+                frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 break;
             case twoBShoot: 
                 shooter.shooterRevUp();
@@ -383,8 +392,27 @@ public class AutoStateMachine extends JankyStateMachine {
                     Terminate();
                     break;
             }
+        } else if (stateMachineSelected == 3) {
+            switch(curState) {
+                case ssShoot:
+                    shooter.shooterRevUp();
+                    if(shooter.fireComplete()) {
+                        NewState(ssMove, "shooting Complete");
+                    }
+                    break;
+                case ssMove:
+                    m_myRobot.tankDrive(-0.4, 0.4);
+                    if (inchesToEncoder(50) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(ssFinishAuto, "reached move back distance");
+                    }
+                    break;
+                case ssFinishAuto:
+                    Terminate();
+                    break;
+            }
         }
-    }
+    } 
 
     public void displayCurrentState() {
         SmartDashboard.putNumber("auto current state", GetCurrentState()); //displays auto current state

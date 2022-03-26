@@ -111,6 +111,12 @@ public class Constants {
         public static final double MAX_TOTAL_CHASSIS_CURRENT = 180;
         public static final double SET_CHASSIS_CURRENT_IF_OVER = (MAX_TOTAL_CHASSIS_CURRENT - 20) / 4;
 
+        /*current limiting*/
+        public static final boolean ENABLE_CHASSIS_CURRENT_LIMIT = true;
+        public static final double CHASSIS_CURRENT_LIMIT_MAX = 40;
+        public static final double CHASSIS_TRIGGER_CURRENT = 35;
+        public static final double CHASSIS_THRESHOLD_TIME = 0;
+
         /* channel numbers */
         public static final int CHASSIS_L_LEADER_CHANNEL = 2;
         public static final int CHASSIS_L_FOLLOWER_CHANNEL = 3;
