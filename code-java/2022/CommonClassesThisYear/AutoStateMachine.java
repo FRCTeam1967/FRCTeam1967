@@ -314,7 +314,7 @@ public class AutoStateMachine extends JankyStateMachine {
                 System.out.println("flag deployed");
                 System.out.println(pivot.isIntakeConfigAchieved());
                 if(pivot.isIntakeConfigAchieved()) {
-                    NewState(twoBFirstMove, "Lift Complete");
+                    NewState(twoBShoot, "Lift Complete");
                 }
                 break;
             case twoBFirstMove:
