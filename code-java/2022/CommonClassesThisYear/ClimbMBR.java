@@ -41,9 +41,9 @@ public class ClimbMBR extends JankyStateMachine{
         SetName(LIFTER_DOWN, "LifterDown");
         SetName(MANUAL_ARM, "ManualArm");
         SetName(MANUAL_ROBOT, "ManualRobot");
-        
+
         start();
-    } 
+    }
 
     private void setUpWinchMotors(){
         winchMotorL.configFactoryDefault();
@@ -102,14 +102,14 @@ public class ClimbMBR extends JankyStateMachine{
                     NewState(MANUAL_ARM, "lifter is down");
                 //}
                 break;
-                
+
             case MANUAL_ARM:
                 if (onStateEntered){
                     stopWinchString();
                     //led.setColor(0, 255, 0); //makes it green to show that we are in arm speed
                     //TODO: make sure other groups don't use at this point
                 }
-                
+
                 rightYAxis = XboxController.GetRightYAxis();
                 if (Math.abs(rightYAxis) > Constants.CLIMB_DEADBAND) {
                     moveWinchString(Constants.CLIMB_MBR_WINCH_ARM_FACTOR * rightYAxis);
@@ -121,7 +121,7 @@ public class ClimbMBR extends JankyStateMachine{
                     NewState(MANUAL_ROBOT, "going to lift up the robot");
                 }
                 break;
-            
+
             case MANUAL_ROBOT:
                 if(onStateEntered){
                     //led.setColor(255, 0, 0); //makes it red
@@ -137,5 +137,5 @@ public class ClimbMBR extends JankyStateMachine{
 
                 break;
         }
-    }   
+    }
 }

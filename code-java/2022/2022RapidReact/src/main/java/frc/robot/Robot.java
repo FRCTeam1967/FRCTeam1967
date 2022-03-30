@@ -56,7 +56,7 @@ public class Robot extends TimedRobot {
     //private static final int topRollerMotorID = 18;  //was 7
     //private static final int bottomRollerMotorID = 8;
   private static final int CAMERA_DEV_NUMBER = 0;
-  // private UsbCamera camera;
+  private UsbCamera camera;
 
   private static final String kTankDrive = "Tank Drive";
   private static final String kArcadeDrive = "Arcade Drive";
@@ -101,18 +101,18 @@ public class Robot extends TimedRobot {
   DifferentialDrive myRobot = new DifferentialDrive(left,right);
 
   // Color sensor configuration
-  private ColorSensor m_colorSensorRight;
-  private ColorSensor m_colorSensorLeft;
-  private static final double m_ConfidenceThreshold = 0.85;
+  // private ColorSensor m_colorSensorRight;
+  // private ColorSensor m_colorSensorLeft;
+  // private static final double m_ConfidenceThreshold = 0.85;
 
   // Average 3 samples
-  private final Color kRedBallTarget = new Color((0.5825 + 0.57764 + 0.5712) / 3,
-    (0.3091 + 0.3122 + 0.3188) / 3,
-    (0.1086 + 0.1108 + 0.1104) / 3);
+  // private final Color kRedBallTarget = new Color((0.5825 + 0.57764 + 0.5712) / 3,
+  //   (0.3091 + 0.3122 + 0.3188) / 3,
+  //   (0.1086 + 0.1108 + 0.1104) / 3);
 
-  private final Color kBlueBallTarget = new Color((0.1323 + 0.1232 + 0.1323) / 3,
-    (0.3621 + 0.3613 + 0.3618)/3,
-    (0.5059 + 0.5068 + 0.5061)/3);
+  // private final Color kBlueBallTarget = new Color((0.1323 + 0.1232 + 0.1323) / 3,
+  //   (0.3621 + 0.3613 + 0.3618)/3,
+  //   (0.5059 + 0.5068 + 0.5061)/3);
 
   PIDController pidDistance = new PIDController(0.1, 0, 0);
   PIDController pidAngle = new PIDController(0.1, 0, 0);
@@ -200,13 +200,13 @@ public class Robot extends TimedRobot {
     */
 
     //AUTO 
-    autoPathChooser.setDefaultOption("Simple Tarmac", AutoConstants.SimpleTarmac);
-    autoPathChooser.addOption("Two Ball", AutoConstants.twoBall);
+    autoPathChooser.setDefaultOption("Two Ball", AutoConstants.twoBall);
+    autoPathChooser.addOption("Simple Tarmac", AutoConstants.SimpleTarmac);
     autoPathChooser.addOption("Three Ball", AutoConstants.threeBall);
     SmartDashboard.putData("Auto Path Chooser", autoPathChooser);
 
     autoDelayChooser.setDefaultOption("0", AutoConstants.ZeroDelay);
-    autoDelayChooser.addOption("1", AutoConstants.OneDelay); //why set default?
+    autoDelayChooser.addOption("1", AutoConstants.OneDelay); 
     autoDelayChooser.addOption("2", AutoConstants.TwoDelay);
     autoDelayChooser.addOption("3", AutoConstants.ThreeDelay);
     autoDelayChooser.addOption("4", AutoConstants.FourDelay);
@@ -370,7 +370,7 @@ public class Robot extends TimedRobot {
     //     System.out.println("No Match");
     //     SmartDashboard.putString("Left Color Match", "None"); 
     //   }
-    // // }
+    //  }
 
     // SmartDashboard.putNumber("Right Color Sensor Proximity", proximityRight);
     // SmartDashboard.putNumber("Right Color Sensor Confidence", confidenceRight);

@@ -309,7 +309,7 @@ public class AutoStateMachine extends JankyStateMachine {
                 }
                 break;
 
-            case twoBLowerArm: 
+            case twoBLowerArm:
                 pivot.flagIntakeConfig();
                 System.out.println("flag deployed");
                 System.out.println(pivot.isIntakeConfigAchieved());
@@ -349,7 +349,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     NewState(twoBSecondMove, "Lift Complete");
                 }
                 break;
-            case twoBSecondTurn: 
+            case twoBSecondTurn:
                 SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
                 m_myRobot.tankDrive(-0.6, -0.6);
                 desiredAngle = 30;
@@ -359,7 +359,7 @@ public class AutoStateMachine extends JankyStateMachine {
                 frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
                 break;
-            case twoBShoot: 
+            case twoBShoot:
                 shooter.shooterRevUp();
                 if(shooter.fireComplete()) {
                     NewState(twoBFirstMove, "Shooting Complete");
@@ -417,7 +417,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     break;
             }
         }
-    } 
+    }
 
     public void displayCurrentState() {
         SmartDashboard.putNumber("auto current state", GetCurrentState()); //displays auto current state
