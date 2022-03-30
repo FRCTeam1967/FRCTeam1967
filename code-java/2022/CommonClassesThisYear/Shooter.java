@@ -272,4 +272,12 @@ public class Shooter extends JankyStateMachine {
         SmartDashboard.putNumber("bottomShooterSpeed", BOTTOM_ROLLER_FIRE_SPEED);
     }
 
+    public void killStateMachine(){
+        Terminate();
+    }
+
+    public boolean isInIdle(){
+        return GetCurrentState() == Idle;
+    }
+
 }

@@ -96,6 +96,8 @@ public class Constants {
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_R = 5;
 
     /* all chassis constants */
+
+        public static final int CAMERA_DEV_NUMBER = 0;
         /* PID */
         public static final int CHASSIS_K_PID_LOOP_IDX = 0;
         public static final int CHASSIS_K_TIMEOUT_MS = 30;

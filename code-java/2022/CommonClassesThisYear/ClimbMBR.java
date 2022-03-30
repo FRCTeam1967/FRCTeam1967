@@ -1,9 +1,6 @@
 //climbing code with manual stop button options in state machine
 package org.janksters.CommonClassesThisYear;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 // import java.util.Set;
-import com.ctre.phoenix.ErrorCode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 //import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX; //potential issue since it's not the one on WPILib
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
