@@ -32,8 +32,11 @@ public class Constants {
         public static final double PIVOT_SHOOTER_ANGLE_PULSES = (PIVOT_SHOOTER_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
         public static final double PIVOT_CLIMB_ANGLE_PULSES = (PIVOT_CLIMB_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
 
+        /* simple shooter constantts */
         public static final double SIMPLE_SHOOT_SPEED = 0.7;
         public static final double SIMPLE_INTAKE_SPEED = 0.45;
+
+        public static final double SIMPLE_SHOOT_INTAKE_DEADBAND = 0.1;
 
     /* all climb constants */
     // MBR

@@ -162,12 +162,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    //TODO: check with Sam about buttons to use
-    if(XboxController.GetButtonA()) {
+    double YAxisValue = XboxController.GetLeftYAxis();
+    if(YAxisValue >= Constants.SIMPLE_SHOOT_INTAKE_DEADBAND) {
       shooter.simpleShoot(Constants.SIMPLE_SHOOT_SPEED);
-    } else if (XboxController.GetButtonB()) {
+    } else if (YAxisValue <= -Constants.SIMPLE_SHOOT_INTAKE_DEADBAND) {
       shooter.simpleIntake(Constants.SIMPLE_INTAKE_SPEED);
-
     }
 
     shooter.displayCurrentState();
