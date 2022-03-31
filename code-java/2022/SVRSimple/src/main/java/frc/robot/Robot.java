@@ -163,12 +163,11 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     //TODO: check with Sam about buttons to use
-    if(shooter.XboxController.GetButtonA()) {
-      shooter.topRollerMotor.set(0.7);
-      shooter.bottomRollerMotor.set(-0.7);
-    } else if (shooter.XboxController.GetButtonB()) {
-      shooter.topRollerMotor.set(-0.6);
-      shooter.bottomRollerMotor.set(0.6);
+    if(XboxController.GetButtonA()) {
+      shooter.simpleShoot(Constants.SIMPLE_SHOOT_SPEED);
+    } else if (XboxController.GetButtonB()) {
+      shooter.simpleIntake(Constants.SIMPLE_INTAKE_SPEED);
+
     }
 
     shooter.displayCurrentState();

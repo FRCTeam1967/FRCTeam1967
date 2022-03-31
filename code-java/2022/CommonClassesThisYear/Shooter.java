@@ -26,17 +26,17 @@ public class Shooter extends JankyStateMachine {
     private final int RevUp = 3;
     private final int Fire = 4;
 
-    public jankyXboxJoystick XboxController;
+    private jankyXboxJoystick XboxController;
 
     private NetworkTable table;
 
-    public CANSparkMax topRollerMotor;
+    private CANSparkMax topRollerMotor;
     private SparkMaxPIDController topPIDController;
-    public RelativeEncoder topMotorEncoder;
+    private RelativeEncoder topMotorEncoder;
 
-    public CANSparkMax bottomRollerMotor;
+    private CANSparkMax bottomRollerMotor;
     private SparkMaxPIDController bottomPIDController;
-    public RelativeEncoder bottomMotorEncoder;
+    private RelativeEncoder bottomMotorEncoder;
 
     private static final int topRollerMotorID = 18;  //was 7
     private static final int bottomRollerMotorID = 8;
@@ -278,6 +278,16 @@ public class Shooter extends JankyStateMachine {
 
     public boolean isInIdle(){
         return GetCurrentState() == Idle;
+    }
+
+    public void simpleShoot(double speed){
+        topRollerMotor.set(speed);
+        bottomRollerMotor.set(-speed); 
+    }
+
+    public void simpleIntake(double speed){
+        topRollerMotor.set(-speed);
+        bottomRollerMotor.set(speed); 
     }
 
 }

@@ -22,6 +22,12 @@ public class AutoConstants {
     public static int twoBall = 1;
     public static int  threeBall = 2;
 
+    public static final int SIMPLE_TARMAC_AUTOPATH = 0;
+    public static final int ONE_BALL_AUTOPATH = 1;
+    public static final int TWO_BALL_AUTOPATH = 2;
+    public static final int THREE_BALL_AUTOPATH = 3;
+    public static final int EVIL_AUTOPATH = 4;
+
 
     //robot used:
     public static int JANKYBOT = 0;

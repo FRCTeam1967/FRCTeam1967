@@ -143,7 +143,7 @@ public class AutoStateMachine extends JankyStateMachine {
 
         m_gyro.reset();
 
-        if (autoPathSelected == 2) { //three ball path
+        if (autoPathSelected == AutoConstants.THREE_BALL_AUTOPATH) { //three ball path
             SetMachineName("autoSupreme");
             SetName(threeBFirstDelay, "threeBFirstDelay");
             SetName(threeBFirstShoot, "threeBFirstShoot");
@@ -158,9 +158,9 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(threeBLift, "threeBLift");
             SetName(threeBShoot, "threeBShoot");
             SetName(threeBFinishAuto, "threeBFinishAuto");
-            stateMachineSelected = 2;
+            stateMachineSelected = AutoConstants.THREE_BALL_AUTOPATH;
             start();
-        } else if (autoPathSelected == 1) { //two ball path
+        } else if (autoPathSelected == AutoConstants.TWO_BALL_AUTOPATH) { //two ball path
             SetMachineName("auto");
             SetName(twoBFirstDelay, "twoBFirstDelay");
             SetName(twoBLowerArm, "twoBLowerArm");
@@ -171,19 +171,21 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(twoBLift, "twoBLift");
             SetName(twoBShoot, "twoBShoot");
             SetName(twoBFinishAuto, "twoBFinishAuto");
-            stateMachineSelected = 1;
+            stateMachineSelected = AutoConstants.TWO_BALL_AUTOPATH;
             start();
-        }  else if (autoPathSelected ==3) {
+        }  else if (autoPathSelected == AutoConstants.ONE_BALL_AUTOPATH) {
             SetMachineName("autoSS");
             SetName(ssShoot, "ssShoot");
             SetName(ssMove, "ssMove");
             SetName(ssFinishAuto, "ssFinishAuto");
+            stateMachineSelected = AutoConstants.ONE_BALL_AUTOPATH;
+            start();
         } else { //leaving tarmac path
             SetMachineName ("simpleTarmac");
             SetName (simpleDelay, "simpleDelay");
             SetName(simpleMove, "simpleMove");
             SetName (simpleFinishAuto, "simpleFinishAuto");
-            stateMachineSelected = 0;
+            stateMachineSelected = AutoConstants.SIMPLE_TARMAC_AUTOPATH;
             start();
 
         }
@@ -191,8 +193,7 @@ public class AutoStateMachine extends JankyStateMachine {
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
-
-        if (stateMachineSelected == 2) { //three ball path
+        if (stateMachineSelected == AutoConstants.THREE_BALL_AUTOPATH) { //three ball path
             switch (curState) {
                 case threeBFirstDelay:
                     if (onStateEntered) {
@@ -235,15 +236,6 @@ public class AutoStateMachine extends JankyStateMachine {
                         NewState(threeBSecondTurn, "reached average encoder for distance");
                     }
                     break;
-                // case threeBSecondMove:
-                //     m_myRobot.tankDrive(0.4, -0.4);
-                //     shooter.runIntake();
-                //     if (inchesToEncoder(20) <= getAverageEncoderValues()) {
-                //         m_myRobot.tankDrive(0, 0);
-                //         NewState(threeBSecondTurn, "reached average encoder for distance 2");
-                //     }
-                //     gyroClassLevel.reset();
-                //     break;
                 case threeBSecondTurn:
                     SmartDashboard.putNumber("gyro angle new", gyroClassLevel.getAngle());
                     m_myRobot.tankDrive(-0.4, -0.4);
@@ -281,7 +273,9 @@ public class AutoStateMachine extends JankyStateMachine {
                     }
                     break;
                 case threeBLift:
-                    pivot.flagShooterConfig();
+                    if (onStateEntered){
+                        pivot.flagShooterConfig();
+                    }
                     if(pivot.isShooterConfigAchieved()) {
                         NewState(threeBShoot, "Lift Complete");
                     }
@@ -296,7 +290,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     Terminate();
                     break;
             }
-        } else if (stateMachineSelected == 1) { //two ball path
+        } else if (stateMachineSelected == AutoConstants.ONE_BALL_AUTOPATH) { //two ball path
             switch (curState) {
             case twoBFirstDelay:
                 if (onStateEntered) {
@@ -369,7 +363,7 @@ public class AutoStateMachine extends JankyStateMachine {
                 Terminate();
                 break;
         }
-        } else if (stateMachineSelected == 0) { //leaving tarmac path
+        } else if (stateMachineSelected == AutoConstants.SIMPLE_TARMAC_AUTOPATH) { //leaving tarmac path
             switch (curState) {
                 case simpleDelay:
                     if (onStateEntered) {
@@ -392,15 +386,15 @@ public class AutoStateMachine extends JankyStateMachine {
                     Terminate();
                     break;
             }
-        } else if (stateMachineSelected == 3) {
+        } else if (stateMachineSelected == AutoConstants.EVIL_AUTOPATH) {
             switch(curState) {
                 case ssShoot:
                     if (onStateEntered) {
+                        delayTimer.reset();
                         delayTimer.start();
                     }
                     if (delayTimer.get() < 3) {
-                        shooter.topRollerMotor.set(-0.7);
-                        shooter.bottomRollerMotor.set(0.7);
+                        shooter.simpleShoot(Constants.SIMPLE_SHOOT_SPEED);
                     } else {
                         NewState(ssMove, "shooting Complete");
                     }
