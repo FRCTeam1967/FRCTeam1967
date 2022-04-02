@@ -290,7 +290,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     Terminate();
                     break;
             }
-        } else if (stateMachineSelected == AutoConstants.ONE_BALL_AUTOPATH) { //two ball path
+        } else if (stateMachineSelected == AutoConstants.ONE_BALL_AUTOPATH) {
             switch (curState) {
             case twoBFirstDelay:
                 if (onStateEntered) {
@@ -304,7 +304,9 @@ public class AutoStateMachine extends JankyStateMachine {
                 break;
 
             case twoBLowerArm:
-                pivot.flagIntakeConfig();
+                if(onStateEntered){
+                    pivot.flagIntakeConfig();
+                }
                 System.out.println("flag deployed");
                 System.out.println(pivot.isIntakeConfigAchieved());
                 if(pivot.isIntakeConfigAchieved()) {
@@ -338,7 +340,9 @@ public class AutoStateMachine extends JankyStateMachine {
                 gyroClassLevel.reset();
                 break;
             case twoBLift:
-                pivot.flagShooterConfig();
+                if(onStateEntered){
+                    pivot.flagShooterConfig();
+                }
                 if(pivot.isShooterConfigAchieved()) {
                     NewState(twoBSecondMove, "Lift Complete");
                 }

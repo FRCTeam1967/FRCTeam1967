@@ -70,7 +70,7 @@ public class ClimbMBR extends JankyStateMachine{
         winchMotorR.set(winchSpeed);
     }
 
-    private void stopWinchString(){ //make sure this is when you want to hold, not actually stop
+    private void stopWinchString(){ 
         winchMotorL.set(Constants.CLIMB_WINCH_MOTOR_STOP);
         winchMotorR.set(Constants.CLIMB_WINCH_MOTOR_STOP);
     }

@@ -2,6 +2,7 @@
 package org.janksters.CommonClassesThisYear;
 public class Constants {
     public static final int FALCON_PULSES_PER_REVOLUTION = 2048;
+    public static final int CAN_STATUS_FRAME_PERIOD = 10; //TBD
 
     /* all shooter/lifter/pivot constants */
         public static final int PIVOT_MOTOR_ID = 4;
@@ -13,7 +14,8 @@ public class Constants {
         /* shooter/pivot PID constants */
         public static final int PIVOT_kTimeoutMs = 1;
         public static final int PIVOT_kPIDLoopIdx = 0;
-        public static final double PIVOT_kP = 0.95; //0.015
+        public static final double PIVOT_kP_SHOOTING = 0.95; //0.015S
+        public static final double PIVOT_kP_INTAKE = 0.5; //TBD
         public static final double PIVOT_kI = 0.0;
         public static final double PIVOT_kD = 3.2;
         public static final double PIVOT_kF = 0.0;
@@ -104,6 +106,7 @@ public class Constants {
     /* all chassis constants */
 
         public static final int CAMERA_DEV_NUMBER = 0;
+        public static final double CHASSIS_DEADBAND = 0.05;
         /* PID */
         public static final int CHASSIS_K_PID_LOOP_IDX = 0;
         public static final int CHASSIS_K_TIMEOUT_MS = 30;
@@ -130,4 +133,17 @@ public class Constants {
         public static final int CHASSIS_L_FOLLOWER_CHANNEL = 3;
         public static final int CHASSIS_R_LEADER_CHANNEL = 1;
         public static final int CHASSIS_R_FOLLOWER_CHANNEL = 0;
+
+        /* pdp curcuit numbers */
+        public static final int CHASSIS_L_LEADER_CIRCUIT = 0; //tbd
+        public static final int CHASSIS_L_FOLLOWER_CIRCUIT = 0;
+        public static final int CHASSIS_R_LEADER_CIRCUIT = 0;
+        public static final int CHASSIS_R_FOLLOWER_CIRCUIT = 0;
+
+    
+    //Super or Simple
+    public static final boolean SUPER_CHASSIS = true;
+    public static final boolean SUPER_SHOOTER = true;
+    public static final boolean SUPER_COLOR_SENSOR = false;
+
 }

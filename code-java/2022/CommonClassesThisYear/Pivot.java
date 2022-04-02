@@ -209,7 +209,7 @@ public class Pivot extends JankyStateMachine {
 
         /* PID config */
         pivotMotor.config_kF(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kF, Constants.PIVOT_kTimeoutMs);
-        pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_SHOOTING, Constants.PIVOT_kTimeoutMs);
         pivotMotor.config_kI(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kI, Constants.PIVOT_kTimeoutMs);
         pivotMotor.config_kD(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kD, Constants.PIVOT_kTimeoutMs);
     }

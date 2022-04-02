@@ -281,13 +281,28 @@ public class Shooter extends JankyStateMachine {
     }
 
     public void simpleShoot(double speed){
-        topRollerMotor.set(speed);
-        bottomRollerMotor.set(-speed); 
+        if(GetCurrentState() == Idle){
+            topRollerMotor.set(speed);
+            bottomRollerMotor.set(-speed); 
+        } 
     }
 
     public void simpleIntake(double speed){
-        topRollerMotor.set(-speed);
-        bottomRollerMotor.set(speed); 
+        if(GetCurrentState() == Idle){
+            topRollerMotor.set(-speed);
+            bottomRollerMotor.set(speed); 
+        }
+    }
+
+    public void stopShooter(){
+        if(GetCurrentState() == Idle){
+            topRollerMotor.set(0);
+            bottomRollerMotor.set(0); 
+        }
+    }
+
+    public void removePID(){
+        //TODO
     }
 
 }

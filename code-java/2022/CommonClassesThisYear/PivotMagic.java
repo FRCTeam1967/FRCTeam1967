@@ -80,84 +80,76 @@ public class PivotMagic extends JankyStateMachine {
                 
                 break;
             case STARTING_CONFIG:
-                if (onStateEntered) {
-                }
-
                 setStartPos();
                 
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_STARTING_ANGLE_PULSES);
 
                 if (XboxController.GetButtonBack()) {
+                    NewState(INTAKE_CONFIG, "button back was pressed");
+                }
+                else if (goIntakeConfig) {
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
-
-                if (goIntakeConfig) {
-                    goIntakeConfig = false;
-                    NewState(INTAKE_CONFIG, "intake config flag is true");
-                }
-
-                if (XboxController.GetButtonStart()) {
+                else if (XboxController.GetButtonStart()) {
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
-
-                if (goShooterConfig) {
-                    goShooterConfig = false;
+                else if (goShooterConfig) {
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
 
                 break;
             case INTAKE_CONFIG:
                 if (onStateEntered) {
-                }
-
-                //if (bottomLimitSwitch.get()){ //default - always true
+                    goIntakeConfig = false;
+                    pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_INTAKE, Constants.PIVOT_kTimeoutMs);
                     setIntakePos();
-                //}
+                }
 
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_INTAKE_ANGLE_PULSES);
                 
                 if (XboxController.GetButtonStart()) {
-                    NewState(SHOOTER_CONFIG, "intake config flag is true");
+                    NewState(SHOOTER_CONFIG, "button start was pressed");
                 }
 
-                if (goShooterConfig) {
-                    goShooterConfig = false;
+                else if (goShooterConfig) {
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
-                if (goClimbConfig) {
-                    goClimbConfig = false;
+                else if (goClimbConfig) {
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
 
                 break;
             case SHOOTER_CONFIG:
-                setShooterConfig();
+                if (onStateEntered) {
+                    goShooterConfig = false;
+                    pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_SHOOTING, Constants.PIVOT_kTimeoutMs);
+                    setShooterConfig();
+                }
                 
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", (lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION);
                 
                 if (XboxController.GetButtonBack()) {
+                    NewState(INTAKE_CONFIG, "button back was pressed");
+                }
+                else if (goIntakeConfig) {
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
-                if (goIntakeConfig) {
-                    goIntakeConfig = false;
-                    NewState(INTAKE_CONFIG, "intake config flag is true");
-                }
-                if (goClimbConfig) {
-                    goClimbConfig = false;
+                else if (goClimbConfig) {
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
                 break;
-
             case CLIMB_CONFIG:
-                setClimbConfig();
+                if(onStateEntered){
+                    goClimbConfig = false;
+                    setClimbConfig();
+                }
                 SmartDashboard.putNumber("pivotMotor Actual Pos", getEncoder());
                 SmartDashboard.putNumber("pivotMotor Target Value", Constants.PIVOT_CLIMB_ANGLE_PULSES);
-                
 
-                if (checkPosition(Constants.PIVOT_CLIMB_ANGLE_PULSES) && GetCurrentState() == CLIMB_CONFIG) {
+                if (isClimbConfigAchieved()) {
                     NewState(CLIMB_CONFIG_ACHIEVED, "climb config achieved flag set to true");
                 }
                 break;
@@ -181,8 +173,8 @@ public class PivotMagic extends JankyStateMachine {
 			The default deadband is 0.04 (4 %) */
         pivotMotor.configNeutralDeadband(0.001, Constants.PIVOT_kTimeoutMs);
 
-        pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 10, Constants.PIVOT_kTimeoutMs);
-		pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, 10, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.CAN_STATUS_FRAME_PERIOD, Constants.PIVOT_kTimeoutMs);
+		pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, Constants.CAN_STATUS_FRAME_PERIOD, Constants.PIVOT_kTimeoutMs);
 
         /* min/max */
         pivotMotor.configNominalOutputForward(0, Constants.PIVOT_kTimeoutMs);
@@ -195,7 +187,7 @@ public class PivotMagic extends JankyStateMachine {
 
         /* PID config */
         pivotMotor.config_kF(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kF, Constants.PIVOT_kTimeoutMs);
-        pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_SHOOTING, Constants.PIVOT_kTimeoutMs);
         pivotMotor.config_kI(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kI, Constants.PIVOT_kTimeoutMs);
         pivotMotor.config_kD(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kD, Constants.PIVOT_kTimeoutMs);
 
