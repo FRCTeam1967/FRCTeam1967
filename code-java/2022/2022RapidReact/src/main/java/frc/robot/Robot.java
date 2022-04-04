@@ -5,10 +5,12 @@
 package frc.robot;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.ColorMatchResult;
+import com.revrobotics.CANSparkMax.ControlType;
 
 import org.janksters.CommonClassesThisYear.AutoConstants;
 import org.janksters.CommonClassesThisYear.AutoSelector;
@@ -45,7 +47,7 @@ public class Robot extends TimedRobot {
   private int autoDelaySelected;
   private final SendableChooser<Integer> autoDelayChooser = new SendableChooser<>();
 
-  private PowerDistribution pdp;
+  //private PowerDistribution pdp;
 
   public int ledCounter = 0;
 
@@ -106,7 +108,7 @@ public class Robot extends TimedRobot {
   private ClimbMBR climbMech = null;
 
   public void instantiateClimb(){
-    climbMech = new ClimbMBR(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R, pivotmagic);
+    climbMech = new ClimbMBR(Constants.CLIMB_WINCH_MOTOR_CHANNEL_L, Constants.CLIMB_WINCH_MOTOR_CHANNEL_R);
   }
 
   public void instantiatePivotMagic(){
@@ -128,8 +130,14 @@ public class Robot extends TimedRobot {
     falcon.config_kI(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kI, Constants.CHASSIS_K_TIMEOUT_MS);
     falcon.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
     falcon.configStatorCurrentLimit(chassisCurrentLimit);
-    falcon.setNeutralMode(NeutralMode.Coast);
-    //TBD: falcon.setStatusFramePeriod(StatusFrame., Constants.CAN_STATUS_FRAME_PERIOD, Constants.PIVOT_kTimeoutMs);
+    falcon.setNeutralMode(NeutralMode.Brake);
+
+    if(Constants.SUPER_CHASSIS){
+      falcon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.CAN_STATUS_FRAME_PERIOD, Constants.CHASSIS_K_TIMEOUT_MS);
+    } else{
+      //falcon.setStatusFramePeriod(0x1240, Constants.CAN_STATUS_FRAME_PERIOD);
+      falcon.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, Constants.CAN_STATUS_FRAME_PERIOD, Constants.CHASSIS_K_TIMEOUT_MS);
+    }
   }
 
   public void updateColorSensor(){
@@ -204,7 +212,7 @@ public class Robot extends TimedRobot {
     XboxController = new jankyXboxJoystick(2); 
 
     //CHASSIS
-    pdp = new PowerDistribution();
+    //pdp = new PowerDistribution();
 
     setUpChassisMotors(leftLeader);
     setUpChassisMotors(leftFollower);
@@ -250,6 +258,11 @@ public class Robot extends TimedRobot {
     autoDelayChooser.addOption("4", AutoConstants.FourDelay);
     autoDelayChooser.addOption("5", AutoConstants.FiveDelay);
     SmartDashboard.putData("Auto Delay Chooser", autoDelayChooser);
+
+    // //PIVOT
+    // if (pivotmagic == null){
+    //   instantiatePivotMagic();
+    // }
 
     System.out.println("Passed through initialization");
   }
@@ -316,6 +329,11 @@ public class Robot extends TimedRobot {
     if(!Constants.SUPER_SHOOTER){
       shooter.removePID();
     }
+
+    leftLeader.setNeutralMode(NeutralMode.Coast);
+    leftFollower.setNeutralMode(NeutralMode.Coast);
+    rightLeader.setNeutralMode(NeutralMode.Coast);
+    rightFollower.setNeutralMode(NeutralMode.Coast);
   }
 
   /** This function is called periodically during operator control. :) */
@@ -382,11 +400,11 @@ public class Robot extends TimedRobot {
       }
     }
    
-    SmartDashboard.putNumber("total current", pdp.getTotalCurrent());
-    SmartDashboard.putNumber("left leader current", pdp.getCurrent(Constants.CHASSIS_L_LEADER_CIRCUIT));
-    SmartDashboard.putNumber("left follower current", pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CIRCUIT));
-    SmartDashboard.putNumber("right leader current", pdp.getCurrent(Constants.CHASSIS_R_LEADER_CIRCUIT));
-    SmartDashboard.putNumber("right follower current", pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CIRCUIT));
+    // SmartDashboard.putNumber("total current", pdp.getTotalCurrent());
+    // SmartDashboard.putNumber("left leader current", pdp.getCurrent(Constants.CHASSIS_L_LEADER_CIRCUIT));
+    // SmartDashboard.putNumber("left follower current", pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CIRCUIT));
+    // SmartDashboard.putNumber("right leader current", pdp.getCurrent(Constants.CHASSIS_R_LEADER_CIRCUIT));
+    // SmartDashboard.putNumber("right follower current", pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CIRCUIT));
     
     // SmartDashboard.putNumber("left joystick", leftJoystick.getY());
     // SmartDashboard.putNumber("right joystick", rightJoystick.getY());
@@ -398,11 +416,18 @@ public class Robot extends TimedRobot {
   
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    leftLeader.setNeutralMode(NeutralMode.Coast);
+    leftFollower.setNeutralMode(NeutralMode.Coast);
+    rightLeader.setNeutralMode(NeutralMode.Coast);
+    rightFollower.setNeutralMode(NeutralMode.Coast);
+
+  }
 
   /** This function is called periodically when disabled. */
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+  }
 
   /** This function is called once when test mode is enabled. */
   @Override

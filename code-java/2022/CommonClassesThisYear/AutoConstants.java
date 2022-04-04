@@ -95,8 +95,9 @@ public class AutoConstants {
 
     // constants for distance calculation
     public static final double PULSES_PER_REVOLUTION = 4096;
-    public static final double WHEEL_DIAMETER = 0.1524; //6 inches
+    public static final double WHEEL_DIAMETER = 4; //4 inches, was 0.1524 m or 6 inches
     public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
+    public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (50.0/24));
 
 
 }

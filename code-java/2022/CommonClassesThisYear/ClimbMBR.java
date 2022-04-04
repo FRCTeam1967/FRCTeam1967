@@ -13,8 +13,8 @@ public class ClimbMBR extends JankyStateMachine{
     private JankyTalonFX winchMotorR; //right
 
     private jankyXboxJoystick XboxController;
-    private PivotMagic pivot;
-    //private LED led;
+    // private PivotMagic pivot;
+    // private LED led;
     private double rightYAxis;
 
     //states
@@ -23,11 +23,11 @@ public class ClimbMBR extends JankyStateMachine{
     private final int MANUAL_ARM = 2;
     private final int MANUAL_ROBOT = 3;
 
-    public ClimbMBR(int winchMotorChannelL, int winchMotorChannelR, PivotMagic _pivot){ //removing LED _led
+    public ClimbMBR(int winchMotorChannelL, int winchMotorChannelR){ //removing LED _led
         winchMotorL = new JankyTalonFX(winchMotorChannelL);
         winchMotorR = new JankyTalonFX(winchMotorChannelR);
         XboxController= new jankyXboxJoystick(2);
-        pivot = _pivot;
+        // pivot = _pivot;
         //led = _led;
 
         setUpWinchMotors();

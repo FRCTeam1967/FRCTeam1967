@@ -102,7 +102,7 @@ public class PivotMagic extends JankyStateMachine {
             case INTAKE_CONFIG:
                 if (onStateEntered) {
                     goIntakeConfig = false;
-                    pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_INTAKE, Constants.PIVOT_kTimeoutMs);
+                    pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_INTAKE, Constants.PIVOT_K_TIMEOUT_MS);
                     setIntakePos();
                 }
 
@@ -124,7 +124,7 @@ public class PivotMagic extends JankyStateMachine {
             case SHOOTER_CONFIG:
                 if (onStateEntered) {
                     goShooterConfig = false;
-                    pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_SHOOTING, Constants.PIVOT_kTimeoutMs);
+                    pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_SHOOTING, Constants.PIVOT_K_TIMEOUT_MS);
                     setShooterConfig();
                 }
                 
@@ -165,34 +165,34 @@ public class PivotMagic extends JankyStateMachine {
         /* setup */
         pivotMotor.configFactoryDefault();
         pivotMotor.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor, Constants.PIVOT_kPIDLoopIdx,
-                Constants.PIVOT_kTimeoutMs);
+                Constants.PIVOT_K_TIMEOUT_MS);
         pivotMotor.setSensorPhase(true);
         pivotMotor.setInverted(false); // TBD
         
         /* set deadband to super small 0.001 (0.1 %).
 			The default deadband is 0.04 (4 %) */
-        pivotMotor.configNeutralDeadband(0.001, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.configNeutralDeadband(0.001, Constants.PIVOT_K_TIMEOUT_MS);
 
-        pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.CAN_STATUS_FRAME_PERIOD, Constants.PIVOT_kTimeoutMs);
-		pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, Constants.CAN_STATUS_FRAME_PERIOD, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.CAN_STATUS_FRAME_PERIOD, Constants.PIVOT_K_TIMEOUT_MS);
+		pivotMotor.setStatusFramePeriod(StatusFrameEnhanced.Status_10_MotionMagic, Constants.CAN_STATUS_FRAME_PERIOD, Constants.PIVOT_K_TIMEOUT_MS);
 
         /* min/max */
-        pivotMotor.configNominalOutputForward(0, Constants.PIVOT_kTimeoutMs);
-        pivotMotor.configNominalOutputReverse(0, Constants.PIVOT_kTimeoutMs);
-        pivotMotor.configPeakOutputForward(1, Constants.PIVOT_kTimeoutMs); //1
-        pivotMotor.configPeakOutputReverse(-1, Constants.PIVOT_kTimeoutMs); //-1
+        pivotMotor.configNominalOutputForward(0, Constants.PIVOT_K_TIMEOUT_MS);
+        pivotMotor.configNominalOutputReverse(0, Constants.PIVOT_K_TIMEOUT_MS);
+        pivotMotor.configPeakOutputForward(1, Constants.PIVOT_K_TIMEOUT_MS); //1
+        pivotMotor.configPeakOutputReverse(-1, Constants.PIVOT_K_TIMEOUT_MS); //-1
 
         /* allowable error */
-        pivotMotor.configAllowableClosedloopError(0, Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.configAllowableClosedloopError(0, Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_K_TIMEOUT_MS);
 
         /* PID config */
-        pivotMotor.config_kF(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kF, Constants.PIVOT_kTimeoutMs);
-        pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_SHOOTING, Constants.PIVOT_kTimeoutMs);
-        pivotMotor.config_kI(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kI, Constants.PIVOT_kTimeoutMs);
-        pivotMotor.config_kD(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kD, Constants.PIVOT_kTimeoutMs);
+        pivotMotor.config_kF(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kF, Constants.PIVOT_K_TIMEOUT_MS);
+        pivotMotor.config_kP(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kP_SHOOTING, Constants.PIVOT_K_TIMEOUT_MS);
+        pivotMotor.config_kI(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kI, Constants.PIVOT_K_TIMEOUT_MS);
+        pivotMotor.config_kD(Constants.PIVOT_kPIDLoopIdx, Constants.PIVOT_kD, Constants.PIVOT_K_TIMEOUT_MS);
 
-        pivotMotor.configMotionCruiseVelocity(22500, Constants.PIVOT_kTimeoutMs); //15000
-		pivotMotor.configMotionAcceleration(13500, Constants.PIVOT_kTimeoutMs); //6000
+        pivotMotor.configMotionCruiseVelocity(22500, Constants.PIVOT_K_TIMEOUT_MS); //15000
+		pivotMotor.configMotionAcceleration(13500, Constants.PIVOT_K_TIMEOUT_MS); //6000
     }
 
     public double getEncoder() {

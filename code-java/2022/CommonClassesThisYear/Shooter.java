@@ -11,6 +11,7 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 import com.revrobotics.SparkMaxPIDController;
+import com.revrobotics.CANSparkMax.ControlType;
 import com.revrobotics.RelativeEncoder;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -284,6 +285,13 @@ public class Shooter extends JankyStateMachine {
         if(GetCurrentState() == Idle){
             topRollerMotor.set(speed);
             bottomRollerMotor.set(-speed); 
+
+            //topRollerMotor.set(CANSparkMax.ControlType.kDutyCycle, speed);
+
+            // topPIDController.setReference(speed, CANSparkMax.ControlType.kDutyCycle);
+            // bottomPIDController.setReference(speed, CANSparkMax.ControlType.kDutyCycle);
+
+            
         } 
     }
 

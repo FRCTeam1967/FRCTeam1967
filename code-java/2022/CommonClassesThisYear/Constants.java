@@ -2,17 +2,17 @@
 package org.janksters.CommonClassesThisYear;
 public class Constants {
     public static final int FALCON_PULSES_PER_REVOLUTION = 2048;
-    public static final int CAN_STATUS_FRAME_PERIOD = 10; //TBD
+    public static final int CAN_STATUS_FRAME_PERIOD = 100; //TBD, was 10
 
-    /* all shooter/lifter/pivot constants */
+    // all shooter/lifter/pivot constants
         public static final int PIVOT_MOTOR_ID = 4;
         public static final int PIVOT_CONTROLLER_PORT_ID = 2; //TBD 2022 real
         public static final int PIVOT_TOP_LIMIT_SWITCH_ID = 9; //TBD 2022 real
         public static final int PIVOT_BOTTOM_LIMIT_SWITCH_ID = 10; //TBD
         public static final double PIVOT_GEAR_RATIO = 100;
 
-        /* shooter/pivot PID constants */
-        public static final int PIVOT_kTimeoutMs = 1;
+        // shooter/pivot PID constants
+        public static final int PIVOT_K_TIMEOUT_MS = 75; //was 1
         public static final int PIVOT_kPIDLoopIdx = 0;
         public static final double PIVOT_kP_SHOOTING = 0.95; //0.015S
         public static final double PIVOT_kP_INTAKE = 0.5; //TBD
@@ -20,9 +20,9 @@ public class Constants {
         public static final double PIVOT_kD = 3.2;
         public static final double PIVOT_kF = 0.0;
 
-        /* pivot constants */
+        // pivot constants
         public static final double PIVOT_INTAKE_ANGLE = 88; //68, was 86
-        public static final double PIVOT_STARTING_ANGLE = -1; //0
+        public static final double PIVOT_STARTING_ANGLE = -1.5; //0
         public static final double PIVOT_SHOOTER_ANGLE = 0; //-15
         public static final double PIVOT_SHOOTER_MIDANGLE = 10;
         public static final double PIVOT_SHOOTER_LOWANGLE = 20;
@@ -34,19 +34,19 @@ public class Constants {
         public static final double PIVOT_SHOOTER_ANGLE_PULSES = (PIVOT_SHOOTER_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
         public static final double PIVOT_CLIMB_ANGLE_PULSES = (PIVOT_CLIMB_ANGLE / 360) * PIVOT_GEAR_RATIO * FALCON_PULSES_PER_REVOLUTION;
 
-        /* simple shooter constantts */
+        // simple shooter constants
         public static final double SIMPLE_SHOOT_SPEED = 0.7;
         public static final double SIMPLE_INTAKE_SPEED = 0.45;
 
         public static final double SIMPLE_SHOOT_INTAKE_DEADBAND = 0.1;
 
-    /* all climb constants */
+    // all climb constants
     // MBR
         public static final double CLIMB_MBR_WINCH_ARM_FACTOR = -1; //used to be 0.8
         public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = 0.45;
         public static final double CLIMB_WINCH_MOTOR_STOP = 0.0;
         public static final double CLIMB_DEADBAND = 0.07;
-        public static final int CLIMB_K_TIMEOUT_MS = 1;
+        public static final int CLIMB_K_TIMEOUT_MS =75;
         public static final int CLIMB_K_PID_LOOP_IDX = 0;
 
     //SVR for future
@@ -103,13 +103,13 @@ public class Constants {
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_L = 6;
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_R = 5;
 
-    /* all chassis constants */
+    // all chassis constants
 
         public static final int CAMERA_DEV_NUMBER = 0;
         public static final double CHASSIS_DEADBAND = 0.05;
-        /* PID */
+        // PID 
         public static final int CHASSIS_K_PID_LOOP_IDX = 0;
-        public static final int CHASSIS_K_TIMEOUT_MS = 30;
+        public static final int CHASSIS_K_TIMEOUT_MS = 75; //was 30
         public static final double CHASSIS_kP = 0.1;
         public static final double CHASSIS_kI = 0.0;
         public static final double CHASSIS_kD = 0;
@@ -122,28 +122,26 @@ public class Constants {
         public static final double MAX_TOTAL_CHASSIS_CURRENT = 180;
         public static final double SET_CHASSIS_CURRENT_IF_OVER = (MAX_TOTAL_CHASSIS_CURRENT - 20) / 4;
 
-        /*current limiting*/
+        // current limiting 
         public static final boolean ENABLE_CHASSIS_CURRENT_LIMIT = true;
-        public static final double CHASSIS_CURRENT_LIMIT_MAX = 40;
-        public static final double CHASSIS_TRIGGER_CURRENT = 35;
+        public static final double CHASSIS_CURRENT_LIMIT_MAX = 50;
+        public static final double CHASSIS_TRIGGER_CURRENT = 45;
         public static final double CHASSIS_THRESHOLD_TIME = 0;
 
-        /* channel numbers */
+        // channel numbers
         public static final int CHASSIS_L_LEADER_CHANNEL = 2;
         public static final int CHASSIS_L_FOLLOWER_CHANNEL = 3;
         public static final int CHASSIS_R_LEADER_CHANNEL = 1;
         public static final int CHASSIS_R_FOLLOWER_CHANNEL = 0;
 
-        /* pdp curcuit numbers */
+        // pdp curcuit numbers
         public static final int CHASSIS_L_LEADER_CIRCUIT = 0; //tbd
         public static final int CHASSIS_L_FOLLOWER_CIRCUIT = 0;
         public static final int CHASSIS_R_LEADER_CIRCUIT = 0;
         public static final int CHASSIS_R_FOLLOWER_CIRCUIT = 0;
 
-    
     //Super or Simple
-    public static final boolean SUPER_CHASSIS = true;
+    public static final boolean SUPER_CHASSIS = false;
     public static final boolean SUPER_SHOOTER = true;
     public static final boolean SUPER_COLOR_SENSOR = false;
-
 }
