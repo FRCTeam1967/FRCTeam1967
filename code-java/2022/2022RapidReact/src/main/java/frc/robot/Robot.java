@@ -259,10 +259,10 @@ public class Robot extends TimedRobot {
     autoDelayChooser.addOption("5", AutoConstants.FiveDelay);
     SmartDashboard.putData("Auto Delay Chooser", autoDelayChooser);
 
-    // //PIVOT
-    // if (pivotmagic == null){
-    //   instantiatePivotMagic();
-    // }
+    //PIVOT
+    if (pivotmagic == null){
+      instantiatePivotMagic();
+    }
 
     System.out.println("Passed through initialization");
   }
@@ -314,6 +314,7 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     if (pivotmagic == null){
+        System.out.println("Instantiate pivot in teleop");
        instantiatePivotMagic();
     }
 

@@ -61,6 +61,7 @@ public class PivotMagic extends JankyStateMachine {
     public void StateEngine(int curState, boolean onStateEntered) {
         //setShooterAngle();
         //SmartDashboard.putBoolean("Bottom Limit Switch", bottomLimitSwitch.get());
+        //SmartDashboard.putNumber("pivot magic state", curState);
         switch (curState) {
             case IDLE:
                 if (onStateEntered) {
@@ -89,12 +90,14 @@ public class PivotMagic extends JankyStateMachine {
                     NewState(INTAKE_CONFIG, "button back was pressed");
                 }
                 else if (goIntakeConfig) {
+                    goIntakeConfig = false;
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
                 else if (XboxController.GetButtonStart()) {
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
                 else if (goShooterConfig) {
+                    goShooterConfig = false;
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
 
@@ -114,9 +117,11 @@ public class PivotMagic extends JankyStateMachine {
                 }
 
                 else if (goShooterConfig) {
+                    goIntakeConfig = false;
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
                 else if (goClimbConfig) {
+                    goClimbConfig = false;
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
 
@@ -135,9 +140,11 @@ public class PivotMagic extends JankyStateMachine {
                     NewState(INTAKE_CONFIG, "button back was pressed");
                 }
                 else if (goIntakeConfig) {
+                    goIntakeConfig = false;
                     NewState(INTAKE_CONFIG, "intake config flag is true");
                 }
                 else if (goClimbConfig) {
+                    goClimbConfig = false;
                     NewState(CLIMB_CONFIG, "climb config flag is true");
                 }
                 break;
