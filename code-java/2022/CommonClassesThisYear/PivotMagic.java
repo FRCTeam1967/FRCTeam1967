@@ -117,7 +117,7 @@ public class PivotMagic extends JankyStateMachine {
                 }
 
                 else if (goShooterConfig) {
-                    goIntakeConfig = false;
+                    goShooterConfig = false;
                     NewState(SHOOTER_CONFIG, "shooter config flag is true");
                 }
                 else if (goClimbConfig) {
