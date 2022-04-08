@@ -48,6 +48,9 @@ public class Shooter extends JankyStateMachine {
     private Timer revTimer;
     private Timer slowEjectTimer;
 
+    private LED led;
+    private int ledCounter = 0;
+
     // Remember, velocity values are between -1.0 and 1.0 for motor.set
     // PID controller set reference takes RPM values, max 5700
 
@@ -68,9 +71,10 @@ public class Shooter extends JankyStateMachine {
     private boolean revUpFlag = false;
     private boolean fireCompleteFlag = false;
 
-    public Shooter() {
+    public Shooter(LED _led) {
         XboxController = new jankyXboxJoystick(2); 
         table = NetworkTableInstance.getDefault().getTable("limelight");
+        led = _led;
 
         topRollerMotor = new CANSparkMax(topRollerMotorID, MotorType.kBrushless);
         bottomRollerMotor = new CANSparkMax(bottomRollerMotorID, MotorType.kBrushless);
@@ -120,7 +124,11 @@ public class Shooter extends JankyStateMachine {
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
-
+        if((GetCurrentState()!= RevUp) && (GetCurrentState() != Fire)){
+            ledCounter = led.setRainbow(ledCounter);
+            led.commit();
+        
+        }
         switch (curState) {
             case Idle:
                 zeroMotors();
@@ -159,6 +167,8 @@ public class Shooter extends JankyStateMachine {
                 }
                 break;
             case RevUp: 
+                led.setColor(255, 0, 0);
+                led.commit();
                 setBottomVelocity();
                 SmartDashboard.putNumber("bottom motor velocity", bottomMotorEncoder.getVelocity());
                 if (bottomMotorEncoder.getVelocity() >= (BOTTOM_ROLLER_FIRE_SPEED - 200)){ 
@@ -167,6 +177,8 @@ public class Shooter extends JankyStateMachine {
                 }
                 break;
             case Fire:
+                led.setColor(255, 0, 0);
+                led.commit();
                 if (onStateEntered) {
                     fireTimer.reset();
                     fireTimer.start();

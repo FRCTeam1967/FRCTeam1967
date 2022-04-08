@@ -96,7 +96,7 @@ public class Robot extends TimedRobot {
 
   LED led = new LED(1, 500, 9); 
 
-  Shooter shooter = new Shooter();
+  Shooter shooter = new Shooter(led);
   //Pivot pivot = new Pivot();
   PivotMagic pivotmagic = null;
 
@@ -279,6 +279,8 @@ public class Robot extends TimedRobot {
     if(Constants.SUPER_COLOR_SENSOR){
       updateColorSensor();
     }
+    // ledCounter = led.setRainbow(ledCounter);
+    // led.commit();
   }
 
   /**
@@ -340,9 +342,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
-    ledCounter = led.setRainbow(ledCounter);
-    led.commit();
-
     //SHOOTER
     if(!Constants.SUPER_SHOOTER){
       double YAxisValue = XboxController.GetLeftYAxis();
