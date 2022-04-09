@@ -55,6 +55,7 @@ public class AutoStateMachine extends JankyStateMachine {
 
     Timer delayTimer = new Timer();
     public static int delay;
+    public static int path;
     public int stateMachineSelected;
     private final int twoBFirstDelay = 0;
     private final int twoBLowerArm = 1;
@@ -125,6 +126,7 @@ public class AutoStateMachine extends JankyStateMachine {
 
     public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro, Shooter _shooter, PivotMagic _pivot) {
         delay = _delay;
+        path = autoPathSelected;
         gyroClassLevel = m_gyro;
         m_leftLeader = new WPI_TalonSRX(2);//m2
         rlmotor = new WPI_TalonFX(3);//m3
@@ -143,7 +145,7 @@ public class AutoStateMachine extends JankyStateMachine {
 
         m_gyro.reset();
 
-        if (autoPathSelected == AutoConstants.THREE_BALL_AUTOPATH) { //three ball path
+        if (path == AutoConstants.THREE_BALL_AUTOPATH) { //three ball path
             SetMachineName("autoSupreme");
             SetName(threeBFirstDelay, "threeBFirstDelay");
             SetName(threeBFirstShoot, "threeBFirstShoot");
@@ -160,7 +162,7 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(threeBFinishAuto, "threeBFinishAuto");
             stateMachineSelected = AutoConstants.THREE_BALL_AUTOPATH;
             start();
-        } else if (autoPathSelected == AutoConstants.TWO_BALL_AUTOPATH) { //two ball path
+        } else if (path == AutoConstants.TWO_BALL_AUTOPATH) { //two ball path
             SetMachineName("auto");
             SetName(twoBFirstDelay, "twoBFirstDelay");
             SetName(twoBLowerArm, "twoBLowerArm");
@@ -174,7 +176,7 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(twoBFinishAuto, "twoBFinishAuto");
             stateMachineSelected = AutoConstants.TWO_BALL_AUTOPATH;
             start();
-        }  else if (autoPathSelected == AutoConstants.ONE_BALL_AUTOPATH) {
+        }  else if (path == AutoConstants.ONE_BALL_AUTOPATH) {
             SetMachineName("autoSS");
             SetName(ssShoot, "ssShoot");
             SetName(ssMove, "ssMove");
@@ -291,7 +293,7 @@ public class AutoStateMachine extends JankyStateMachine {
                     Terminate();
                     break;
             }
-        } else if (stateMachineSelected == AutoConstants.ONE_BALL_AUTOPATH) {
+        } else if (stateMachineSelected == AutoConstants.TWO_BALL_AUTOPATH) {
             switch (curState) {
             case twoBFirstDelay:
                 if (onStateEntered) {
@@ -378,6 +380,92 @@ public class AutoStateMachine extends JankyStateMachine {
                 Terminate();
                 break;
         }
+        } else if (stateMachineSelected == AutoConstants.ONE_BALL_AUTOPATH) {
+            switch (curState) {
+                case twoBFirstDelay:
+                    if (onStateEntered) {
+                        delayTimer.start();
+                    }
+                    if (delayTimer.get() <= delay) {
+                        m_myRobot.tankDrive(0, 0);
+                    } else {
+                        NewState(twoBShoot, "Delay timer has ended");
+                    }
+                    break;
+    
+                case twoBLowerArm:
+                    // if(onStateEntered){ //only doing it one time is not working!!
+                    //     //pivot.flagIntakeConfig();
+                    // }
+                    pivot.flagIntakeConfig();
+                    System.out.println("flag deployed");
+                    System.out.println(pivot.isIntakeConfigAchieved());
+                    if(pivot.isIntakeConfigAchieved()) {
+                        NewState(twoBFirstMove, "Lift Complete");
+                    }
+                    break;
+                case twoBFirstMove:
+                    m_myRobot.tankDrive(-0.4, 0.4); //- + for one ball  and 0.4
+                    if (inchesToEncoder(80) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(twoBFinishAuto, "reached average encoder for distance");
+                    }
+                    break;
+                case twoBTurn:
+                    SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
+                    m_myRobot.tankDrive(-0.5, -0.5);
+                    int desiredAngle = 140; //previously 160
+                    if(gyroClassLevel.getAngle() >= desiredAngle) {
+                        NewState(twoBSecondMove, "reached desired gyro angle");
+                    }
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    break;
+                case twoBSecondMove:
+                    m_myRobot.tankDrive(0.5, -0.5);
+                    if (inchesToEncoder(25) <= getAverageEncoderValues()) { //was 50
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(twoBLift, "reached average encoder for distance 2");
+                    }
+                    gyroClassLevel.reset();
+                    break;
+                case twoBLift:
+                    if(onStateEntered){
+                        pivot.flagShooterConfig();
+                    }
+                    if(pivot.isShooterConfigAchieved()) {
+                        NewState(twoBSecondTurn, "Lift Complete");
+                    }
+                    break;
+                case twoBSecondTurn:
+                    SmartDashboard.putNumber("gyro angle first turn", gyroClassLevel.getAngle());
+                    m_myRobot.tankDrive(-0.5, -0.5);
+                    desiredAngle = 15;
+                    if(gyroClassLevel.getAngle() >= desiredAngle) {
+                        NewState(twoBThirdMove, "reached desired gyro angle");
+                    }
+                    frmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    rlmotor.getSensorCollection().setIntegratedSensorPosition(0,10);
+                    break;
+                case twoBThirdMove:
+                    m_myRobot.tankDrive(0.5, -0.5);
+                    if (inchesToEncoder(10) <= getAverageEncoderValues()) {
+                        m_myRobot.tankDrive(0, 0);
+                        NewState(twoBShoot, "reached average encoder for distance 3");
+                    }
+                    gyroClassLevel.reset();
+                    break;
+                case twoBShoot:
+                    shooter.shooterRevUp();
+                    if(shooter.fireComplete()) {
+                        NewState(twoBFirstMove, "Shooting Complete");
+                    }
+                    break;
+                case twoBFinishAuto:
+                    //pivot = null;
+                    Terminate();
+                    break;
+            }
         } else if (stateMachineSelected == AutoConstants.SIMPLE_TARMAC_AUTOPATH) { //leaving tarmac path
             switch (curState) {
                 case simpleDelay:

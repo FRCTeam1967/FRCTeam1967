@@ -12,6 +12,7 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.revrobotics.ColorMatchResult;
 import com.revrobotics.CANSparkMax.ControlType;
 
+import org.janksters.CommonClassesThisYear.Auto;
 import org.janksters.CommonClassesThisYear.AutoConstants;
 import org.janksters.CommonClassesThisYear.AutoSelector;
 import org.janksters.CommonClassesThisYear.AutoStateMachine;
@@ -45,7 +46,9 @@ public class Robot extends TimedRobot {
   private UsbCamera camera;
 
   private int autoDelaySelected;
+  private int autoPathSelected;
   private final SendableChooser<Integer> autoDelayChooser = new SendableChooser<>();
+  private final SendableChooser<Integer> autoPathChooser = new SendableChooser<>();
 
   //private PowerDistribution pdp;
 
@@ -219,13 +222,13 @@ public class Robot extends TimedRobot {
     setUpChassisMotors(rightLeader);
     setUpChassisMotors(rightFollower);
 
-    if(!Constants.SUPER_CHASSIS){
+    //if(!Constants.SUPER_CHASSIS){
       left = new MotorControllerGroup(leftLeader, leftFollower);
       right = new MotorControllerGroup(rightLeader, rightFollower);
       myRobot = new DifferentialDrive(left,right);
 
       myRobot.setMaxOutput(0.7); //default is 1, also does current limit
-    }
+    //}
 
     //COLOR SENSOR
     // Init ColorSensor subsystem
@@ -248,7 +251,7 @@ public class Robot extends TimedRobot {
     //camera.setResolution(160, 120);
     camera.setResolution(80, 60);
     //camera.setFPS(5);
-    camera.setFPS(3);
+    camera.setFPS(5); //was previously 3 
 
     //AUTO 
     autoDelayChooser.setDefaultOption("0", AutoConstants.ZeroDelay);
@@ -258,6 +261,13 @@ public class Robot extends TimedRobot {
     autoDelayChooser.addOption("4", AutoConstants.FourDelay);
     autoDelayChooser.addOption("5", AutoConstants.FiveDelay);
     SmartDashboard.putData("Auto Delay Chooser", autoDelayChooser);
+
+    // Not in use
+    autoPathChooser.setDefaultOption("Two Ball", AutoConstants.TWO_BALL_AUTOPATH);
+    autoPathChooser.addOption("Simple Tarmac", AutoConstants.SIMPLE_TARMAC_AUTOPATH);
+    autoPathChooser.addOption("One Ball", AutoConstants.ONE_BALL_AUTOPATH); 
+    autoPathChooser.addOption("Three Ball", AutoConstants.THREE_BALL_AUTOPATH);
+    //SmartDashboard.putData("Auto Path Chooser", autoPathChooser)
 
     //PIVOT
     if (pivotmagic == null){
@@ -303,7 +313,10 @@ public class Robot extends TimedRobot {
     //autoDelaySelected = AutoConstants.ZeroDelay;
     SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
 
-    autoSM = new AutoStateMachine(autoDelaySelected, AutoConstants.ONE_BALL_AUTOPATH, m_gyro, shooter, pivotmagic);
+    autoPathSelected = autoPathChooser.getSelected();
+    SmartDashboard.putNumber("Auto Path Selected", autoPathSelected);
+
+    autoSM = new AutoStateMachine(autoDelaySelected, AutoConstants.TWO_BALL_AUTOPATH, m_gyro, shooter, pivotmagic);
   }
 
   /** This function is called periodically during autonomous. */
@@ -342,6 +355,10 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. :) */
   @Override
   public void teleopPeriodic() {
+    if (myRobot != null){
+      myRobot.feed();
+    }
+
     //SHOOTER
     if(!Constants.SUPER_SHOOTER){
       double YAxisValue = XboxController.GetLeftYAxis();

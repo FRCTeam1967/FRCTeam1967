@@ -142,6 +142,6 @@ public class Constants {
 
     //Super or Simple
     public static final boolean SUPER_CHASSIS = false;
-    public static final boolean SUPER_SHOOTER = true;
+    public static final boolean SUPER_SHOOTER = false;
     public static final boolean SUPER_COLOR_SENSOR = false;
 }

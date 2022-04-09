@@ -124,7 +124,7 @@ public class Shooter extends JankyStateMachine {
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {
-        if((GetCurrentState()!= RevUp) && (GetCurrentState() != Fire)){
+        if((GetCurrentState()!= RevUp) && (GetCurrentState() != Fire) && (GetCurrentState() != Intake)){
             ledCounter = led.setRainbow(ledCounter);
             led.commit();
         
@@ -150,6 +150,8 @@ public class Shooter extends JankyStateMachine {
                 // }
                 break;
             case Intake:
+                led.setColor(255, 0, 255);
+                led.commit();
                 runIntake();
                 if ((XboxController.GetLeftThrottle() == 0) || (XboxController.GetRightThrottle() == 0)) {
                     NewState(Idle, "released left and right throttle buttons");
@@ -169,11 +171,22 @@ public class Shooter extends JankyStateMachine {
             case RevUp: 
                 led.setColor(255, 0, 0);
                 led.commit();
+                if(onStateEntered){
+                    revTimer.reset();
+                    revTimer.start();
+                }
+                
                 setBottomVelocity();
                 SmartDashboard.putNumber("bottom motor velocity", bottomMotorEncoder.getVelocity());
-                if (bottomMotorEncoder.getVelocity() >= (BOTTOM_ROLLER_FIRE_SPEED - 200)){ 
+                SmartDashboard.putNumber("target bottom motor velocity", BOTTOM_ROLLER_FIRE_SPEED - 400);
+
+                if (bottomMotorEncoder.getVelocity() >= (BOTTOM_ROLLER_FIRE_SPEED - 400)){ 
                 //if (bottomMotorEncoder.getVelocity() >= 1800){
-                    NewState(Fire, "finished bottom roller running");
+                    revTimer.stop();
+                    NewState(Fire, "bottom rollers reached target velocity");
+                }else if (revTimer.get() >= 0.5){
+                    revTimer.stop();
+                    NewState(Fire, "rev timer reached 1 second");
                 }
                 break;
             case Fire:
