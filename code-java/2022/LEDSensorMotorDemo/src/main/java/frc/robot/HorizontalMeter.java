@@ -2,6 +2,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.util.Color;
 
+
 // HorizontalMeter
 // A collection of rows in an LED panel that display one or more meter channels in something that
 // resembles a sound equalizer display. It can be constrained to a portion of the LED panel
@@ -26,6 +27,14 @@ public class HorizontalMeter {
     public void setStartColumn(int startColumn) {
         m_startColumn = startColumn;
         m_width = m_ledPanel.m_width - startColumn;
+    }
+
+    public void clearUnusedArea() {
+        for (int row = m_numChannels * m_channelHeight; row < m_ledPanel.m_height; row++) {
+            for (int col = 0; col < m_width; col++) {
+                m_ledPanel.setPixelByXY(m_startColumn + col, row, Color.kBlack);
+            }
+        }
     }
 
     public void setOutputChannel(int meterIndex, double fraction, Color meterColor, Color backgroundColor) {

@@ -4,6 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
+
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -28,26 +35,29 @@ import com.revrobotics.ColorMatchResult;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  /* Hardware */
+  WPI_TalonFX _talonL = new WPI_TalonFX(4, "rio");
+  WPI_TalonFX _talonR = new WPI_TalonFX(13, "rio");
+  Joystick _joy = new Joystick(0);
 
   // LED stuff
   private static final int m_ledWidth = 48;
   private static final int m_ledHeight = 16;
   private static final int m_ledPWMPin = 0;
   private static final int m_meterColumnStart = 32;
+  private static final double m_brightness = 0.10;
   private LEDPanel m_ledPanel;
   private HorizontalMeter m_hMeter;
-  private BufferedImage m_image;
-  private static final double m_brightness = 0.04;
+  private int m_rainbowFirstPixelHue = 0;
 
   // Color sensor configuration
   private ColorSensor m_colorSensor; // Onboard
   private static final double m_ConfidenceThreshold = 0.85;  
 
-    // Average of 3 samples we observed using real game pieces
+  // Do we show images, or rainbow?
+  private SendableChooser<Boolean> m_showsRainbow = new SendableChooser<>();
+
+  // Average of 3 samples we observed using real game pieces
   private final Color kRedBallTarget = new Color((0.5825 + 0.57764 + 0.5712) / 3,
     (0.3091 + 0.3122 + 0.3188) / 3,
     (0.1086 + 0.1108 + 0.1104) / 3);
@@ -56,9 +66,8 @@ public class Robot extends TimedRobot {
     (0.3621 + 0.3613 + 0.3618)/3,
     (0.5059 + 0.5068 + 0.5061)/3);
 
-
-
   // Images
+  private BufferedImage m_image;  // current image
   BufferedImage m_image_blackAndWhite;
   BufferedImage m_image_black;
   BufferedImage m_image_gray;
@@ -76,9 +85,10 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+    // Let the dashboard figure out what we show
+    m_showsRainbow.setDefaultOption("Rainbow", true);
+    m_showsRainbow.addOption("Image", false);
+    SmartDashboard.putData("LED Mode", m_showsRainbow);
 
     // Init LED subsystem
     m_ledPanel = new LEDPanel(m_ledWidth, m_ledHeight, m_ledPWMPin);
@@ -92,17 +102,79 @@ public class Robot extends TimedRobot {
     // Init sensor
     sensorInit();
 
+    // Init hardware
+    motorInit();
+
     // Load our images
+    imageInit();
+
+    m_image = m_image_redGreen;
+    updateLEDs();
+  }
+
+  public void imageInit() {
     m_image_original = loadImage("48x16 Logo.png");
     m_image_blackAndWhite = loadImage("48x16 Logo B&W.png");
     m_image_black = loadImage("48x16 Logo Black.png");
     m_image_gray = loadImage("48x16 Logo Gray.png");
     m_image_redGreen = loadImage("48x16 Logo.png");
-    m_image = m_image_redGreen;
-
-    pushLoadedImage();
   }
 
+
+  public void motorInit() {
+    /* Factory Default all hardware to prevent unexpected behaviour */
+    _talonL.configFactoryDefault();
+    _talonR.configFactoryDefault();
+    
+    /* Config neutral deadband to be the smallest possible */
+    _talonL.configNeutralDeadband(0.001);
+    _talonR.configNeutralDeadband(0.001);
+
+    /* Config sensor used for Primary PID [Velocity] */
+    _talonL.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
+                                        Constants.kPIDLoopIdx, 
+                                        Constants.kTimeoutMs);
+    _talonR.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor,
+                                        Constants.kPIDLoopIdx, 
+                                        Constants.kTimeoutMs);
+                                                                                          
+    /* Config the peak and nominal outputs */
+    _talonL.configNominalOutputForward(0, Constants.kTimeoutMs);
+    _talonL.configNominalOutputReverse(0, Constants.kTimeoutMs);
+    _talonL.configPeakOutputForward(1, Constants.kTimeoutMs);
+    _talonL.configPeakOutputReverse(-1, Constants.kTimeoutMs);
+
+    _talonR.configNominalOutputForward(0, Constants.kTimeoutMs);
+    _talonR.configNominalOutputReverse(0, Constants.kTimeoutMs);
+    _talonR.configPeakOutputForward(1, Constants.kTimeoutMs);
+    _talonR.configPeakOutputReverse(-1, Constants.kTimeoutMs);
+
+    /* Config the Velocity closed loop gains in slot0 */
+    _talonL.config_kF(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kF, Constants.kTimeoutMs);
+    _talonL.config_kP(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kP, Constants.kTimeoutMs);
+    _talonL.config_kI(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kI, Constants.kTimeoutMs);
+    _talonL.config_kD(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kD, Constants.kTimeoutMs);
+
+    _talonR.config_kF(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kF, Constants.kTimeoutMs);
+    _talonR.config_kP(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kP, Constants.kTimeoutMs);
+    _talonR.config_kI(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kI, Constants.kTimeoutMs);
+    _talonR.config_kD(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kD, Constants.kTimeoutMs);
+    
+    _talonL.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 200);
+    _talonL.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 200);
+    
+    _talonR.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 200);
+    _talonR.setStatusFramePeriod(StatusFrameEnhanced.Status_10_Targets, 200);
+    
+    /*
+      * Talon FX does not need sensor phase set for its integrated sensor
+      * This is because it will always be correct if the selected feedback device is integrated sensor (default value)
+      * and the user calls getSelectedSensor* to get the sensor's position/velocity.
+      * 
+      * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#sensor-phase
+      */
+    // _talon.setSensorPhase(true);
+  }
 
   public void sensorInit() {
     // Init ColorSensor subsystem
@@ -125,46 +197,102 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
-    // Fill the buffer with a rainbow
-    // updateRainbow();
-    // pushLoadedImage();
-    // setColor(0, 0, 255);
-
-    m_tickCount++;
-
-    if ((m_tickCount % 200) == 0) {
-      m_imageNum++;
-      if (m_imageNum > 4) {
-        m_imageNum = 0;
-      }
-
-      System.out.println("Switching to image: " + m_imageNum);
-
-      switch (m_imageNum) {
-        case 4:
-          m_image = m_image_blackAndWhite;
-          break;
-        case 3:
-          m_image = m_image_black;
-          break;
-        case 2:
-         m_image = m_image_gray;
-         break;
-        case 1:
-          m_image = m_image_redGreen;
-          break;
-        case 0:
-          m_image = m_image_original;
-          break;
-      }
-      pushLoadedImage();
-    }
+    // Update the LED panel buffer
+    updateLEDs();
 
     // This will clobber part of the image
     updateSensorDisplay();
+
+    // Update the motors
+    updateMotors();
     
     // Set the LEDs (commit)
     m_ledPanel.commit();
+  }
+
+  public void updateLEDs() {
+    m_tickCount++;
+    if (m_showsRainbow.getSelected()) {
+      updateRainbow();
+    } else {
+      if ((m_tickCount % 200) == 0) {
+        m_imageNum++;
+        if (m_imageNum > 4) {
+          m_imageNum = 0;
+        }
+
+        System.out.println("Switching to image: " + m_imageNum);
+
+        switch (m_imageNum) {
+          case 4:
+            m_image = m_image_blackAndWhite;
+            break;
+          case 3:
+            m_image = m_image_black;
+            break;
+          case 2:
+          m_image = m_image_gray;
+          break;
+          case 1:
+            m_image = m_image_redGreen;
+            break;
+          case 0:
+            m_image = m_image_original;
+            break;
+        }
+        pushLoadedImage();
+      }
+    }
+
+  }
+
+  private void updateRainbow() {
+    // For every pixel up to the start of the horizotal meter
+    int ledStringLength = m_ledHeight * m_meterColumnStart;
+    for (var i = 0; i < ledStringLength; i++) {
+      // Calculate the hue - hue is easier for rainbows because the color
+      // shape is a circle so only one value needs to precess
+      final var hue = (m_rainbowFirstPixelHue + (int)(i * 180.0 / ledStringLength)) % 180;
+      // Set the value
+      m_ledPanel.setPixelHSVByID(i, hue, 255, 255);
+    }
+    // Increase by to make the rainbow "move"
+    m_rainbowFirstPixelHue += 3;
+    // Check bounds
+    m_rainbowFirstPixelHue %= 180;
+  }
+
+
+  public void updateMotors() {
+    /* Get gamepad axis */
+    double leftYstick = -1 * _joy.getY();
+
+    /* Get Talon/Victor's current output percentage */
+    double motorOutputL = _talonL.getMotorOutputPercent();
+    double motorOutputR = _talonR.getMotorOutputPercent();
+
+    /** 
+     * When button 1 is held, start and run Velocity Closed loop.
+     * Velocity Closed Loop is controlled by joystick position x500 RPM, [-500, 500] RPM
+     */
+    if (_joy.getRawButton(1)) {
+      /* Velocity Closed Loop */
+
+      /**
+       * Convert 2000 RPM to units / 100ms.
+       * 2048 Units/Rev * 2000 RPM / 600 100ms/min in either direction:
+       * velocity setpoint is in units/100ms
+       */
+      double targetVelocity_UnitsPer100ms = leftYstick * 2000.0 * 2048.0 / 600.0;
+
+      /* 2000 RPM in either direction */
+      _talonL.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
+      _talonR.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms * -1);
+    } else {
+      /* Percent Output */
+      _talonL.set(TalonFXControlMode.PercentOutput, leftYstick);
+      _talonR.set(TalonFXControlMode.PercentOutput, leftYstick * -1);
+    }
   }
 
   public void updateSensorDisplay() {
@@ -177,38 +305,18 @@ public class Robot extends TimedRobot {
     Color matchColorT = closestMatch != null ? closestMatch.color : null;
 
     setSensorDisplay(0, confidenceT, observedColorT, matchColorT, proximityT);
+
+    // Images write to the whole display (potentially), so we need to tell the
+    // meter to clear any unused area
+    m_hMeter.clearUnusedArea();
   }
 
-  /**
-   * This autonomous (along with the chooser code above) shows how to select between different
-   * autonomous modes using the dashboard. The sendable chooser code works with the Java
-   * SmartDashboard. If you prefer the LabVIEW Dashboard, remove all of the chooser code and
-   * uncomment the getString line to get the auto name from the text box below the Gyro
-   *
-   * <p>You can add additional auto modes by adding additional comparisons to the switch structure
-   * below with additional strings. If using the SendableChooser make sure to add them to the
-   * chooser code above as well.
-   */
   @Override
-  public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-  }
+  public void autonomousInit() {}
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
-  }
+  public void autonomousPeriodic() {}
 
   /** This function is called once when teleop is enabled. */
   @Override

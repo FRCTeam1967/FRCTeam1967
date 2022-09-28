@@ -49,6 +49,10 @@ public class LEDPanel {
         m_ledBuffer.setRGB(pixelID, (int)scaledRed, (int)scaledGreen, (int)scaledBlue);
     }
 
+    public void setPixelHSVByID(int pixelID, int hue, int saturation, int value) {
+        m_ledBuffer.setHSV(pixelID, hue, saturation, (int)((double)value * m_brightness));
+    }
+
     public void setPixelByXY(int x, int y, Color color) {
         setPixelByXY(x, y, (int)(color.red * 255), (int)(color.green * 255), (int)(color.blue * 255));
     }
