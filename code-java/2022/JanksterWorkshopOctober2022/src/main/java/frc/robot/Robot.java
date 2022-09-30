@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.wpilibj.Joystick;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
@@ -78,8 +79,19 @@ public class Robot extends TimedRobot {
   private int m_tickCount = 0;
   static int m_imageNum = 0;
 
+  //Position stuff
+  private int button_state = 0;
+  private double kp_pos = .001;
+  private double ki_pos = 0;
+  private double kd_pos = 0;
+  private int max_tik_tocK_count = 100; // 500/.02 seconds = 10 second cycle
+  private int tik = 0;
+  private double abs_pos_1 = 768;
+  private double abs_pos_2 = 1280;
+  private double target_pos = 0;
+
       
-  /**
+  /** 
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
@@ -141,8 +153,15 @@ public class Robot extends TimedRobot {
     /* Config the peak and nominal outputs */
     _talonL.configNominalOutputForward(0, Constants.kTimeoutMs);
     _talonL.configNominalOutputReverse(0, Constants.kTimeoutMs);
-    _talonL.configPeakOutputForward(1, Constants.kTimeoutMs);
-    _talonL.configPeakOutputReverse(-1, Constants.kTimeoutMs);
+    _talonL.configPeakOutputForward(.1, Constants.kTimeoutMs); //100%
+    _talonL.configPeakOutputReverse(-1, Constants.kTimeoutMs);//100%
+
+    //Motion magic
+    _talonL.configMotionCruiseVelocity(1500, Constants.kTimeoutMs);
+    _talonL.configMotionAcceleration(10000, Constants.kTimeoutMs);
+    //zero sensor
+    _talonL.setSelectedSensorPosition(0, Constants.kPIDLoopIdx, Constants.kTimeoutMs);
+
 
     _talonR.configNominalOutputForward(0, Constants.kTimeoutMs);
     _talonR.configNominalOutputReverse(0, Constants.kTimeoutMs);
@@ -150,12 +169,14 @@ public class Robot extends TimedRobot {
     _talonR.configPeakOutputReverse(-1, Constants.kTimeoutMs);
 
     /* Config the Velocity closed loop gains in slot0 */
-    _talonL.config_kF(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kF, Constants.kTimeoutMs);
+    _talonL.config_kF(Constants.kPIDLoopIdx, 0, Constants.kTimeoutMs);
     _talonL.config_kP(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kP, Constants.kTimeoutMs);
     _talonL.config_kI(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kI, Constants.kTimeoutMs);
     _talonL.config_kD(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kD, Constants.kTimeoutMs);
 
-    _talonR.config_kF(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kF, Constants.kTimeoutMs);
+    _talonL.setNeutralMode(NeutralMode.Brake);
+
+    _talonR.config_kF(Constants.kPIDLoopIdx, 0, Constants.kTimeoutMs);
     _talonR.config_kP(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kP, Constants.kTimeoutMs);
     _talonR.config_kI(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kI, Constants.kTimeoutMs);
     _talonR.config_kD(Constants.kPIDLoopIdx, Constants.kGains_Velocit.kD, Constants.kTimeoutMs);
@@ -174,6 +195,9 @@ public class Robot extends TimedRobot {
       * https://phoenix-documentation.readthedocs.io/en/latest/ch14_MCSensor.html#sensor-phase
       */
     // _talon.setSensorPhase(true);
+    SmartDashboard.putNumber("kP",kp_pos);
+    SmartDashboard.putNumber("kI",ki_pos);
+    SmartDashboard.putNumber("kD",kd_pos);
   }
 
   public void sensorInit() {
@@ -286,13 +310,54 @@ public class Robot extends TimedRobot {
       double targetVelocity_UnitsPer100ms = leftYstick * 2000.0 * 2048.0 / 600.0;
 
       /* 2000 RPM in either direction */
-      _talonL.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
-      _talonR.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms * -1);
+      _talonL.set(TalonFXControlMode.MotionMagic, target_pos);
+      //_talonR.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms * -1);
     } else {
       /* Percent Output */
-      _talonL.set(TalonFXControlMode.PercentOutput, leftYstick);
-      _talonR.set(TalonFXControlMode.PercentOutput, leftYstick * -1);
+      
+
+      if(_joy.getRawButton(11)){
+        _talonL.set(TalonFXControlMode.MotionMagic, abs_pos_1);
+      }
+      else if(_joy.getRawButton(9)){
+        _talonL.set(TalonFXControlMode.MotionMagic, abs_pos_2);
+      }
+      //_talonR.set(TalonFXControlMode.PercentOutput, leftYstick * -1);
     }
+
+    /* put data on smart dashboard*/
+    SmartDashboard.putNumber("L_Pos",_talonL.getSelectedSensorPosition(0));
+    SmartDashboard.putNumber("R_Pos",_talonR.getSelectedSensorPosition(0));
+    double dat = SmartDashboard.getNumber("L_Pos", 0);
+    SmartDashboard.putNumber("Data", dat);
+
+    /* increment count */
+    if (tik >= max_tik_tocK_count){
+      tik = 0;
+      double _kf = SmartDashboard.getNumber("kF", 0 );
+      double _kp = SmartDashboard.getNumber("kP", kp_pos );
+      double _ki = SmartDashboard.getNumber("kI", ki_pos );
+      double _kd = SmartDashboard.getNumber("kD", kd_pos );
+      _talonL.config_kP(Constants.kPIDLoopIdx, _kp, Constants.kTimeoutMs);
+      _talonL.config_kI(Constants.kPIDLoopIdx, _ki, Constants.kTimeoutMs);
+      _talonL.config_kD(Constants.kPIDLoopIdx, _kd, Constants.kTimeoutMs);
+    }
+    else{
+      tik++;
+    }
+
+    /*update position*/
+    if( tik < (max_tik_tocK_count/2)){
+      target_pos = abs_pos_1;
+    }
+    else{
+      target_pos = abs_pos_2;
+    }
+
+    SmartDashboard.putNumber("Target Position", target_pos);
+    SmartDashboard.putNumber("L_pos_num", _talonL.getSelectedSensorPosition(0));
+    SmartDashboard.putNumber("error",_talonL.getClosedLoopError(Constants.kPIDLoopIdx));
+
   }
 
   public void updateSensorDisplay() {
