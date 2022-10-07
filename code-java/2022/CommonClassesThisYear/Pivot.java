@@ -6,8 +6,8 @@ import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 
-import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Timer;
+// import edu.wpi.first.wpilibj.DigitalInput;
 
 import org.janksters.jankyLib.JankyStateMachine;
 import org.janksters.jankyLib.jankyXboxJoystick;
@@ -42,8 +42,8 @@ public class Pivot extends JankyStateMachine {
     public Pivot() {
         pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
         XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
-        DigitalInput topLimitSwitch = new DigitalInput(Constants.PIVOT_TOP_LIMIT_SWITCH_ID);
-        DigitalInput bottomLimitSwitch = new DigitalInput(Constants.PIVOT_BOTTOM_LIMIT_SWITCH_ID);
+        // DigitalInput topLimitSwitch = new DigitalInput(Constants.PIVOT_TOP_LIMIT_SWITCH_ID);
+        // DigitalInput bottomLimitSwitch = new DigitalInput(Constants.PIVOT_BOTTOM_LIMIT_SWITCH_ID);
 
         setUpPivot();
 

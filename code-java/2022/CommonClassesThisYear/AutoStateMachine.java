@@ -26,7 +26,6 @@ import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.ADIS16470_IMU.IMUAxis;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 
-
 import com.ctre.phoenix.sensors.CANCoder;
 import com.fasterxml.jackson.databind.annotation.JsonAppend.Attr;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -101,13 +100,11 @@ public class AutoStateMachine extends JankyStateMachine {
         delayTimer.reset();
     }
 
-
     public void setInitialDelayTime(SendableChooser<Command> autoDelayChooser){}
 
     public int getDelay() {
         return delay;
     }
-
 
     public double getDelayTimer() {
         return delayTimer.get();
@@ -121,8 +118,6 @@ public class AutoStateMachine extends JankyStateMachine {
         delayTimer.stop();
         delayTimer.reset();
     }
-
-
 
     public AutoStateMachine(int _delay, int autoPathSelected, ADIS16470_IMU m_gyro, Shooter _shooter, PivotMagic _pivot) {
         delay = _delay;
@@ -190,9 +185,7 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName (simpleFinishAuto, "simpleFinishAuto");
             stateMachineSelected = AutoConstants.SIMPLE_TARMAC_AUTOPATH;
             start();
-
         }
-
     }
 
     public void StateEngine(int curState, boolean onStateEntered) {

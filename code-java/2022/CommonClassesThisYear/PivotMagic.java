@@ -9,12 +9,10 @@ import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
 
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.DigitalInput;
-
+// import edu.wpi.first.wpilibj.DigitalInput;
 
 import org.janksters.jankyLib.JankyStateMachine;
 import org.janksters.jankyLib.jankyXboxJoystick;
-
 
 public class PivotMagic extends JankyStateMachine {
     private WPI_TalonFX pivotMotor;
@@ -41,7 +39,6 @@ public class PivotMagic extends JankyStateMachine {
         pivotMotor = new WPI_TalonFX(Constants.PIVOT_MOTOR_ID);
         XboxController = new jankyXboxJoystick(Constants.PIVOT_CONTROLLER_PORT_ID);
         //bottomLimitSwitch = new DigitalInput(Constants.PIVOT_MOTOR_ID);
-
         timer = new Timer();
         
         setUpPivot();
@@ -230,18 +227,18 @@ public class PivotMagic extends JankyStateMachine {
         pivotMotor.set(TalonFXControlMode.MotionMagic, (lifterTargetValue/ 360) * Constants.PIVOT_GEAR_RATIO * Constants.FALCON_PULSES_PER_REVOLUTION);
     }
 
-    // Climb mech calls this to trigger pivot into climb config state
-    public void flagClimbConfig() {
-        goClimbConfig = true;
-    }
+    //climb mech calls this to trigger pivot into climb config state
+    // public void flagClimbConfig() {
+    //     goClimbConfig = true;
+    // }
+
+    // Used by climb mech to check if pivot has entered CLIMB_CONFIG_ACHIEVED state
+    // public boolean checkClimbConfigAchieved() {
+    //     return GetCurrentState() == CLIMB_CONFIG_ACHIEVED;
+    // }
 
     public void setClimbConfig() {
         pivotMotor.set(TalonFXControlMode.MotionMagic, Constants.PIVOT_CLIMB_ANGLE_PULSES);
-    }
-
-    // Used by climb mech to check if pivot has entered CLIMB_CONFIG_ACHIEVED state
-    public boolean checkClimbConfigAchieved() {
-        return GetCurrentState() == CLIMB_CONFIG_ACHIEVED;
     }
 
     public boolean checkPosition(double desiredPos) {

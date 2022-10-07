@@ -61,7 +61,6 @@ public class VisionSubsystem extends JankyTask{
         //checks whether the limelight has a valid target
 
         tv = table.getEntry("tv").getDouble(0);
-
         if (tv < 1.0) {
         limelightHasValidTarget = false;
         } else {
@@ -106,6 +105,4 @@ public class VisionSubsystem extends JankyTask{
     public double getDistanceError(){
         return distanceError;
     }
- 
-    
 }

@@ -21,8 +21,8 @@ public class Constants {
         public static final double PIVOT_kF = 0.0;
 
         // pivot constants
-        public static final double PIVOT_INTAKE_ANGLE = 88; //68, was 86
-        public static final double PIVOT_STARTING_ANGLE = -1.5; //0
+        public static final double PIVOT_INTAKE_ANGLE = 85; //was 86, was 84, was 88, was 86, was 84
+        public static final double PIVOT_STARTING_ANGLE = -4; //was -1.5, -2
         public static final double PIVOT_SHOOTER_ANGLE = 0; //-15
         public static final double PIVOT_SHOOTER_MIDANGLE = 10;
         public static final double PIVOT_SHOOTER_LOWANGLE = 20;
@@ -42,11 +42,11 @@ public class Constants {
 
     // all climb constants
     // MBR
-        public static final double CLIMB_MBR_WINCH_ARM_FACTOR = -1; //used to be 0.8
+        public static final double CLIMB_MBR_WINCH_ARM_FACTOR = -1; //used to be -1, -0.5 to test
         public static final double CLIMB_MBR_WINCH_ROBOT_FACTOR = 0.45;
         public static final double CLIMB_WINCH_MOTOR_STOP = 0.0;
         public static final double CLIMB_DEADBAND = 0.07;
-        public static final int CLIMB_K_TIMEOUT_MS =75;
+        public static final int CLIMB_K_TIMEOUT_MS = 75;
         public static final int CLIMB_K_PID_LOOP_IDX = 0;
 
     //SVR for future
@@ -102,6 +102,8 @@ public class Constants {
         */
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_L = 6;
         public static final int CLIMB_WINCH_MOTOR_CHANNEL_R = 5;
+        //climb vision constant
+        public static final double CLIMB_VISION_DISTANCE_INCHES = 8; //random number, change after measuring
 
     // all chassis constants
 

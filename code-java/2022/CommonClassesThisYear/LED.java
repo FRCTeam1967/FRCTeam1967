@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 
-import javax.imageio.ImageIO;
+//import javax.imageio.ImageIO;
 import java.awt.image.*;
 
 public class LED {

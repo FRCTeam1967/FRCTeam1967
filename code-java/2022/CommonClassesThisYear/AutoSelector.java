@@ -1,16 +1,13 @@
 //prewritten auto selector class written for the delay and path selectors --> used in Auto.java and AutoStateMachine.java
 package org.janksters.CommonClassesThisYear;
 
-
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class AutoSelector {
-
     //selectors 
     SendableChooser<Integer> delaySelector = new SendableChooser<>();
     SendableChooser<Integer> pathSelector = new SendableChooser<>(); //= new SendableChooser<>();
-
 
     // paths for the delay
     private int ZeroDelay = AutoConstants.ZeroDelay;
@@ -24,17 +21,16 @@ public class AutoSelector {
     private int twoBall = AutoConstants.twoBall;
     private int threeBall = AutoConstants.threeBall;
 
-
-//     //idk what is happening here but we are keeping it just in case
+    //idk what is happening here but we are keeping it just in case
     private int delaySelected;
- //private int pathUsed;
+    //private int pathUsed;
 
     public AutoSelector() {
         delaySelected = 0; //set default mode to do nothing
     }
 
 
-//     //display the delays
+    //display the delays
     public void DisplayDelayOptions() {
         delaySelector.setDefaultOption("0", ZeroDelay);
         delaySelector.addOption("1", OneDelay);
@@ -55,7 +51,7 @@ public class AutoSelector {
         SmartDashboard.putData("Auto Paths for Real", pathSelector);
     }
     
-//     //which one is selected -- prints out the delay
+    //which one is selected -- prints out the delay
     public int getDelaySelected() {
         int delaySelected = delaySelector.getSelected();
         SmartDashboard.putNumber("selected delay: ", delaySelected);

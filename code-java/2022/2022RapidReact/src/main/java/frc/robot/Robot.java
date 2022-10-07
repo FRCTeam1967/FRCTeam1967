@@ -22,35 +22,32 @@ import org.janksters.CommonClassesThisYear.Constants;
 import org.janksters.CommonClassesThisYear.LED;
 import org.janksters.CommonClassesThisYear.PivotMagic;
 import org.janksters.CommonClassesThisYear.Shooter;
-import org.janksters.CommonClassesThisYear.VisionSubsystem;
 import org.janksters.jankyLib.jankyXboxJoystick;
+//import org.janksters.CommonClassesThisYear.VisionSubsystem;
 
 import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.UsbCamera;
-//import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.I2C;
 import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-// import edu.wpi.first.wpilibj.motorcontrol.MotorController;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-// import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+//import edu.wpi.first.cameraserver.CameraServer;
+// import edu.wpi.first.wpilibj.PowerDistribution;
+// import edu.wpi.first.wpilibj.motorcontrol.MotorController;
+// import edu.wpi.first.wpilibj.motorcontrol.PWMVictorSPX;
 
 public class Robot extends TimedRobot {
   private UsbCamera camera;
 
-  private int autoDelaySelected;
-  private int autoPathSelected;
+  private int autoDelaySelected, autoPathSelected;
   private final SendableChooser<Integer> autoDelayChooser = new SendableChooser<>();
   private final SendableChooser<Integer> autoPathChooser = new SendableChooser<>();
-
-  //private PowerDistribution pdp;
 
   public int ledCounter = 0;
 
@@ -66,7 +63,7 @@ public class Robot extends TimedRobot {
     private WPI_TalonFX rightLeader = new WPI_TalonFX(1);
     private PWMVictorSPX rightFollower = new PWMVictorSPX(0);*/
 
-  //2022 Real Bot (wifi is bob)
+  //2022 Josh (wifi is Josh)
     private WPI_TalonFX leftLeader = new WPI_TalonFX(Constants.CHASSIS_L_LEADER_CHANNEL);//m2
     private WPI_TalonFX leftFollower = new WPI_TalonFX(Constants.CHASSIS_L_FOLLOWER_CHANNEL);//m3
     private WPI_TalonFX rightLeader = new WPI_TalonFX(Constants.CHASSIS_R_LEADER_CHANNEL);//m1
@@ -78,13 +75,11 @@ public class Robot extends TimedRobot {
     // private WPI_TalonFX rightLeader = new WPI_TalonFX(1);//m1
     // private WPI_TalonSRX rightFollower = new WPI_TalonSRX(0);//m0
 
-  private MotorControllerGroup left;
-  private MotorControllerGroup right;
+  private MotorControllerGroup left, right;
   private DifferentialDrive myRobot;
 
   // Color sensor configuration
-  private ColorSensor m_colorSensorRight;
-  private ColorSensor m_colorSensorLeft;
+  private ColorSensor m_colorSensorRight, m_colorSensorLeft;
   private static final double m_ConfidenceThreshold = 0.85;
   private Timer ColorSensorTimer = new Timer();
 
@@ -100,7 +95,6 @@ public class Robot extends TimedRobot {
   LED led = new LED(1, 500, 9); 
 
   Shooter shooter = new Shooter(led);
-  //Pivot pivot = new Pivot();
   PivotMagic pivotmagic = null;
 
   //AUTO
@@ -134,7 +128,7 @@ public class Robot extends TimedRobot {
     falcon.config_kD(Constants.CHASSIS_K_PID_LOOP_IDX, Constants.CHASSIS_kD, Constants.CHASSIS_K_TIMEOUT_MS);
     falcon.configStatorCurrentLimit(chassisCurrentLimit);
     falcon.setNeutralMode(NeutralMode.Brake);
-
+    
     if(Constants.SUPER_CHASSIS){
       falcon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, Constants.CAN_STATUS_FRAME_PERIOD, Constants.CHASSIS_K_TIMEOUT_MS);
     } else{
@@ -150,9 +144,7 @@ public class Robot extends TimedRobot {
       int proximityRight = m_colorSensorRight.getProximity();
       int proximityLeft = m_colorSensorLeft.getProximity();
 
-      // Use .match() to get a match or null if nothing 
-      // matches. Use .closestMatch() to force a match
-      ColorMatchResult closestMatchRight = m_colorSensorRight.match();
+      ColorMatchResult closestMatchRight = m_colorSensorRight.match(); //null if no match
       Color displayColorRight = new Color(0, 0, 0);
       double confidenceRight = 0.0;
 
@@ -210,25 +202,20 @@ public class Robot extends TimedRobot {
   @Override
   public void robotInit() {
     //JOYSTICKS
-    leftJoystick = new Joystick(0);  //whatever is in port 0
-    rightJoystick = new Joystick(1); //whatever is in port 0
+    leftJoystick = new Joystick(0);
+    rightJoystick = new Joystick(1);
     XboxController = new jankyXboxJoystick(2); 
-
-    //CHASSIS
-    //pdp = new PowerDistribution();
 
     setUpChassisMotors(leftLeader);
     setUpChassisMotors(leftFollower);
     setUpChassisMotors(rightLeader);
     setUpChassisMotors(rightFollower);
 
-    //if(!Constants.SUPER_CHASSIS){
-      left = new MotorControllerGroup(leftLeader, leftFollower);
-      right = new MotorControllerGroup(rightLeader, rightFollower);
-      myRobot = new DifferentialDrive(left,right);
+    left = new MotorControllerGroup(leftLeader, leftFollower);
+    right = new MotorControllerGroup(rightLeader, rightFollower);
+    myRobot = new DifferentialDrive(left,right);
 
-      myRobot.setMaxOutput(0.7); //default is 1, also does current limit
-    //}
+    myRobot.setMaxOutput(0.7); //default is 1, also does current limit
 
     //COLOR SENSOR
     // Init ColorSensor subsystem
@@ -248,10 +235,8 @@ public class Robot extends TimedRobot {
     }
 
     camera = CameraServer.startAutomaticCapture(Constants.CAMERA_DEV_NUMBER);
-    //camera.setResolution(160, 120);
     camera.setResolution(80, 60);
-    //camera.setFPS(5);
-    camera.setFPS(5); //was previously 3 
+    camera.setFPS(3); //was previously 5 
 
     //AUTO 
     autoDelayChooser.setDefaultOption("0", AutoConstants.ZeroDelay);
@@ -289,8 +274,6 @@ public class Robot extends TimedRobot {
     if(Constants.SUPER_COLOR_SENSOR){
       updateColorSensor();
     }
-    // ledCounter = led.setRainbow(ledCounter);
-    // led.commit();
   }
 
   /**
@@ -310,7 +293,6 @@ public class Robot extends TimedRobot {
     }
 
     autoDelaySelected = autoDelayChooser.getSelected();
-    //autoDelaySelected = AutoConstants.ZeroDelay;
     SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
 
     autoPathSelected = autoPathChooser.getSelected();
@@ -343,7 +325,7 @@ public class Robot extends TimedRobot {
     }
 
     if(!Constants.SUPER_SHOOTER){
-      shooter.removePID();
+      //shooter.removePID(); //why are we missing this function in Shooter.java?
     }
 
     leftLeader.setNeutralMode(NeutralMode.Coast);
@@ -366,7 +348,8 @@ public class Robot extends TimedRobot {
         shooter.simpleShoot(Constants.SIMPLE_SHOOT_SPEED);
       } else if (YAxisValue <= -Constants.SIMPLE_SHOOT_INTAKE_DEADBAND) {
         shooter.simpleIntake(Constants.SIMPLE_INTAKE_SPEED);
-      } //TODO: add in set to 0 with stopShooter() after proving stopVelocityPID works
+      }
+      //TODO: add in set to 0 with stopShooter() after proving stopVelocityPID works
     }
     shooter.displayCurrentState();
 
@@ -416,19 +399,20 @@ public class Robot extends TimedRobot {
         myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
       }
     }
-   
-    // SmartDashboard.putNumber("total current", pdp.getTotalCurrent());
-    // SmartDashboard.putNumber("left leader current", pdp.getCurrent(Constants.CHASSIS_L_LEADER_CIRCUIT));
-    // SmartDashboard.putNumber("left follower current", pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CIRCUIT));
-    // SmartDashboard.putNumber("right leader current", pdp.getCurrent(Constants.CHASSIS_R_LEADER_CIRCUIT));
-    // SmartDashboard.putNumber("right follower current", pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CIRCUIT));
+   /*
+    SmartDashboard.putNumber("total current", pdp.getTotalCurrent());
+    SmartDashboard.putNumber("left leader current", pdp.getCurrent(Constants.CHASSIS_L_LEADER_CIRCUIT));
+    SmartDashboard.putNumber("left follower current", pdp.getCurrent(Constants.CHASSIS_L_FOLLOWER_CIRCUIT));
+    SmartDashboard.putNumber("right leader current", pdp.getCurrent(Constants.CHASSIS_R_LEADER_CIRCUIT));
+    SmartDashboard.putNumber("right follower current", pdp.getCurrent(Constants.CHASSIS_R_FOLLOWER_CIRCUIT));
     
-    // SmartDashboard.putNumber("left joystick", leftJoystick.getY());
-    // SmartDashboard.putNumber("right joystick", rightJoystick.getY());
-    // SmartDashboard.putNumber("Left leader motor output", leftLeader.getMotorOutputPercent());
-    // SmartDashboard.putNumber("Left follower motor output", leftFollower.getMotorOutputPercent());
-    // SmartDashboard.putNumber("right leader motor output", rightLeader.getMotorOutputPercent());
-    // SmartDashboard.putNumber("right follower motor output", rightFollower.getMotorOutputPercent());   
+    SmartDashboard.putNumber("left joystick", leftJoystick.getY());
+    SmartDashboard.putNumber("right joystick", rightJoystick.getY());
+    SmartDashboard.putNumber("Left leader motor output", leftLeader.getMotorOutputPercent());
+    SmartDashboard.putNumber("Left follower motor output", leftFollower.getMotorOutputPercent());
+    SmartDashboard.putNumber("right leader motor output", rightLeader.getMotorOutputPercent());
+    SmartDashboard.putNumber("right follower motor output", rightFollower.getMotorOutputPercent());   
+    */
   }
   
   /** This function is called once when the robot is disabled. */

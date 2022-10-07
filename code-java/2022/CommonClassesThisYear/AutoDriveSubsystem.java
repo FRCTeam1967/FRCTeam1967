@@ -48,7 +48,6 @@ public class AutoDriveSubsystem extends SubsystemBase {
   //frc::ADXRS450_Gyro m_gyro{frc::SPI::Port::kOnboardCS0};
   private ADIS16470_IMU m_gyro; //{frc::ADIS16470_IMU::IMUAxis::kY, frc::SPI::Port::kOnboardCS0, frc::ADIS16470CalibrationTime::_1s};
   
-
   // Odometry class for tracking robot pose
   private DifferentialDriveOdometry m_odometry = new DifferentialDriveOdometry(new Rotation2d(Units.degreesToRadians(getHeading())));
 
@@ -71,40 +70,37 @@ public class AutoDriveSubsystem extends SubsystemBase {
   m_left1.setSelectedSensorPosition(0, 0, 10);
   m_left1.getSensorCollection().setQuadraturePosition(0,10);
 
-// configure right encoder
-  m_right2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
-  m_right2.setSelectedSensorPosition(0, 0, 10);
-  m_right2.getSensorCollection().setQuadraturePosition(0,10);
+  // configure right encoder
+    m_right2.configSelectedFeedbackSensor(FeedbackDevice.CTRE_MagEncoder_Absolute, 0, 0);
+    m_right2.setSelectedSensorPosition(0, 0, 10);
+    m_right2.getSensorCollection().setQuadraturePosition(0,10);
 
-// set differential drive safety to false
-m_drive.setSafetyEnabled(false); 
+  // set differential drive safety to false
+  m_drive.setSafetyEnabled(false); 
 
-prevTime = 0;
+  prevTime = 0;
 
-// reset time
-time = new Timer();
-time.reset();
-time.start();
+  // reset time
+  time = new Timer();
+  time.reset();
+  time.start();
 
-// reset encoders
-resetEncoders();
+  // reset encoders
+  resetEncoders();
 
-//gyro
+  //gyro
 
-m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
+  m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
 }
 
   @Override
   public void periodic() {
-    // Update the odometry in the periodic block
-    //m_odometry.update(
-    //    m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
+    //Update the odometry in the periodic block
+    //m_odometry.update(m_gyro.getRotation2d(), m_leftEncoder.getDistance(), m_rightEncoder.getDistance());
 
     double distanceLeft = getLeftEncoder() * (AutoConstants.WHEEL_CIRCUMFERENCE / AutoConstants.PULSES_PER_REVOLUTION);
     double distanceRight = getRightEncoder() * (AutoConstants.WHEEL_CIRCUMFERENCE / AutoConstants.PULSES_PER_REVOLUTION);
   
-    // cout << "Left distance: " << distanceLeft << endl;
-    // cout << "Right distance: " << distanceRight << endl;
     SmartDashboard.putNumber("Left distance: " , distanceLeft);
     SmartDashboard.putNumber("Right distance: " , distanceRight);
   
@@ -135,18 +131,11 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
       double distanceLeft = getLeftEncoder() * (AutoConstants.WHEEL_CIRCUMFERENCE / AutoConstants.PULSES_PER_REVOLUTION);
       double distanceRight = getRightEncoder() * (AutoConstants.WHEEL_CIRCUMFERENCE / AutoConstants.PULSES_PER_REVOLUTION);
   
-      //cout << "Left distance: " << distanceLeft << endl;
-      //cout << "Right distance: " << distanceRight << endl;
-  
-      // get time
+      //get time
       double t = time.get();
       double elapsedTime = t - prevTime;
-  
-      //
       double elapsedDistanceLeft = distanceLeft - prevDistanceLeft;
       double elapsedDistanceRight = distanceRight - prevDistanceRight;
-  
-      //cout << "time: " << t << endl; // print statement
       SmartDashboard.putNumber("time", t);
   
       // get rate (divide distance by time)
@@ -154,7 +143,6 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
       //double rightRate = distanceRight / elapsedTime;
       leftRate = elapsedDistanceLeft / elapsedTime;
       rightRate = elapsedDistanceRight / elapsedTime;
-  
     
       prevTime = t;
       prevDistanceLeft=distanceLeft;
@@ -163,7 +151,6 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
     return new DifferentialDriveWheelSpeeds(leftRate, rightRate);
     // return {units.meters_per_second_t(leftRate), // units of distance per second
     // units.meters_per_second_t(rightRate)}; // units of distance per second
-
   }
 
   /**
@@ -173,9 +160,7 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
    */
   public void resetOdometry(Pose2d pose) {
     resetEncoders();
-    
     m_odometry.resetPosition(pose, new Rotation2d (Units.degreesToRadians(getHeading())));
-
   }
 
   /**
@@ -225,7 +210,7 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
    *
    * @return the left drive encoder
    */
-  //retur type was origially Ecoder
+  //return type was origially Encoder
   //public Encoder getLeftEncoder() {
   //  return m_leftEncoder;
   //}
@@ -243,8 +228,6 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
     //cout << "Right Encoder: " << (-1.0 * m_right2.GetSensorCollection().GetQuadraturePosition()) << endl; // print statement
     return (m_right2.getSensorCollection().getQuadraturePosition()); 
   }
-
-  
 
   /**
    * Sets the max output of the drive. Useful for scaling the drive to drive more slowly.
@@ -270,7 +253,6 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
     return (-(m_gyro.getAngle()%360)) * (AutoConstants.kGyroReversed ? -1.0 : 1.0);
   }
   
-
   /**
    * Returns the turn rate of the robot.
    *
@@ -290,6 +272,4 @@ m_gyro.setYawAxis(ADIS16470_IMU.IMUAxis.kX);//kY on Luca
     time.reset();
     m_gyro.reset();
   }
-
-
 }
