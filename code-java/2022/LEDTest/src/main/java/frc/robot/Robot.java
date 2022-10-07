@@ -35,9 +35,9 @@ public class Robot extends TimedRobot {
   private AddressableLED m_led;
   private AddressableLEDBuffer m_ledBuffer;
   private BufferedImage m_image;
-  private static final int m_ledWidth = 60; // 48
+  private static final int m_ledWidth = 48;
   private static final int m_ledHeight = 16;
-  private static final double m_brightness = 0.25;
+  private static final double m_brightness = 0.10;
 
 
   // Images
@@ -73,7 +73,7 @@ public class Robot extends TimedRobot {
 
     // Set the data
     m_led.setData(m_ledBuffer);
-    setColor(0, 0, 0);
+    setColor(25, 25, 25);
     m_led.start();
 
     // Load our images
