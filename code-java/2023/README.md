@@ -28,15 +28,20 @@ For those who wish to play with the wide variety of WPI supplied sample or templ
 
 ##### Finally: Modify build.gradle
 Any WPI project that is created will have a build.gradle file in the project folder.  To add support for our common file areas, one must edit the file by clicking on it on the left hand side and after the line reading:
+
 `def ROBOT_MAIN_CLASS = "frc.robot.Main"``
+
 the user must add the following lines:
-`sourceSets {`
-`  main {`
-`    java {`
-`      srcDir "../../jankyLib"`
-`      srcDir "../CommonClassesThisYear"`
-`    }`
-`  }`
-`}`
+
+```
+sourceSets {
+  main {
+    java {
+      srcDir "../../jankyLib"
+      srcDir "../CommonClassesThisYear"
+    }
+  }
+}
+```
 
 Then save the build.gradle file (Ctrl-S / Command-S) or File->Save
