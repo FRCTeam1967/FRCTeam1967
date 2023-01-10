@@ -5,7 +5,13 @@ The Jankters' Github repository contains code which is shared year to year and w
 In order to properly build a project with such shared code "configured" in the project, you must do one of the following:
 
 ## Automated Script
-This is a place-holder for how we'll utilize a command line script to automate the process of customizing a new project. #comingsoon
+The project automation allows a Jankster to use the WPI "Create New Project" for templates or examples and then automates the customization of that new project.
+
+- Once your new project has been created, create a Terminal window and 'cd' into the /code-java/2023/ folder. Once you are there, you'll need to know the name of your project folder. You can do an 'ls' to see the folder names and should recognize your newly created project.
+
+./setupNewProject.sh <newProjectFolderName>
+
+This will make modifications as needed to the build.gradle and will create a project workspace file which has an extension of ".code-workspace"
 
 ## Copy /code-java/2023/2023StartingTemplate/ folder
 The project in `code-java/2023/2023StartingTemplate/` is fully configured and ready to go as a base class of `TimedRobot`. It is valid to use this as a generic starting point by duplicating (or copy/paste in Windows Explorer) the folder and renaming it to be your own.
