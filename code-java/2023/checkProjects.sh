@@ -2,13 +2,16 @@
 
 janksterPaths="CommonClassesThisYear jankyLib"
 
-echo "Checking all projects in ../ to make sure:"
-echo "* They contain a workspace file"
-echo "* The workspace file includes Jankster paths"
-echo "* build.gradle includes Jankster source paths"
-echo "* Each has a .gitignore file."
-echo "============================="
-for d in ../*; do
+printCheckCriteria() {
+  echo "* Contains a workspace file"
+  echo "* The workspace file includes Jankster paths"
+  echo "* build.gradle includes Jankster source paths"
+  echo "* Contains a .gitignore file."
+  echo "============================="
+}
+
+checkDirectory() {
+  d="$1"
   if [[ -d "$d" ]]; then
     # Will not run if no directories are available
     if [[ -f "$d/gradlew" ]]; then
@@ -57,5 +60,19 @@ for d in ../*; do
 
     fi
   fi
-done
+}
+
+
+# See if we look like we're in a project directory or the parent
+if [[ -f build.gradle ]]; then
+  echo "Checking the current directory to make sure the project:"
+  printCheckCriteria
+  checkDirectory .
+else 
+  echo "Checking all projects in current directory to make sure each project:"
+  printCheckCriteria
+  for d in *; do
+    checkDirectory "$d"
+  done
+fi
 
