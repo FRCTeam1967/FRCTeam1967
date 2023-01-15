@@ -22,12 +22,12 @@ checkWorkspaceInDirectory() {
     # Make sure that the workspace at least references both CommonClassesThisYear and jankyLib
     for path in $janksterPaths; do
       if ! grep -q $path "$workspace"; then
-        echo "  ERROR: Workspace does not reference $path"
+        echo "    ERROR: Workspace does not reference $path"
         wsChecksPassed=1
       fi
     done
   else
-    echo "  ERROR: Project is missing a workspace"
+    echo "    ERROR: Project is missing a workspace"
     wsChecksPassed=1
   fi
 
@@ -43,12 +43,12 @@ checkBuildDotGradleInDirectory() {
   if [[ -f "$d/build.gradle" ]]; then
     for path in $janksterPaths; do
       if grep -q $path "$d/build.gradle"; then
-        echo "  ERROR: build.gradle has a reference to $path that should be removed"
+        echo "    ERROR: build.gradle has a reference to $path that should be removed"
         gradleChecksPassed=1
       fi
     done
   else
-    echo "  ERROR: Project is missing a build.gradle file"
+    echo "    ERROR: Project is missing a build.gradle file"
     gradleChecksPassed=1
   fi
 
@@ -59,7 +59,7 @@ checkForGitIgnoreInDirectory() {
   d="$1"
   # Check that we have a .gitignore in the proper place
   if [[ ! -e "$d/src/main/java/.gitignore" ]]; then
-      echo "  ERROR: Failed check for $d/src/main/java/.gitignore"
+      echo "    ERROR: Failed check for $d/src/main/java/.gitignore"
       return 1
   fi
 
@@ -69,7 +69,7 @@ checkForGitIgnoreInDirectory() {
 checkGradlewInDirectory() {
   d="$1"
   if ! grep -q $janksterMacScript "$d/gradlew"; then
-    echo "  ERROR: gradlew file is missing Jankster additions"
+    echo "    ERROR: gradlew file is missing Jankster additions"
     return 1
   fi 
 
@@ -79,7 +79,7 @@ checkGradlewInDirectory() {
 checkGradlewBatInDirectory() {
   d="$1"
   if ! grep -q $janksterWinScript "$d/gradlew.bat"; then
-    echo "  ERROR: gradlew.bat file is missing Jankster additions"
+    echo "    ERROR: gradlew.bat file is missing Jankster additions"
     return 1
   fi 
 
