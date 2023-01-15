@@ -2,7 +2,7 @@
 
 janksterPaths="CommonClassesThisYear jankyLib"
 janksterMacScript="JanksterNewProjectSetup/MacModsScript"
-janksterWinScript="JanksterNewProjectSetup/WindowsModScript.bat"
+janksterWinScript="JanksterNewProjectSetup/WindowsModsScript.bat"
 
 printCheckCriteria() {
   echo "Checking project(s) to ensure they:"
@@ -86,6 +86,14 @@ checkGradlewBatInDirectory() {
   return 0
 }
 
+reportResult() {
+  if [[ $2 -eq 0 ]]; then
+    echo "$1 passed."
+  else
+    echo "$1 FAILED."
+  fi
+}
+
 checkProjectDirectory() {
   d="$1"
   if [[ -d "$d" ]]; then
@@ -94,11 +102,16 @@ checkProjectDirectory() {
       echo "Checking project in $d/"
       # Now we know this folder must be a project. So let's check our checklist items.
       # Check that the project has a workspace (we assume at most one workspace is found)
-      checkWorkspaceInDirectory "$d" && echo "  Workspace checks passed."
-      checkBuildDotGradleInDirectory "$d" && echo "  Build.grade checks passed."
-      checkForGitIgnoreInDirectory "$d" && echo "  .gitignore checks passed."
-      checkGradlewInDirectory "$d" && echo "gradlew checks passed."
-      checkGradlewBatInDirectory "$d" && echo "gradlew.bat checks passed."
+      checkWorkspaceInDirectory "$d"
+      reportResult "  Workspace checks....." $?
+      checkBuildDotGradleInDirectory "$d"
+      reportResult "  Build.grade checks..." $?
+      checkForGitIgnoreInDirectory "$d"
+      reportResult "  .gitignore checks...." $?
+      checkGradlewInDirectory "$d"
+      reportResult "  gradlew checks......." $?
+      checkGradlewBatInDirectory "$d"
+      reportResult "  gradlew.bat checks..." $?
     fi
   fi
 }
