@@ -22,7 +22,6 @@
 mklink /D src\main\java\org\janksters\CommonClassesThisYear ..\..\..\..\..\..\CommonClassesThisYear
 @if %ERRORLEVEL% NEQ 0 (
   @echo TAKING THE NON-NTFS SAD PATH
-  exit 0
   @rem remove both folders to allow for the possibility of deleted files from the source
   @rem (This was handled above, but if we get smarter about symlinks, we'll need to do this here)
   @mkdir .\src\main\java\org\janksters\jankyLib
