@@ -1,16 +1,92 @@
 #!/bin/bash
 
 janksterPaths="CommonClassesThisYear jankyLib"
+janksterMacScript="JanksterNewProjectSetup/MacModsScript"
+janksterWinScript="JanksterNewProjectSetup/WindowsModScript.bat"
 
 printCheckCriteria() {
-  echo "* Contains a workspace file"
+  echo "Checking project(s) to ensure they:"
+  echo "* Contain a workspace file"
   echo "* The workspace file includes Jankster paths"
-  echo "* build.gradle includes Jankster source paths"
-  echo "* Contains a .gitignore file."
+  echo "* gradlew contains Jankster additions"
+  echo "* gradlew.bat contains Jankster additions"
+  echo "* Contain a .gitignore file for src/main/java/org"
   echo "============================="
 }
 
-checkDirectory() {
+checkWorkspaceInDirectory() {
+  d="$1"
+  wsChecksPassed=0
+  workspace=($d/*.code-workspace)
+  if [[ -f "$workspace" ]]; then
+    # Make sure that the workspace at least references both CommonClassesThisYear and jankyLib
+    for path in $janksterPaths; do
+      if ! grep -q $path "$workspace"; then
+        echo "  ERROR: Workspace does not reference $path"
+        wsChecksPassed=1
+      fi
+    done
+  else
+    echo "  ERROR: Project is missing a workspace"
+    wsChecksPassed=1
+  fi
+
+  return $wsChecksPassed
+}
+
+checkBuildDotGradleInDirectory() {
+  # At one point, we were putting Jankster paths into build.gradle, but 
+  # we changed our minds. While that works for building, the RedHat Java
+  # support doesn't know about them, causing auto-complete to fail. 
+  d="$1"
+  gradleChecksPassed=0
+  if [[ -f "$d/build.gradle" ]]; then
+    for path in $janksterPaths; do
+      if grep -q $path "$d/build.gradle"; then
+        echo "  ERROR: build.gradle has a reference to $path that should be removed"
+        gradleChecksPassed=1
+      fi
+    done
+  else
+    echo "  ERROR: Project is missing a build.gradle file"
+    gradleChecksPassed=1
+  fi
+
+  return $gradleChecksPassed
+}
+
+checkForGitIgnoreInDirectory() {
+  d="$1"
+  # Check that we have a .gitignore in the proper place
+  if [[ ! -e "$d/src/main/java/.gitignore" ]]; then
+      echo "  ERROR: Failed check for $d/src/main/java/.gitignore"
+      return 1
+  fi
+
+  return 0
+}
+
+checkGradlewInDirectory() {
+  d="$1"
+  if ! grep -q $janksterMacScript "$d/gradlew"; then
+    echo "  ERROR: gradlew file is missing Jankster additions"
+    return 1
+  fi 
+
+  return 0
+}
+
+checkGradlewBatInDirectory() {
+  d="$1"
+  if ! grep -q $janksterWinScript "$d/gradlew.bat"; then
+    echo "  ERROR: gradlew.bat file is missing Jankster additions"
+    return 1
+  fi 
+
+  return 0
+}
+
+checkProjectDirectory() {
   d="$1"
   if [[ -d "$d" ]]; then
     # Will not run if no directories are available
@@ -18,61 +94,25 @@ checkDirectory() {
       echo "Checking project in $d/"
       # Now we know this folder must be a project. So let's check our checklist items.
       # Check that the project has a workspace (we assume at most one workspace is found)
-      workspace=($d/*.code-workspace)
-      if [[ -f "$workspace" ]]; then
-      	wsChecksPassed=1
-      	# Make sure that the workspace at least references both CommonClassesThisYear and jankyLib
-      	for path in $janksterPaths; do
-      	  if ! grep -q $path "$workspace"; then
-      	  	  wsChecksPassed=0
-    	  	  echo "  ERROR: Workspace does not reference $path"
-      	  fi
-      	done
-      	if [[ $wsChecksPassed -eq 1 ]]; then
-      	  echo "  Passed workspace checks."
-      	fi
-      else
-      	echo "  ERROR: Project is missing a workspace"
-      fi
-      
-      # Check that build.gradle references the proper Jankster paths
-      if [[ -f "$d/build.gradle" ]]; then
-        gradleChecksPassed=1
-        for path in $janksterPaths; do
-          if ! grep -q $path "$d/build.gradle"; then
-            echo "  ERROR: build.gradle does not reference $path"
-            gradleChecksPassed=0
-    	  fi
-        done
-        if [[ $gradleChecksPassed -eq 1 ]]; then
-          echo "  Build.gradle checks passed"
-        fi
-      else
-        echo "  ERROR: Project is missing a build.gradle file"
-      fi
-      
-      # Check that we have a .gitignore in the proper place
-	  if [[ -e $d/src/main/java/.gitignore ]]; then
-        echo "  Passed .gitignore check."
-	  else
-        echo "  ERROR: Failed check for $d/src/main/java/.gitignore"
-      fi
-
+      checkWorkspaceInDirectory "$d" && echo "  Workspace checks passed."
+      checkBuildDotGradleInDirectory "$d" && echo "  Build.grade checks passed."
+      checkForGitIgnoreInDirectory "$d" && echo "  .gitignore checks passed."
+      checkGradlewInDirectory "$d" && echo "gradlew checks passed."
+      checkGradlewBatInDirectory "$d" && echo "gradlew.bat checks passed."
     fi
   fi
 }
 
-
 # See if we look like we're in a project directory or the parent
 if [[ -f build.gradle ]]; then
-  echo "Checking the current directory to make sure the project:"
+  echo "Checking project in current directory:"
   printCheckCriteria
-  checkDirectory .
+  checkProjectDirectory .
 else 
-  echo "Checking all projects in current directory to make sure each project:"
+  echo "Checking all projects in current directory:"
   printCheckCriteria
   for d in *; do
-    checkDirectory "$d"
+    checkProjectDirectory "$d"
   done
 fi
 
