@@ -39,31 +39,34 @@ echo "Actual project location is $d"
 bg=$d/build.gradle
 # Code-workspace file is here...
 cw=$d/$theDir.code-workspace
+g=$d/gradlew 
+gb=$d/gradlew.bat
+gi=$d/src/main/java/.gitignore
 
-# modify build.gradle if it has not previously been modified
-if grep jankyLib $bg >/dev/null ; then
-  echo "Skipping build.gradle modification as it appears complete already."
-else
-#  sed '1r ../JanksterNewProjectSetup/build.gradle_Addition' $bg >build.gradle.tmp
-  lineNum="$(grep -m 1 -n "def ROBOT_MAIN_CLASS" $bg | cut -d: -f1)"
-# echo found on line $lineNum
-echo Modifying $bg to include common folders
-cat <<EOF >build.gradle.input.tmp
-sourceSets {
-    main {
-        java {
-            srcDir "../../jankyLib"
-            srcDir "../CommonClassesThisYear"
-        }
-    }
-}
-EOF
+# # modify build.gradle if it has not previously been modified
+# if grep jankyLib $bg >/dev/null ; then
+#   echo "Skipping build.gradle modification as it appears complete already."
+# else
+# #  sed '1r ../JanksterNewProjectSetup/build.gradle_Addition' $bg >build.gradle.tmp
+#   lineNum="$(grep -m 1 -n "def ROBOT_MAIN_CLASS" $bg | cut -d: -f1)"
+# # echo found on line $lineNum
+# echo Modifying $bg to include common folders
+# cat <<EOF >build.gradle.input.tmp
+# sourceSets {
+#     main {
+#         java {
+#             srcDir "../../jankyLib"
+#             srcDir "../CommonClassesThisYear"
+#         }
+#     }
+# }
+# EOF
 
-  sed $lineNum'r build.gradle.input.tmp' $bg >build.gradle.tmp
-  rm build.gradle.input.tmp
-  cp build.gradle.tmp $bg
-  rm build.gradle.tmp
-fi
+#   sed $lineNum'r build.gradle.input.tmp' $bg >build.gradle.tmp
+#   rm build.gradle.input.tmp
+#   cp build.gradle.tmp $bg
+#   rm build.gradle.tmp
+# fi
 
 # CREATE project .code-workspace if it has not previously been created
 #   Any existing file will cause us to NOT do work here.
@@ -96,5 +99,48 @@ cat <<EOF >$cw
   }
 }
 EOF
+
+# modify gradlew if it has not previously been modified
+if grep JanksterNewProjectSetup $g >/dev/null ; then
+  echo "Skipping gradlew modification as it appears complete already."
+else
+  # Create an input file to add to gradlew
+  cat <<EOF >gradlew.input.tmp
+
+# Run Janksters java-build script
+source ../JanksterNewProjectSetup/MacModsScript
+
+EOF
+
+  sed '1r gradlew.input.tmp' $g >gradlew.tmp
+  cp gradlew.tmp $g
+  rm gradlew.tmp
+  rm gradlew.input.tmp
+fi
+
+# modify gradlew.bat if it has not previously been modified
+if grep JanksterNewProjectSetup $gb >/dev/null ; then
+  echo "Skipping gradlew.bat modification as it appears complete already."
+else
+# Create an input file to add to gradlew.bat
+  cat <<EOF >gradlew.bat.input.tmp
+
+@rem Run Janksters java-build script
+call ../JanksterNewProjectSetup/WindowsModsScript.bat
+
+EOF
+
+  sed '1r gradlew.bat.input.tmp' $gb >gradlew.bat.tmp
+  cp gradlew.tmp.bat $gb
+  rm gradlew.bat.tmp
+  rm gradlew.bat.input.tmp
+fi
+
+# Put a .gitignore file to ignore changes in the link/copy area
+if [[ ! -e $gi ]]; then
+  cat <<EOF >$e
+org/
+EOF
+fi
 
 echo "Project setup complete."
