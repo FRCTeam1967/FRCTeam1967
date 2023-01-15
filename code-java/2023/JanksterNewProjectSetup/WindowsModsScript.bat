@@ -7,11 +7,6 @@
   @mkdir .\src\main\java\org\janksters
 )
 
-@if not exist .\src\main\java\.gitignore (
-  @rem Copy the .gitignore file to its new home one time.
-  @copy ..\..\jankyLibExamples\JanksterNewProjectSetup\gitignoreForLinkArea .\src\main\java\.gitignore
-)
-
 @rem Now let's make sure the destination is writable
 @attrib -R .\src\main\java\org\* /S
 

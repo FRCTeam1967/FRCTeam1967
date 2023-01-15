@@ -9,7 +9,4 @@ if [[ ! -e ./src/main/java/org/janksters ]]; then
   # Create soft links to the actual file locations
   ln -s ../../../../../../CommonClassesThisYear ./src/main/java/org/janksters/CommonClassesThisYear
   ln -s ../../../../../../../jankyLib ./src/main/java/org/janksters/jankyLib
-
-  # Copy in the .gitignore file to keep git from looking at the soft link area
-  cp ../JanksterNewProjectSetup/gitignoreForLinkArea ./src/main/java/.gitignore
 fi

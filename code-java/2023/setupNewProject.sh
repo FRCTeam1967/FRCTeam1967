@@ -76,11 +76,10 @@ if [[ -e $cw ]]; then
   else
     echo "ERROR: Cannot modify existing $cw file in this location."
   fi
-  exit 1
-fi
-# Now do the file creation.
-echo Creating code workspace file $cw
-cat <<EOF >$cw
+else
+  # Now do the file creation.
+  echo Creating code workspace file $cw
+  cat <<EOF >$cw
 {
   "folders": [
     {
@@ -99,10 +98,11 @@ cat <<EOF >$cw
   }
 }
 EOF
+fi
 
 # modify gradlew if it has not previously been modified
 if grep JanksterNewProjectSetup $g >/dev/null ; then
-  echo "Skipping gradlew modification as it appears complete already."
+  echo "INFO: Skipping gradlew modification as it appears complete already."
 else
   # Create an input file to add to gradlew
   cat <<EOF >gradlew.input.tmp
@@ -120,7 +120,7 @@ fi
 
 # modify gradlew.bat if it has not previously been modified
 if grep JanksterNewProjectSetup $gb >/dev/null ; then
-  echo "Skipping gradlew.bat modification as it appears complete already."
+  echo "INFO: Skipping gradlew.bat modification as it appears complete already."
 else
 # Create an input file to add to gradlew.bat
   cat <<EOF >gradlew.bat.input.tmp
@@ -131,16 +131,18 @@ call ../JanksterNewProjectSetup/WindowsModsScript.bat
 EOF
 
   sed '1r gradlew.bat.input.tmp' $gb >gradlew.bat.tmp
-  cp gradlew.tmp.bat $gb
+  cp gradlew.bat.tmp $gb
   rm gradlew.bat.tmp
   rm gradlew.bat.input.tmp
 fi
 
 # Put a .gitignore file to ignore changes in the link/copy area
 if [[ ! -e $gi ]]; then
-  cat <<EOF >$e
+  cat <<EOF >$gi
 org/
 EOF
+else
+  echo "INFO: .gitignore is already present"
 fi
 
 echo "Project setup complete."
