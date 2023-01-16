@@ -7,6 +7,22 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import com.ctre.phoenix.motorcontrol.StatorCurrentLimitConfiguration;
+import com.ctre.phoenix.motorcontrol.StatusFrameEnhanced;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.I2C;
+import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
+
+
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import org.janksters.jankyLib.jankyXboxJoystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -15,10 +31,53 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * project.
  */
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default";
-  private static final String kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
+  private int autoDelaySelected, autoPathSelected;
+  private final SendableChooser<Integer> autoDelayChooser = new SendableChooser<>();
+  private final SendableChooser<Integer> autoPathChooser = new SendableChooser<>();
+
+  AutoStateMachine autoSM = null;
+
+  private Joystick leftJoystick;
+  private Joystick rightJoystick;
+  private jankyXboxJoystick XboxController;
+  
+  private WPI_TalonFX leftLeader = new WPI_TalonFX(1);//m2
+  private WPI_TalonFX rightLeader = new WPI_TalonFX(3);
+
+  private MotorControllerGroup left, right;
+  private DifferentialDrive myRobot;
+  double averageSpeed;
+  
+
+  public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+
+
+  public void setUpChassisMotors(WPI_TalonFX falcon){
+    StatorCurrentLimitConfiguration chassisCurrentLimit = new StatorCurrentLimitConfiguration(true, 50,
+    45, 0);
+
+    falcon.configFactoryDefault();
+    falcon.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 75);
+    falcon.configNominalOutputForward(0, 75);
+    falcon.configNominalOutputReverse(0, 75);
+    falcon.configPeakOutputForward(1, 75);
+    falcon.configPeakOutputReverse(-1, 75);
+    falcon.config_kF(0, 0.0, 75);
+    falcon.config_kP(0, 0.1, 75);
+    falcon.config_kI(0, 0.0, 75);
+    falcon.config_kD(0, 0.0, 75);
+    falcon.configStatorCurrentLimit(chassisCurrentLimit);
+    falcon.setNeutralMode(NeutralMode.Brake);
+    
+    if(false){
+      falcon.setStatusFramePeriod(StatusFrameEnhanced.Status_13_Base_PIDF0, 100, 75);
+    } else{
+      //falcon.setStatusFramePeriod(0x1240, Constants.CAN_STATUS_FRAME_PERIOD);
+      falcon.setStatusFramePeriod(StatusFrameEnhanced.Status_12_Feedback1, 100, 75);
+    }
+  }
+
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -26,9 +85,30 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
+
+    autoDelayChooser.setDefaultOption("0", AutoConstants.ZeroDelay);
+    autoDelayChooser.addOption("1", AutoConstants.OneDelay); 
+    autoDelayChooser.addOption("2", AutoConstants.TwoDelay);
+    autoDelayChooser.addOption("3", AutoConstants.ThreeDelay);
+    autoDelayChooser.addOption("4", AutoConstants.FourDelay);
+    autoDelayChooser.addOption("5", AutoConstants.FiveDelay);
+    SmartDashboard.putData("Auto Delay Chooser", autoDelayChooser);
+
+    autoPathChooser.setDefaultOption("Community", AutoConstants.SIMPLE_AUTOPATH);
+    autoPathChooser.addOption("One cube", AutoConstants.ONE_CUBE_AUTOPATH);
+    SmartDashboard.putData("Auto Path Chooser", autoPathChooser);
+
+    leftJoystick = new Joystick(0);
+    rightJoystick = new Joystick(1);
+    XboxController = new jankyXboxJoystick(2); 
+
+    setUpChassisMotors(leftLeader);
+    setUpChassisMotors(rightLeader);
+
+    left = new MotorControllerGroup(leftLeader);
+    right = new MotorControllerGroup(rightLeader);
+    myRobot = new DifferentialDrive(left,right);
+
   }
 
   /**
@@ -53,32 +133,43 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
+    autoDelaySelected = autoDelayChooser.getSelected();
+    SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
+
+    autoPathSelected = autoPathChooser.getSelected();
+    SmartDashboard.putNumber("Auto Path Selected", autoPathSelected);
+
+    autoSM = new AutoStateMachine(autoDelaySelected, autoPathSelected, m_gyro);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
+    autoSM.displayCurrentState();
   }
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+
+    leftLeader.setNeutralMode(NeutralMode.Coast);
+    rightLeader.setNeutralMode(NeutralMode.Coast);
+
+  }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+
+    SmartDashboard.putNumber("Pitch Gyro Angle", (m_gyro.getYComplementaryAngle()));
+
+    if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) { 
+      averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
+      myRobot.tankDrive(-averageSpeed, averageSpeed);
+    } else{
+      myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
