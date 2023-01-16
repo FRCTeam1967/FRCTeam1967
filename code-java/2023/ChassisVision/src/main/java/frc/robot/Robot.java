@@ -4,8 +4,14 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.Joystick;
+
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -19,7 +25,14 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  KitBotChassis m_chassis  = new KitBotChassis();
+  
+  KitBotChassis m_chassis;
+  WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
+  MotorControllerGroup leftGroup, rightGroup;
+  DifferentialDrive myRobot;
+
+  Joystick leftJoystick, rightJoystick;
+
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -30,6 +43,11 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    
+    m_chassis = new KitBotChassis();
+    leftJoystick = new Joystick(0);
+    rightJoystick = new Joystick(1);
+    m_chassis.setChassisModes(true);
   }
 
   /**
@@ -76,12 +94,17 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    m_chassis.driveTank();
   }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    if (leftJoystick.getRawButton(1) && rightJoystick.getRawButton(1)){
+      m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
+    } else {
+    m_chassis.driveTank(leftJoystick.getY(), rightJoystick.getY());
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
