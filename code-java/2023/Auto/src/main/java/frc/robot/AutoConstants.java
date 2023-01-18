@@ -9,7 +9,7 @@ public class AutoConstants {
     public static final int CHASSIS_RIGHT_ENCODER_CHANNEL = 1;
 
     public static final double CHASSIS_WIDTH = 0.686; //_m
-    public static final double WHEEL_DIAMETER_INCHES = 0.1524; //6
+    public static final double WHEEL_DIAMETER_INCHES = 0.1016; //4in in meters
     
     //selector
     public static int ZeroDelay = 0;
@@ -72,7 +72,7 @@ public class AutoConstants {
     public static final double PULSES_PER_REVOLUTION = 4096;
     public static final double WHEEL_DIAMETER = 4; //4 inches, was 0.1524 m or 6 inches
     public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
-    public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (50.0/24));
-
+    public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (54.0/20)); //50/14, 50/24 before
+ 
 
 }

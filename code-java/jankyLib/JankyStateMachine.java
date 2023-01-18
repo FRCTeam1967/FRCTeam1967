@@ -32,8 +32,8 @@ public abstract class JankyStateMachine extends JankyTask{
     
     public void Run(){
         if (priorState != currentState){
-            StateEngine(currentState, true);
             priorState = currentState;
+            StateEngine(currentState, true);
         } else {
             StateEngine(currentState, false);
         }
