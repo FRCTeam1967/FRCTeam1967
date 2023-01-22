@@ -31,7 +31,10 @@ public class Intake extends JankyStateMachine {
     private static double SHOOT_BOTTOM_ROLLER_SPEED = 0.0; //tbd
     private static double SHOOT_TOP_ROLLER_SPEED = 0.07; //tbd
 
-    private static final double IDLE_TIMER = 3; //seconds
+    private static final double IDLE_TIMER_LENGTH = 3; //seconds
+
+    private final double TOP_THRESHOLD = 0.95;
+    private final double ZERO_THRESHOLD = 0.05;
 
     public Intake(){
         XboxController = new jankyXboxJoystick(1); //tbd
@@ -54,12 +57,11 @@ public class Intake extends JankyStateMachine {
     public void StateEngine(int curState, boolean onStateEntered){
         switch(curState){
             case Idle: 
-                setIdle();
-                
-                if (Math.abs(XboxController.GetLeftThrottle()) > 0.95){
+                setMotorsToZero();
+                if (Math.abs(XboxController.GetLeftThrottle()) > TOP_THRESHOLD){
                     NewState(Intake, "Left throttle pressed, enter Intake state");
                 }
-                else if (Math.abs(XboxController.GetRightThrottle()) > 0.95){
+                else if (Math.abs(XboxController.GetRightThrottle()) > TOP_THRESHOLD){
                     NewState(Shoot, "Right throttle pressed, enter Shoot state");
                 }
 
@@ -70,7 +72,7 @@ public class Intake extends JankyStateMachine {
                     runIntake();
                 }
                 
-                if (Math.abs(XboxController.GetLeftThrottle()) < 0.05){
+                if (Math.abs(XboxController.GetLeftThrottle()) < ZERO_THRESHOLD){
                     NewState(Idle, "Left throttle released, enter Idle state");
                 }
 
@@ -81,16 +83,15 @@ public class Intake extends JankyStateMachine {
                     runShooter();
                 }
                 
-                if (Math.abs(XboxController.GetRightThrottle()) < 0.05){
+                if (Math.abs(XboxController.GetRightThrottle()) < ZERO_THRESHOLD){
                     NewState(Idle, "Right throttle released, enter Idle state");
                 }
                 break;
-
         }
 
     }
 
-    public void setIdle(){ //rename- setIdle
+    public void setMotorsToZero(){ 
         topRollerMotor.set(0.0);
         bottomRollerMotor.set(0.0);
     }
