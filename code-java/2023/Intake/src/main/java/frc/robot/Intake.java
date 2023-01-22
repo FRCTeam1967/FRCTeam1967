@@ -28,12 +28,10 @@ public class Intake extends JankyStateMachine {
 
     private static double INTAKE_BOTTOM_ROLLER_SPEED = 0.25; //tbd
     private static double INTAKE_TOP_ROLLER_SPEED = 0.25; //tbd
-    private static double SHOOT_BOTTOM_ROLLER_SPEED = 0; //tbd
-    private static double SHOOT_TOP_ROLLER_SPEED = 0.25; //tbd
+    private static double SHOOT_BOTTOM_ROLLER_SPEED = 0.0; //tbd
+    private static double SHOOT_TOP_ROLLER_SPEED = 0.07; //tbd
 
     private static final double IDLE_TIMER = 3; //seconds
-
-    private boolean shootCompleteFlag = false; 
 
     public Intake(){
         XboxController = new jankyXboxJoystick(1); //tbd
@@ -44,10 +42,11 @@ public class Intake extends JankyStateMachine {
 
         idleTimer = new Timer();
 
-        SetMachineName("Intake");
+        SetMachineName("IntakeStateMachine");
         SetName(Idle, "Idle");
         SetName(Intake, "Intake");
         SetName(Shoot, "Shoot");
+
 
         start();
     }
@@ -55,12 +54,12 @@ public class Intake extends JankyStateMachine {
     public void StateEngine(int curState, boolean onStateEntered){
         switch(curState){
             case Idle: 
-                zeroMotors();
+                setIdle();
                 
-                if (XboxController.GetLeftThrottle() == 1){
+                if (Math.abs(XboxController.GetLeftThrottle()) > 0.95){
                     NewState(Intake, "Left throttle pressed, enter Intake state");
                 }
-                else if (XboxController.GetRightThrottle() == 1){
+                else if (Math.abs(XboxController.GetRightThrottle()) > 0.95){
                     NewState(Shoot, "Right throttle pressed, enter Shoot state");
                 }
 
@@ -71,7 +70,7 @@ public class Intake extends JankyStateMachine {
                     runIntake();
                 }
                 
-                if (XboxController.GetLeftThrottle() == 0){
+                if (Math.abs(XboxController.GetLeftThrottle()) < 0.05){
                     NewState(Idle, "Left throttle released, enter Idle state");
                 }
 
@@ -82,15 +81,16 @@ public class Intake extends JankyStateMachine {
                     runShooter();
                 }
                 
-                if (XboxController.GetRightThrottle() == 0){
+                if (Math.abs(XboxController.GetRightThrottle()) < 0.05){
                     NewState(Idle, "Right throttle released, enter Idle state");
                 }
                 break;
+
         }
 
     }
 
-    public void zeroMotors(){ //rename- setIdle
+    public void setIdle(){ //rename- setIdle
         topRollerMotor.set(0.0);
         bottomRollerMotor.set(0.0);
     }
@@ -103,9 +103,5 @@ public class Intake extends JankyStateMachine {
     public void runShooter(){
         topRollerMotor.set(-SHOOT_TOP_ROLLER_SPEED);
         bottomRollerMotor.set(SHOOT_BOTTOM_ROLLER_SPEED);
-    }
-
-    public boolean getShootCompleteFlag(){
-        return shootCompleteFlag;
     }
 }
