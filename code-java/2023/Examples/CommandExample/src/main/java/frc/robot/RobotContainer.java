@@ -12,6 +12,8 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
@@ -21,6 +23,7 @@ import edu.wpi.first.wpilibj2.command.RunCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.Constants.Sound;
 import frc.robot.commands.FadeImageCommand;
 import frc.robot.commands.PlayMusicCommand;
 import frc.robot.commands.RepeatingCommand;
@@ -40,16 +43,7 @@ public class RobotContainer {
     private final GerryRigLEDSubsystem m_ledSubsystem = new GerryRigLEDSubsystem();
     private final FalconOrchestraSubsystem m_orchestraSubsystem = new FalconOrchestraSubsystem();
 
-    private final Command m_autoCommand = new ParallelRaceGroup(
-        new PlayMusicCommand(Constants.Sound.kSweetCaroline, m_orchestraSubsystem),
-        new RepeatingCommand(
-            new SequentialCommandGroup(
-                new FadeImageCommand(Constants.Images.kJanksterBow, 5000, true, m_ledSubsystem),
-                new FadeImageCommand(Constants.Images.kJanksterBow, 5000, false, m_ledSubsystem)
-            )
-        )
-    );
-
+    private final SendableChooser<Sound> m_chooser = new SendableChooser<>();
 
     /** The container for the robot. Contains subsystems, OI devices, and commands. */
     public RobotContainer() {
@@ -63,6 +57,13 @@ public class RobotContainer {
 
         // Configure default (background) commands
         configureDefaultCommandsForSubsystems();
+
+        // Setup the autonomous chooser
+        m_chooser.setDefaultOption("Beethoven's Fifth", Constants.Sound.kFifthSymphony);
+        m_chooser.addOption("Beethoven's Moonlight", Constants.Sound.kMoonlight);
+        m_chooser.addOption("YMCA", Constants.Sound.kYMCA);
+        m_chooser.addOption("???", Constants.Sound.kRickRoll);
+        SmartDashboard.putData("Autonomous Music Selection", m_chooser);
     }
 
     public void configureLogging() {
@@ -89,7 +90,7 @@ public class RobotContainer {
     private void configureButtonBindings() {
         Joystick joystick = new Joystick(Constants.kJoystickID);
         JoystickButton fireButton = new JoystickButton(joystick, 1);
-        fireButton.whenPressed(new ParallelCommandGroup(
+        fireButton.onTrue(new ParallelCommandGroup(
             new ShowColorCommand(Color.kRed, m_ledSubsystem),
             new PlayMusicCommand(Constants.Sound.kStartMatch, m_orchestraSubsystem)
         ).withName("Fire!"));
@@ -113,6 +114,7 @@ public class RobotContainer {
     }
 
     private void configureDefaultCommandsForSubsystems() {
+        // If the LED subsystem isn't asked to do anything else, show a rainbow pattern
         m_ledSubsystem.setDefaultCommand(new RunCommand(m_ledSubsystem::drawRainbow, m_ledSubsystem).withName("Idle Rainbow"));
     }
 
@@ -123,6 +125,14 @@ public class RobotContainer {
      */
     public Command getAutonomousCommand() {
         // An ExampleCommand will run in autonomous
-        return m_autoCommand;
-    }
+        return new ParallelRaceGroup(
+            new PlayMusicCommand(m_chooser.getSelected(), m_orchestraSubsystem),
+            new RepeatingCommand(
+                new SequentialCommandGroup(
+                    new FadeImageCommand(Constants.Images.kJanksterBow, 5000, true, m_ledSubsystem),
+                    new FadeImageCommand(Constants.Images.kJanksterBow, 5000, false, m_ledSubsystem)
+                )
+            )
+        );
+        }
 }

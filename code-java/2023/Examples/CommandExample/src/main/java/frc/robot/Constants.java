@@ -31,13 +31,15 @@ public final class Constants {
         }
 
         public static final Sound kStartMatch = new Sound("FRC-MatchStart.chrp", 2000);
-        public static final Sound kSweetCaroline = new Sound("SweetCaroline.chrp", 216000);
-        public static final Sound kSimpsons = new Sound("Simpsons.chrp", 300000);
+        public static final Sound kFifthSymphony = new Sound("Fifth.chrp", 30000);
+        public static final Sound kMoonlight = new Sound("Moonlight.chrp", 30000);
+        public static final Sound kRickRoll = new Sound("NGGYU.chrp", 30000);
+        public static final Sound kYMCA = new Sound("YMCA.chrp", 30000);
     };
 
     public final class Images {
         public static final String kJanksterBow = "48x16 Logo Black.png";
-    }
+    };
 
     public static final int kJoystickID = 0;
 
