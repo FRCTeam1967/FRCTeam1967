@@ -5,6 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -27,11 +28,13 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
   KitBotChassis m_chassis;
-  WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
+  //WPI_TalonFX leftFollower, rightLeader;
+  //WPI_TalonFX leftLeader, rightFollower;
   MotorControllerGroup leftGroup, rightGroup;
   DifferentialDrive myRobot;
 
   Joystick leftJoystick, rightJoystick;
+  Limelight limelight;
 
 
   /**
@@ -45,9 +48,11 @@ public class Robot extends TimedRobot {
     SmartDashboard.putData("Auto choices", m_chooser);
     
     m_chassis = new KitBotChassis();
+    limelight = new Limelight();
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
     m_chassis.setChassisModes(true);
+    
   }
 
   /**
@@ -104,6 +109,9 @@ public class Robot extends TimedRobot {
     } else {
     m_chassis.driveTank(leftJoystick.getY(), rightJoystick.getY());
     }
+
+    limelight.getLimelightValues();
+    limelight.trackingLimelight(m_chassis.getRobot(), leftJoystick);
   }
 
   /** This function is called once when the robot is disabled. */
