@@ -7,6 +7,10 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.Arm.Positions;
+
+import org.janksters.jankyLib.*;
+
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -20,6 +24,10 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
+  //construct arm state machine object
+  private Arm m_arm = new Arm(0, 0);
+  private jankyXboxJoystick xboxController = new jankyXboxJoystick(0);
+
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -29,6 +37,12 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+    
+    //configure CANCoder when robot is turned on
+    m_arm.initEncoder();
+
+    //run arm homing method
+    m_arm.armHoming();
   }
 
   /**
@@ -39,7 +53,8 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -56,6 +71,9 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
+     //run arm homing method
+     m_arm.armHoming();
   }
 
   /** This function is called periodically during autonomous. */
@@ -72,13 +90,42 @@ public class Robot extends TimedRobot {
     }
   }
 
+  
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+     //run arm homing method
+     m_arm.armHoming();
+  }
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {}
+  public void teleopPeriodic() {
+    //why is the deadband different from left and right throttle?
+    
+    if (xboxController.GetLeftThrottle()==1){
+      m_arm.setDesiredPosition(Positions.FRONT_TOP);
+
+    } else if(xboxController.GetButtonLB()){
+      m_arm.setDesiredPosition(Positions.FRONT_MIDDLE);
+
+    } else if(xboxController.GetRightYAxis()==1){
+      m_arm.setDesiredPosition(Positions.FRONT_INTAKE);
+      
+    } else if(xboxController.GetRightThrottle()==1){
+      m_arm.setDesiredPosition(Positions.BACK_TOP);
+      
+    } else if(xboxController.GetButtonRB()){
+      m_arm.setDesiredPosition(Positions.BACK_MIDDLE);
+      
+    } else if(xboxController.GetRightYAxis()==1){
+      m_arm.setDesiredPosition(Positions.SAFE);
+      
+    } else if (xboxController.GetButtonStart()){
+      //if arm slips during match, press the start button to re-home arm
+      m_arm.armHoming();
+    }
+  }
 
   /** This function is called once when the robot is disabled. */
   @Override
@@ -90,7 +137,10 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+     //run arm homing method
+     m_arm.armHoming();
+  }
 
   /** This function is called periodically during test mode. */
   @Override
