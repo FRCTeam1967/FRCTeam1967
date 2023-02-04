@@ -1,5 +1,5 @@
 @rem Please UPDATE this version number ANY time changes are made to the file.
-@echo Janksters Java-Build gradlew.bat mods Version 2.1
+@echo Janksters Java-Build gradlew.bat mods Version 2.2
 
 @rem Make sure the location exists for building to be successful
 @if not exist .\src\main\java\org\ (
@@ -32,6 +32,7 @@
 @rem we'll take the easy way out and always remove them.
 @rmdir .\src\main\java\org\janksters\jankyLib /S /Q
 @rmdir .\src\main\java\org\janksters\CommonClassesThisYear /S /Q
+@rmdir .\src\main\java\org\janksters\ExampleCommonClasses /S /Q
 
 @rem If we're on NTFS, we can create symlinks directly; otherwise, we need to make read-only copies
 mklink /D src\main\java\org\janksters\CommonClassesThisYear ..\..\..\..\..\..\..\CommonClassesThisYear
@@ -41,14 +42,18 @@ mklink /D src\main\java\org\janksters\CommonClassesThisYear ..\..\..\..\..\..\..
   @rem (This was handled above, but if we get smarter about symlinks, we'll need to do this here)
   @mkdir .\src\main\java\org\janksters\jankyLib
   @mkdir .\src\main\java\org\janksters\CommonClassesThisYear
+  @mkdir .\src\main\java\org\janksters\ExampleCommonClasses
   @rem Now copy the two source areas into our newly created destinations
   @xcopy ..\..\CommonClassesThisYear\*.* .\src\main\java\org\janksters\CommonClassesThisYear\ /S
   @xcopy ..\..\..\jankyLib\*.* .\src\main\java\org\janksters\jankyLib\ /S
+  @xcopy ..\ExampleCommonClasses\*.* .\src\main\java\org\janksters\ExampleCommonClasses\ /S
   @rem Now let's make these areas read-only to protect form accidental editing of files here.
   @attrib +R .\src\main\java\org\janksters\jankyLib\* /S
   @attrib +R .\src\main\java\org\janksters\CommonClassesThisYear\* /S
+  @attrib +R .\src\main\java\org\janksters\ExampleCommonClasses\* /S
 ) else (
   @echo Creating symlinks!
   @mklink /D src\main\java\org\janksters\jankyLib ..\..\..\..\..\..\..\..\jankyLib
+  @mklink /D src\main\java\org\janksters\ExampleCommonClasses ..\..\..\..\..\..\ExampleCommonClasses
 )
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Please UPDATE this version number ANY time changes are made to the file.
-echo Janksters Java-Build gradlew mods Version 2.0
+echo Janksters Java-Build gradlew mods Version 2.1
 
 # If the folder already exists, then we should already be ready to go.
 if [[ ! -e ./src/main/java/org/janksters ]]; then
@@ -9,4 +9,5 @@ if [[ ! -e ./src/main/java/org/janksters ]]; then
   # Create soft links to the actual file locations
   ln -s ../../../../../../../CommonClassesThisYear ./src/main/java/org/janksters/CommonClassesThisYear
   ln -s ../../../../../../../../jankyLib ./src/main/java/org/janksters/jankyLib
+  ln -s ../../../../../../ExampleCommonClasses ./src/main/java/org/janksters/ExampleCommonClasses
 fi

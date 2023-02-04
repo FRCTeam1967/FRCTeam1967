@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import org.janksters.ExampleCommonClasses.LEDPanel;
+import org.janksters.ExampleCommonClasses.HorizontalMeter;
+
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorTimeBase;

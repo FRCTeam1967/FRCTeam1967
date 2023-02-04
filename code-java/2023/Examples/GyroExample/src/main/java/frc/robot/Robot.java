@@ -4,6 +4,9 @@
 
 package frc.robot;
 
+import org.janksters.ExampleCommonClasses.LEDPanel;
+import org.janksters.ExampleCommonClasses.HorizontalMeter;
+
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
