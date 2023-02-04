@@ -49,7 +49,7 @@ public class Arm extends JankyStateMachine {
     }
     
     /**
-    * Brief- Constructor for Arm class
+    * Brief - Constructor for Arm class
     * Defining falcons, encoders, and setting state names
     * @param armMotorLID - motor ID for left arm motor
     * @param armMotorRID - motor ID for right arm motor
@@ -83,7 +83,7 @@ public class Arm extends JankyStateMachine {
     }
     
     /**
-     * Brief- Called in robotInit to configure CANCoder at beginning of match
+     * Brief - Called in robotInit to configure CANCoder at beginning of match
      */
     public void initEncoder(){
         CANCoderConfiguration config = new CANCoderConfiguration();
@@ -94,7 +94,7 @@ public class Arm extends JankyStateMachine {
     }
     
     /**
-     * Brief- Called in all inits to offset falcon encoder to absolute position
+     * Brief - Called in all inits to offset falcon encoder to absolute position
      * "Get the absolute encoder and the falcon encoder on the same page"
      * Absolute encoder ticks --> arm angle --> falcon ticks --> offset falcon
      * Can be triggered by Start button in teleopPeriodic if arm slips during match
@@ -116,7 +116,7 @@ public class Arm extends JankyStateMachine {
     }
     
     /**
-     * Brief- Configure falcon motor settings, falcon encoder, and PID constants
+     * Brief - Configure falcon motor settings, falcon encoder, and PID constants
      */
     private void configMotors(WPI_TalonFX motor){
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -143,7 +143,7 @@ public class Arm extends JankyStateMachine {
     }
 
     /**
-     * Brief- Changes value of desiredAngle using Position parameter, shoves state machine into IN_MOTION
+     * Brief - Changes value of desiredAngle using Position parameter, shoves state machine into IN_MOTION
      * Called when button is pressed in Robot.java
      * Method is accessible to other mechanisms to trigger change in arm position
      * @param position - Desired position for the arm to reach
@@ -154,7 +154,7 @@ public class Arm extends JankyStateMachine {
     }
     
     /**
-     * Brief- Calculate falcon ticks from angle parameter and feed to Motion Magic
+     * Brief - Calculate falcon ticks from angle parameter and feed to Motion Magic
      * @param angle - Desired angle in degrees to move the arm to
      */
     public void moveArm(double angle) {
@@ -164,17 +164,17 @@ public class Arm extends JankyStateMachine {
     }
 
     /**
-     * Brief- Converts falcon encoder ticks to angle of the arm in degrees relative to self-defined 0
+     * Brief - Converts falcon encoder ticks to angle of the arm in degrees relative to self-defined 0
      * Used in falcon encoder sanity check 
      * @param ticks - Falcon encoder ticks
      * @return angle - Angle of arm, double
     */
-    public double falconTicksToAngle(int ticks){
+    public double falconTicksToAngle(double ticks){
         return (double) (ticks * 360)/(Constants.Arm.ARM_GEAR_RATIO * Constants.Arm.FALCON_TICKS_PER_REVOLUTION);
     }
 
     /**
-     * Brief- Converts inputted angle of the arm relative to self-defined 0 to falcon encoder ticks
+     * Brief - Converts inputted angle of the arm relative to self-defined 0 to falcon encoder ticks
      * @param angle - Angle of arm
      * @return ticks - Falcon encoder ticks
      */
@@ -183,33 +183,41 @@ public class Arm extends JankyStateMachine {
     }
     
     /**
-     * Brief- Takes absolute encoder ticks and converts to angle of the arm relative to self-defined 0
+     * Brief - Takes absolute encoder ticks and converts to angle of the arm relative to self-defined 0
      * @param ticks - Absolute encoder ticks
      * @return angle - Angle of arm, double
      */
     public double absoluteTicksToAngle(double ticks){
         return (double) (ticks * 360)/ Constants.Arm.ABSOLUTE_TICKS_PER_REVOLUTION;
     }
-
+    
     /**
-     * Brief- Checks if falcon encoder position is within inputted range
-     * @param min - Minimum falcon encoder ticks for the range
-     * @param max - Maximum falcon encoder ticks value for the range
+     * Brief - Read falcon encoder ticks and converts to angle, then checks if current angle is in allowed error range
+     * @param angle - Desired angle, degrees
+     * @param error - Constant which is added or subtracted from desired angle to create range, degrees 
      * @return boolean - Whether encoder motor position is within the range
      */
-    public boolean isArmInRangeFalcon(double min, double max){
-        return (armMotorL.getSelectedSensorPosition() > min && armMotorL.getSelectedSensorPosition() < max) 
-                && (armMotorR.getSelectedSensorPosition() > min && armMotorR.getSelectedSensorPosition() < max);
+    public boolean isArmInRangeFalcon(double angle, double error){
+        double lowerBound = angle - error;
+        double upperBound = angle + error;
+        double currentAngleR = falconTicksToAngle(armMotorR.getSelectedSensorPosition());
+
+        //check right, return error message in console if left is not in range
+        //if right is in range, but left is not, that's a what the heck is happening edgecase (hopefully)
+        return (currentAngleR > lowerBound && currentAngleR < upperBound);
     }
     
     /**
-     * Brief- Checks if absolute encoder position is within inputted range
-     * @param min - Minimum absolute encoder ticks value for the range
-     * @param max - Maximum absolute encoder ticks value for the range
-     * @return boolean - Whether absolute encoder position is within the range
+     * Brief - Converts absolute encoder ticks and falcon encoder ticks to angle, then cross checks
+     * @param error - Constant to create range for allowable difference between encoders, degrees
+     * @return boolean - Whether difference between encoders is less than allowable difference
      */
-    public boolean isArmInRangeAbsolute(double min, double max){
-        return (m_encoder.getAbsolutePosition() > min && m_encoder.getAbsolutePosition() < max);
+    public boolean encoderCrossCheck(double error){
+        double currentAngleAbs = absoluteTicksToAngle(m_encoder.getAbsolutePosition());
+        double currentAngleFalconR = falconTicksToAngle(armMotorR.getSelectedSensorPosition());
+        double calcError = Math.abs(currentAngleAbs - currentAngleFalconR); //difference in angle between 2 encoders
+        
+        return (calcError <= error);
     }
     
     public void StateEngine(int curState, boolean onStateEntered){
@@ -217,25 +225,23 @@ public class Arm extends JankyStateMachine {
             case IDLE:
                 if (onStateEntered){}
                 break;
-            
             case IN_MOTION:
                 if (onStateEntered){
                     //use motion magic to move and hold arm at desired position
-                    moveArm(desiredAngle); //does this go in onStateEntered?
+                    moveArm(desiredAngle);
                 }
                 
                 //check if falcon encoder ticks are in range to transition out of IN_MOTION state
-                if(isArmInRangeFalcon(Constants.Arm.ARM_FALCON_CHECK_MIN, Constants.Arm.ARM_FALCON_CHECK_MAX)){
+                if(isArmInRangeFalcon(desiredAngle, Constants.Arm.ARM_CHECK_ENCODER_ERROR)){
                     NewState(POS_REACHED, "Angle within range, transition to POS_REACHED");
                 }
                 break;
-
             case POS_REACHED:
-                if (onStateEntered){
-                    //check if absolute encoder ticks are in range, send error message if not
-                    if(!isArmInRangeAbsolute(Constants.Arm.ARM_ABS_CHECK_MIN, Constants.Arm.ARM_ABS_CHECK_MAX)){
-                        System.out.println("Absolute encoder: arm is not in range");
-                    }
+                if (onStateEntered){}
+                
+                //sanity check- check if both encoders are synced, send error message if not
+                if(!encoderCrossCheck(Constants.Arm.ARM_CHECK_ENCODER_ERROR)){
+                    System.out.println("ENCODER INCONSISTENCY- Absolute and falcon encoders not synced");
                 }
                 break;
         }

@@ -15,11 +15,9 @@ public class Constants {
         public static final double bMIDDLE_ANGLE = 1000; 
         
         //conversion factors
-        public static final int ARM_GEAR_RATIO = 24;
+        public static final int ARM_GEAR_RATIO = 110;
         public static final double FALCON_TICKS_PER_REVOLUTION = 2048;
         public static final double ABSOLUTE_TICKS_PER_REVOLUTION = 4096;
-        
-        //motor config constants
         
         //pid constants
         public static final int ARM_kPIDLoopIdx = 0;
@@ -31,12 +29,10 @@ public class Constants {
         public static final double ARM_CRUISE_VELOCITY = 1000; //tbd
         public static final double ARM_ACCELERATION = 1000; //tbd
 
-        //IN_MOTION falcon encoder check
-        public static final double ARM_FALCON_CHECK_MIN = 0.0; //tbd
-        public static final double ARM_FALCON_CHECK_MAX = 0.0; //tbd
+        //encoder sanity check error constants
+        public static final double ARM_CHECK_ENCODER_ERROR = 0.0; //tbd
 
-        //POS_REACHED absolute encoder check
-        public static final double ARM_ABS_CHECK_MIN = 0.0; //tbd
-        public static final double ARM_ABS_CHECK_MAX = 0.0; //tbd
+        //joystick deadbands
+        public static final double CONTROLLER_Y_AXIS_DEADBAND = 0.8; //tbd
     }
 }

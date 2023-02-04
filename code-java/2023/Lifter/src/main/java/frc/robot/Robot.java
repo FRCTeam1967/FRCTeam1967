@@ -109,7 +109,7 @@ public class Robot extends TimedRobot {
     } else if(xboxController.GetButtonLB()){
       m_arm.setDesiredPosition(Positions.FRONT_MIDDLE);
 
-    } else if(xboxController.GetRightYAxis()==1){
+    } else if(xboxController.GetLeftYAxis()>Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
       m_arm.setDesiredPosition(Positions.FRONT_INTAKE);
       
     } else if(xboxController.GetRightThrottle()==1){
@@ -118,7 +118,7 @@ public class Robot extends TimedRobot {
     } else if(xboxController.GetButtonRB()){
       m_arm.setDesiredPosition(Positions.BACK_MIDDLE);
       
-    } else if(xboxController.GetRightYAxis()==1){
+    } else if(xboxController.GetRightYAxis()>Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
       m_arm.setDesiredPosition(Positions.SAFE);
       
     } else if (xboxController.GetButtonStart()){
