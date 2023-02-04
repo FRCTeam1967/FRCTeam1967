@@ -126,8 +126,8 @@ public class Robot extends TimedRobot {
     // Absolute position (fraction of a circle)
     m_meter.setOutputChannel(0, m_currentAbsPosition / 360.0, Color.kWhite);
 
-    // Velocity (fractional revolutions per second)
-    m_meter.setCenterOutputChannel(1, m_currentVelocity / 360.0, Color.kBlue, Color.kYellow);
+    // Velocity (fractional revolutions per second) +/- 4 revolutions per second
+    m_meter.setCenterOutputChannel(1, m_currentVelocity / 360.0 / 4, Color.kBlue, Color.kYellow);
 
     // Current position (-24 to + 24 revolutions)
     double fractionalPosition = (m_currentPosition / 360.0 / 24);

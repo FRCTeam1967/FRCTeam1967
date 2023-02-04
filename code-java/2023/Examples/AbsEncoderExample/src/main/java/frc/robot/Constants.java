@@ -2,7 +2,7 @@ package frc.robot;
 
 public class Constants {
     public static final class Encoder {
-        public static final int canID = 0;
+        public static final int canID = 22;
     };
 
     public static final class LED {
