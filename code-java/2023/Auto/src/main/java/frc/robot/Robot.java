@@ -41,8 +41,8 @@ public class Robot extends TimedRobot {
   private Joystick rightJoystick;
   private jankyXboxJoystick XboxController;
   
-  private WPI_TalonFX leftLeader = new WPI_TalonFX(1);//m2
-  private WPI_TalonFX rightLeader = new WPI_TalonFX(3);
+  private WPI_TalonFX leftLeader = new WPI_TalonFX(3);//m2
+  private WPI_TalonFX rightLeader = new WPI_TalonFX(1);
 
   private MotorControllerGroup left, right;
   private DifferentialDrive myRobot;
@@ -62,10 +62,11 @@ public class Robot extends TimedRobot {
     falcon.configNominalOutputReverse(0, 75);
     falcon.configPeakOutputForward(1, 75);
     falcon.configPeakOutputReverse(-1, 75);
-    falcon.config_kF(0, 0.0, 75);
-    falcon.config_kP(0, 0.1, 75);
+    //falcon.config_kF(0, 0.1074, 75);
+    falcon.config_kP(0, 0.48072, 75);
     falcon.config_kI(0, 0.0, 75);
     falcon.config_kD(0, 0.0, 75);
+    falcon.configClosedloopRamp(0.7); 
     falcon.configStatorCurrentLimit(chassisCurrentLimit);
     falcon.setNeutralMode(NeutralMode.Brake);
     
@@ -96,6 +97,7 @@ public class Robot extends TimedRobot {
 
     autoPathChooser.setDefaultOption("Community", AutoConstants.SIMPLE_AUTOPATH);
     autoPathChooser.addOption("One cube", AutoConstants.ONE_CUBE_AUTOPATH);
+    autoPathChooser.addOption("Charge station", AutoConstants.CHARGE_STATION);
     SmartDashboard.putData("Auto Path Chooser", autoPathChooser);
 
     leftJoystick = new Joystick(0);
@@ -133,18 +135,22 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    leftLeader.setNeutralMode(NeutralMode.Brake);
+    rightLeader.setNeutralMode(NeutralMode.Brake);
+
     autoDelaySelected = autoDelayChooser.getSelected();
     SmartDashboard.putNumber("Auto Delay Selected", autoDelaySelected);
 
     autoPathSelected = autoPathChooser.getSelected();
     SmartDashboard.putNumber("Auto Path Selected", autoPathSelected);
 
-    autoSM = new AutoStateMachine(autoDelaySelected, autoPathSelected, m_gyro);
+    autoSM = new AutoStateMachine(autoDelaySelected, 2, m_gyro);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
   public void autonomousPeriodic() {
+    SmartDashboard.putNumber("Pitch Gyro Angle", (m_gyro.getYComplementaryAngle() * -1));
     autoSM.displayCurrentState();
   }
 
@@ -162,13 +168,22 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     SmartDashboard.putNumber("Pitch Gyro Angle", (m_gyro.getYComplementaryAngle()));
+   // myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
 
-    if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) { 
-      averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
-      myRobot.tankDrive(-averageSpeed, averageSpeed);
-    } else{
-      myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
-    }
+    averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
+    double targetVelocity_UnitsPer100ms = averageSpeed * 2000.0 * 2048.0 / 600.0;
+    rightLeader.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
+    leftLeader.set(TalonFXControlMode.Velocity, -targetVelocity_UnitsPer100ms);
+
+    // if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) { 
+    //   averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
+    //   //double targetVelocity_UnitsPer100ms = averageSpeed * 2000.0 * 2048.0 / 600.0;
+    //   myRobot.tankDrive(-averageSpeed, averageSpeed);
+    //   //rightLeader.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
+    //   //leftLeader.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
+    // } else{
+    //   myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
+    // }
   }
 
   /** This function is called once when the robot is disabled. */

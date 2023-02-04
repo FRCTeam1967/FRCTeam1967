@@ -21,6 +21,7 @@ public class AutoConstants {
 
     public static final int SIMPLE_AUTOPATH = 0;
     public static final int ONE_CUBE_AUTOPATH = 1;
+    public static final int CHARGE_STATION = 2;
 
     public static final double kTrackwidth = CHASSIS_WIDTH; //232.9723996;
     public static DifferentialDriveKinematics kDriveKinematics;
@@ -72,7 +73,7 @@ public class AutoConstants {
     public static final double PULSES_PER_REVOLUTION = 4096;
     public static final double WHEEL_DIAMETER = 4; //4 inches, was 0.1524 m or 6 inches
     public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
-    public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (54.0/20)); //50/14, 50/24 before
+    public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (40/20)); //50/14, 50/20 before
  
 
 }

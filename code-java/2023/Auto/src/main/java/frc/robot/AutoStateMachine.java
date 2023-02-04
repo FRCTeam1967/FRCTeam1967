@@ -1,25 +1,18 @@
 package frc.robot;
 
 import org.janksters.jankyLib.JankyStateMachine;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
-import edu.wpi.first.wpilibj.Joystick;
-import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
-import edu.wpi.first.wpilibj.ADIS16470_IMU;
-
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-import com.ctre.phoenix.motorcontrol.FeedbackDevice;
-
-import edu.wpi.first.wpilibj.Timer;
+import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 
 public class AutoStateMachine extends JankyStateMachine {
     private WPI_TalonFX rlmotor;//m3
@@ -43,6 +36,12 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int ocDelay = 1;
     private final int ocMove = 2;
     private final int ocFinishAuto = 3;
+
+    private final int upRamp = 0;
+    private final int idle = 1;
+    private final int goBack = 2;
+    private final int goFront = 3;
+    private final int downRamp = 4;
 
     public void resetDelayTimer(){
         delayTimer.reset();
@@ -74,6 +73,30 @@ public class AutoStateMachine extends JankyStateMachine {
         rlmotor = new WPI_TalonFX(3);//m3
         frmotor = new WPI_TalonFX(1);//m1
 
+        rlmotor.configFactoryDefault();
+        rlmotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 75);
+        rlmotor.configNominalOutputForward(0, 75);
+        rlmotor.configNominalOutputReverse(0, 75);
+        rlmotor.configPeakOutputForward(1, 75);
+        rlmotor.configPeakOutputReverse(-1, 75);
+        //falcon.config_kF(0, 0.1074, 75);
+        rlmotor.config_kP(0, 0.48072, 75);
+        rlmotor.config_kI(0, 0.0, 75);
+        rlmotor.config_kD(0, 0.0, 75);
+        rlmotor.configClosedloopRamp(0.7); 
+
+        frmotor.configFactoryDefault();
+        frmotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 75);
+        frmotor.configNominalOutputForward(0, 75);
+        frmotor.configNominalOutputReverse(0, 75);
+        frmotor.configPeakOutputForward(1, 75);
+        frmotor.configPeakOutputReverse(-1, 75);
+        //falcon.config_kF(0, 0.1074, 75);
+        frmotor.config_kP(0, 0.48072, 75);
+        frmotor.config_kI(0, 0.0, 75);
+        frmotor.config_kD(0, 0.0, 75);
+        frmotor.configClosedloopRamp(0.7); 
+
         m_left = new MotorControllerGroup(rlmotor);
         m_right = new MotorControllerGroup(frmotor);
         m_myRobot = new DifferentialDrive(m_left,m_right);
@@ -90,12 +113,21 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(ocFinishAuto, "ocFinishAuto");
             stateMachineSelected = AutoConstants.ONE_CUBE_AUTOPATH;
             start();
-        } else { //leaving tarmac path
+        } else if (path == AutoConstants.SIMPLE_AUTOPATH) { //leaving tarmac path
             SetMachineName ("simpleAuto");
             SetName (simpleDelay, "simpleDelay");
             SetName(simpleMove, "simpleMove");
             SetName (simpleFinishAuto, "simpleFinishAuto");
             stateMachineSelected = AutoConstants.SIMPLE_AUTOPATH;
+            start();
+        } else {
+            SetMachineName ("chargeStation");
+            SetName (upRamp, "upRamp");
+            SetName(idle, "noMove");
+            SetName (goBack, "goBack");
+            SetName (goFront, "goFront");
+            SetName (downRamp, "downRamp");
+            stateMachineSelected = AutoConstants.CHARGE_STATION;
             start();
         }
     }
@@ -152,8 +184,50 @@ public class AutoStateMachine extends JankyStateMachine {
                     Terminate();
                     break;
             }
+            } else if (stateMachineSelected == AutoConstants.CHARGE_STATION) {
+                switch(curState) {
+                    case upRamp:
+                       // m_myRobot.tankDrive(0.8, -0.8);
+                        //if (inchesToEncoder(10) <= getAverageEncoderValues()) { //VROOM VROOM go up ramp speedy
+                           // m_myRobot.tankDrive(0, 0);
+                            NewState(idle, "on the station");
+                        //}
+                        break;
+                    case idle: //don't move
+                        rlmotor.set(TalonFXControlMode.Velocity, 0);
+                        frmotor.set(TalonFXControlMode.Velocity, 0); 
+                        System.out.println("not moving");
+                        if (gyroClassLevel.getYComplementaryAngle()*-1 < -3) {
+                            NewState(goFront, "need to move forward");
+                        } else if (gyroClassLevel.getYComplementaryAngle()*-1 > 3) {
+                            NewState(goBack, "need to move back");
+                        }
+                        break;
+                    case goFront: //forward
+                        //m_myRobot.tankDrive(0.35, -0.35);  //commented out for testing
+                        rlmotor.set(TalonFXControlMode.Velocity, 500); //left pos, right neg
+                        frmotor.set(TalonFXControlMode.Velocity, -500); //what is 500 and why
+                        System.out.println("moving forward");
+                        if (gyroClassLevel.getYComplementaryAngle()*-1 > 3) {
+                            NewState(goBack, "need to move back");
+                        } else if (gyroClassLevel.getYComplementaryAngle()*-1 < 3 && gyroClassLevel.getYComplementaryAngle()*-1 > -3){
+                            NewState(idle, "fine!");
+                        }
+                        break;
+                    case goBack: //backwards
+                        // rlmotor.set(TalonFXControlMode.Velocity, -500); //left pos, right neg
+                        // frmotor.set(TalonFXControlMode.Velocity, 500); //what is 500 and why
+                        m_myRobot.tankDrive(-0.35, 0.35);
+                        System.out.println("moving backward");
+                        if (gyroClassLevel.getYComplementaryAngle()*-1 < -3) {
+                            NewState(goFront, "need to move forward");
+                        } else if (gyroClassLevel.getYComplementaryAngle()*-1 < 3 && gyroClassLevel.getYComplementaryAngle()*-1 > -3){
+                            NewState(idle, "fine!");
+                        }
+                        break;
+                }
+            }
         }
-    }
 
     public void displayCurrentState() {
         SmartDashboard.putNumber("auto current state", GetCurrentState()); //displays auto current state
@@ -166,9 +240,7 @@ public class AutoStateMachine extends JankyStateMachine {
     }
 
     public double inchesToEncoder(int inches) {
-        //double newEncoderValue = ((inches / AutoConstants.CHASSIS_GEAR_RATIO) * Constants.FALCON_PULSES_PER_REVOLUTION) * AutoConstants.WHEEL_CIRCUMFERENCE;
         double newEncoderValue = inches / AutoConstants.WHEEL_CIRCUMFERENCE * AutoConstants.CHASSIS_GEAR_RATIO * AutoConstants.FALCON_PULSES_PER_REVOLUTION;
-        //((distance / Constants.CLIMB_GEAR_RATIO) * Constants.FALCON_PULSES_PER_REVOLUTION) / Constants.WINCH_CIRCUMFERENCE;
         return newEncoderValue;
     }
 

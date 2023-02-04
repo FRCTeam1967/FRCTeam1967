@@ -51,7 +51,7 @@ public abstract class JankyTask extends Thread{
             if (enabled_){
                 Run();
                 try {
-                    Thread.sleep(40);
+                    Thread.sleep(40); 
                 }
                 catch (Exception e) {
                     System.out.println(e);
