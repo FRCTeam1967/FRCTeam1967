@@ -63,33 +63,50 @@ public class HorizontalMeter {
     // a range of [-1.0, 1.0].
 
     public void setCenterOutputChannel(int meterIndex, double fraction, Color posColor, Color negColor,
-    Color bgColor, Color zeroColor) {
+    Color bgColor, Color centerColor) {
         assert(meterIndex < m_numChannels);
         fraction = Math.min(1.0, Math.max(-1.0, fraction)); // Contrain to [-1.0, 1.0]
-        int meterValue = (int)((m_width * 0.5) * Math.abs(fraction) + 0.5);
         int startRow = meterStartRow(meterIndex);
         double center = m_width / 2.0;
-        for (int meterRow = 0; meterRow < m_channelHeight; meterRow++) {
-            for (int col = 0; col < m_width; col++) {
-                Color pixelColor = bgColor;
+        int negativeOrigin = (int)Math.round(center - 0.1); // Center may or may not be an integer depending on the panel width
+        int positiveOrigin = (int)Math.round(center + 0.1);
 
-                // We always want to show something in the middle. 
-                if (col > center - 0.5 && col < center + 0.5) {
-                    pixelColor = zeroColor;
-                } else if (fraction <= 0.0 && col <= center) {
-                    // Negative meter. Only consider the left half of the meter
-                    pixelColor = col > center - meterValue ? negColor : bgColor;
-                } else if (fraction >= 0.0 && col >= center) {
-                    // Positive meter. Only consider the right half of the meter
-                    pixelColor = col < center + meterValue ? posColor : bgColor;
-                }
+        // Compute the last pixel colored (either the left or right edge of the bar graph)
+        // Negative column range is [0, negativeOrigin)
+        // Positive column range is (positiveOrigin, width-1]
+        int barGraphEdge = 0;
+        if (fraction >= 0) {
+            double range = (m_width - 1) - positiveOrigin;
+            double value = range * fraction;
+            barGraphEdge = positiveOrigin + (int)value;
+        } else {
+            double range = negativeOrigin - 0;
+            double value = range * Math.abs(fraction);
+            barGraphEdge = negativeOrigin - (int)value;
+        }
+
+        for (int col = 0; col < m_width; col++) {
+            Color pixelColor = bgColor;
+            if (col >= negativeOrigin && col <= positiveOrigin) {
+                // Center of the meter
+                pixelColor = centerColor;
+            } else if (fraction < 0.0 && col < negativeOrigin) {
+                // Negative meter. Only consider the left half of the meter
+                pixelColor = col >= barGraphEdge ? negColor : bgColor;
+            } else if (fraction > 0.0 && col > positiveOrigin) {
+                // Positive meter. Only consider the right half of the meter
+                pixelColor = col <= barGraphEdge ? posColor : bgColor;
+            }
+
+            // Apply the color to every row in the channel
+            for (int meterRow = 0; meterRow < m_channelHeight; meterRow++) {
                 m_ledPanel.setPixelByXY(m_startColumn + col, startRow + meterRow, pixelColor);
             }
         }
     }
 
     public void setCenterOutputChannel(int meterIndex, double fraction, Color negColor, Color posColor) {
-        setCenterOutputChannel(meterIndex, fraction, posColor, negColor, Color.kBlack, Color.kPurple);
+        setCenterOutputChannel(meterIndex, fraction, negColor, posColor, Color.kBlack, Color.kPurple);
     }
 
     public int meterStartRow(int meterIndex) {
