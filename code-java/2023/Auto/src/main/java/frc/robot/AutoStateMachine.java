@@ -28,6 +28,12 @@ public class AutoStateMachine extends JankyStateMachine {
     public static int path;
     public int stateMachineSelected;
 
+    public double minAngle;
+    public double maxAngle;
+    public double targetVelocity;
+    public double bothkP;
+    public double gyroAngle;
+
     private final int simpleDelay = 0;
     private final int simpleMove = 1;
     private final int simpleFinishAuto = 2;
@@ -70,6 +76,14 @@ public class AutoStateMachine extends JankyStateMachine {
         delay = _delay;
         path = autoPathSelected;
         gyroClassLevel = m_gyro;
+
+        //need to move into AutoConstants file
+        gyroAngle = gyroClassLevel.getYComplementaryAngle()*-1;
+        minAngle = -2.5;
+        maxAngle = 2.5;
+        bothkP = 0.48072;
+        targetVelocity = 400;
+
         rlmotor = new WPI_TalonFX(3);//m3
         frmotor = new WPI_TalonFX(1);//m1
 
@@ -80,7 +94,7 @@ public class AutoStateMachine extends JankyStateMachine {
         rlmotor.configPeakOutputForward(1, 75);
         rlmotor.configPeakOutputReverse(-1, 75);
         //falcon.config_kF(0, 0.1074, 75);
-        rlmotor.config_kP(0, 0.48072, 75);
+        rlmotor.config_kP(0, bothkP, 75);
         rlmotor.config_kI(0, 0.0, 75);
         rlmotor.config_kD(0, 0.0, 75);
         rlmotor.configClosedloopRamp(0.7); 
@@ -92,7 +106,7 @@ public class AutoStateMachine extends JankyStateMachine {
         frmotor.configPeakOutputForward(1, 75);
         frmotor.configPeakOutputReverse(-1, 75);
         //falcon.config_kF(0, 0.1074, 75);
-        frmotor.config_kP(0, 0.48072, 75);
+        frmotor.config_kP(0, bothkP, 75);
         frmotor.config_kI(0, 0.0, 75);
         frmotor.config_kD(0, 0.0, 75);
         frmotor.configClosedloopRamp(0.7); 
@@ -197,20 +211,20 @@ public class AutoStateMachine extends JankyStateMachine {
                         rlmotor.set(TalonFXControlMode.Velocity, 0);
                         frmotor.set(TalonFXControlMode.Velocity, 0); 
                         System.out.println("not moving");
-                        if (gyroClassLevel.getYComplementaryAngle()*-1 < -3) {
+                        if (gyroAngle < minAngle) {
                             NewState(goFront, "need to move forward");
-                        } else if (gyroClassLevel.getYComplementaryAngle()*-1 > 3) {
+                        } else if (gyroAngle > maxAngle) {
                             NewState(goBack, "need to move back");
                         }
                         break;
                     case goFront: //forward
                         //m_myRobot.tankDrive(0.35, -0.35);  //commented out for testing
-                        rlmotor.set(TalonFXControlMode.Velocity, 500); //left pos, right neg
-                        frmotor.set(TalonFXControlMode.Velocity, -500); //what is 500 and why
+                        rlmotor.set(TalonFXControlMode.Velocity, targetVelocity); //left pos, right neg
+                        frmotor.set(TalonFXControlMode.Velocity, -targetVelocity); //what is 500 and why
                         System.out.println("moving forward");
-                        if (gyroClassLevel.getYComplementaryAngle()*-1 > 3) {
+                        if (gyroAngle > maxAngle) {
                             NewState(goBack, "need to move back");
-                        } else if (gyroClassLevel.getYComplementaryAngle()*-1 < 3 && gyroClassLevel.getYComplementaryAngle()*-1 > -3){
+                        } else if (gyroAngle < maxAngle && gyroAngle > minAngle){
                             NewState(idle, "fine!");
                         }
                         break;
@@ -219,9 +233,9 @@ public class AutoStateMachine extends JankyStateMachine {
                         // frmotor.set(TalonFXControlMode.Velocity, 500); //what is 500 and why
                         m_myRobot.tankDrive(-0.35, 0.35);
                         System.out.println("moving backward");
-                        if (gyroClassLevel.getYComplementaryAngle()*-1 < -3) {
+                        if (gyroAngle < minAngle) {
                             NewState(goFront, "need to move forward");
-                        } else if (gyroClassLevel.getYComplementaryAngle()*-1 < 3 && gyroClassLevel.getYComplementaryAngle()*-1 > -3){
+                        } else if (gyroAngle < maxAngle && gyroAngle > minAngle){
                             NewState(idle, "fine!");
                         }
                         break;
