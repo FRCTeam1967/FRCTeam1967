@@ -1,9 +1,6 @@
 package frc.robot;
 
-import org.janksters.jankyLib.JankyStateMachine;
-
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
@@ -14,30 +11,12 @@ import com.ctre.phoenix.sensors.WPI_CANCoder;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
-/**
- * Arm Xbox Controller Button Mapping
- * GetLeftThrottle- front top
- * GetButtonLB- front middle
- * GetLeftYAxis- intake
- * GetRightThrottle- back top
- * GetButtonRB - back middle
- * GetRightYAxis- safe
- * Arm homing- start
-*/
-
-public class Arm extends JankyStateMachine {
+public class ArmStateless {
     private WPI_TalonFX armMotorL, armMotorR;
     private WPI_CANCoder m_encoder;
-
-    //desiredAngle is changed through the setDesiredAngle method, which is triggered through buttons in Robot.java
     private double desiredAngle;
-    
-    //shuffleboard fields
     private ShuffleboardTab m_encoderTab;
-    
-    //state IDs
-    private final int IDLE = 0, IN_MOTION = 1, POS_REACHED = 2;
-    
+
     /**
     * Constructor for Arm class
     * <p>
@@ -46,7 +25,7 @@ public class Arm extends JankyStateMachine {
     * @param armMotorRID - motor ID for right arm motor
     * @return Arm object with defined and configured falcons, encoder, state machine, and states
     */
-    public Arm(int armMotorLID, int armMotorRID){
+    public ArmStateless(int armMotorLID, int armMotorRID){
         armMotorL = new WPI_TalonFX(armMotorLID);
         armMotorR = new WPI_TalonFX(armMotorRID);
 
@@ -54,26 +33,15 @@ public class Arm extends JankyStateMachine {
         configMotors(armMotorR);
         
         m_encoder = new WPI_CANCoder(Constants.Encoder.ARM_ABS_ENCODER_ID);
-        m_encoder.configMagnetOffset(Constants.Encoder.ARM_ABS_ENCODER_OFFSET);
-
-        SetMachineName("JankyStateMachineArm");
-
-        SetName(IDLE, "Idle");
-        SetName(IN_MOTION, "In Motion");
-        SetName(POS_REACHED, "Position Reached");
-        
-        start();
     }
-    
+
     /**
      * Adds encoders tab and values (both absolute and falcon) to Shuffleboard
      */
     public void configDashboard(){
         m_encoderTab = Shuffleboard.getTab("Encoder");
         
-        //updates encoder values on shuffleboard continuously
         m_encoderTab.addDouble("Abs Angle", () -> m_encoder.getAbsolutePosition()); //degrees
-        
         m_encoderTab.addDouble("Abs Velocity", () ->  m_encoder.getVelocity());
 
         m_encoderTab.addDouble("Falcon Ticks R", () -> armMotorR.getSelectedSensorPosition());
@@ -82,14 +50,14 @@ public class Arm extends JankyStateMachine {
         m_encoderTab.addDouble("Falcon Ticks L", () -> armMotorL.getSelectedSensorPosition());
         m_encoderTab.addDouble("Falcon Angle (Method Calc) L", () -> falconTicksToAngle(armMotorL.getSelectedSensorPosition()));
         
-        //m_encoderTab.addDouble("Closed Loop Error", () -> armMotorL.getClosedLoopError(0));
-
+        m_encoderTab.addDouble("Closed Loop Error", () -> armMotorR.getClosedLoopError(0));
+        
         m_encoderTab.addBoolean("isArmInRange", () -> isArmInRangeFalcon(desiredAngle, Constants.Arm.CHECK_ENCODER_ERROR));
         m_encoderTab.addDouble("Desired Angle", () -> desiredAngle);
 
         m_encoderTab.add(m_encoder);
     }
-    
+
     /**
      * Called in robotInit to configure CANCoder at beginning of match
      */
@@ -98,7 +66,7 @@ public class Arm extends JankyStateMachine {
         config.unitString = "deg";
         config.sensorTimeBase = SensorTimeBase.PerSecond; //rpm?
         m_encoder.configAllSettings(config);
-        m_encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 10); // changes the period of the sensor data frame to 10ms 
+        m_encoder.setStatusFramePeriod(CANCoderStatusFrame.SensorData, 10); 
     }
     
     /**
@@ -109,28 +77,23 @@ public class Arm extends JankyStateMachine {
      * Can be triggered by Start button in teleopPeriodic if arm slips during match
      */
     public void armHoming(){
-        //read the absolute encoder ticks
-        double absAngle = m_encoder.getAbsolutePosition(); //degrees of revolution (absolute)
-        
-        //convert arm angle to falcon encoder ticks
+        double absAngle = m_encoder.getAbsolutePosition(); 
         double falconTicks = angleToFalconTicks(absAngle);
 
-        //offset falcon encoder
         armMotorL.setSelectedSensorPosition(falconTicks);
         armMotorR.setSelectedSensorPosition(falconTicks);
 
-        //reset "goalpost" desired angle
-        setDesiredPosition(absAngle);
+        moveArm(absAngle);
     }
-    
+
     /**
      * Configure falcon motor settings, falcon encoder, and PID constants
+     * @param motor - Falcon motor to be configured
      */
     private void configMotors(WPI_TalonFX motor){
         TalonFXConfiguration config = new TalonFXConfiguration();
         motor.configAllSettings(config);
-        
-        //pid constants config
+
         motor.config_kP(Constants.Arm.kPIDLoopIdx, Constants.Arm.kP, Constants.Arm.K_TIMEOUT_MS);
         motor.config_kI(Constants.Arm.kPIDLoopIdx, Constants.Arm.kI, Constants.Arm.K_TIMEOUT_MS);
         motor.config_kD(Constants.Arm.kPIDLoopIdx, Constants.Arm.kD, Constants.Arm.K_TIMEOUT_MS);
@@ -139,35 +102,26 @@ public class Arm extends JankyStateMachine {
         
         motor.configMotionCruiseVelocity(Constants.Arm.CRUISE_VELOCITY, Constants.Arm.K_TIMEOUT_MS);
         motor.configMotionAcceleration(Constants.Arm.ACCELERATION, Constants.Arm.K_TIMEOUT_MS);
-
-        motor.setInverted(TalonFXInvertType.Clockwise);
     }
 
     /**
-     * If input angle is within range, updates value of desiredAngle and shoves state machine into IN_MOTION
+     * If input angle is within range, updates value of desiredAngle, converts angle to falcon ticks, and sets to motors
      * <p>
      * Called when button is pressed in Robot.java
      * Method is accessible to other mechanisms to trigger change in arm position
-     * @param position - Desired position for the arm to reach
-     */
-    public void setDesiredPosition(double angle){
-        //input checks
-        if(angle >= 0 && angle <= 180) {
-            desiredAngle = angle;
-            NewState(IN_MOTION, "Button pressed, transition to IN_MOTION");
-        } else {
-            System.out.println("setDesiredPosition, input angle out of range");
-        }
-    }
-    
-    /**
-     * Calculate falcon ticks from angle parameter and feed to Motion Magic
+     * 
      * @param angle - Desired angle in degrees to move the arm to
      */
     public void moveArm(double angle) {
-        int falconTicks = angleToFalconTicks(angle);
-        armMotorR.set(TalonFXControlMode.MotionMagic, falconTicks);
-        armMotorL.set(TalonFXControlMode.MotionMagic, falconTicks);
+        //INPUT CHECK HERE
+        if(angle >= 0 && angle <= 180) {
+            desiredAngle = angle;
+            int falconTicks = angleToFalconTicks(desiredAngle);
+            armMotorR.set(TalonFXControlMode.MotionMagic, falconTicks);
+            armMotorL.set(TalonFXControlMode.MotionMagic, falconTicks);
+        } else {
+            System.out.println("Input angle out of range");
+        }
     }
     
     /**
@@ -197,11 +151,11 @@ public class Arm extends JankyStateMachine {
      * @return boolean - Whether encoder motor position is within the range
      */
     public boolean isArmInRangeFalcon(double angle, double error){
-        double lowerBound = angle - error, upperBound = angle + error;
-        double currentAngleL = falconTicksToAngle(armMotorL.getSelectedSensorPosition());
+        double lowerBound = angle - error;
+        double upperBound = angle + error;
+        double currentAngleR = falconTicksToAngle(armMotorR.getSelectedSensorPosition());
 
-        //if left is in range, but right is not, that's a what the heck is happening edgecase (hopefully)
-        return (currentAngleL > lowerBound && currentAngleL < upperBound);
+        return (currentAngleR > lowerBound && currentAngleR < upperBound);
     }
     
     /**
@@ -211,38 +165,17 @@ public class Arm extends JankyStateMachine {
      */
     public boolean encoderCrossCheck(double error){
         double currentAngleAbs = m_encoder.getAbsolutePosition();
-        double currentAngleFalconL = falconTicksToAngle(armMotorL.getSelectedSensorPosition());
-        double calcError = Math.abs(currentAngleAbs - currentAngleFalconL); //difference in angle between 2 encoders
+        double currentAngleFalconR = falconTicksToAngle(armMotorR.getSelectedSensorPosition());
+        double calcError = Math.abs(currentAngleAbs - currentAngleFalconR); 
         
         return (calcError <= error);
     }
-    
-    public void StateEngine(int curState, boolean onStateEntered){
-        switch (curState){
-            case IDLE:
-                if (onStateEntered){}
-                break;
-            case IN_MOTION:
-                if (onStateEntered){
-                    //use motion magic to move and hold arm at desired position
-                    moveArm(desiredAngle);
-                }
-                
-                //check if falcon encoder ticks are in range to transition out of IN_MOTION state
-                if(isArmInRangeFalcon(desiredAngle, Constants.Arm.CHECK_ENCODER_ERROR)){
-                    NewState(POS_REACHED, "Angle within range, transition to POS_REACHED");
-                }
-                break;
-            case POS_REACHED:
-                if (onStateEntered){}
-                
-                //sanity check- check if both encoders are synced, send error message if not
-                /*
-                if(!encoderCrossCheck(Constants.Arm.CHECK_ENCODER_ERROR)){
-                    System.out.println("ENCODER INCONSISTENCY- Absolute and falcon encoders not synced");
-                }
-                */
-                break;
-        }
+
+    /**
+     * Get value of desiredAngle
+     * @return desiredAngle, double
+     */
+    public double getDesiredAngle(){
+        return desiredAngle;
     }
 }
