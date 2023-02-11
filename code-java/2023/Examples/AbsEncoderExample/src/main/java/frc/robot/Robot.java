@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import org.janksters.ExampleCommonClasses.LEDPanel;
-import org.janksters.ExampleCommonClasses.HorizontalMeter;
+import org.janksters.ExampleCommonClasses.Subsystems.HorizontalMeterSubsystem;
+import org.janksters.ExampleCommonClasses.Subsystems.LEDPanelSubsystem;
 
 import com.ctre.phoenix.sensors.CANCoderConfiguration;
 import com.ctre.phoenix.sensors.CANCoderStatusFrame;
@@ -22,8 +22,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-
-
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -48,8 +47,8 @@ public class Robot extends TimedRobot {
   GenericEntry m_shouldUpdatePositionOnEnableEntry;
   GenericEntry m_shouldUpdateAbsOffsetOnEnableEntry;
 
-  private LEDPanel m_panel = new LEDPanel(Constants.LED.width, Constants.LED.height, Constants.LED.pwmPin);
-  private HorizontalMeter m_meter = new HorizontalMeter(m_panel, 3);
+  private LEDPanelSubsystem m_panel = new LEDPanelSubsystem(Constants.LED.width, Constants.LED.height, Constants.LED.pwmPin);
+  private HorizontalMeterSubsystem m_meter = new HorizontalMeterSubsystem(m_panel, 3);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -118,6 +117,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    // Run the scheduler for subsystems and commands
+    CommandScheduler.getInstance().run();
+
     m_currentAbsPosition = m_encoder.getAbsolutePosition(); // degrees of revolution (absolute)
     m_currentPosition = m_encoder.getPosition();    // degreees of accumulated revolution
     m_currentVelocity = m_encoder.getVelocity();    // degrees / second
@@ -135,8 +137,6 @@ public class Robot extends TimedRobot {
     // Current position (-24 to + 24 revolutions)
     double fractionalPosition = (m_currentPosition / 360.0 / 24);
     m_meter.setCenterOutputChannel(2, fractionalPosition , Color.kGreen, Color.kRed);
-
-    m_panel.commit();
   }
 
   /**

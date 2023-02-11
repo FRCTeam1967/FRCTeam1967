@@ -4,8 +4,8 @@
 
 package frc.robot;
 
-import org.janksters.ExampleCommonClasses.LEDPanel;
-import org.janksters.ExampleCommonClasses.HorizontalMeter;
+import org.janksters.ExampleCommonClasses.Subsystems.HorizontalMeterSubsystem;
+import org.janksters.ExampleCommonClasses.Subsystems.LEDPanelSubsystem;
 
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
-import frc.robot.Constants.LED;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
 import java.util.Map;
 
@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  private WPI_Pigeon2 m_pigeon2 = new WPI_Pigeon2(Constants.Gyroscope.canID);
+  private WPI_Pigeon2 m_pigeon2 = new WPI_Pigeon2(Constants.Gyroscope.canID, "Canivore");
 
   private double m_rawGyro[] = new double[3];
   private double m_yaw;
@@ -45,8 +45,8 @@ public class Robot extends TimedRobot {
   private double m_heading;
   private Rotation2d m_rotation;
 
-  private LEDPanel m_panel;
-  private HorizontalMeter m_hMeter;
+  private LEDPanelSubsystem m_panel;
+  private HorizontalMeterSubsystem m_hMeter;
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -80,8 +80,8 @@ public class Robot extends TimedRobot {
       .withWidget(BuiltInWidgets.kGraph)
       .withSize(3,1);
 
-      m_panel = new LEDPanel(Constants.LED.width, Constants.LED.height, Constants.LED.pwmPin);
-      m_hMeter = new HorizontalMeter(m_panel, 7);
+      m_panel = new LEDPanelSubsystem(Constants.LED.width, Constants.LED.height, Constants.LED.pwmPin);
+      m_hMeter = new HorizontalMeterSubsystem(m_panel, 7);
   }
 
   /**
@@ -93,6 +93,9 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    // Run the scheduler for subsystems and commands
+    CommandScheduler.getInstance().run();
+
     m_pigeon2.getRawGyro(m_rawGyro);
     m_yaw = m_pigeon2.getYaw();
     m_pitch = m_pigeon2.getPitch();
@@ -111,8 +114,6 @@ public class Robot extends TimedRobot {
       // Raw gyro is in degrees/second
       m_hMeter.setCenterOutputChannel(4 + axis, m_rawGyro[axis] / 45.0, Color.kRed, Color.kGreen);
     }
-
-    m_panel.commit();
   }
 
   /**

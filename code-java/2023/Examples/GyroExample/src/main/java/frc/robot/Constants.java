@@ -1,6 +1,5 @@
 package frc.robot;
 
-import com.ctre.phoenix.sensors.Pigeon2;
 import com.ctre.phoenix.sensors.Pigeon2.AxisDirection;
 
 public final class Constants {
