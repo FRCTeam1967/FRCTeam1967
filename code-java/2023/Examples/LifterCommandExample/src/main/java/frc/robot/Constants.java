@@ -20,7 +20,7 @@ public class Constants {
         public static final double bMIDDLE_ANGLE = 160; //right button
         
         //conversion factors
-        public static final double GEAR_RATIO = 42/26; //120 on arm
+        public static final double GEAR_RATIO = 120.0; //120 on arm
         public static final double FALCON_TICKS_PER_REVOLUTION = 2048;
         public static final double ABSOLUTE_TICKS_PER_REVOLUTION = 4096;
         

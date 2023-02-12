@@ -8,22 +8,22 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInLayouts;
+import edu.wpi.first.wpilibj.shuffleboard.EventImportance;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardLayout;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.Commands.MoveArmCommand;
 import frc.robot.Subsystems.ArmSubsystem;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandJoystick;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 
-import java.util.Map;
-
-import org.janksters.jankyLib.*;
-
-import com.fasterxml.jackson.databind.deser.std.ContainerDeserializerBase;  
+import java.util.Map;  
 
 
 /**
@@ -39,10 +39,10 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
   //construct arm state machine object
-  private Arm m_arm = new Arm(0, 0);
-  private ArmSubsystem m_armSubsystem = new ArmSubsystem(m_arm);
-  private jankyXboxJoystick xboxController = new jankyXboxJoystick(0);
-  private CommandXboxController xboxCommandController = new CommandXboxController(0);
+  private Arm m_arm;
+  private ArmSubsystem m_armSubsystem;
+  // private CommandXboxController xboxCommandController = new CommandXboxController(0);
+  private CommandJoystick joystick = new CommandJoystick(0);
 
 
   /**
@@ -54,6 +54,11 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
+
+    m_arm = new Arm(Constants.Arm.MOTOR_L_ID, Constants.Arm.MOTOR_R_ID);
+    m_arm.configDashboard();
+    m_armSubsystem = new ArmSubsystem(m_arm);
+  
     
     //configure CANCoder when robot is turned on
     m_arm.initEncoder();
@@ -63,7 +68,7 @@ public class Robot extends TimedRobot {
 
     // Add commands to the dashboard for testing
     ShuffleboardTab tab = Shuffleboard.getTab("Arm");
-    ShuffleboardLayout commandList = tab.getLayout("Graphs", BuiltInLayouts.kList)
+    ShuffleboardLayout commandList = tab.getLayout("Commands", BuiltInLayouts.kList)
       .withProperties(Map.of("Label position", "TOP"));
     commandList.add("Front Top", new MoveArmCommand(Constants.Arm.fTOP_ANGLE, m_armSubsystem));
     commandList.add("Front Middle", new MoveArmCommand(Constants.Arm.fMIDDLE_ANGLE, m_armSubsystem));
@@ -86,20 +91,52 @@ public class Robot extends TimedRobot {
       new MoveArmCommand(Constants.Arm.bTOP_ANGLE, m_armSubsystem)
     ));
 
+    // Add the scheduler itself so we can see what it's doing
+    tab.add("Scheduler", CommandScheduler.getInstance());
+
+    // Set the scheduler to log Shuffleboard events for command initialize, interrupt, finish
+   CommandScheduler.getInstance()
+       .onCommandInitialize(
+           command ->
+               Shuffleboard.addEventMarker(
+                   "Command initialized", command.getName(), EventImportance.kNormal));
+   CommandScheduler.getInstance()
+       .onCommandInterrupt(
+           command ->
+               Shuffleboard.addEventMarker(
+                   "Command interrupted", command.getName(), EventImportance.kNormal));
+   CommandScheduler.getInstance()
+       .onCommandFinish(
+           command ->
+               Shuffleboard.addEventMarker(
+                   "Command finished", command.getName(), EventImportance.kNormal));
 
     // Setup triggers. 
-    xboxCommandController.leftBumper().onTrue(new MoveArmCommand(Constants.Arm.fMIDDLE_ANGLE, m_armSubsystem));
-    xboxCommandController.rightBumper().onTrue(new MoveArmCommand(Constants.Arm.bMIDDLE_ANGLE, m_armSubsystem));
-    xboxCommandController.start().onTrue(new InstantCommand(m_armSubsystem::resetHome, m_armSubsystem));
-    xboxCommandController.leftTrigger(0.95).onTrue(new MoveArmCommand(Constants.Arm.fTOP_ANGLE, m_armSubsystem));
-    xboxCommandController.rightTrigger(0.95).onTrue(new MoveArmCommand(Constants.Arm.bTOP_ANGLE, m_armSubsystem));
+    // xboxCommandController.leftBumper().onTrue(new MoveArmCommand(Constants.Arm.fMIDDLE_ANGLE, m_armSubsystem));
+    // xboxCommandController.rightBumper().onTrue(new MoveArmCommand(Constants.Arm.bMIDDLE_ANGLE, m_armSubsystem));
+    // xboxCommandController.start().onTrue(new InstantCommand(m_armSubsystem::resetHome, m_armSubsystem));
+    // xboxCommandController.leftTrigger(0.95).onTrue(new MoveArmCommand(Constants.Arm.fTOP_ANGLE, m_armSubsystem));
+    // xboxCommandController.rightTrigger(0.95).onTrue(new MoveArmCommand(Constants.Arm.bTOP_ANGLE, m_armSubsystem));
 
-    // We need to make our own triggers for these
-    new Trigger(() -> xboxCommandController.getLeftY() > Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND)
-      .onTrue(new MoveArmCommand(Constants.Arm.INTAKE_ANGLE, m_armSubsystem));
-    new Trigger(() -> xboxCommandController.getRightY() > Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND)
-      .onTrue(new MoveArmCommand(Constants.Arm.SAFE_ANGLE, m_armSubsystem));
+    // // We need to make our own triggers for these
+    // new Trigger(() -> xboxCommandController.getLeftY() > Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND)
+    //   .onTrue(new MoveArmCommand(Constants.Arm.INTAKE_ANGLE, m_armSubsystem));
+    // new Trigger(() -> xboxCommandController.getRightY() > Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND)
+    //   .onTrue(new MoveArmCommand(Constants.Arm.SAFE_ANGLE, m_armSubsystem));
     
+    joystick.button(1).onTrue(new SequentialCommandGroup(
+      new MoveArmCommand(Constants.Arm.fTOP_ANGLE, m_armSubsystem),
+      new WaitCommand(2.0),
+      new MoveArmCommand(Constants.Arm.fMIDDLE_ANGLE, m_armSubsystem),
+      new WaitCommand(2.0),
+      new MoveArmCommand(Constants.Arm.INTAKE_ANGLE, m_armSubsystem),
+      new WaitCommand(2.0),
+      new MoveArmCommand(Constants.Arm.bMIDDLE_ANGLE, m_armSubsystem),
+      new WaitCommand(2.0),
+      new MoveArmCommand(Constants.Arm.bTOP_ANGLE, m_armSubsystem)
+    ) );
+    joystick.button(2).onTrue(new MoveArmCommand(Constants.Arm.fTOP_ANGLE, m_armSubsystem));
+    joystick.button(3).whileTrue(new PrintCommand("Button 3 pressed!"));
   }
 
   /**
@@ -111,6 +148,7 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotPeriodic() {
+    CommandScheduler.getInstance().run();
   }
 
   /**
