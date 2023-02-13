@@ -5,7 +5,6 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -28,52 +27,27 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
   KitBotChassis m_chassis;
-  VelocityControl velocityChassis;
-  WPI_TalonFX leftFollower, rightLeader;
-  WPI_TalonFX leftLeader, rightFollower;
+  WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
   MotorControllerGroup leftGroup, rightGroup;
   DifferentialDrive myRobot;
 
-  //leftGroup = new MotorControllerGroup(leftFollower, leftLeader);
-  //rightGroup = new MotorControllerGroup(rightFollower, rightLeader);
-
   Joystick leftJoystick, rightJoystick;
-  Limelight limelight;
 
 
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
-
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     
+    m_chassis = new KitBotChassis();
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
-    
-    m_chassis = new KitBotChassis();
-    velocityChassis = new VelocityControl();
-    limelight = new Limelight();
-
-    //leftLeader = new WPI_TalonFX(Constants.LEFT_LEADER);
-    leftFollower = new WPI_TalonFX(Constants.LEFT_FOLLOWER);
-    rightLeader = new WPI_TalonFX(Constants.RIGHT_LEADER);
-    //rightFollower = new WPI_TalonFX(Constants.RIGHT_FOLLOWER);
-    
-    velocityChassis.configTargetVelocityLeft(leftFollower);
-    //velocityChassis.configTargetVelocityLeft(leftLeader);
-    //velocityChassis.configTargetVelocityRight(rightFollower);
-    velocityChassis.configTargetVelocityRight(rightLeader);
-
-    //leftGroup = new MotorControllerGroup(leftFollower, leftLeader);
-    //rightGroup = new MotorControllerGroup(rightFollower, rightLeader);
-    
-    myRobot = new DifferentialDrive(leftFollower, rightLeader);
-    
+    m_chassis.setChassisModes(true);
   }
 
   /**
@@ -125,23 +99,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-     
     if (leftJoystick.getRawButton(1) && rightJoystick.getRawButton(1)){
       m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
     } else {
-      velocityChassis.velocityEquationConfig(leftJoystick.getY(), rightJoystick.getY());
-      
-      velocityChassis.setVelocityLeft(leftFollower);
-      //velocityChassis.setVelocityLeft(leftLeader);
-      //velocityChassis.setVelocityRight(rightFollower);
-      velocityChassis.setVelocityRight(rightLeader);
-
-      //m_chassis.driveTank(leftJoystick.getY(), rightJoystick.getY());
+    m_chassis.driveTank(leftJoystick.getY(), rightJoystick.getY());
     }
-
-    limelight.getLimelightValues();
-    limelight.trackingLimelight(m_chassis.getRobot(), leftJoystick);
-    
   }
 
   /** This function is called once when the robot is disabled. */

@@ -5,10 +5,8 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.janksters.jankyLib.jankyXboxJoystick;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -22,12 +20,6 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  //IntakeStateMachine intake = new IntakeStateMachine();
-
-  jankyXboxJoystick xboxController = new jankyXboxJoystick(1);
-  Intake intake;
-
-
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -37,7 +29,6 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    intake = new Intake();
   }
 
   /**
@@ -87,23 +78,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    if (xboxController.GetButtonX() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonY()) {
-      intake.runIntake();
-    }
-    else if (xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonB() && !xboxController.GetButtonY()){
-      intake.runBottomEject();
-    }
-    else if (xboxController.GetButtonB() && !xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonY()){
-      intake.runMiddleEject();
-    }
-    else if(xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonX()){
-      intake.runTopEject();
-    }
-    else {
-      intake.setMotorsToZero();
-    }
-  }
+  public void teleopPeriodic() {}
 
   /** This function is called once when the robot is disabled. */
   @Override

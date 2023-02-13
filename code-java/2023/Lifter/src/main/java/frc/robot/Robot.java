@@ -7,7 +7,6 @@ package frc.robot;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import org.janksters.jankyLib.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -20,11 +19,6 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
-  //construct arm state machine object
-  private Arm m_arm = new Arm(Constants.Arm.MOTOR_L_ID, Constants.Arm.MOTOR_R_ID);
-
-  private jankyXboxJoystick xboxController = new jankyXboxJoystick(0);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -35,14 +29,8 @@ public class Robot extends TimedRobot {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
-    
-    //ARM
-    m_arm.initEncoder();
-    m_arm.armHoming();
-    m_arm.configDashboard();
-
   }
-  
+
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
@@ -51,9 +39,8 @@ public class Robot extends TimedRobot {
    * SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {
-  }
-  
+  public void robotPeriodic() {}
+
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
    * autonomous modes using the dashboard. The sendable chooser code works with the Java
@@ -69,9 +56,6 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
-
-     //run arm homing method
-     m_arm.armHoming();
   }
 
   /** This function is called periodically during autonomous. */
@@ -87,47 +71,14 @@ public class Robot extends TimedRobot {
         break;
     }
   }
-  
+
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {
-     //run arm homing method
-     m_arm.armHoming();
-  }
-  
+  public void teleopInit() {}
+
   /** This function is called periodically during operator control. */
   @Override
-  public void teleopPeriodic() {
-    if(xboxController.GetLeftYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
-      m_arm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
-      System.out.println("Front Intake button pressed");
-      
-    } else if(xboxController.GetButtonLB()){
-      m_arm.setDesiredPosition(Constants.Arm.fMIDDLE_ANGLE);
-      System.out.println("Front Middle button pressed");
-
-    } else if(xboxController.GetLeftThrottle()==1){
-      m_arm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
-      System.out.println("Front Top button pressed");
-      
-    } else if(xboxController.GetRightYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
-      m_arm.setDesiredPosition(Constants.Arm.SAFE_ANGLE);
-      System.out.println("Safe button pressed");
-      
-    } else if(xboxController.GetButtonRB()){
-      m_arm.setDesiredPosition(Constants.Arm.bMIDDLE_ANGLE);
-      System.out.println("Back Middle button pressed");
-      
-    } else if(xboxController.GetRightThrottle()==1){
-      m_arm.setDesiredPosition(Constants.Arm.bTOP_ANGLE);
-      System.out.println("Back Top button pressed");
-      
-    } else if (xboxController.GetButtonStart()){
-      //if arm slips during match, press the start button to re-home arm
-      m_arm.armHoming();
-      System.out.println("Start button pressed");
-    }
-  }
+  public void teleopPeriodic() {}
 
   /** This function is called once when the robot is disabled. */
   @Override
@@ -139,10 +90,7 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {
-     //run arm homing method
-     m_arm.armHoming();
-  }
+  public void testInit() {}
 
   /** This function is called periodically during test mode. */
   @Override
