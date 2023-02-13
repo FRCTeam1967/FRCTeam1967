@@ -32,8 +32,6 @@ public class AutoConstants {
         // Assumes the encoders are directly mounted on the wheel shafts
         (kWheelDiameterInches * Math.PI) /(kEncoderCPR);
 
-    public static final boolean kGyroReversed = false;
-
     // These are example values only - DO NOT USE THESE FOR YOUR OWN ROBOT!
     // These characterization values MUST be determined either experimentally or
     // theoretically for *your* robot's drive. The Robot Characterization
@@ -71,9 +69,9 @@ public class AutoConstants {
 
     // constants for distance calculation
     public static final double PULSES_PER_REVOLUTION = 4096;
-    public static final double WHEEL_DIAMETER = 4; //4 inches, was 0.1524 m or 6 inches
+    public static final double WHEEL_DIAMETER = 6; //4 inches, was 0.1524 m or 6 inches
     public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
-    public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (40/20)); //50/14, 50/20 before
+    public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (54/20)); //50/14, 40/20 vision bot
  
 
 }
