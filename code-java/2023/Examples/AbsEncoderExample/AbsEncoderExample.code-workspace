@@ -1,0 +1,17 @@
+{
+  "folders": [
+    {
+      "path": "."
+    },
+    {
+      "path": "../../CommonClassesThisYear"
+    },
+    {
+      "path": "../../../jankyLib"
+    }
+  ],
+  "settings": {
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.server.launchMode": "Standard"
+  }
+}
