@@ -21,7 +21,6 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
-  //construct arm state machine object
   //private Arm m_arm = new Arm(Constants.Arm.MOTOR_L_ID, Constants.Arm.MOTOR_R_ID);
   private ArmTuning m_armTuning = new ArmTuning(Constants.Arm.MOTOR_L_ID, Constants.Arm.MOTOR_R_ID);
 
@@ -42,7 +41,7 @@ public class Robot extends TimedRobot {
     // m_arm.armHoming();
     // m_arm.configDashboard();
 
-    //ARM_TUNING
+    //ARM TUNING
     m_armTuning.initEncoder();
     m_armTuning.armHoming();
     m_armTuning.configDashboard();
@@ -72,12 +71,12 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
+    //m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
 
-     //run arm homing method
-     //m_arm.armHoming();
-     m_armTuning.armHoming();
+    //run arm homing method
+    // m_arm.armHoming();
+    m_armTuning.armHoming();
   }
 
   /** This function is called periodically during autonomous. */
@@ -97,15 +96,19 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-     //run arm homing method
-     //m_arm.armHoming();
-     m_armTuning.armHoming();
+    //run arm homing method
+    // m_arm.armHoming();
+     
+    //ARM TUNING
+    m_armTuning.armHoming();
+    m_armTuning.updatePID();
   }
   
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
 
+    //ARM TUNING
     if(xboxController.GetLeftYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
       m_armTuning.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
       System.out.println("Front Intake button pressed");
@@ -135,7 +138,9 @@ public class Robot extends TimedRobot {
       m_armTuning.armHoming();
       System.out.println("Start button pressed");
     }
-  /* 
+  
+    //ARM
+    /* 
     if(xboxController.GetLeftYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
       m_arm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
       System.out.println("Front Intake button pressed");
@@ -165,7 +170,7 @@ public class Robot extends TimedRobot {
       m_arm.armHoming();
       System.out.println("Start button pressed");
     }
-  */
+   */
   }
 
   /** This function is called once when the robot is disabled. */
@@ -181,6 +186,8 @@ public class Robot extends TimedRobot {
   public void testInit() {
      //run arm homing method
      //m_arm.armHoming();
+
+     //ARM TUNING
      m_armTuning.armHoming();
   }
 

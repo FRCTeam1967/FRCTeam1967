@@ -3,7 +3,7 @@ package frc.robot;
 public class Constants {
     public static final class Encoder {
         public static final int ARM_ABS_ENCODER_ID = 22;
-        public static final double ARM_ABS_ENCODER_OFFSET = 115; //degrees, tbd
+        public static final double ARM_ABS_ENCODER_OFFSET = 85; //degrees, tbd
     };
 
     public static final class Arm {
@@ -31,8 +31,8 @@ public class Constants {
         public static final double kI = 0.0; //known dynamics, tbd
         public static final double kD = 0.8; //tbd
         public static final double kF = 0.0; //feedforward constant, tbd
-        public static final double CRUISE_VELOCITY = 50000; //tbd
-        public static final double ACCELERATION = 50000; //tbd
+        public static final double CRUISE_VELOCITY = 1000; //tbd
+        public static final double ACCELERATION = 1000; //tbd
         
         //encoder sanity check error constants
         public static final double CHECK_ENCODER_ERROR = 10.0; //tbd, degrees

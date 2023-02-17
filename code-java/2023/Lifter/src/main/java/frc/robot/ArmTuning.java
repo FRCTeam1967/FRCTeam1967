@@ -11,9 +11,7 @@ import com.ctre.phoenix.sensors.CANCoderStatusFrame;
 import com.ctre.phoenix.sensors.SensorTimeBase;
 import com.ctre.phoenix.sensors.WPI_CANCoder;
 
-import edu.wpi.first.networktables.NetworkTable;
-import edu.wpi.first.networktables.NetworkTableEntry;
-import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.GenericEntry;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
@@ -43,8 +41,9 @@ public class ArmTuning extends JankyStateMachine {
 
     //PID fields (for the purpose of PID tuning)
     private double kP, kI, kD, kF;
-    private NetworkTable armTable;
+    private double cruiseVelocity, acceleration;
 
+    GenericEntry arm_kP, arm_kI, arm_kD, arm_kF, arm_velocity, arm_acceleration;
 
     public ArmTuning(int armMotorLID, int armMotorRID){
         armMotorL = new WPI_TalonFX(armMotorLID);
@@ -90,9 +89,15 @@ public class ArmTuning extends JankyStateMachine {
         m_armTab.addBoolean("isArmInRange", () -> isArmInRangeFalcon(desiredAngle, Constants.Arm.CHECK_ENCODER_ERROR));
         m_armTab.addDouble("Desired Angle", () -> desiredAngle);
 
-        m_armTab.add(m_encoder);
+        //m_armTab.add(m_encoder);
 
-        armTable = NetworkTableInstance.getDefault().getTable("arm"); //pid tuning
+        //pid constant widgets
+        arm_kP = m_armTab.add("kP", 0.5).getEntry();
+        arm_kI = m_armTab.add("kI", 0.0).getEntry();
+        arm_kD = m_armTab.add("kD", 0.0).getEntry();
+        arm_kF = m_armTab.add("kF", 0.0).getEntry();
+        arm_velocity = m_armTab.add("velocity", 1000.0).getEntry();
+        arm_acceleration = m_armTab.add("acceleration", 0.0).getEntry();
     }
 
     private void configMotors(WPI_TalonFX motor){
@@ -114,27 +119,26 @@ public class ArmTuning extends JankyStateMachine {
     }
 
     public void updatePID(){
-        NetworkTableEntry arm_kP = armTable.getEntry("kP");
-        kP = arm_kP.getDouble(0.0);
-
-        NetworkTableEntry arm_kI = armTable.getEntry("kI");
+        kP = arm_kP.getDouble(0.5);
         kI = arm_kI.getDouble(0.0);
-
-        NetworkTableEntry arm_kD = armTable.getEntry("kD");
-        kD = arm_kD.getDouble(0.0); 
-
-        NetworkTableEntry arm_kF = armTable.getEntry("kF");
+        kD = arm_kD.getDouble(0.0);
         kF = arm_kF.getDouble(0.0); 
+        cruiseVelocity = arm_velocity.getDouble(1000.0);
+        acceleration = arm_acceleration.getDouble(1000.0);
 
         armMotorL.config_kP(Constants.Arm.kPIDLoopIdx, kP, Constants.Arm.K_TIMEOUT_MS);
         armMotorL.config_kI(Constants.Arm.kPIDLoopIdx, kI, Constants.Arm.K_TIMEOUT_MS);
         armMotorL.config_kD(Constants.Arm.kPIDLoopIdx, kD, Constants.Arm.K_TIMEOUT_MS);
         armMotorL.config_kF(Constants.Arm.kPIDLoopIdx, kF, Constants.Arm.K_TIMEOUT_MS);
+        armMotorL.configMotionCruiseVelocity(cruiseVelocity, Constants.Arm.K_TIMEOUT_MS);
+        armMotorL.configMotionAcceleration(acceleration, Constants.Arm.K_TIMEOUT_MS);
 
         armMotorR.config_kP(Constants.Arm.kPIDLoopIdx, kP, Constants.Arm.K_TIMEOUT_MS);
         armMotorR.config_kI(Constants.Arm.kPIDLoopIdx, kI, Constants.Arm.K_TIMEOUT_MS);
         armMotorR.config_kD(Constants.Arm.kPIDLoopIdx, kD, Constants.Arm.K_TIMEOUT_MS);
         armMotorR.config_kF(Constants.Arm.kPIDLoopIdx, kF, Constants.Arm.K_TIMEOUT_MS);
+        armMotorR.configMotionCruiseVelocity(cruiseVelocity, Constants.Arm.K_TIMEOUT_MS);
+        armMotorR.configMotionAcceleration(acceleration, Constants.Arm.K_TIMEOUT_MS);
     }
 
     public void armHoming(){
