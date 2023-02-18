@@ -51,7 +51,6 @@ public class AutoStateMachine extends JankyStateMachine {
     public double maxAngle;
     public double targetVelocity;
     public double bothkP;
-    public double gyroAngle;
 
     private final int simpleDelay = 0;
     private final int simpleMove = 1;
@@ -99,46 +98,6 @@ public class AutoStateMachine extends JankyStateMachine {
         delay = _delay;
         path = autoPathSelected;
         gyroClassLevel = m_gyro;
-<<<<<<< Updated upstream
-
-        //need to move into AutoConstants file
-        gyroAngle = gyroClassLevel.getYComplementaryAngle()*-1;
-        minAngle = -2.5;
-        maxAngle = 2.5;
-        bothkP = 0.48072;
-        targetVelocity = 400;
-
-        rlmotor = new WPI_TalonFX(3);//m3
-        frmotor = new WPI_TalonFX(1);//m1
-
-        rlmotor.configFactoryDefault();
-        rlmotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 75);
-        rlmotor.configNominalOutputForward(0, 75);
-        rlmotor.configNominalOutputReverse(0, 75);
-        rlmotor.configPeakOutputForward(1, 75);
-        rlmotor.configPeakOutputReverse(-1, 75);
-        //falcon.config_kF(0, 0.1074, 75);
-        rlmotor.config_kP(0, bothkP, 75);
-        rlmotor.config_kI(0, 0.0, 75);
-        rlmotor.config_kD(0, 0.0, 75);
-        rlmotor.configClosedloopRamp(0.7); 
-
-        frmotor.configFactoryDefault();
-        frmotor.configSelectedFeedbackSensor(TalonFXFeedbackDevice.IntegratedSensor, 0, 75);
-        frmotor.configNominalOutputForward(0, 75);
-        frmotor.configNominalOutputReverse(0, 75);
-        frmotor.configPeakOutputForward(1, 75);
-        frmotor.configPeakOutputReverse(-1, 75);
-        //falcon.config_kF(0, 0.1074, 75);
-        frmotor.config_kP(0, bothkP, 75);
-        frmotor.config_kI(0, 0.0, 75);
-        frmotor.config_kD(0, 0.0, 75);
-        frmotor.configClosedloopRamp(0.7); 
-
-        m_left = new MotorControllerGroup(rlmotor);
-        m_right = new MotorControllerGroup(frmotor);
-        m_myRobot = new DifferentialDrive(m_left,m_right);
-=======
         gyroAngle = m_gyro.getYComplementaryAngle();
 
         //move into autoConstants
@@ -178,7 +137,6 @@ public class AutoStateMachine extends JankyStateMachine {
         rightFollower.config_kI(0, velocitykI, 75);
         rightFollower.config_kD(0, velocitykD, 75);
         rightFollower.setNeutralMode(NeutralMode.Brake);
->>>>>>> Stashed changes
 
         leftFollower.config_kP(0, velocitykP, 75);
         leftFollower.config_kI(0, velocitykI, 75);
@@ -292,22 +250,6 @@ public class AutoStateMachine extends JankyStateMachine {
                         leftFollower.set(ControlMode.Follower, 4);
                         rightFollower.set(ControlMode.Follower, 5);
                         System.out.println("not moving");
-<<<<<<< Updated upstream
-                        if (gyroAngle < minAngle) {
-                            NewState(goFront, "need to move forward");
-                        } else if (gyroAngle > maxAngle) {
-                            NewState(goBack, "need to move back");
-                        }
-                        break;
-                    case goFront: //forward
-                        //m_myRobot.tankDrive(0.35, -0.35);  //commented out for testing
-                        rlmotor.set(TalonFXControlMode.Velocity, targetVelocity); //left pos, right neg
-                        frmotor.set(TalonFXControlMode.Velocity, -targetVelocity); //what is 500 and why
-                        System.out.println("moving forward");
-                        if (gyroAngle > maxAngle) {
-                            NewState(goBack, "need to move back");
-                        } else if (gyroAngle < maxAngle && gyroAngle > minAngle){
-=======
                         if (gyroClassLevel.getYComplementaryAngle() < engageMinAngle) {
                             NewState(goFront, "need to move forward");
                         } else if (gyroClassLevel.getYComplementaryAngle() > engageMaxAngle) {
@@ -323,7 +265,6 @@ public class AutoStateMachine extends JankyStateMachine {
                         if (gyroClassLevel.getYComplementaryAngle() > engageMaxAngle) {
                             NewState(goBack, "need to move back");
                         } else if (gyroClassLevel.getYComplementaryAngle() < engageMaxAngle && gyroClassLevel.getYComplementaryAngle() > engageMinAngle){
->>>>>>> Stashed changes
                             NewState(idle, "fine!");
                         }
                         break;
@@ -333,15 +274,9 @@ public class AutoStateMachine extends JankyStateMachine {
                         leftFollower.set(ControlMode.Follower, 4);
                         rightFollower.set(ControlMode.Follower, 5);
                         System.out.println("moving backward");
-<<<<<<< Updated upstream
-                        if (gyroAngle < minAngle) {
-                            NewState(goFront, "need to move forward");
-                        } else if (gyroAngle < maxAngle && gyroAngle > minAngle){
-=======
                         if (gyroClassLevel.getYComplementaryAngle() < engageMinAngle) {
                             NewState(goFront, "need to move forward");
                         } else if (gyroClassLevel.getYComplementaryAngle() < engageMaxAngle && gyroClassLevel.getYComplementaryAngle() > engageMinAngle){
->>>>>>> Stashed changes
                             NewState(idle, "fine!");
                         }
                         break;
