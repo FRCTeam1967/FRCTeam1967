@@ -88,17 +88,29 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if (xboxController.GetButtonX() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonY()) {
+    if (xboxController.GetButtonX()
+    && !xboxController.GetButtonA()
+    && !xboxController.GetButtonB()
+    && !xboxController.GetButtonY()) {
       intake.runIntake();
     }
-    else if (xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonB() && !xboxController.GetButtonY()){
-      intake.runBottomEject();
+    else if (xboxController.GetButtonA()
+    && !xboxController.GetButtonX()
+    && !xboxController.GetButtonB()
+    && !xboxController.GetButtonY()){
+      intake.runLowEject();
     }
-    else if (xboxController.GetButtonB() && !xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonY()){
+    else if (xboxController.GetButtonB()
+    && !xboxController.GetButtonA()
+    && !xboxController.GetButtonX()
+    && !xboxController.GetButtonY()){
       intake.runMiddleEject();
     }
-    else if(xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonX()){
-      intake.runTopEject();
+    else if(xboxController.GetButtonY()
+    && !xboxController.GetButtonA()
+    && !xboxController.GetButtonB()
+    && !xboxController.GetButtonX()){
+      intake.runHighEject();
     }
     else {
       intake.setMotorsToZero();

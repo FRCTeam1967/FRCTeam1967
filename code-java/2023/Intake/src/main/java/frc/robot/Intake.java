@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.Timer;
 
 
 /*
- * @class StateMachine for running the intake
+ * @class methods for running the intake
  */
 public class Intake {
     private CANSparkMax topRollerMotor; 
@@ -37,33 +37,33 @@ public class Intake {
      */
     public void runIntake(){
         topRollerMotor.set(Constants.Intake.INTAKE_TOP_ROLLER_SPEED);
-        bottomRollerMotor.set(-Constants.Intake.INTAKE_BOTTOM_ROLLER_SPEED);
+        bottomRollerMotor.set(Constants.Intake.INTAKE_BOTTOM_ROLLER_SPEED);
     }
 
     /**
-     * Brief- Method that sets the speeds of the rollers for top row
+     * Brief- Method that sets the speeds of the motors for top row
      */
-    public void runTopEject(){ 
-        topRollerMotor.set(-Constants.Intake.SHOOT_TOP_ROLLER_SPEED);
-        bottomRollerMotor.set(Constants.Intake.SHOOT_BOTTOM_ROLLER_SPEED);
+    public void runHighEject(){ 
+        topRollerMotor.set(-Constants.Intake.HIGH_EJECT_TOP_ROLLER_SPEED);
+        bottomRollerMotor.set(-Constants.Intake.HIGH_EJECT_BOTTOM_ROLLER_SPEED);
         
     }
     
     /**
-     * Brief- Method that sets the speeds of the rollers for middle row
+     * Brief- Method that sets the speeds of the motors for middle row
      */
     public void runMiddleEject(){ 
-        topRollerMotor.set(-Constants.Intake.MEDIUM_EJECT_TOP_ROLLER_SPEED);
-        bottomRollerMotor.set(Constants.Intake.MEDIUM_EJECT_BOTTOM_ROLLER_SPEED);
+        topRollerMotor.set(-Constants.Intake.MIDDLE_EJECT_TOP_ROLLER_SPEED);
+        bottomRollerMotor.set(-Constants.Intake.MIDDLE_EJECT_BOTTOM_ROLLER_SPEED);
         
     }
 
     /**
-     * Brief- Method that sets the speeds of the rollers for bottom row
+     * Brief- Method that sets the speeds of the motors for bottom row
      */
-    public void runBottomEject(){
-        topRollerMotor.set(-Constants.Intake.SLOW_EJECT_TOP_ROLLER_SPEED);
-        bottomRollerMotor.set(Constants.Intake.SLOW_EJECT_BOTTOM_ROLLER_SPEED);
+    public void runLowEject(){
+        topRollerMotor.set(-Constants.Intake.LOW_EJECT_TOP_ROLLER_SPEED);
+        bottomRollerMotor.set(-Constants.Intake.LOW_EJECT_BOTTOM_ROLLER_SPEED);
         
     }
     /**
@@ -71,7 +71,7 @@ public class Intake {
      */
     public void runAutoShooter(){
         timer.start();
-        runTopEject();
+        runHighEject();
     }
 
     /**
