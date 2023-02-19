@@ -4,14 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.janksters.CommonClassesThisYear.*;
-import org.janksters.jankyLib.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -25,15 +21,10 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
 
-  //joystick objects
-  private jankyXboxJoystick xboxController = new jankyXboxJoystick(Constants.Controllers.XBOX_PORT);
-
-  //declaring mechanism objects
-  private Intake m_intake;
-
-  //shuffleboard
-  public ShuffleboardTab m_matchTab;
-
+  private DriveSystem m_chassis;
+  private Joystick leftJoystick = new Joystick(0);
+  private Joystick rightJoystick = new Joystick(1);
+  
   /**
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
@@ -44,14 +35,12 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    //shuffleboard
-    m_matchTab = Shuffleboard.getTab("Match");
+    if (Constants.Chassis.USE_SIMPLE_CHASSIS){
+      m_chassis = new SimpleChassis();
+    }
 
-    //defining mechanism objects
-    m_intake = new Intake();
-        
-    //configure shuffleboard
-    m_intake.configDashboard(m_matchTab);
+    m_chassis.configDashboard();
+
   }
 
   /**
@@ -97,27 +86,25 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    m_chassis.updateDashboardValues();
+  }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
 
-    //intake button triggers
-    if (xboxController.GetButtonX() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonY()) {
-      m_intake.runIntake();
+    if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) {
+      m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
 
-    } else if (xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonB() && !xboxController.GetButtonY()){
-      m_intake.runLowEject();
+    } else if (leftJoystick.getRawButton(2) || rightJoystick.getRawButton(2)) {
+      m_chassis.slowMode(leftJoystick.getY(), rightJoystick.getY());
 
-    } else if (xboxController.GetButtonB() && !xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonY()){
-      m_intake.runMiddleEject();
-
-    } else if(xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonX()){
-      m_intake.runHighEject();
-
+    } else if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
+      m_chassis.fastMode(leftJoystick.getY(), rightJoystick.getY());
+      
     } else {
-      m_intake.setMotorsToZero();
+      m_chassis.drive(leftJoystick.getY(), rightJoystick.getY());
     }
 
   }

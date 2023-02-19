@@ -24,7 +24,7 @@ public class Robot extends TimedRobot {
   //private Arm m_arm = new Arm(Constants.Arm.MOTOR_L_ID, Constants.Arm.MOTOR_R_ID);
   private ArmTuning m_armTuning = new ArmTuning(Constants.Arm.MOTOR_L_ID, Constants.Arm.MOTOR_R_ID);
 
-  private jankyXboxJoystick xboxController = new jankyXboxJoystick(0);
+  private jankyXboxJoystick xboxController = new jankyXboxJoystick(2);
 
   /**
    * This function is run when the robot is first started up and should be used for any
@@ -108,7 +108,15 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
 
+    //TROUBLESHOOTING
+    if (xboxController.GetButtonA()){
+      m_armTuning.setMotors(0.1);
+    } else if (xboxController.GetButtonB()){
+      m_armTuning.setMotors(0.0);
+    }
+
     //ARM TUNING
+    /**
     if(xboxController.GetLeftYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
       m_armTuning.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
       System.out.println("Front Intake button pressed");
@@ -138,6 +146,7 @@ public class Robot extends TimedRobot {
       m_armTuning.armHoming();
       System.out.println("Start button pressed");
     }
+     */
   
     //ARM
     /* 

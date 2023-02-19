@@ -3,24 +3,24 @@ package frc.robot;
 public class Constants {
     public static final class Encoder {
         public static final int ARM_ABS_ENCODER_ID = 22;
-        public static final double ARM_ABS_ENCODER_OFFSET = 85; //degrees, tbd
+        public static final double ARM_ABS_ENCODER_OFFSET = 162; //degrees, tbd
     };
 
     public static final class Arm {
         //IDs
-        public static final int MOTOR_L_ID = 20;
-        public static final int MOTOR_R_ID = 21;
+        public static final int MOTOR_L_ID = 20; //10
+        public static final int MOTOR_R_ID = 21; //11
 
         //arm angles, tbd
-        public static final double INTAKE_ANGLE = 0; //left y axis
-        public static final double fMIDDLE_ANGLE = 80; //left button
-        public static final double fTOP_ANGLE = 100; //left throttle
-        public static final double SAFE_ANGLE = 120; //right y axis
-        public static final double bTOP_ANGLE = 140; //right throttle
-        public static final double bMIDDLE_ANGLE = 160; //right button
+        public static final double INTAKE_ANGLE = 60; //left y axis
+        public static final double fMIDDLE_ANGLE = 140; //left button
+        public static final double fTOP_ANGLE = 160; //left throttle
+        public static final double SAFE_ANGLE = 180; //right y axis
+        public static final double bTOP_ANGLE = 200; //right throttle
+        public static final double bMIDDLE_ANGLE = 220; //right button
         
         //conversion factors
-        public static final double GEAR_RATIO = 50.0/1.0; //120 on arm //42/26 (might be wrong)
+        public static final double GEAR_RATIO = 120.0/1.0; //120 on arm //42/26 (might be wrong)
         public static final double FALCON_TICKS_PER_REVOLUTION = 2048;
         public static final double ABSOLUTE_TICKS_PER_REVOLUTION = 4096;
         

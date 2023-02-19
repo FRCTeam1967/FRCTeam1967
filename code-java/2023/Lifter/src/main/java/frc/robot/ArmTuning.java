@@ -2,6 +2,7 @@ package frc.robot;
 
 import org.janksters.jankyLib.JankyStateMachine;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -51,6 +52,9 @@ public class ArmTuning extends JankyStateMachine {
 
         configMotors(armMotorL);
         configMotors(armMotorR);
+
+        //TODO come back to this if you having issues
+        armMotorR.setInverted(TalonFXInvertType.Clockwise);
         
         m_encoder = new WPI_CANCoder(Constants.Encoder.ARM_ABS_ENCODER_ID);
 
@@ -92,12 +96,14 @@ public class ArmTuning extends JankyStateMachine {
         //m_armTab.add(m_encoder);
 
         //pid constant widgets
+        
+        arm_kP = m_armTab.add("kP", 0.5).getEntry();
         arm_kP = m_armTab.add("kP", 0.5).getEntry();
         arm_kI = m_armTab.add("kI", 0.0).getEntry();
         arm_kD = m_armTab.add("kD", 0.0).getEntry();
         arm_kF = m_armTab.add("kF", 0.0).getEntry();
         arm_velocity = m_armTab.add("velocity", 1000.0).getEntry();
-        arm_acceleration = m_armTab.add("acceleration", 0.0).getEntry();
+        arm_acceleration = m_armTab.add("acceleration", 1000.0).getEntry();
     }
 
     private void configMotors(WPI_TalonFX motor){
@@ -112,10 +118,12 @@ public class ArmTuning extends JankyStateMachine {
         
         motor.configNeutralDeadband(0.001); //increases resistance to force applied (less wiggle room)
 
-        motor.configMotionCruiseVelocity(Constants.Arm.CRUISE_VELOCITY, Constants.Arm.K_TIMEOUT_MS);
-        motor.configMotionAcceleration(Constants.Arm.ACCELERATION, Constants.Arm.K_TIMEOUT_MS);
+        // motor.configMotionCruiseVelocity(Constants.Arm.CRUISE_VELOCITY, Constants.Arm.K_TIMEOUT_MS);
+        // motor.configMotionAcceleration(Constants.Arm.ACCELERATION, Constants.Arm.K_TIMEOUT_MS);
 
-        motor.setInverted(TalonFXInvertType.Clockwise);
+        motor.setNeutralMode(NeutralMode.Coast);
+
+        //motor.setInverted(TalonFXInvertType.Clockwise);
     }
 
     public void updatePID(){
@@ -156,6 +164,7 @@ public class ArmTuning extends JankyStateMachine {
         setDesiredPosition(absAngle);
     }
 
+    //TODO test this on jankybot
     public void setDesiredPosition(double angle){
         //input checks
         if(angle >= 0 && angle <= 180) {
@@ -192,7 +201,13 @@ public class ArmTuning extends JankyStateMachine {
         double currentAngleFalconL = falconTicksToAngle(armMotorL.getSelectedSensorPosition());
         double calcError = Math.abs(currentAngleAbs - currentAngleFalconL); //difference in angle between 2 encoders
         return (calcError <= error);
-    }   
+    }  
+    
+    //TODO test this on jankybot
+    public void setMotors(double value){
+        armMotorL.set(TalonFXControlMode.PercentOutput, value);
+        armMotorR.set(TalonFXControlMode.PercentOutput, value);
+    }
      
     public void StateEngine(int curState, boolean onStateEntered){
         switch (curState){
