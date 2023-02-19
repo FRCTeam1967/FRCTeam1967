@@ -76,7 +76,7 @@ public class IntakeStateMachine extends JankyStateMachine {
 
             case Shoot:
                 if (onStateEntered){
-                    runMotors(Constants.Intake.SHOOT_TOP_ROLLER_SPEED, Constants.Intake.SHOOT_BOTTOM_ROLLER_SPEED);
+                    runMotors(Constants.Intake.HIGH_EJECT_TOP_ROLLER_SPEED, Constants.Intake.HIGH_EJECT_BOTTOM_ROLLER_SPEED);
                     shooterCompleteFlag = true;
                 }
                 
@@ -87,7 +87,7 @@ public class IntakeStateMachine extends JankyStateMachine {
 
             case MediumEject:
                 if (onStateEntered) {
-                    runMotors(Constants.Intake.MEDIUM_EJECT_TOP_ROLLER_SPEED,Constants.Intake.MEDIUM_EJECT_BOTTOM_ROLLER_SPEED );
+                    runMotors(Constants.Intake.MIDDLE_EJECT_TOP_ROLLER_SPEED,Constants.Intake.MIDDLE_EJECT_BOTTOM_ROLLER_SPEED );
                 }
                 if (xboxController.GetButtonB()==false){
                     NewState(Idle, "B Button released, enter Idle state");
@@ -96,7 +96,7 @@ public class IntakeStateMachine extends JankyStateMachine {
                 
             case SlowEject:
                 if (onStateEntered) {
-                    runMotors(Constants.Intake.SLOW_EJECT_TOP_ROLLER_SPEED, Constants.Intake.SLOW_EJECT_BOTTOM_ROLLER_SPEED);
+                    runMotors(Constants.Intake.LOW_EJECT_TOP_ROLLER_SPEED, Constants.Intake.LOW_EJECT_BOTTOM_ROLLER_SPEED);
                 }
                 if (xboxController.GetButtonA()==false){
                     NewState(Idle, "A Button released, enter Idle state");
