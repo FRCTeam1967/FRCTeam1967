@@ -22,6 +22,11 @@ import org.janksters.jankyLib.jankyXboxJoystick;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.SensorCollection;
+
 
 public class Robot extends TimedRobot {
   private int autoDelaySelected, autoPathSelected;
@@ -34,8 +39,8 @@ public class Robot extends TimedRobot {
   private Joystick rightJoystick;
   private jankyXboxJoystick XboxController;
   
-  private WPI_TalonFX leftLeader = new WPI_TalonFX(4);//m2
-  private WPI_TalonFX rightLeader = new WPI_TalonFX(5);
+  private WPI_TalonSRX leftLeader = new WPI_TalonSRX(5);//m2
+  private WPI_TalonSRX rightLeader = new WPI_TalonSRX(6);
   //private WPI_TalonFX leftFollower = new WPI_TalonFX(6);//m2
   //private WPI_TalonFX rightFollower = new WPI_TalonFX(7);
 
@@ -49,7 +54,7 @@ public class Robot extends TimedRobot {
   public ShuffleboardTab AutoPIDTestingTab;
 
 
-  public void setUpChassisMotors(WPI_TalonFX falcon){
+  public void setUpChassisMotors(WPI_TalonSRX falcon){
     falcon.configFactoryDefault();
 
     falcon.configNominalOutputForward(0, 75);
@@ -98,6 +103,10 @@ public class Robot extends TimedRobot {
 
     AutoPIDTestingTab = Shuffleboard.getTab("Auto PID Testing");
     AutoPIDTestingTab.addDouble("Gyro angle auto", () -> gyroAngle);
+    
+    
+    rightLeader.setSelectedSensorPosition(0);
+    leftLeader.setSelectedSensorPosition(0);
 
   }
 
@@ -113,6 +122,7 @@ public class Robot extends TimedRobot {
     SmartDashboard.putNumber("Auto Path Selected", autoPathSelected);
 
     autoSM = new AutoStateMachine(autoDelaySelected, 2, m_gyro);
+
   }
 
   @Override
@@ -126,6 +136,10 @@ public class Robot extends TimedRobot {
 
     //SmartDashboard.putNumber("Left motor encoder:", leftLeader.getSelectedSensorPosition());
     //SmartDashboard.putNumber("Right motor encoder:", rightLeader.getSelectedSensorPosition());
+
+    SmartDashboard.putNumber("Left motor encoder:", leftLeader.getSelectedSensorPosition());
+    SmartDashboard.putNumber("Right motor encoder:", rightLeader.getSelectedSensorPosition());
+    
   }
 
   @Override
@@ -144,8 +158,8 @@ public class Robot extends TimedRobot {
     //testing velocity in teleop
     averageSpeed = (leftJoystick.getY() + rightJoystick.getY()) / 2;
     double targetVelocity_UnitsPer100ms = averageSpeed * 2000.0 * 2048.0 / 600.0;
-    rightLeader.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
-    leftLeader.set(TalonFXControlMode.Velocity, -targetVelocity_UnitsPer100ms);
+    //rightLeader.set(TalonFXControlMode.Velocity, targetVelocity_UnitsPer100ms);
+    //leftLeader.set(TalonFXControlMode.Velocity, -targetVelocity_UnitsPer100ms);
 
    //myRobot.tankDrive(-leftJoystick.getY(), rightJoystick.getY());
   

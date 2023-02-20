@@ -26,7 +26,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class AutoStateMachine extends JankyStateMachine {
     //private TalonSRX leftLeader;//m3
-    private TalonSRX leftLeader = new TalonSRX(7); //7 is leftLeader for KitBot
+    private TalonSRX leftLeader = new TalonSRX(5); //7 is leftLeader for KitBot
     private TalonSRX rightLeader = new TalonSRX(6);
     //private WPI_TalonFX rightFollower;
     //private TalonSRX rightLeader;//m1
@@ -260,20 +260,20 @@ public class AutoStateMachine extends JankyStateMachine {
                 switch(curState) {
                     case upRamp:
                         currentState = "up ramp";
-                        if (inchesToEncoder(90) >= getAverageEncoderValues()) { 
+                        if (inchesToEncoder(5) >= getAverageEncoderValues()) { 
                             leftLeader.set(TalonSRXControlMode.PercentOutput, 0.2);
                             rightLeader.set(TalonSRXControlMode.PercentOutput, -0.2); 
                             //leftFollower.set(ControlMode.Follower, 4);
                             //rightFollower.set(ControlMode.Follower, 5);
                         } else {
-                        
-                            NewState(idle, "don't move");
+                            rightLeader.setSelectedSensorPosition(0);
+                            leftLeader.setSelectedSensorPosition(0);
+                            NewState(backUpRamp, "back up ramp");
                         }
                         break;
-                    /**
-                        case backUpRamp:
+                     case backUpRamp:
                         currentState = "back up ramp";
-                        if (inchesToEncoder(-40) <= getAverageEncoderValues()) { 
+                        if (inchesToEncoder(9)>= getAverageEncoderValues()) { 
                             leftLeader.set(TalonSRXControlMode.PercentOutput, -0.2);
                             rightLeader.set(TalonSRXControlMode.PercentOutput, 0.2); 
                             //leftFollower.set(ControlMode.Follower, 4);
@@ -282,7 +282,6 @@ public class AutoStateMachine extends JankyStateMachine {
                             NewState(idle, "moving up the ramp");
                         }
                         break;
-                        */
                     case idle: //don't move
                         leftLeader.set(TalonSRXControlMode.Velocity, 0);
                         rightLeader.set(TalonSRXControlMode.Velocity, 0); 
@@ -342,9 +341,11 @@ public class AutoStateMachine extends JankyStateMachine {
     public double getAverageEncoderValues() {
         //double rightLeaderEncoder = rightLeader.getSensorCollection().getIntegratedSensorPosition();
         //double leftLeaderEncoder = leftLeader.getSensorCollection().getIntegratedSensorPosition();
-        double rightLeaderEncoder = rightEncoderPosition.getPulseWidthPosition(); 
-        double leftLeaderEncoder = leftEncoderPosition.getPulseWidthPosition();
+        //double rightLeaderEncoder = rightEncoderPosition.getPulseWidthPosition(); 
+        //double leftLeaderEncoder = leftEncoderPosition.getPulseWidthPosition();
 
+        double rightLeaderEncoder = rightLeader.getSelectedSensorPosition();
+        double leftLeaderEncoder = leftLeader.getSelectedSensorPosition();
 
         motorEncoderAverage = (Math.abs(rightLeaderEncoder) + Math.abs(leftLeaderEncoder)) / 2; //orginally leftLeaderEncoder
         return motorEncoderAverage;
