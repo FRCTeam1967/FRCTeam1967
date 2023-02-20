@@ -5,33 +5,44 @@ import org.janksters.jankyLib.JankyStateMachine;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Timer;
 
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+//import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+//import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.ctre.phoenix.motorcontrol.can.TalonSRX;
+import com.ctre.phoenix.motorcontrol.TalonSRXFeedbackDevice;
+//import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
-import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+//import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
+//import com.ctre.phoenix.motorcontrol.TalonFXFeedbackDevice;
+import com.ctre.phoenix.motorcontrol.TalonSRXControlMode;
+import com.ctre.phoenix.motorcontrol.SensorCollection;
 
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class AutoStateMachine extends JankyStateMachine {
-    private WPI_TalonFX leftLeader;//m3
-    private WPI_TalonFX rightFollower;
-    private WPI_TalonFX rightLeader;//m1
-    private WPI_TalonFX leftFollower;
-    
+    //private TalonSRX leftLeader;//m3
+    private TalonSRX leftLeader = new TalonSRX(7); //7 is leftLeader for KitBot
+    private TalonSRX rightLeader = new TalonSRX(6);
+    //private WPI_TalonFX rightFollower;
+    //private TalonSRX rightLeader;//m1
+    //private WPI_TalonFX leftFollower;
+    //private SensorCollection leftEncoderPosition;
+    //private SensorCollection rightEncoderPosition;
+
+    private SensorCollection leftEncoderPosition = new SensorCollection(leftLeader);
+    private SensorCollection rightEncoderPosition = new SensorCollection(rightLeader);
+
     public double motorEncoderAverage;
     public double newEncoderValue;
 
-    private MotorControllerGroup m_left;
-    private MotorControllerGroup m_right;
-    DifferentialDrive m_myRobot;
+    //private MotorControllerGroup m_left;
+    //private MotorControllerGroup m_right;
+    //DifferentialDrive m_myRobot;
 
     public double gyroAngle;
     public ADIS16470_IMU gyroClassLevel;
@@ -65,7 +76,7 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int idle = 1;
     private final int goBack = 2;
     private final int goFront = 3;
-    private final int downRamp = 4;
+    private final int backUpRamp = 4;
 
     static final double velocitykP = 0.2;
     static final double velocitykI = 0.0;
@@ -114,24 +125,29 @@ public class AutoStateMachine extends JankyStateMachine {
         AutoPIDTestingTab.addDouble("Inches to Encoder", () -> newEncoderValue);
         
         //need to move this into robot.java
-        leftLeader = new WPI_TalonFX(4);
-        rightLeader = new WPI_TalonFX(5);
-        rightFollower = new WPI_TalonFX(7);
-        leftFollower = new WPI_TalonFX(6);
+    
+        
+        //rightFollower = new WPI_TalonFX(7);
+        //leftFollower = new WPI_TalonFX(6);
 
         leftLeader.config_kP(0, velocitykP, 75);
         leftLeader.config_kI(0, velocitykI, 75);
         leftLeader.config_kD(0, velocitykD, 75);
         //leftLeader.configClosedloopRamp(0.7);  -- need to readdduring tuning?
         leftLeader.setNeutralMode(NeutralMode.Brake);
-        leftLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
+        //leftLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
+        leftLeader.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
+
     
         rightLeader.config_kP(0, velocitykP, 75);
         rightLeader.config_kI(0, velocitykI, 75);
         rightLeader.config_kD(0, velocitykD, 75);
         //rightLeader.configClosedloopRamp(0.7); -- need to readdduring tuning?
         rightLeader.setNeutralMode(NeutralMode.Brake);
-        rightLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
+        //rightLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
+        rightLeader.configSelectedFeedbackSensor(TalonSRXFeedbackDevice.CTRE_MagEncoder_Relative, 0, 10);
+
+        /* 
 
         rightFollower.config_kP(0, velocitykP, 75);
         rightFollower.config_kI(0, velocitykI, 75);
@@ -142,13 +158,14 @@ public class AutoStateMachine extends JankyStateMachine {
         leftFollower.config_kI(0, velocitykI, 75);
         leftFollower.config_kD(0, velocitykD, 75);
         leftFollower.setNeutralMode(NeutralMode.Brake);
+        */
 
-        m_left = new MotorControllerGroup(leftLeader,leftFollower);
-        m_right = new MotorControllerGroup(rightLeader,rightFollower);
-        m_myRobot = new DifferentialDrive(m_left,m_right);
+        //m_left = new MotorControllerGroup(leftLeader,leftFollower);
+        //m_right = new MotorControllerGroup(rightLeader,rightFollower);
+        //m_myRobot = new DifferentialDrive(m_left,m_right);
 
-        rightLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
-        leftLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
+        //rightLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
+        //leftLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
         m_gyro.reset();
 
         if (path == AutoConstants.ONE_CUBE_AUTOPATH) {
@@ -172,7 +189,7 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName(idle, "noMove");
             SetName (goBack, "goBack");
             SetName (goFront, "goFront");
-            SetName (downRamp, "downRamp");
+            SetName (backUpRamp, "backUpRamp");
             stateMachineSelected = AutoConstants.CHARGE_STATION;
             start();
         }
@@ -200,9 +217,13 @@ public class AutoStateMachine extends JankyStateMachine {
                     }
                     break;
                 case ocMove:
-                    m_myRobot.tankDrive(-0.4, 0.4); //go backwards
+                    //m_myRobot.tankDrive(-0.4, 0.4); //go backwards
+                    leftLeader.set(TalonSRXControlMode.PercentOutput, -0.4);
+                    rightLeader.set(TalonSRXControlMode.PercentOutput, 0.4); 
                     if (inchesToEncoder(30) <= getAverageEncoderValues()) {
-                        m_myRobot.tankDrive(0, 0);
+                        //m_myRobot.tankDrive(0, 0);
+                        leftLeader.set(TalonSRXControlMode.PercentOutput, 0.0);
+                        rightLeader.set(TalonSRXControlMode.PercentOutput, 0.0);
                         NewState(ocFinishAuto, "reached average encoder for distance");
                     }
                     break;
@@ -221,9 +242,13 @@ public class AutoStateMachine extends JankyStateMachine {
                     }
                     break;
                 case simpleMove:
-                    m_myRobot.tankDrive(0.4, -0.4);
+                    //m_myRobot.tankDrive(0.4, -0.4);
+                    leftLeader.set(TalonSRXControlMode.PercentOutput, 0.4);
+                    rightLeader.set(TalonSRXControlMode.PercentOutput, -0.4);
                     if (inchesToEncoder(30) <= getAverageEncoderValues()) {
-                        m_myRobot.tankDrive(0, 0);
+                        //m_myRobot.tankDrive(0, 0);
+                        leftLeader.set(TalonSRXControlMode.PercentOutput, 0.0);
+                        rightLeader.set(TalonSRXControlMode.PercentOutput, 0.0);
                         NewState(simpleFinishAuto, "reached average encoder for distance");
                     }
                     break;
@@ -236,19 +261,33 @@ public class AutoStateMachine extends JankyStateMachine {
                     case upRamp:
                         currentState = "up ramp";
                         if (inchesToEncoder(90) >= getAverageEncoderValues()) { 
-                            leftLeader.set(TalonFXControlMode.PercentOutput, 0.2);
-                            rightLeader.set(TalonFXControlMode.PercentOutput, -0.2); 
-                            leftFollower.set(ControlMode.Follower, 4);
-                            rightFollower.set(ControlMode.Follower, 5);
+                            leftLeader.set(TalonSRXControlMode.PercentOutput, 0.2);
+                            rightLeader.set(TalonSRXControlMode.PercentOutput, -0.2); 
+                            //leftFollower.set(ControlMode.Follower, 4);
+                            //rightFollower.set(ControlMode.Follower, 5);
+                        } else {
+                            rightEncoderPosition.setSelectedSensorPosition(0.0);
+                            leftEncoderPosition.setSelectedSensorPosition(0.0);
+
+                            NewState(backUpRamp, "back up ramp");
+                        }
+                        break;
+                    case backUpRamp:
+                        currentState = "back up ramp";
+                        if (inchesToEncoder(-40) <= getAverageEncoderValues()) { 
+                            leftLeader.set(TalonSRXControlMode.PercentOutput, -0.2);
+                            rightLeader.set(TalonSRXControlMode.PercentOutput, 0.2); 
+                            //leftFollower.set(ControlMode.Follower, 4);
+                            //rightFollower.set(ControlMode.Follower, 5);
                         } else {
                             NewState(idle, "moving up the ramp");
                         }
                         break;
                     case idle: //don't move
-                        leftLeader.set(TalonFXControlMode.Velocity, 0);
-                        rightLeader.set(TalonFXControlMode.Velocity, 0); 
-                        leftFollower.set(ControlMode.Follower, 4);
-                        rightFollower.set(ControlMode.Follower, 5);
+                        leftLeader.set(TalonSRXControlMode.Velocity, 0);
+                        rightLeader.set(TalonSRXControlMode.Velocity, 0); 
+                        //leftFollower.set(ControlMode.Follower, 4);
+                        //rightFollower.set(ControlMode.Follower, 5);
                         System.out.println("not moving");
                         if (gyroClassLevel.getYComplementaryAngle() < engageMinAngle) {
                             NewState(goFront, "need to move forward");
@@ -257,10 +296,10 @@ public class AutoStateMachine extends JankyStateMachine {
                         }
                         break;
                     case goFront: //forward
-                        leftLeader.set(TalonFXControlMode.Velocity, 1000); 
-                        rightLeader.set(TalonFXControlMode.Velocity, -1000); 
-                        leftFollower.set(ControlMode.Follower, 4);
-                        rightFollower.set(ControlMode.Follower, 5);
+                        leftLeader.set(TalonSRXControlMode.Velocity, 1000); 
+                        rightLeader.set(TalonSRXControlMode.Velocity, -1000); 
+                        //leftFollower.set(ControlMode.Follower, 4);
+                        //rightFollower.set(ControlMode.Follower, 5);
                         System.out.println("moving forward");
                         if (gyroClassLevel.getYComplementaryAngle() > engageMaxAngle) {
                             NewState(goBack, "need to move back");
@@ -269,10 +308,10 @@ public class AutoStateMachine extends JankyStateMachine {
                         }
                         break;
                     case goBack: //backwards
-                        leftLeader.set(TalonFXControlMode.Velocity, -1000); 
-                        rightLeader.set(TalonFXControlMode.Velocity, 1000); 
-                        leftFollower.set(ControlMode.Follower, 4);
-                        rightFollower.set(ControlMode.Follower, 5);
+                        leftLeader.set(TalonSRXControlMode.Velocity, -1000); 
+                        rightLeader.set(TalonSRXControlMode.Velocity, 1000); 
+                        //leftFollower.set(ControlMode.Follower, 4);
+                        //rightFollower.set(ControlMode.Follower, 5);
                         System.out.println("moving backward");
                         if (gyroClassLevel.getYComplementaryAngle() < engageMinAngle) {
                             NewState(goFront, "need to move forward");
@@ -299,16 +338,23 @@ public class AutoStateMachine extends JankyStateMachine {
         return newEncoderValue;
     }
 
+
     public double getAverageEncoderValues() {
-        double rightLeaderEncoder = rightLeader.getSensorCollection().getIntegratedSensorPosition();
-        double leftLeaderEncoder = leftLeader.getSensorCollection().getIntegratedSensorPosition();
-        motorEncoderAverage = (Math.abs(rightLeaderEncoder) + Math.abs(leftLeaderEncoder)) / 2;
+        //double rightLeaderEncoder = rightLeader.getSensorCollection().getIntegratedSensorPosition();
+        //double leftLeaderEncoder = leftLeader.getSensorCollection().getIntegratedSensorPosition();
+        double rightLeaderEncoder = rightEncoderPosition.getPulseWidthPosition(); 
+        double leftLeaderEncoder = leftEncoderPosition.getPulseWidthPosition();
+
+
+        motorEncoderAverage = (Math.abs(rightLeaderEncoder) + Math.abs(leftLeaderEncoder)) / 2; //orginally leftLeaderEncoder
         return motorEncoderAverage;
     }
 
     public boolean waitDelay(int delayVal) {
         if (delayTimer.get() <= delayVal) {
-            m_myRobot.tankDrive(0, 0);
+            //m_myRobot.tankDrive(0, 0);
+            leftLeader.set(TalonSRXControlMode.PercentOutput, 0.0);
+            rightLeader.set(TalonSRXControlMode.PercentOutput, 0.0);
         } else {
             return true;
         }
