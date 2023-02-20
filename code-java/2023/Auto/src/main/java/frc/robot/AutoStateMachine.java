@@ -266,13 +266,12 @@ public class AutoStateMachine extends JankyStateMachine {
                             //leftFollower.set(ControlMode.Follower, 4);
                             //rightFollower.set(ControlMode.Follower, 5);
                         } else {
-                            rightEncoderPosition.setSelectedSensorPosition(0.0);
-                            leftEncoderPosition.setSelectedSensorPosition(0.0);
-
-                            NewState(backUpRamp, "back up ramp");
+                        
+                            NewState(idle, "don't move");
                         }
                         break;
-                    case backUpRamp:
+                    /**
+                        case backUpRamp:
                         currentState = "back up ramp";
                         if (inchesToEncoder(-40) <= getAverageEncoderValues()) { 
                             leftLeader.set(TalonSRXControlMode.PercentOutput, -0.2);
@@ -283,6 +282,7 @@ public class AutoStateMachine extends JankyStateMachine {
                             NewState(idle, "moving up the ramp");
                         }
                         break;
+                        */
                     case idle: //don't move
                         leftLeader.set(TalonSRXControlMode.Velocity, 0);
                         rightLeader.set(TalonSRXControlMode.Velocity, 0); 
