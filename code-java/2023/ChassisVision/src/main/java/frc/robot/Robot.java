@@ -38,6 +38,7 @@ public class Robot extends TimedRobot {
    * This function is run when the robot is first started up and should be used for any
    * initialization code.
    */
+  
   @Override
   public void robotInit() {
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
@@ -49,7 +50,7 @@ public class Robot extends TimedRobot {
     rightJoystick = new Joystick(1);
     m_chassis.setChassisModes(true);
   }
-
+ 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
