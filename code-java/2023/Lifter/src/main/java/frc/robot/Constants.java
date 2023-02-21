@@ -8,16 +8,16 @@ public class Constants {
 
     public static final class Arm {
         //IDs
-        public static final int MOTOR_L_ID = 20; //10
-        public static final int MOTOR_R_ID = 21; //11
+        public static final int MOTOR_L_ID = 10; //10
+        public static final int MOTOR_R_ID = 11; //11
 
         //arm angles, tbd
-        public static final double INTAKE_ANGLE = 60; //left y axis
-        public static final double fMIDDLE_ANGLE = 140; //left button
-        public static final double fTOP_ANGLE = 160; //left throttle
+        public static final double INTAKE_ANGLE = 85; //left y axis
+        public static final double fMIDDLE_ANGLE = 120; //left button
+        public static final double fTOP_ANGLE = 150; //left throttle
         public static final double SAFE_ANGLE = 180; //right y axis
-        public static final double bTOP_ANGLE = 200; //right throttle
-        public static final double bMIDDLE_ANGLE = 220; //right button
+        public static final double bTOP_ANGLE = 210; //right throttle
+        public static final double bMIDDLE_ANGLE = 240; //right button
         
         //conversion factors
         public static final double GEAR_RATIO = 120.0/1.0; //120 on arm //42/26 (might be wrong)
@@ -35,7 +35,7 @@ public class Constants {
         public static final double ACCELERATION = 1000; //tbd
         
         //encoder sanity check error constants
-        public static final double CHECK_ENCODER_ERROR = 10.0; //tbd, degrees
+        public static final double CHECK_ENCODER_ERROR = 5.0; //tbd, degrees
 
         //joystick deadbands
         public static final double CONTROLLER_Y_AXIS_DEADBAND = -0.8; //tbd

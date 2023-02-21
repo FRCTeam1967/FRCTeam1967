@@ -1,20 +1,15 @@
-package org.janksters.CommonClassesThisYear;
+package frc.robot;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkMaxLowLevel.MotorType;
 
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-
-
-import edu.wpi.first.networktables.GenericEntry;
 
 import edu.wpi.first.wpilibj.Timer;
 
 /**
- * Methods- setMotorsToZero(), runIntake(), runHighEject(), runMiddleEject(), runLowEject(), runAutoShooter(), isShooterComplete()
  * Intake Arm Xbox Controller Button Mapping
  * GetButtonX- intake
  * GetButtonA- low eject
@@ -23,11 +18,8 @@ import edu.wpi.first.wpilibj.Timer;
  */
 
 public class Intake {
-    private CANSparkMax topRollerMotor; 
-    private CANSparkMax bottomRollerMotor; 
-
+    private CANSparkMax topRollerMotor, bottomRollerMotor; 
     private Timer timer;
-
     SendableChooser <Integer> autoShootRowEntry;
 
     /**
@@ -45,11 +37,10 @@ public class Intake {
     }
 
     public void configDashboard(ShuffleboardTab tab){
-        //
         autoShootRowEntry = new SendableChooser<Integer>();
         autoShootRowEntry.addOption("Low Eject", 0);
         autoShootRowEntry.addOption("Middle Eject", 1);
-        autoShootRowEntry.setDefaultOption​("High Eject", 2);
+        autoShootRowEntry.setDefaultOption("High Eject", 2);
 
         tab.add("Auto Shoot Select", autoShootRowEntry).withWidget(BuiltInWidgets.kSplitButtonChooser);
     }

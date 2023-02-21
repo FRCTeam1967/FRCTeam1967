@@ -4,13 +4,13 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-import org.janksters.CommonClassesThisYear.*;
 import org.janksters.jankyLib.*;
 
 /**
@@ -19,6 +19,7 @@ import org.janksters.jankyLib.*;
  * the package after creating this project, you must also update the build.gradle file in the
  * project.
  */
+ 
 public class Robot extends TimedRobot {
   private static final String kDefaultAuto = "Default";
   private static final String kCustomAuto = "My Auto";
@@ -27,9 +28,13 @@ public class Robot extends TimedRobot {
 
   //joystick objects
   private jankyXboxJoystick xboxController = new jankyXboxJoystick(Constants.Controllers.XBOX_PORT);
+  private Joystick leftJoystick = new Joystick(Constants.Controllers.LEFT_JOYSTICK_PORT);
+  private Joystick rightJoystick = new Joystick(Constants.Controllers.RIGHT_JOYSTICK_PORT);
 
   //declaring mechanism objects
   private Intake m_intake;
+  private DriveSystem m_chassis;
+  private Arm m_arm;
 
   //shuffleboard
   public ShuffleboardTab m_matchTab;
@@ -44,14 +49,23 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
 
-    //shuffleboard
-    m_matchTab = Shuffleboard.getTab("Match");
-
     //defining mechanism objects
     m_intake = new Intake();
-        
-    //configure shuffleboard
+    m_arm = new Arm();
+
+    m_arm.initEncoder();
+    m_arm.armHoming();
+
+    if (Constants.Chassis.USE_SIMPLE_CHASSIS){
+      m_chassis = new SimpleChassis();
+    } else {
+      m_chassis = new PIDChassis();
+    }
+
+    //shuffleboard
+    m_matchTab = Shuffleboard.getTab("Match");
     m_intake.configDashboard(m_matchTab);
+    m_arm.configDashboard(m_matchTab);
   }
 
   /**
@@ -79,6 +93,8 @@ public class Robot extends TimedRobot {
     m_autoSelected = m_chooser.getSelected();
     // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
     System.out.println("Auto selected: " + m_autoSelected);
+
+    m_arm.armHoming();
   }
 
   /** This function is called periodically during autonomous. */
@@ -97,11 +113,23 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when teleop is enabled. */
   @Override
-  public void teleopInit() {}
+  public void teleopInit() {
+    m_arm.armHoming();
+  }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    //chassis button triggers
+    if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) {
+      m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
+
+    } else if (leftJoystick.getRawButton(2) || rightJoystick.getRawButton(2)) {
+       m_chassis.slowMode(leftJoystick.getY(), rightJoystick.getY());
+
+    } else {
+       m_chassis.drive(leftJoystick.getY(), rightJoystick.getY());
+    }
 
     //intake button triggers
     if (xboxController.GetButtonX() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonY()) {
@@ -120,6 +148,35 @@ public class Robot extends TimedRobot {
       m_intake.setMotorsToZero();
     }
 
+    //arm button triggers
+    if(xboxController.GetLeftYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
+      m_arm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
+      System.out.println("Front Intake button pressed");
+      
+    } else if(xboxController.GetButtonLB()){
+      m_arm.setDesiredPosition(Constants.Arm.fMIDDLE_ANGLE);
+      System.out.println("Front Middle button pressed");
+
+    } else if(xboxController.GetLeftThrottle()==1){
+      m_arm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
+      System.out.println("Front Top button pressed");
+      
+    } else if(xboxController.GetRightYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
+      m_arm.setDesiredPosition(Constants.Arm.SAFE_ANGLE);
+      System.out.println("Safe button pressed");
+      
+    } else if(xboxController.GetButtonRB()){
+      m_arm.setDesiredPosition(Constants.Arm.bMIDDLE_ANGLE);
+      System.out.println("Back Middle button pressed");
+      
+    } else if(xboxController.GetRightThrottle()==1){
+      m_arm.setDesiredPosition(Constants.Arm.bTOP_ANGLE);
+      System.out.println("Back Top button pressed");
+      
+    } else if (xboxController.GetButtonStart()){
+      m_arm.armHoming(); //if arm slips during match, press the start button to re-home arm
+      System.out.println("Start button pressed");
+    }
   }
 
   /** This function is called once when the robot is disabled. */
@@ -132,7 +189,9 @@ public class Robot extends TimedRobot {
 
   /** This function is called once when test mode is enabled. */
   @Override
-  public void testInit() {}
+  public void testInit() {
+    m_arm.armHoming();
+  }
 
   /** This function is called periodically during test mode. */
   @Override

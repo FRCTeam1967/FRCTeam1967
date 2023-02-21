@@ -37,10 +37,11 @@ public class Robot extends TimedRobot {
 
     if (Constants.Chassis.USE_SIMPLE_CHASSIS){
       m_chassis = new SimpleChassis();
+    } else {
+      m_chassis = new PIDChassis();
     }
 
     m_chassis.configDashboard();
-
   }
 
   /**
@@ -87,7 +88,7 @@ public class Robot extends TimedRobot {
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
-    m_chassis.updateDashboardValues();
+    m_chassis.updateTuningValues();
   }
 
   /** This function is called periodically during operator control. */

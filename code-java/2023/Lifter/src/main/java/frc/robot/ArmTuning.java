@@ -98,7 +98,6 @@ public class ArmTuning extends JankyStateMachine {
         //pid constant widgets
         
         arm_kP = m_armTab.add("kP", 0.5).getEntry();
-        arm_kP = m_armTab.add("kP", 0.5).getEntry();
         arm_kI = m_armTab.add("kI", 0.0).getEntry();
         arm_kD = m_armTab.add("kD", 0.0).getEntry();
         arm_kF = m_armTab.add("kF", 0.0).getEntry();
@@ -121,7 +120,7 @@ public class ArmTuning extends JankyStateMachine {
         // motor.configMotionCruiseVelocity(Constants.Arm.CRUISE_VELOCITY, Constants.Arm.K_TIMEOUT_MS);
         // motor.configMotionAcceleration(Constants.Arm.ACCELERATION, Constants.Arm.K_TIMEOUT_MS);
 
-        motor.setNeutralMode(NeutralMode.Coast);
+        motor.setNeutralMode(NeutralMode.Brake);
 
         //motor.setInverted(TalonFXInvertType.Clockwise);
     }
@@ -167,10 +166,11 @@ public class ArmTuning extends JankyStateMachine {
     //TODO test this on jankybot
     public void setDesiredPosition(double angle){
         //input checks
-        if(angle >= 0 && angle <= 180) {
+        if(angle >= 75 && angle <= 240) {
             desiredAngle = angle;
             NewState(IN_MOTION, "Button pressed, transition to IN_MOTION");
         } else {
+            desiredAngle = Constants.Arm.SAFE_ANGLE;
             System.out.println("setDesiredPosition, input angle out of range");
         }
     }
@@ -178,7 +178,8 @@ public class ArmTuning extends JankyStateMachine {
     public void moveArm(double angle) {
         int falconTicks = angleToFalconTicks(angle);
         armMotorR.set(TalonFXControlMode.MotionMagic, falconTicks);
-        armMotorL.set(TalonFXControlMode.MotionMagic, falconTicks);
+        armMotorL.set(TalonFXControlMode.Follower, Constants.Arm.MOTOR_R_ID);
+        //armMotorL.set(TalonFXControlMode.MotionMagic, falconTicks);
     }
 
     public double falconTicksToAngle(double ticks){
@@ -191,9 +192,10 @@ public class ArmTuning extends JankyStateMachine {
 
     public boolean isArmInRangeFalcon(double angle, double error){
         double lowerBound = angle - error, upperBound = angle + error;
-        double currentAngleL = falconTicksToAngle(armMotorL.getSelectedSensorPosition());
-        //if left is in range, but right is not, that's a what the heck is happening edgecase (hopefully)
-        return (currentAngleL > lowerBound && currentAngleL < upperBound);
+        //double currentAngleL = falconTicksToAngle(armMotorL.getSelectedSensorPosition());
+        double currentAngleR = falconTicksToAngle(armMotorR.getSelectedSensorPosition());
+        //if right is in range, but right is not, that's a what the heck is happening edgecase (hopefully)
+        return (currentAngleR > lowerBound && currentAngleR < upperBound);
     }
         
     public boolean encoderCrossCheck(double error){
@@ -205,8 +207,8 @@ public class ArmTuning extends JankyStateMachine {
     
     //TODO test this on jankybot
     public void setMotors(double value){
-        armMotorL.set(TalonFXControlMode.PercentOutput, value);
-        armMotorR.set(TalonFXControlMode.PercentOutput, value);
+        armMotorL.set(TalonFXControlMode.PercentOutput, -value);
+        armMotorR.set(TalonFXControlMode.PercentOutput, -value);
     }
      
     public void StateEngine(int curState, boolean onStateEntered){

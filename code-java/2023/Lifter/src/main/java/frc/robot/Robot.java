@@ -109,14 +109,16 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
 
     //TROUBLESHOOTING
+    /**
     if (xboxController.GetButtonA()){
-      m_armTuning.setMotors(0.1);
-    } else if (xboxController.GetButtonB()){
+      m_armTuning.setMotors(0.05);
+    } else {
       m_armTuning.setMotors(0.0);
     }
+     */
 
     //ARM TUNING
-    /**
+   
     if(xboxController.GetLeftYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
       m_armTuning.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
       System.out.println("Front Intake button pressed");
@@ -146,7 +148,7 @@ public class Robot extends TimedRobot {
       m_armTuning.armHoming();
       System.out.println("Start button pressed");
     }
-     */
+    
   
     //ARM
     /* 
