@@ -121,7 +121,7 @@ public class Robot extends TimedRobot {
     autoPathSelected = autoPathChooser.getSelected();
     SmartDashboard.putNumber("Auto Path Selected", autoPathSelected);
 
-    autoSM = new AutoStateMachine(autoDelaySelected, 2, m_gyro);
+    autoSM = new AutoStateMachine(autoDelaySelected, 3, m_gyro);
 
   }
 

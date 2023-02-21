@@ -9,7 +9,7 @@ public class AutoConstants {
     public static final int CHASSIS_RIGHT_ENCODER_CHANNEL = 1;
 
     public static final double CHASSIS_WIDTH = 0.686; //_m
-    public static final double WHEEL_DIAMETER_INCHES = 0.1016; //4in in meters
+    public static final double WHEEL_DIAMETER_INCHES = 0.1524; //4in wheels -->  0.1016 meters //6in -->0.1524
     
     //selector
     public static int ZeroDelay = 0;
@@ -22,6 +22,7 @@ public class AutoConstants {
     public static final int SIMPLE_AUTOPATH = 0;
     public static final int ONE_CUBE_AUTOPATH = 1;
     public static final int CHARGE_STATION = 2;
+    public static final int SQUARE = 3;
 
     public static final double kTrackwidth = CHASSIS_WIDTH; //232.9723996;
     public static DifferentialDriveKinematics kDriveKinematics;

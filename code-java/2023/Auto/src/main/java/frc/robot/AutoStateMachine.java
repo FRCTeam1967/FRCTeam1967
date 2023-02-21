@@ -78,6 +78,9 @@ public class AutoStateMachine extends JankyStateMachine {
     private final int goFront = 3;
     private final int backUpRamp = 4;
 
+    private final int squareMove = 0;
+    private final int squareTurn = 1;
+
     static final double velocitykP = 0.2;
     static final double velocitykI = 0.0;
     static final double velocitykD = 0.3;
@@ -183,7 +186,7 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName (simpleFinishAuto, "simpleFinishAuto");
             stateMachineSelected = AutoConstants.SIMPLE_AUTOPATH;
             start();
-        } else {
+        } else if(path == AutoConstants.CHARGE_STATION) {
             SetMachineName ("chargeStation");
             SetName (upRamp, "upRamp");
             SetName(idle, "noMove");
@@ -191,6 +194,12 @@ public class AutoStateMachine extends JankyStateMachine {
             SetName (goFront, "goFront");
             SetName (backUpRamp, "backUpRamp");
             stateMachineSelected = AutoConstants.CHARGE_STATION;
+            start();
+        } else if(path == AutoConstants.SQUARE) { //for showcase
+            SetMachineName("square");
+            SetName(squareMove, "square move");
+            SetName(squareTurn, "square turn");
+            stateMachineSelected = AutoConstants.SQUARE;
             start();
         }
     }
@@ -319,6 +328,29 @@ public class AutoStateMachine extends JankyStateMachine {
                         }
                         break;
                 }
+            } else if (stateMachineSelected == AutoConstants.SQUARE) {
+                switch(curState) {
+                    case squareMove:
+                        if (inchesToEncoder(10) >= getAverageEncoderValues()) { 
+                            leftLeader.set(TalonSRXControlMode.PercentOutput, 0.4);
+                            rightLeader.set(TalonSRXControlMode.PercentOutput, -0.4); 
+                        } else {
+                            rightLeader.setSelectedSensorPosition(0);
+                            leftLeader.setSelectedSensorPosition(0);
+                            NewState(squareTurn, "square turn");
+                        }
+                        break;
+                    case squareTurn:
+                        if (inchesToEncoder(2.2) >= getAverageEncoderValues()) { 
+                            leftLeader.set(TalonSRXControlMode.PercentOutput, 0.3);
+                            rightLeader.set(TalonSRXControlMode.PercentOutput, 0.3); 
+                        } else {
+                            rightLeader.setSelectedSensorPosition(0);
+                            leftLeader.setSelectedSensorPosition(0);
+                            NewState(squareMove, "square move");
+                        }
+                        break; 
+                }
             }
         }
 
@@ -332,7 +364,7 @@ public class AutoStateMachine extends JankyStateMachine {
         System.out.println("Auto SM terminated");
     }
 
-    public double inchesToEncoder(int inches) {
+    public double inchesToEncoder(double inches) { //changed to double
         newEncoderValue = inches / AutoConstants.WHEEL_CIRCUMFERENCE * AutoConstants.CHASSIS_GEAR_RATIO * AutoConstants.FALCON_PULSES_PER_REVOLUTION;
         return newEncoderValue;
     }
