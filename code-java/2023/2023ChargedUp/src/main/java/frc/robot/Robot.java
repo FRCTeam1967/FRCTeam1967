@@ -132,16 +132,16 @@ public class Robot extends TimedRobot {
     }
 
     //intake button triggers
-    if (xboxController.GetButtonX() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonY()) {
+    if (xboxController.GetLeftThrottle()==1 || xboxController.GetRightThrottle()==1) {
       m_intake.runIntake();
 
-    } else if (xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonB() && !xboxController.GetButtonY()){
+    } else if (xboxController.getPOV() == 0){
       m_intake.runLowEject();
 
-    } else if (xboxController.GetButtonB() && !xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonY()){
+    } else if (xboxController.getPOV() == 90){
       m_intake.runMiddleEject();
 
-    } else if(xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB() && !xboxController.GetButtonX()){
+    } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
 
     } else {
@@ -149,27 +149,27 @@ public class Robot extends TimedRobot {
     }
 
     //arm button triggers
-    if(xboxController.GetLeftYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
+    if(xboxController.GetButtonRB()){
       m_arm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
-      System.out.println("Front Intake button pressed");
+      System.out.println("Intake button pressed");
       
-    } else if(xboxController.GetButtonLB()){
+    } else if(xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonB()){
       m_arm.setDesiredPosition(Constants.Arm.fMIDDLE_ANGLE);
       System.out.println("Front Middle button pressed");
 
-    } else if(xboxController.GetLeftThrottle()==1){
+    } else if(xboxController.GetButtonY() && !xboxController.GetButtonX() && !xboxController.GetButtonA() && !xboxController.GetButtonB()){
       m_arm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
       System.out.println("Front Top button pressed");
       
-    } else if(xboxController.GetRightYAxis()<Constants.Arm.CONTROLLER_Y_AXIS_DEADBAND){
+    } else if(xboxController.GetButtonLB()){
       m_arm.setDesiredPosition(Constants.Arm.SAFE_ANGLE);
       System.out.println("Safe button pressed");
       
-    } else if(xboxController.GetButtonRB()){
+    } else if(xboxController.GetButtonB() && !xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA()){
       m_arm.setDesiredPosition(Constants.Arm.bMIDDLE_ANGLE);
       System.out.println("Back Middle button pressed");
       
-    } else if(xboxController.GetRightThrottle()==1){
+    } else if(xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB()){
       m_arm.setDesiredPosition(Constants.Arm.bTOP_ANGLE);
       System.out.println("Back Top button pressed");
       
