@@ -101,9 +101,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     if (leftJoystick.getRawButton(1) && rightJoystick.getRawButton(1)){
-      m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
+      m_chassis.driveStraight(Math.pow(leftJoystick.getY(),3), Math.pow(rightJoystick.getY(),3));
     } else {
-    m_chassis.driveTank(leftJoystick.getY(), rightJoystick.getY());
+    m_chassis.driveTank(Math.pow(leftJoystick.getY(),3), Math.pow(rightJoystick.getY(),3));
     }
   }
 
