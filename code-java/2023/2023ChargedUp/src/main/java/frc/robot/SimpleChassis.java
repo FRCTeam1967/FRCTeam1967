@@ -21,7 +21,7 @@ public class SimpleChassis implements DriveSystem {
 
     /**
      * Constructor for Simple Chassis
-     * Defining and configuring motors, motor controller groups, and differential drive class
+     * <p> Defining and configuring motors, motor controller groups, and differential drive class
      */
     public SimpleChassis() {
         leftLeader = new WPI_TalonFX(Constants.Chassis.LEFT_LEADER_ID);

@@ -16,13 +16,13 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 /**
  * Arm Xbox Controller Button Mapping
- * GetLeftThrottle- front top
- * GetButtonLB- front middle
- * GetLeftYAxis- intake
- * GetRightThrottle- back top
- * GetButtonRB - back middle
- * GetRightYAxis- safe
- * Arm homing- start
+ * RB- intake
+ * A- front middle
+ * Y- front top
+ * LB- safe
+ * X- back top
+ * B- back middle
+ * Start- arm homing
 */
 
 public class Arm extends JankyStateMachine {
@@ -54,7 +54,8 @@ public class Arm extends JankyStateMachine {
     }
     
     /**
-     * Adds encoders tab and values (both absolute and falcon) to Shuffleboard
+     * Adds encoder values (both absolute and falcon) to Shuffleboard
+     * @param tab - Shuffleboard tab to add values to
      */
     public void configDashboard(ShuffleboardTab tab){
         //updates encoder values on shuffleboard continuously
@@ -127,7 +128,7 @@ public class Arm extends JankyStateMachine {
      * If input angle is within range, updates value of desiredAngle and shoves state machine into IN_MOTION
      * <p> Called when button is pressed in Robot.java
      * <p> Method is accessible to other mechanisms to trigger change in arm position
-     * @param angle- Desired angle in degrees to move the arm to
+     * @param angle - Desired angle in degrees to move the arm to
      */
     public void setDesiredPosition(double angle){
         //input checks
@@ -214,6 +215,7 @@ public class Arm extends JankyStateMachine {
                 if (onStateEntered){}
                 
                 //sanity check- check if both encoders are synced, send error message if not
+                //TODO add this back and test
                 /* if(!encoderCrossCheck(Constants.Arm.CHECK_ENCODER_ERROR)){
                     System.out.println("ENCODER INCONSISTENCY- Absolute and falcon encoders not synced");
                 } */

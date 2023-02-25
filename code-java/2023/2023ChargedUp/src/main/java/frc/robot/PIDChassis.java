@@ -17,7 +17,7 @@ public class PIDChassis implements DriveSystem {
     
     /**
      * Constructor for PID Chassis
-     * Defining and configuring motors
+     * <p> Defining and configuring motors
      */
     public PIDChassis(){
         leftLeader = new WPI_TalonFX(Constants.Chassis.LEFT_LEADER_ID);
@@ -36,7 +36,7 @@ public class PIDChassis implements DriveSystem {
 
     /**
      * Configures kP, kI, kD values for each Falcon
-     * @param motor - falcon object 
+     * @param motor - Falcon object 
      */
     private void configMotors(WPI_TalonFX motor){
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -96,6 +96,6 @@ public class PIDChassis implements DriveSystem {
         rightLeader.set(TalonFXControlMode.Velocity, targetVelocityR);
         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
     }
-
+    
     public void autoAlign(){}     
 }
