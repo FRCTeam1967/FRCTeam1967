@@ -21,19 +21,19 @@ public class HorizontalMeterSubsystem extends SubsystemBase {
     public HorizontalMeterSubsystem(LEDPanelSubsystem panel, int numChannels) {
         m_ledPanel = panel;
         m_numChannels = numChannels;
-        m_width = panel.m_width;
-        m_channelHeight = panel.m_height / m_numChannels; // Integer math will take the floor()
+        m_width = panel.width;
+        m_channelHeight = panel.height / m_numChannels; // Integer math will take the floor()
     }
 
     // Sets ths starting column for the meter display. The area to the left can be used for 
     // something else.
     public void setStartColumn(int startColumn) {
         m_startColumn = startColumn;
-        m_width = m_ledPanel.m_width - startColumn;
+        m_width = m_ledPanel.width - startColumn;
     }
 
     public void clearUnusedArea() {
-        for (int row = m_numChannels * m_channelHeight; row < m_ledPanel.m_height; row++) {
+        for (int row = m_numChannels * m_channelHeight; row < m_ledPanel.height; row++) {
             for (int col = 0; col < m_width; col++) {
                 m_ledPanel.setPixelByXY(m_startColumn + col, row, Color.kBlack);
             }

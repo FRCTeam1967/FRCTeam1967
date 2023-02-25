@@ -4,11 +4,11 @@ import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 
+import org.janksters.ExampleCommonClasses.Drawing.BitmapDrawingContext;
+
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import java.awt.image.*;
-
-public class LEDPanelSubsystem extends SubsystemBase {
+public class LEDPanelSubsystem extends SubsystemBase implements BitmapDrawingContext {
     // This class supports one or more LED panels arranged horizontally,
     // and in a serpentine layout. Pixel 0 is at the top-left, and pixel
     // numbers increase going down until all pixels in the the first 
@@ -20,19 +20,19 @@ public class LEDPanelSubsystem extends SubsystemBase {
     // 3  6  13 ...
     // 4  5  14 ...
 
-    public int m_width = 1;
-    public int m_height = 1;
-    public double m_brightness = 0.25;
+    protected int width = 1;
+    protected int height = 1;
+    public double brightness = 0.25;
     
     private AddressableLED m_led;
     private AddressableLEDBuffer m_ledBuffer;
 
     public LEDPanelSubsystem(int width, int height, int pwmPin) {
-        m_width = width > 0 ? width : 1;
-        m_height = height > 0 ? height : 1;
+        this.width = width > 0 ? width : 1;
+        this.height = height > 0 ? height : 1;
 
         // Setup the buffer
-        m_ledBuffer = new AddressableLEDBuffer(m_height * m_width);
+        m_ledBuffer = new AddressableLEDBuffer(height * width);
         setColor(0, 0, 0);
 
         // Setup the LED updating system
@@ -43,15 +43,17 @@ public class LEDPanelSubsystem extends SubsystemBase {
     }
 
     public void setPixelByID(int pixelID, int red, int green, int blue) {
-        int scaledRed = (int)((double)red * m_brightness);
-        int scaledGreen = (int)((double)green * m_brightness);
-        int scaledBlue = (int)((double)blue * m_brightness);
+        if (pixelID >= 0 && pixelID < m_ledBuffer.getLength()) {
+            int scaledRed = (int)((double)red * brightness);
+            int scaledGreen = (int)((double)green * brightness);
+            int scaledBlue = (int)((double)blue * brightness);
 
-        m_ledBuffer.setRGB(pixelID, (int)scaledRed, (int)scaledGreen, (int)scaledBlue);
+            m_ledBuffer.setRGB(pixelID, (int)scaledRed, (int)scaledGreen, (int)scaledBlue);
+        }
     }
 
     public void setPixelHSVByID(int pixelID, int hue, int saturation, int value) {
-        m_ledBuffer.setHSV(pixelID, hue, saturation, (int)((double)value * m_brightness));
+        m_ledBuffer.setHSV(pixelID, hue, saturation, (int)((double)value * brightness));
     }
 
     public void setPixelByXY(int x, int y, Color color) {
@@ -67,45 +69,26 @@ public class LEDPanelSubsystem extends SubsystemBase {
 
     // Set all pixels to the same color
     public void setColor(int red, int green, int blue) {
-        for (int i = 0; i < m_width * m_height; i++) {
+        for (int i = 0; i < width * height; i++) {
             setPixelByID(i, red, green, blue);
         }
     }
 
     public void setColor(Color color) {
-        for (int i = 0; i < m_width * m_height; i++) {
+        for (int i = 0; i < width * height; i++) {
             setPixelByID(i, (int)(color.red * 255), (int)(color.green * 255), (int)(color.blue * 255));
         }
     }
 
-    // Set pixels to display the given image (or what fits)
-    public void setImage(BufferedImage image) {
-        // We might want to be more efficient about this, but if we're changing images,
-        // we need to blank the pixels the new image isn't drawing directly.
-        setColor(0, 0, 0);
-
-        // Constrain output to actual dimensions
-        int imageWidth = image.getWidth();
-        int imageHeight = image.getHeight();
-        int actualWidth = imageWidth > m_width ? m_width : imageWidth;
-        int actualHeight = imageHeight > m_height ? m_height : imageHeight;
-    
-        // Iterate over the pixels of the images that we're using
-        for (int x = 0; x < actualWidth; x++) {
-            for (int y = 0; y < actualHeight; y++) {
-                //Retrieve the R G B values
-                int pixelRGB = image.getRGB(x,y);
-                int red = (pixelRGB >> 16) & 0xFF;
-                int green = (pixelRGB >> 8) & 0xFF;
-                int blue = pixelRGB & 0xFF;
-
-                setPixelByXY(x, y, red, green, blue);
-            }
-        }
+    public void clearScreen(Color color) {
+        setColor(color);
     }
 
-    // Pass a starting hue (0-180). Will return the next hue that should be passed in if you want
-    // to make it move.
+    /**
+     * Draw a rainbow across the LED panel starting at the given hue.
+     * @param startingHue Starting hue value for the rainbow (0-180)
+     * @return Next hue value to use if you want the rainbow to animate
+     */
     public int setRainbow(int startingHue) {
         // For every pixel
         for (var i = 0; i < m_ledBuffer.getLength(); i++) {
@@ -113,7 +96,7 @@ public class LEDPanelSubsystem extends SubsystemBase {
             // shape is a circle so only one value needs to precess
             final var hue = (startingHue + (int)(i * 180.0 / m_ledBuffer.getLength())) % 180;
             // Set the value
-            m_ledBuffer.setHSV(i, hue, 255, (int)(255 * m_brightness));
+            m_ledBuffer.setHSV(i, hue, 255, (int)(255 * brightness));
         }
         // Increase by to make the rainbow "move"
         startingHue += 3;
@@ -122,7 +105,14 @@ public class LEDPanelSubsystem extends SubsystemBase {
 
         return startingHue;
     }
-    
+
+    public int width() {
+        return width;
+    }
+
+    public int height() {
+        return height;
+    }
 
     // Commit the buffer so it's written to the pixels at the next update
     @Override
@@ -131,16 +121,20 @@ public class LEDPanelSubsystem extends SubsystemBase {
         m_led.setData(m_ledBuffer);
     }
 
+    public void commit() {
+        m_led.setData(m_ledBuffer);
+    }
+
 
     // Helper methods
 
     private int getPixelIDForXY(int x, int y) {
         // Make sure we're within bounds
-        if (y >= m_height) {
+        if (y >= height || y < 0) {
           System.out.println("Bad y passed to getPixelID: " + y);
           return -1;
         }
-        if (x >= m_width) {
+        if (x >= width || x < 0) {
           System.out.println("Bad x passed to getPixelID: " + x);
           return -1;
         }
@@ -148,13 +142,13 @@ public class LEDPanelSubsystem extends SubsystemBase {
         // Pixel index is the count of columns before this one times the number of rows, 
         // and then the number of rows before (for even columns, which stride down), or
         // after (for odd columns, which stride upward).
-        int pixelIndex = x * m_height;
+        int pixelIndex = x * height;
         if ((x % 2) == 0) {
           // Even column (0, 2, 4...). Pixel indices go from top to bottom in this column.
           pixelIndex += y;
         } else {
           // Odd column. Pixel indices got from bottom to top in this column
-          pixelIndex += (m_height - y - 1); // At the top (row = 0), we'd skip maxRows-1 items
+          pixelIndex += (height - y - 1); // At the top (row = 0), we'd skip maxRows-1 items
         }
     
         return pixelIndex;
