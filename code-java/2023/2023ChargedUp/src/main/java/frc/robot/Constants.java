@@ -31,7 +31,7 @@ public class Constants {
         public static final double LOW_EJECT_BOTTOM_ROLLER_SPEED = 0.2;
 
         //shooting timer for autonomous routine
-        public static final double AUTO_SHOOTER_TIMER_SECONDS = 3; //tbd
+        public static final double AUTO_SHOOTER_TIMER_SECONDS = 0.25; 
     }
 
     public static final class Arm {
@@ -67,7 +67,7 @@ public class Constants {
         public static final double kI = 0.0; 
         public static final double kD = 0.8; 
         public static final double kF = 0.0; 
-        public static final double CRUISE_VELOCITY = 2000;
+        public static final double CRUISE_VELOCITY = 2500;
         public static final double ACCELERATION = 1000;
 
         //xbox controller joystick deadband
@@ -113,6 +113,28 @@ public class Constants {
     }
 
     public static final class Auto {
+        //selectors
+        public static final int ZERO_DELAY = 0;
+        public static final int ONE_DELAY = 1;
+        public static final int TWO_DELAY = 2;
+        public static final int THREE_DELAY = 3;
+        public static final int FOUR_DELAY = 4;
+        public static final int FIVE_DELAY = 5;
 
+        public static final int SIMPLE_AUTOPATH = 0;
+        public static final int ONE_CUBE_AUTOPATH = 1;
+        public static final int CHARGE_STATION = 2;
+
+        //Auto PID constants
+        public static final double VELOCITY_KP = 0.07; 
+        public static final double VELOCITY_KI = 0.0;
+        public static final double VELOCITY_KD = 0.001;
+        public static final double VELOCITY_KF = 0.05;
+
+        // constants for distance calculation
+        public static final double PULSES_PER_REVOLUTION = 4096;
+        public static final double WHEEL_DIAMETER = 6; 
+        public static final double WHEEL_CIRCUMFERENCE = WHEEL_DIAMETER * Math.PI;
+        public static final double CHASSIS_GEAR_RATIO = ((50.0/14) * (54/20)); //50/14, 40/20 vision bot
     }
 }

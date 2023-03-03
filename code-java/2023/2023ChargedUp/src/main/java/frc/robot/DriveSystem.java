@@ -8,5 +8,7 @@ public interface DriveSystem {
 
     public void slowMode(double leftJoystick, double rightJoystick);
 
+    public void setBrakeMode(boolean isBrake);
+
     public void autoAlign();
 }

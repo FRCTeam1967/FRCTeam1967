@@ -17,11 +17,11 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 /**
  * Arm Xbox Controller Button Mapping
  * RB- intake
- * A- front middle
+ * A- front middle [redacted]
  * Y- front top
  * LB- safe
  * X- back top
- * B- back middle
+ * B- back middle [redacted]
  * Start- arm homing
 */
 
@@ -70,6 +70,14 @@ public class Arm extends JankyStateMachine {
     }
 
     /**
+     * Change arm motors to coast mode, called in disabled init so we can move the arm easily
+     */
+    public void setToCoastMode(){
+        armMotorL.setNeutralMode(NeutralMode.Coast);
+        armMotorR.setNeutralMode(NeutralMode.Coast);
+    }
+
+    /**
      * Called in robotInit to configure CANCoder at beginning of match
      */
     public void initEncoder(){
@@ -106,6 +114,7 @@ public class Arm extends JankyStateMachine {
     
     /**
      * Configure falcon motor settings, falcon encoder, and PID constants
+     * @param motor - falcon to configure
      */
     private void configMotors(WPI_TalonFX motor){
         TalonFXConfiguration config = new TalonFXConfiguration();
@@ -176,6 +185,7 @@ public class Arm extends JankyStateMachine {
      * @param error - Constant which is added or subtracted from desired angle to create range, degrees 
      * @return boolean - Whether encoder motor position is within the range
      */
+     //TODO test with checking absolute encoder
     public boolean isArmInRangeFalcon(double angle, double error){
         double lowerBound = angle - error, upperBound = angle + error;
         double currentAngleR = falconTicksToAngle(armMotorR.getSelectedSensorPosition());

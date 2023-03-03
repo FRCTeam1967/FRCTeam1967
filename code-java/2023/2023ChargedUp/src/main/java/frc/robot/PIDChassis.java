@@ -1,5 +1,6 @@
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.TalonFXControlMode;
 import com.ctre.phoenix.motorcontrol.TalonFXInvertType;
 import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
@@ -95,6 +96,24 @@ public class PIDChassis implements DriveSystem {
 
         rightLeader.set(TalonFXControlMode.Velocity, targetVelocityR);
         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+    }
+
+    /**
+     * Activated with joystick buttons when manually engaging on charge station
+     * @param isBrake - true means set to brake mode, false set to coast mode
+     */
+    public void setBrakeMode(boolean isBrake){
+        if (isBrake){
+            leftLeader.setNeutralMode(NeutralMode.Brake);
+            rightLeader.setNeutralMode(NeutralMode.Brake);
+            leftFollower.setNeutralMode(NeutralMode.Brake);
+            rightFollower.setNeutralMode(NeutralMode.Brake);
+        } else {
+            leftLeader.setNeutralMode(NeutralMode.Coast);
+            rightLeader.setNeutralMode(NeutralMode.Coast);
+            leftFollower.setNeutralMode(NeutralMode.Coast);
+            rightFollower.setNeutralMode(NeutralMode.Coast);
+        }
     }
     
     public void autoAlign(){}     

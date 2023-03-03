@@ -70,6 +70,24 @@ public class SimpleChassis implements DriveSystem {
     public void slowMode(double leftJoystick, double rightJoystick){
         myRobot.tankDrive(Math.pow((leftJoystick*Constants.Chassis.SLOW_MODE_FACTOR), Constants.Chassis.JOYSTICK_EXP), Math.pow((rightJoystick*Constants.Chassis.SLOW_MODE_FACTOR), Constants.Chassis.JOYSTICK_EXP));
     }
+    
+    /**
+     * Activated with joystick buttons when manually engaging on charge station
+     * @param isBrake - true means set to brake mode, false set to coast mode
+     */
+    public void setBrakeMode(boolean isBrake){
+        if (isBrake){
+            leftLeader.setNeutralMode(NeutralMode.Brake);
+            rightLeader.setNeutralMode(NeutralMode.Brake);
+            leftFollower.setNeutralMode(NeutralMode.Brake);
+            rightFollower.setNeutralMode(NeutralMode.Brake);
+        } else {
+            leftLeader.setNeutralMode(NeutralMode.Coast);
+            rightLeader.setNeutralMode(NeutralMode.Coast);
+            leftFollower.setNeutralMode(NeutralMode.Coast);
+            rightFollower.setNeutralMode(NeutralMode.Coast);
+        }
+    }
 
     public void autoAlign(){}
 }

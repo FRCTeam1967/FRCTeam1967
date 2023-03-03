@@ -4,14 +4,15 @@
 
 package frc.robot;
 
+import org.janksters.jankyLib.jankyXboxJoystick;
+
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-
-import org.janksters.jankyLib.*;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -21,33 +22,33 @@ import org.janksters.jankyLib.*;
  */
  
 public class Robot extends TimedRobot {
-  private static final String kDefaultAuto = "Default", kCustomAuto = "My Auto";
-  private String m_autoSelected;
-  private final SendableChooser<String> m_chooser = new SendableChooser<>();
-
   //joystick objects
   private jankyXboxJoystick xboxController = new jankyXboxJoystick(Constants.Controllers.XBOX_PORT);
   private Joystick leftJoystick = new Joystick(Constants.Controllers.LEFT_JOYSTICK_PORT);
   private Joystick rightJoystick = new Joystick(Constants.Controllers.RIGHT_JOYSTICK_PORT);
 
   //declaring mechanism objects
+  private Auto auto = null;
   private Intake m_intake;
   private DriveSystem m_chassis;
   private Arm m_arm;
 
+  public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
+  public double gyroAngle;
+
   //shuffleboard
   public ShuffleboardTab m_matchTab;
+  
+  //auto config dashboard
+  SendableChooser<Integer> autoDelayChooser = new SendableChooser<Integer>();
+  SendableChooser<Integer> autoPathChooser = new SendableChooser<Integer>(); 
+  int delay, path;
 
   /**
-   * This function is run when the robot is first started up and should be used for any
-   * initialization code.
+   * This function is run when the robot is first started up and should be used for any initialization code.
    */
   @Override
   public void robotInit() {
-    m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
-    m_chooser.addOption("My Auto", kCustomAuto);
-    SmartDashboard.putData("Auto choices", m_chooser);
-
     //defining mechanism objects
     m_intake = new Intake();
     m_arm = new Arm();
@@ -65,14 +66,29 @@ public class Robot extends TimedRobot {
     m_matchTab = Shuffleboard.getTab("Match");
     m_intake.configDashboard(m_matchTab);
     m_arm.configDashboard(m_matchTab);
+
+    //AUTO SELECTORS
+    //delay timer chooser
+    autoDelayChooser.setDefaultOption("0", Constants.Auto.ZERO_DELAY);
+    autoDelayChooser.addOption("1", Constants.Auto.ONE_DELAY); 
+    autoDelayChooser.addOption("2", Constants.Auto.TWO_DELAY);
+    autoDelayChooser.addOption("3", Constants.Auto.THREE_DELAY);
+    autoDelayChooser.addOption("4", Constants.Auto.FOUR_DELAY);
+    autoDelayChooser.addOption("5", Constants.Auto.FIVE_DELAY);
+    m_matchTab.add("Auto Delay", autoDelayChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
+
+    //auto path chooser
+    autoPathChooser.setDefaultOption("Community", Constants.Auto.SIMPLE_AUTOPATH);
+    autoPathChooser.addOption("One cube", Constants.Auto.ONE_CUBE_AUTOPATH);
+    autoPathChooser.addOption("Charge station", Constants.Auto.CHARGE_STATION);
+    m_matchTab.add("Auto Path", autoPathChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
   }
 
   /**
    * This function is called every 20 ms, no matter the mode. Use this for items like diagnostics
    * that you want ran during disabled, autonomous, teleoperated and test.
    *
-   * <p>This runs after the mode specific periodic functions, but before LiveWindow and
-   * SmartDashboard integrated updating.
+   * <p>This runs after the mode specific periodic functions, but before LiveWindow and SmartDashboard integrated updating.
    */
   @Override
   public void robotPeriodic() {}
@@ -89,26 +105,21 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    m_autoSelected = m_chooser.getSelected();
-    // m_autoSelected = SmartDashboard.getString("Auto Selector", kDefaultAuto);
-    System.out.println("Auto selected: " + m_autoSelected);
-
     m_arm.armHoming();
+    m_matchTab.addDouble("Auto Gyro", () -> gyroAngle);
+
+    delay = autoDelayChooser.getSelected();
+    m_matchTab.addInteger("Auto Delay Selected", () -> delay);
+
+    path = autoPathChooser.getSelected();
+    m_matchTab.addInteger("Auto Path Selected", () -> path);
+
+    auto = new Auto(delay, path, m_gyro, m_arm, m_intake);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    switch (m_autoSelected) {
-      case kCustomAuto:
-        // Put custom auto code here
-        break;
-      case kDefaultAuto:
-      default:
-        // Put default auto code here
-        break;
-    }
-  }
+  public void autonomousPeriodic() {}
 
   /** This function is called once when teleop is enabled. */
   @Override
@@ -130,8 +141,16 @@ public class Robot extends TimedRobot {
        m_chassis.drive(leftJoystick.getY(), rightJoystick.getY());
     }
 
+    //TODO needs to be tested
+    if (leftJoystick.getRawButton(9) || rightJoystick.getRawButton(9)) {
+      m_chassis.setBrakeMode(true); //set to brake mode
+    }
+    if (leftJoystick.getRawButton(10) || rightJoystick.getRawButton(10)) {
+      m_chassis.setBrakeMode(false); //set to coast mode
+    }
+
     //intake button triggers
-    if (xboxController.GetLeftThrottle()==1 || xboxController.GetRightThrottle()==1) {
+    if (xboxController.GetLeftThrottle() == 1 || xboxController.GetRightThrottle() == 1) {
       m_intake.runIntake();
 
     } else if (xboxController.getPOV() == 0){
@@ -150,37 +169,30 @@ public class Robot extends TimedRobot {
     //arm button triggers
     if(xboxController.GetButtonRB()){
       m_arm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
-      System.out.println("Intake button pressed");
+      System.out.println("Intake button pressed (RB)");
       
-    } else if(xboxController.GetButtonA() && !xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonB()){
-      m_arm.setDesiredPosition(Constants.Arm.fMIDDLE_ANGLE);
-      System.out.println("Front Middle button pressed");
-
-    } else if(xboxController.GetButtonY() && !xboxController.GetButtonX() && !xboxController.GetButtonA() && !xboxController.GetButtonB()){
+    } else if(xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB()){
       m_arm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
-      System.out.println("Front Top button pressed");
+      System.out.println("Front Top button pressed (X)");
       
     } else if(xboxController.GetButtonLB()){
       m_arm.setDesiredPosition(Constants.Arm.SAFE_ANGLE);
-      System.out.println("Safe button pressed");
+      System.out.println("Safe button pressed (LB)");
       
     } else if(xboxController.GetButtonB() && !xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA()){
-      m_arm.setDesiredPosition(Constants.Arm.bMIDDLE_ANGLE);
-      System.out.println("Back Middle button pressed");
-      
-    } else if(xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB()){
       m_arm.setDesiredPosition(Constants.Arm.bTOP_ANGLE);
-      System.out.println("Back Top button pressed");
+      System.out.println("Back Top button pressed (B)");
       
     } else if (xboxController.GetButtonStart()){
       m_arm.armHoming(); //if arm slips during match, press the start button to re-home arm
-      System.out.println("Start button pressed");
     }
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    m_arm.setToCoastMode(); //TODO: take out before competition- just to make testing easier
+  }
 
   /** This function is called periodically when disabled. */
   @Override

@@ -43,8 +43,8 @@ public class Intake {
     public void configDashboard(ShuffleboardTab tab){
         autoShootRowEntry = new SendableChooser<Integer>();
         autoShootRowEntry.addOption("Low Eject", 0);
-        autoShootRowEntry.addOption("Middle Eject", 1);
-        autoShootRowEntry.setDefaultOption("High Eject", 2);
+        autoShootRowEntry.setDefaultOption("Middle Eject", 1);
+        autoShootRowEntry.addOption("High Eject", 2);
 
         tab.add("Auto Shoot Select", autoShootRowEntry).withWidget(BuiltInWidgets.kSplitButtonChooser);
     }
