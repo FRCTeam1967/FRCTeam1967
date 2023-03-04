@@ -5,7 +5,7 @@
 package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -30,7 +30,7 @@ public class Robot extends TimedRobot {
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   Limelight limelight;
   //KitBotChassis m_chassis;
-  WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
+  WPI_TalonFX leftLeader, leftFollower, rightLeader, rightFollower;
   MotorControllerGroup leftGroup, rightGroup;
   DifferentialDrive myRobot;
 
@@ -51,10 +51,10 @@ public class Robot extends TimedRobot {
     //m_chassis = new KitBotChassis();
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
-    leftLeader = new WPI_TalonSRX(Constants.LEFT_LEADER);
-    leftFollower = new WPI_TalonSRX(Constants.LEFT_FOLLOWER);
-    rightLeader = new WPI_TalonSRX(Constants.RIGHT_LEADER);
-    rightFollower = new WPI_TalonSRX(Constants.RIGHT_FOLLOWER);
+    leftLeader = new WPI_TalonFX(Constants.LEFT_LEADER);
+    leftFollower = new WPI_TalonFX(Constants.LEFT_FOLLOWER);
+    rightLeader = new WPI_TalonFX(Constants.RIGHT_LEADER);
+    rightFollower = new WPI_TalonFX(Constants.RIGHT_FOLLOWER);
 
     leftLeader.setNeutralMode(NeutralMode.Brake);
     leftFollower.setNeutralMode(NeutralMode.Brake);
@@ -122,7 +122,7 @@ public class Robot extends TimedRobot {
       myRobot.tankDrive(-avgSpeed, avgSpeed);
     } else if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
       limelight.trackingLimelightSteer();
-      myRobot.tankDrive(limelight.getLeftCommand(), limelight.getRightCommand());
+      myRobot.tankDrive(-limelight.getLeftCommand(), limelight.getRightCommand());
     } else if (leftJoystick.getRawButton(4) || rightJoystick.getRawButton(4)) {
       limelight.trackingLimelightDist();
       myRobot.tankDrive(limelight.getLeftCommand(), limelight.getRightCommand());

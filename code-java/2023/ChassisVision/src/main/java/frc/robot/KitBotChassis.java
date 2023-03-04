@@ -5,15 +5,15 @@ import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.SupplyCurrentLimitConfiguration;
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import edu.wpi.first.math.filter.SlewRateLimiter;
 
 public class KitBotChassis {
-    // private static WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
+    private static WPI_TalonFX leftLeader, leftFollower, rightLeader, rightFollower;
 
-    // private static MotorControllerGroup leftGroup;
-    // private static MotorControllerGroup rightGroup;
-    // private static DifferentialDrive myRobot;
+    private static MotorControllerGroup leftGroup;
+    private static MotorControllerGroup rightGroup;
+    private static DifferentialDrive myRobot;
 
     // private Joystick leftJoystick, rightJoystick;
     private double averageSpeed;
@@ -22,15 +22,15 @@ public class KitBotChassis {
         // leftJoystick = new Joystick(0);
         // rightJoystick = new Joystick(1);
 
-        // leftLeader = new WPI_TalonSRX(Constants.LEFT_LEADER);
-        // leftFollower = new WPI_TalonSRX(Constants.LEFT_FOLLOWER);
-        // rightLeader = new WPI_TalonSRX(Constants.RIGHT_LEADER);
-        // rightFollower = new WPI_TalonSRX(Constants.RIGHT_FOLLOWER);
+        leftLeader = new WPI_TalonFX(Constants.LEFT_LEADER);
+        leftFollower = new WPI_TalonFX(Constants.LEFT_FOLLOWER);
+        rightLeader = new WPI_TalonFX(Constants.RIGHT_LEADER);
+        rightFollower = new WPI_TalonFX(Constants.RIGHT_FOLLOWER);
 
-        // leftGroup = new MotorControllerGroup(leftFollower, leftLeader);
-        // rightGroup = new MotorControllerGroup(rightFollower, rightLeader);
+        leftGroup = new MotorControllerGroup(leftFollower, leftLeader);
+        rightGroup = new MotorControllerGroup(rightFollower, rightLeader);
 
-        // myRobot = new DifferentialDrive(leftGroup, rightGroup);
+        myRobot = new DifferentialDrive(leftGroup, rightGroup);
     }
 
     public double driveStraight(Joystick leftJoystick, Joystick rightJoystick){

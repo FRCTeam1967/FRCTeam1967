@@ -1,10 +1,10 @@
 
 package frc.robot;
 public class Constants {
-    public static final int LEFT_FOLLOWER = 5;
-    public static final int LEFT_LEADER = 7;
-    public static final int RIGHT_FOLLOWER = 4;
-    public static final int RIGHT_LEADER = 6;
+    public static final int LEFT_FOLLOWER = 6;
+    public static final int LEFT_LEADER = 4;
+    public static final int RIGHT_FOLLOWER = 5;
+    public static final int RIGHT_LEADER = 7;
 
     //supply configuration limit constants 
     public static final boolean SUPPLY_CURRENT_ENABLED =  false; 
