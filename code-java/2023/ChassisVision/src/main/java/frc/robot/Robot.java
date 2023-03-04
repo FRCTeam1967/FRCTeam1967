@@ -4,13 +4,16 @@
 
 package frc.robot;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj.Joystick;
+
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -25,8 +28,8 @@ public class Robot extends TimedRobot {
   private static final String kCustomAuto = "My Auto";
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
-  
-  KitBotChassis m_chassis;
+  Limelight limelight;
+  //KitBotChassis m_chassis;
   WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
   MotorControllerGroup leftGroup, rightGroup;
   DifferentialDrive myRobot;
@@ -45,10 +48,24 @@ public class Robot extends TimedRobot {
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     
-    m_chassis = new KitBotChassis();
+    //m_chassis = new KitBotChassis();
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
-    m_chassis.setChassisModes(true);
+    leftLeader = new WPI_TalonSRX(Constants.LEFT_LEADER);
+    leftFollower = new WPI_TalonSRX(Constants.LEFT_FOLLOWER);
+    rightLeader = new WPI_TalonSRX(Constants.RIGHT_LEADER);
+    rightFollower = new WPI_TalonSRX(Constants.RIGHT_FOLLOWER);
+
+    leftLeader.setNeutralMode(NeutralMode.Brake);
+    leftFollower.setNeutralMode(NeutralMode.Brake);
+    rightLeader.setNeutralMode(NeutralMode.Brake);
+    rightFollower.setNeutralMode(NeutralMode.Brake);
+    MotorControllerGroup leftGroup = new MotorControllerGroup(leftLeader,leftFollower);
+    MotorControllerGroup rightGroup = new MotorControllerGroup(rightLeader,rightFollower);
+
+    myRobot = new DifferentialDrive(leftGroup, rightGroup);
+   
+    limelight = new Limelight();
   }
  
   /**
@@ -100,11 +117,25 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if (leftJoystick.getRawButton(1) && rightJoystick.getRawButton(1)){
-      m_chassis.driveStraight(Math.pow(leftJoystick.getY(),3), Math.pow(rightJoystick.getY(),3));
+    if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)){
+      double avgSpeed = (leftJoystick.getY() + rightJoystick.getY())/2;
+      myRobot.tankDrive(-avgSpeed, avgSpeed);
+    } else if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
+      limelight.trackingLimelightSteer();
+      myRobot.tankDrive(limelight.getLeftCommand(), limelight.getRightCommand());
+    } else if (leftJoystick.getRawButton(4) || rightJoystick.getRawButton(4)) {
+      limelight.trackingLimelightDist();
+      myRobot.tankDrive(limelight.getLeftCommand(), limelight.getRightCommand());
     } else {
-    m_chassis.driveTank(Math.pow(leftJoystick.getY(),3), Math.pow(rightJoystick.getY(),3));
+      double cubedLeft = Math.pow(leftJoystick.getY(),3);
+      double cubedRight = Math.pow(rightJoystick.getY(),3);
+      myRobot.tankDrive(-cubedLeft,cubedRight);
     }
+  }
+
+  public double applyDeadband(double val){
+    val = MathUtil.applyDeadband(val, 0.1);
+    return val;
   }
 
   /** This function is called once when the robot is disabled. */
@@ -130,4 +161,6 @@ public class Robot extends TimedRobot {
   /** This function is called periodically whilst in simulation. */
   @Override
   public void simulationPeriodic() {}
+
+  
 }

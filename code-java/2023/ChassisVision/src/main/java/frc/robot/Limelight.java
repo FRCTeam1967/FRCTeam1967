@@ -6,7 +6,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.ADIS16470_IMU; 
+import edu.wpi.first.wpilibj.ADIS16470_IMU;
+
+import javax.management.remote.SubjectDelegationPermission;
+
 import edu.wpi.first.math.estimator.DifferentialDrivePoseEstimator; 
 
 
@@ -17,8 +20,8 @@ public class Limelight{
     private double x, y, shortLength, longLength, area, horLength, verLength;
     private double leftCommand, rightCommand;
 
-    private ADIS16470_IMU gyro = new ADIS16470_IMU();
-    private DifferentialDrivePoseEstimator poseEstimator;
+    // private ADIS16470_IMU gyro = new ADIS16470_IMU();
+    // private DifferentialDrivePoseEstimator poseEstimator;
 
     public Limelight(){
         limelightTable = NetworkTableInstance.getDefault().getTable("limelight");
@@ -80,42 +83,69 @@ public class Limelight{
         return ratio;
     }
 
-    public void trackingLimelight () {
+    public void trackingLimelightSteer () {
         getLimelightValues();
        // getRatio();
 
-        double KpAiming = -0.05;
-        double KpDistance = -0.05;
-
-        double minCommand = 0.06;
+        double KpAiming = -0.04;
+        
+        double minCommand = 0.1;
         double steeringAdjust = 0.0;
-        double distanceAdjust = 0.0;
+        
         double headingError = -x;
-        double distanceError = -y;
+       
 
         leftCommand = 0.0;
         rightCommand = 0.0;
 
-        if (x > 1.0){
+        if (x > 0.5){
             steeringAdjust = KpAiming*headingError - minCommand;
-            leftCommand = -steeringAdjust;
-            rightCommand = steeringAdjust;
-        } else if (x < -1.0) {
+            leftCommand += steeringAdjust;
+            System.out.println(leftCommand);
+        } else if (x < -0.5) {
             steeringAdjust = KpAiming*headingError + minCommand;
-            leftCommand = -steeringAdjust;
-            rightCommand = steeringAdjust;
-        } else {
+            rightCommand += steeringAdjust;
+        } 
+       
+        
+    }
+
+        public void trackingLimelightDist(){
+            getLimelightValues();
+
+            double KpDistance = -0.5;
+            double distanceAdjust = 0.0;
+            double distanceError = -y;
+            leftCommand = 0.0;
+            rightCommand = 0.0;
+
+            System.out.println(distanceError);
+            
+            
             distanceAdjust = KpDistance * distanceError;
-            leftCommand = -distanceAdjust;
-            rightCommand = distanceAdjust;
+
+            if (distanceError > 0) {
+                // System.out.println("ERROR IS POS");
+                leftCommand = -distanceAdjust;
+                rightCommand = distanceAdjust;
+            }
+            else if (distanceError < 0) {
+                // System.out.println("ERROR IS NEG");
+                leftCommand = -distanceAdjust;
+                rightCommand = distanceAdjust;
+            }
+            
+    
         }
+    
+
 
 
         /*distanceAdjust = KpDistance * distanceError;
 
         leftCommand -= steeringAdjust + distanceAdjust;
         rightCommand += steeringAdjust + distanceAdjust;*/
-    } 
+    
 
     public double getLeftCommand(){
         return leftCommand;
