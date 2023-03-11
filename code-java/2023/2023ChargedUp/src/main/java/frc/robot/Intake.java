@@ -90,7 +90,7 @@ public class Intake {
         topRollerMotor.set(-Constants.Intake.LOW_EJECT_TOP_ROLLER_SPEED);
         bottomRollerMotor.set(-Constants.Intake.LOW_EJECT_BOTTOM_ROLLER_SPEED);   
     }
-    
+
     /**
      * Method to trigger shooting in autonomous routine
      * <p> Starts timer and runs shooting method

@@ -7,12 +7,14 @@ package frc.robot;
 import org.janksters.jankyLib.jankyXboxJoystick;
 
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.shuffleboard.BuiltInWidgets;
 import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.util.Color;
 
 /**
  * The VM is configured to automatically run this class, and to call the functions corresponding to
@@ -28,10 +30,13 @@ public class Robot extends TimedRobot {
   private Joystick rightJoystick = new Joystick(Constants.Controllers.RIGHT_JOYSTICK_PORT);
 
   //declaring mechanism objects
-  private Auto auto = null;
+  private Auto m_auto = null;
   private Intake m_intake;
   private DriveSystem m_chassis;
   private Arm m_arm;
+  private DriverStation m_driverStation;
+  
+  // private LED m_led;
 
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
   public double gyroAngle;
@@ -52,15 +57,10 @@ public class Robot extends TimedRobot {
     //defining mechanism objects
     m_intake = new Intake();
     m_arm = new Arm();
+    // m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
 
     m_arm.initEncoder();
     m_arm.armHoming();
-
-    if (Constants.Chassis.USE_SIMPLE_CHASSIS){
-      m_chassis = new SimpleChassis();
-    } else {
-      m_chassis = new PIDChassis();
-    }
 
     //shuffleboard
     m_matchTab = Shuffleboard.getTab("Match");
@@ -82,6 +82,12 @@ public class Robot extends TimedRobot {
     autoPathChooser.addOption("One cube", Constants.Auto.ONE_CUBE_AUTOPATH);
     autoPathChooser.addOption("Charge station", Constants.Auto.CHARGE_STATION);
     m_matchTab.add("Auto Path", autoPathChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
+
+    m_matchTab.addDouble("Auto Gyro", () -> gyroAngle);
+
+    //default led sequnce- chasing red
+    // m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.001);
+    // m_led.executeSequence();
   }
 
   /**
@@ -106,25 +112,46 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     m_arm.armHoming();
-    m_matchTab.addDouble("Auto Gyro", () -> gyroAngle);
+    
+    //auto- get selected delay and path
 
     delay = autoDelayChooser.getSelected();
-    m_matchTab.addInteger("Auto Delay Selected", () -> delay);
+    //m_matchTab.addInteger("Auto Delay Chosen", () -> delay);
 
     path = autoPathChooser.getSelected();
-    m_matchTab.addInteger("Auto Path Selected", () -> path);
+    //m_matchTab.addInteger("Auto Path Chosen", () -> path);
 
-    auto = new Auto(delay, path, m_gyro, m_arm, m_intake);
+    //m_matchTab.addDouble("Auto Gyro", () -> gyroAngle);
+
+    m_auto = new Auto(delay, path, m_gyro, m_arm, m_intake);
+    
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {}
+  public void autonomousPeriodic() {
+
+  }
 
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
     m_arm.armHoming();
+
+    //defining m_chassis as simple or pid chassis
+    if (Constants.Chassis.USE_SIMPLE_CHASSIS){
+      m_chassis = new SimpleChassis();
+    } else {
+      m_chassis = new PIDChassis();
+    }
+
+    m_chassis.configDashboard(m_matchTab);
+    m_chassis.setBrakeMode(false);
+
+    if (m_auto != null && m_auto.isAlive()) {
+      m_auto.terminate();
+    }
+
   }
 
   /** This function is called periodically during operator control. */
@@ -141,7 +168,6 @@ public class Robot extends TimedRobot {
        m_chassis.drive(leftJoystick.getY(), rightJoystick.getY());
     }
 
-    //TODO needs to be tested
     if (leftJoystick.getRawButton(9) || rightJoystick.getRawButton(9)) {
       m_chassis.setBrakeMode(true); //set to brake mode
     }
@@ -152,15 +178,19 @@ public class Robot extends TimedRobot {
     //intake button triggers
     if (xboxController.GetLeftThrottle() == 1 || xboxController.GetRightThrottle() == 1) {
       m_intake.runIntake();
+      //m_led.setFlashColors(Color.kPurple, Color.kBlack, 0.3);
 
     } else if (xboxController.getPOV() == 0){
       m_intake.runLowEject();
-
+      //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.3);
+    
     } else if (xboxController.getPOV() == 90){
       m_intake.runMiddleEject();
+      //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.15);
 
     } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
+      //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.05);
 
     } else {
       m_intake.setMotorsToZero();
@@ -169,29 +199,31 @@ public class Robot extends TimedRobot {
     //arm button triggers
     if(xboxController.GetButtonRB()){
       m_arm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
-      System.out.println("Intake button pressed (RB)");
       
     } else if(xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB()){
       m_arm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
-      System.out.println("Front Top button pressed (X)");
       
     } else if(xboxController.GetButtonLB()){
       m_arm.setDesiredPosition(Constants.Arm.SAFE_ANGLE);
-      System.out.println("Safe button pressed (LB)");
       
     } else if(xboxController.GetButtonB() && !xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA()){
       m_arm.setDesiredPosition(Constants.Arm.bTOP_ANGLE);
-      System.out.println("Back Top button pressed (B)");
       
     } else if (xboxController.GetButtonStart()){
       m_arm.armHoming(); //if arm slips during match, press the start button to re-home arm
     }
+
+    /**
+    if (m_driverStation.getMatchTime() <= 30 ){
+      m_led.setRainbow();
+    }
+    */
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    m_arm.setToCoastMode(); //TODO: take out before competition- just to make testing easier
+    m_arm.setToCoastMode(); //TODO: take out before competition
   }
 
   /** This function is called periodically when disabled. */

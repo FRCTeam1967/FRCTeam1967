@@ -20,8 +20,8 @@ public class Auto extends JankyStateMachine {
     
     //motors, motor controller groups
     private WPI_TalonFX leftLeader, rightLeader, leftFollower, rightFollower;
-    private MotorControllerGroup m_left, m_right;
-    DifferentialDrive m_myRobot;
+    // private MotorControllerGroup m_left, m_right;
+    // DifferentialDrive m_myRobot;
 
     //shuffleboard
     public static int delay, path;
@@ -53,8 +53,8 @@ public class Auto extends JankyStateMachine {
         autoArm = arm;
         autoIntake = intake;
 
-        engageMinAngle = -9;
-        engageMaxAngle = 9;
+        engageMinAngle = -7; //used to be -9 and 9
+        engageMaxAngle = 7;
 
         //defining motors
         leftLeader = new WPI_TalonFX(4);
@@ -68,12 +68,12 @@ public class Auto extends JankyStateMachine {
         setUpChassisMotors(leftFollower);
         setUpChassisMotors(rightFollower);
 
-        //defining motor controller groups + differential drive
-        m_left = new MotorControllerGroup(leftLeader,leftFollower);
-        m_right = new MotorControllerGroup(rightLeader,rightFollower);
-        m_myRobot = new DifferentialDrive(m_left,m_right);
+        // //defining motor controller groups + differential drive
+        // m_left = new MotorControllerGroup(leftLeader,leftFollower);
+        // m_right = new MotorControllerGroup(rightLeader,rightFollower);
+        // m_myRobot = new DifferentialDrive(m_left,m_right);
 
-        //reset encoders/gyro
+        //reset encoders + gyro
         rightLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
         leftLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
         m_gyro.reset();
@@ -89,7 +89,7 @@ public class Auto extends JankyStateMachine {
             stateMachineSelected = Constants.Auto.ONE_CUBE_AUTOPATH;
             start();
 
-        } else if (path == Constants.Auto.SIMPLE_AUTOPATH) { //leaving tarmac path
+        } else if (path == Constants.Auto.SIMPLE_AUTOPATH) { 
             SetMachineName ("simpleAuto");
             SetName (SIMPLE_DELAY, "simpleDelay");
             SetName(SIMPLE_MOVE, "simpleMove");
@@ -112,11 +112,10 @@ public class Auto extends JankyStateMachine {
         }
     }
     
+   //TIMER HELPER METHODS
     public void resetDelayTimer(){
         delayTimer.reset();
     }
-
-    public void setInitialDelayTime(SendableChooser<Command> autoDelayChooser){}
 
     public int getDelay() {
         return delay;
@@ -135,6 +134,18 @@ public class Auto extends JankyStateMachine {
         delayTimer.reset();
     }
 
+    public boolean isTimerReached(int delayVal) {
+        if (delayTimer.get() <= delayVal) {
+            leftLeader.set(TalonFXControlMode.PercentOutput, 0);
+            rightLeader.set(TalonFXControlMode.PercentOutput, 0);
+            leftFollower.set(TalonFXControlMode.Follower, 4);
+            rightFollower.set(TalonFXControlMode.Follower, 5);
+        } else {
+            return true;
+        }
+        return false;
+    }
+
     /**
      * Configure falcon motor settings, falcon encoder, and PID constants
      * @param falcon - motor to configure
@@ -151,20 +162,6 @@ public class Auto extends JankyStateMachine {
         falcon.getSensorCollection().setIntegratedSensorPosition(0,10);
     }
     
-    /*
-     * Puts current auto state on SmartDashboard
-     */
-    public void displayCurrentState() {
-
-        SmartDashboard.putNumber("Auto current state", GetCurrentState()); //displays auto current state
-    }
-
-    public void endStateMachine() {
-        System.out.println("Auto SM terminating");
-        Terminate();
-        System.out.println("Auto SM terminated");
-    }
-
     /**
      * Converts inches to encoder value using wheel circumference and chassis gear ratio
      * @param inches - inches to convert
@@ -182,13 +179,10 @@ public class Auto extends JankyStateMachine {
         return motorEncoderAverage;
     }
 
-    public boolean isTimerReached(int delayVal) {
-        if (delayTimer.get() <= delayVal) {
-            m_myRobot.tankDrive(0, 0);
-        } else {
-            return true;
-        }
-        return false;
+    public void endStateMachine() {
+        System.out.println("Auto SM terminating");
+        Terminate();
+        System.out.println("Auto SM terminated");
     }
     
     public void StateEngine(int curState, boolean onStateEntered) {
@@ -230,9 +224,15 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case OC_MOVE:
-                    m_myRobot.tankDrive(0.4, -0.4); 
+                    leftLeader.set(TalonFXControlMode.PercentOutput, -0.4);
+                    rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
+                    leftFollower.set(TalonFXControlMode.Follower, 4);
+                    rightFollower.set(TalonFXControlMode.Follower, 5);
                     if (inchesToEncoder(30) <= getAverageEncoderValues()) {
-                        m_myRobot.tankDrive(0, 0);
+                        leftLeader.set(TalonFXControlMode.PercentOutput, 0);
+                        rightLeader.set(TalonFXControlMode.PercentOutput, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, 4);
+                        rightFollower.set(TalonFXControlMode.Follower, 5);
                         NewState(OC_FINISH_AUTO, "reached average encoder for distance");
                     }
                     break;
@@ -258,9 +258,15 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case SIMPLE_MOVE:
-                    m_myRobot.tankDrive(-0.4, 0.4); //going front
+                    leftLeader.set(TalonFXControlMode.PercentOutput, 0.4);
+                    rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
+                    leftFollower.set(TalonFXControlMode.Follower, 4);
+                    rightFollower.set(TalonFXControlMode.Follower, 5);
                     if (inchesToEncoder(30) <= getAverageEncoderValues()) {
-                        m_myRobot.tankDrive(0, 0);
+                        leftLeader.set(TalonFXControlMode.PercentOutput, 0);
+                        rightLeader.set(TalonFXControlMode.PercentOutput, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, 4);
+                        rightFollower.set(TalonFXControlMode.Follower, 5);
                         NewState(SIMPLE_FINISH_AUTO, "reached average encoder for distance");
                     }
                     break;
@@ -297,13 +303,16 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case CROSS_RAMP:
-                    leftLeader.set(TalonFXControlMode.Velocity, 6000);
-                    rightLeader.set(TalonFXControlMode.Velocity, -6000);
+                    leftLeader.set(TalonFXControlMode.Velocity, -3000);
+                    rightLeader.set(TalonFXControlMode.Velocity, 3000);
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
 
                     if (inchesToEncoder(220) <= getAverageEncoderValues()) { 
-                        m_myRobot.tankDrive(0, 0);
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, 4);
+                        rightFollower.set(TalonFXControlMode.Follower, 5);
                         NewState(CS_REVERSE_LOWER_ARM, "crossed community");
                     }   
                     break;
@@ -326,14 +335,17 @@ public class Auto extends JankyStateMachine {
                         rightLeader.setNeutralMode(NeutralMode.Coast);
                     }
                     
-                    leftLeader.set(TalonFXControlMode.Velocity, -5000);
-                    rightLeader.set(TalonFXControlMode.Velocity, 5000);
+                    leftLeader.set(TalonFXControlMode.Velocity, 2000);
+                    rightLeader.set(TalonFXControlMode.Velocity, -2000);
 
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
                     
                     if (inchesToEncoder(140) >= getAverageEncoderValues()) { //170
-                        m_myRobot.tankDrive(0, 0);
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, 4);
+                        rightFollower.set(TalonFXControlMode.Follower, 5);
                         NewState(IDLE, "crossed community");
                     }
                     break;
@@ -356,8 +368,8 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case GO_FRONT: //forward
-                    leftLeader.set(TalonFXControlMode.Velocity, 1000); 
-                    rightLeader.set(TalonFXControlMode.Velocity, -1000); //used to be 1000
+                    leftLeader.set(TalonFXControlMode.Velocity, -500); 
+                    rightLeader.set(TalonFXControlMode.Velocity, 500); //used to be 1000
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
                     System.out.println("moving forward");
@@ -370,8 +382,8 @@ public class Auto extends JankyStateMachine {
                     break;
                     
                 case GO_BACK: //backwards
-                    leftLeader.set(TalonFXControlMode.Velocity, -1000); 
-                    rightLeader.set(TalonFXControlMode.Velocity, 1000); 
+                    leftLeader.set(TalonFXControlMode.Velocity, 500); 
+                    rightLeader.set(TalonFXControlMode.Velocity, -500); 
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
                     System.out.println("moving backward");
