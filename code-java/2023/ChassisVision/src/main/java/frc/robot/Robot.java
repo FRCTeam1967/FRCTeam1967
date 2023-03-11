@@ -4,14 +4,18 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+//import com.ctre.phoenix.motorcontrol.can.WPI_TalonSRX;
 
+import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.Joystick;
-
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
@@ -26,12 +30,16 @@ public class Robot extends TimedRobot {
   private String m_autoSelected;
   private final SendableChooser<String> m_chooser = new SendableChooser<>();
   
-  KitBotChassis m_chassis;
-  WPI_TalonSRX leftLeader, leftFollower, rightLeader, rightFollower;
+  //KitBotChassis m_chassis;
+  WPI_TalonFX leftLeader, leftFollower, rightLeader, rightFollower;
   MotorControllerGroup leftGroup, rightGroup;
   DifferentialDrive myRobot;
 
   Joystick leftJoystick, rightJoystick;
+
+  public ShuffleboardTab limelightTab;
+  public DriveSystem m_chassis;
+  public LimelightIntegrate limelight;
 
 
   /**
@@ -40,14 +48,35 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void robotInit() {
+    //limelight.configLLFeed(limelightTab);
+
     m_chooser.setDefaultOption("Default Auto", kDefaultAuto);
     m_chooser.addOption("My Auto", kCustomAuto);
     SmartDashboard.putData("Auto choices", m_chooser);
     
-    m_chassis = new KitBotChassis();
+    //m_chassis = new KitBotChassis();
     leftJoystick = new Joystick(0);
     rightJoystick = new Joystick(1);
-    m_chassis.setChassisModes(true);
+
+    leftLeader = new WPI_TalonFX(Constants.LEFT_LEADER);
+    leftFollower = new WPI_TalonFX(Constants.LEFT_FOLLOWER);
+    rightLeader = new WPI_TalonFX(Constants.RIGHT_LEADER);
+    rightFollower = new WPI_TalonFX(Constants.RIGHT_FOLLOWER);
+
+    leftLeader.setNeutralMode(NeutralMode.Brake);
+    leftFollower.setNeutralMode(NeutralMode.Brake);
+    rightLeader.setNeutralMode(NeutralMode.Brake);
+    rightFollower.setNeutralMode(NeutralMode.Brake);
+
+    MotorControllerGroup leftGroup = new MotorControllerGroup(leftLeader,leftFollower);
+    MotorControllerGroup rightGroup = new MotorControllerGroup(rightLeader,rightFollower);
+
+    myRobot = new DifferentialDrive(leftGroup, rightGroup);
+   
+    limelight = new LimelightIntegrate();
+    limelightTab = Shuffleboard.getTab("Limelight Tab");
+    limelight.configLimelightTab(limelightTab);
+    limelight.getShuffleboardValues();
   }
 
   /**
@@ -99,11 +128,41 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    if (leftJoystick.getRawButton(1) && rightJoystick.getRawButton(1)){
-      m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
+    if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)){
+      m_chassis.driveStraight(-leftJoystick.getY(), rightJoystick.getY());
+    } else if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)){
+      limelight.angleAdjust();
+      m_chassis.autoAlign(-limelight.getLeftCommand(), limelight.getRightCommand());
+    } else if (leftJoystick.getRawButton(4) || rightJoystick.getRawButton(4)){
+      limelight.distanceAdjust();
+      m_chassis.autoDist(-limelight.getLeftCommand(), limelight.getRightCommand());
     } else {
-    m_chassis.driveTank(leftJoystick.getY(), rightJoystick.getY());
+      m_chassis.drive(-leftJoystick.getY(), rightJoystick.getY());
     }
+
+
+    // if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)){
+    //   double avgSpeed = (leftJoystick.getY() + rightJoystick.getY())/2;
+    //   myRobot.tankDrive(-avgSpeed, avgSpeed);
+    // } else if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
+    //   limelight.trackingLimelightSteer();
+    //   myRobot.tankDrive(-limelight.getLeftCommand(), limelight.getRightCommand());
+    
+    // } else if (leftJoystick.getRawButton(4) || rightJoystick.getRawButton(4)) {
+    //   limelight.trackingLimelightDist();
+    //   myRobot.tankDrive(limelight.getLeftCommand(), limelight.getRightCommand());
+    // } else {
+    //   double cubedLeft = Math.pow(leftJoystick.getY(),3);
+    //   double cubedRight = Math.pow(rightJoystick.getY(),3);
+    //   myRobot.tankDrive(-cubedLeft,cubedRight);
+    // }
+  }
+
+
+
+  public double applyDeadband(double val){
+    val = MathUtil.applyDeadband(val, 0.1);
+    return val;
   }
 
   /** This function is called once when the robot is disabled. */
