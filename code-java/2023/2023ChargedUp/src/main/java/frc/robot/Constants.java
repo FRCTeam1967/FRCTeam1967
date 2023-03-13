@@ -72,6 +72,7 @@ public class Constants {
     public static final class Chassis {
         //joystick sensitivity
         public static final int JOYSTICK_EXP = 1;
+        public static final double JOYSTICK_DEADBAND = 0.1;
 
         //simple vs pid chassis switch
         public static final boolean USE_SIMPLE_CHASSIS = false;
@@ -85,10 +86,10 @@ public class Constants {
         //pid
         public static final int kPIDLoopIdx = 0;
         public static final int K_TIMEOUT_MS = 75;
-        public static final double kP = 0.0; //jankybot- 0.061574, compbot 0.031812, 0.7
+        public static final double kP = 0.0; //jankybot- 0.061574, compbot- 0.031812
         public static final double kI = 0.0; 
-        public static final double kD = 0.0; //0.2, 0.155
-        public static final double kF = 0.15; //0.05
+        public static final double kD = 0.0; 
+        public static final double kF = 0.15; 
 
         //speed factor
         public static final double SLOW_MODE_FACTOR = 0.5;

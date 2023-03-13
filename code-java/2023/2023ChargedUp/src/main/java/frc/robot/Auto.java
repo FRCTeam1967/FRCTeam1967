@@ -8,20 +8,13 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
-import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
 
 public class Auto extends JankyStateMachine {
     public Arm autoArm;
     public Intake autoIntake;
     
-    //motors, motor controller groups
+    //motors
     private WPI_TalonFX leftLeader, rightLeader, leftFollower, rightFollower;
-    // private MotorControllerGroup m_left, m_right;
-    // DifferentialDrive m_myRobot;
 
     //shuffleboard
     public static int delay, path;
@@ -53,8 +46,8 @@ public class Auto extends JankyStateMachine {
         autoArm = arm;
         autoIntake = intake;
 
-        engageMinAngle = -7; //used to be -9 and 9
-        engageMaxAngle = 7;
+        engageMinAngle = -5;
+        engageMaxAngle = 5;
 
         //defining motors
         leftLeader = new WPI_TalonFX(4);
@@ -67,11 +60,6 @@ public class Auto extends JankyStateMachine {
         setUpChassisMotors(rightLeader);
         setUpChassisMotors(leftFollower);
         setUpChassisMotors(rightFollower);
-
-        // //defining motor controller groups + differential drive
-        // m_left = new MotorControllerGroup(leftLeader,leftFollower);
-        // m_right = new MotorControllerGroup(rightLeader,rightFollower);
-        // m_myRobot = new DifferentialDrive(m_left,m_right);
 
         //reset encoders + gyro
         rightLeader.getSensorCollection().setIntegratedSensorPosition(0,10);
@@ -224,11 +212,12 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case OC_MOVE:
-                    leftLeader.set(TalonFXControlMode.PercentOutput, -0.4);
+                    leftLeader.set(TalonFXControlMode.PercentOutput, 0.4);
                     rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
-                    if (inchesToEncoder(30) <= getAverageEncoderValues()) {
+
+                    if (inchesToEncoder(80) <= getAverageEncoderValues()) {
                         leftLeader.set(TalonFXControlMode.PercentOutput, 0);
                         rightLeader.set(TalonFXControlMode.PercentOutput, 0);
                         leftFollower.set(TalonFXControlMode.Follower, 4);
@@ -251,6 +240,8 @@ public class Auto extends JankyStateMachine {
                 case SIMPLE_DELAY:
                     if (onStateEntered) {
                         delayTimer.start();
+                        leftLeader.setSelectedSensorPosition(0);
+                        rightLeader.setSelectedSensorPosition(0);
                     }
                     if (isTimerReached(delay)) {
                         NewState(SIMPLE_MOVE, "delay timer has ended");
@@ -262,7 +253,11 @@ public class Auto extends JankyStateMachine {
                     rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
-                    if (inchesToEncoder(30) <= getAverageEncoderValues()) {
+
+                    if (inchesToEncoder(80) <= getAverageEncoderValues()) {
+                        System.out.println("ACTUAL ENCODER READING: " + getAverageEncoderValues());
+                        System.out.println("DESIRED ENCODER READING: " + inchesToEncoder(30));
+
                         leftLeader.set(TalonFXControlMode.PercentOutput, 0);
                         rightLeader.set(TalonFXControlMode.PercentOutput, 0);
                         leftFollower.set(TalonFXControlMode.Follower, 4);
@@ -303,12 +298,12 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case CROSS_RAMP:
-                    leftLeader.set(TalonFXControlMode.Velocity, -3000);
-                    rightLeader.set(TalonFXControlMode.Velocity, 3000);
+                    leftLeader.set(TalonFXControlMode.Velocity, -2300);
+                    rightLeader.set(TalonFXControlMode.Velocity, 2300);
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
 
-                    if (inchesToEncoder(220) <= getAverageEncoderValues()) { 
+                    if (inchesToEncoder(230) <= getAverageEncoderValues()) { 
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, 4);
@@ -337,11 +332,10 @@ public class Auto extends JankyStateMachine {
                     
                     leftLeader.set(TalonFXControlMode.Velocity, 2000);
                     rightLeader.set(TalonFXControlMode.Velocity, -2000);
-
                     leftFollower.set(TalonFXControlMode.Follower, 4);
                     rightFollower.set(TalonFXControlMode.Follower, 5);
                     
-                    if (inchesToEncoder(140) >= getAverageEncoderValues()) { //170
+                    if (inchesToEncoder(160) >= getAverageEncoderValues()) { //130
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, 4);

@@ -34,12 +34,14 @@ public class Robot extends TimedRobot {
   private Intake m_intake;
   private DriveSystem m_chassis;
   private Arm m_arm;
-  private DriverStation m_driverStation;
   
-  // private LED m_led;
+  //leds
+ // private LED m_led;
 
+  //gyro defs
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
   public double gyroAngle;
+  public double curLeftJsY;
 
   //shuffleboard
   public ShuffleboardTab m_matchTab;
@@ -57,7 +59,7 @@ public class Robot extends TimedRobot {
     //defining mechanism objects
     m_intake = new Intake();
     m_arm = new Arm();
-    // m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
+    //m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
 
     m_arm.initEncoder();
     m_arm.armHoming();
@@ -66,6 +68,7 @@ public class Robot extends TimedRobot {
     m_matchTab = Shuffleboard.getTab("Match");
     m_intake.configDashboard(m_matchTab);
     m_arm.configDashboard(m_matchTab);
+    
 
     //AUTO SELECTORS
     //delay timer chooser
@@ -86,8 +89,8 @@ public class Robot extends TimedRobot {
     m_matchTab.addDouble("Auto Gyro", () -> gyroAngle);
 
     //default led sequnce- chasing red
-    // m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.001);
-    // m_led.executeSequence();
+    //m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.001);
+    //m_led.executeSequence();
   }
 
   /**
@@ -111,17 +114,13 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
+    
+    
     m_arm.armHoming();
     
     //auto- get selected delay and path
-
     delay = autoDelayChooser.getSelected();
-    //m_matchTab.addInteger("Auto Delay Chosen", () -> delay);
-
     path = autoPathChooser.getSelected();
-    //m_matchTab.addInteger("Auto Path Chosen", () -> path);
-
-    //m_matchTab.addDouble("Auto Gyro", () -> gyroAngle);
 
     m_auto = new Auto(delay, path, m_gyro, m_arm, m_intake);
     
@@ -157,15 +156,23 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-    //chassis button triggers
+
+    curLeftJsY = leftJoystick.getY();
+    //chassis button triggers 
     if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) {
       m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
-
+      System.out.println("drive straight");
     } else if (leftJoystick.getRawButton(2) || rightJoystick.getRawButton(2)) {
        m_chassis.slowMode(leftJoystick.getY(), rightJoystick.getY());
-
+       System.out.println("slow mode drive");
     } else {
-       m_chassis.drive(leftJoystick.getY(), rightJoystick.getY());
+      curLeftJsY = leftJoystick.getY();
+      //added for sticky left joystick 
+      if (Math.abs(curLeftJsY) < 0.1) {
+        curLeftJsY = 0;
+      }
+      m_chassis.drive(curLeftJsY, rightJoystick.getY());
+      System.out.println("normal drive");
     }
 
     if (leftJoystick.getRawButton(9) || rightJoystick.getRawButton(9)) {
@@ -186,7 +193,7 @@ public class Robot extends TimedRobot {
     
     } else if (xboxController.getPOV() == 90){
       m_intake.runMiddleEject();
-      //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.15);
+     //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.15);
 
     } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
@@ -194,6 +201,7 @@ public class Robot extends TimedRobot {
 
     } else {
       m_intake.setMotorsToZero();
+  
     }
 
     //arm button triggers
@@ -213,11 +221,12 @@ public class Robot extends TimedRobot {
       m_arm.armHoming(); //if arm slips during match, press the start button to re-home arm
     }
 
-    /**
-    if (m_driverStation.getMatchTime() <= 30 ){
-      m_led.setRainbow();
+    //turns on brake mode in last 15 sec - coast button should override this
+    if (DriverStation.getMatchTime() <= 15){ //changed from m_driverStation to static call
+      //m_led.setRainbow(0);
+      m_chassis.setBrakeMode(true);
     }
-    */
+    
   }
 
   /** This function is called once when the robot is disabled. */
