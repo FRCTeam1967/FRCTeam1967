@@ -8,10 +8,12 @@ import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.util.Color;
 
 public class Auto extends JankyStateMachine {
     public Arm autoArm;
     public Intake autoIntake;
+    public LED autoLED;
     
     //motors
     private WPI_TalonFX leftLeader, rightLeader, leftFollower, rightFollower;
@@ -23,7 +25,6 @@ public class Auto extends JankyStateMachine {
     //gyro
     public ADIS16470_IMU gyroClassLevel;
     public double motorEncoderAverage, newEncoderValue, gyroAngle;
-    public double engageMinAngle, engageMaxAngle;
 
     Timer delayTimer = new Timer();
 
@@ -37,7 +38,7 @@ public class Auto extends JankyStateMachine {
     //charge station (CS)
     private final int ARM_TO_SHOOT = 0, CS_SHOOT = 1, CROSS_RAMP = 4, CS_REVERSE_LOWER_ARM = 5, UP_RAMP = 6, IDLE = 8, GO_BACK = 9, GO_FRONT = 10;
 
-    public Auto(int _delay, int _path, ADIS16470_IMU m_gyro, Arm arm, Intake intake) {
+    public Auto(int _delay, int _path, ADIS16470_IMU m_gyro, Arm arm, Intake intake, LED led) {
         delay = _delay;
         path = _path;
         gyroClassLevel = m_gyro;
@@ -45,15 +46,13 @@ public class Auto extends JankyStateMachine {
 
         autoArm = arm;
         autoIntake = intake;
-
-        engageMinAngle = -5;
-        engageMaxAngle = 5;
+        autoLED = led;
 
         //defining motors
-        leftLeader = new WPI_TalonFX(4);
-        rightLeader = new WPI_TalonFX(5);
-        rightFollower = new WPI_TalonFX(7);
-        leftFollower = new WPI_TalonFX(6);
+        leftLeader = new WPI_TalonFX(Constants.Chassis.LEFT_LEADER_ID);
+        leftFollower = new WPI_TalonFX(Constants.Chassis.LEFT_FOLLOWER_ID);
+        rightLeader = new WPI_TalonFX(Constants.Chassis.RIGHT_LEADER_ID);
+        rightFollower = new WPI_TalonFX(Constants.Chassis.RIGHT_FOLLOWER_ID);
 
         //run motor config method
         setUpChassisMotors(leftLeader);
@@ -141,10 +140,10 @@ public class Auto extends JankyStateMachine {
     public void setUpChassisMotors(WPI_TalonFX falcon) {
         falcon.configFactoryDefault();
 
-        falcon.config_kP(0, Constants.Auto.VELOCITY_KP, 75);
-        falcon.config_kI(0, Constants.Auto.VELOCITY_KI, 75);
-        falcon.config_kD(0, Constants.Auto.VELOCITY_KD, 75);
-        falcon.config_kF(0, Constants.Auto.VELOCITY_KF, 75);
+        falcon.config_kP(0, Constants.Chassis.kP, 75);
+        falcon.config_kI(0, Constants.Chassis.kI, 75);
+        falcon.config_kD(0, Constants.Chassis.kD, 75);
+        falcon.config_kF(0, Constants.Chassis.kF, 75);
 
         falcon.setNeutralMode(NeutralMode.Coast);
         falcon.getSensorCollection().setIntegratedSensorPosition(0,10);
@@ -214,14 +213,14 @@ public class Auto extends JankyStateMachine {
                 case OC_MOVE:
                     leftLeader.set(TalonFXControlMode.PercentOutput, 0.4);
                     rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
-                    leftFollower.set(TalonFXControlMode.Follower, 4);
-                    rightFollower.set(TalonFXControlMode.Follower, 5);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
                     if (inchesToEncoder(80) <= getAverageEncoderValues()) {
                         leftLeader.set(TalonFXControlMode.PercentOutput, 0);
                         rightLeader.set(TalonFXControlMode.PercentOutput, 0);
-                        leftFollower.set(TalonFXControlMode.Follower, 4);
-                        rightFollower.set(TalonFXControlMode.Follower, 5);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                         NewState(OC_FINISH_AUTO, "reached average encoder for distance");
                     }
                     break;
@@ -251,8 +250,8 @@ public class Auto extends JankyStateMachine {
                 case SIMPLE_MOVE:
                     leftLeader.set(TalonFXControlMode.PercentOutput, 0.4);
                     rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
-                    leftFollower.set(TalonFXControlMode.Follower, 4);
-                    rightFollower.set(TalonFXControlMode.Follower, 5);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
                     if (inchesToEncoder(80) <= getAverageEncoderValues()) {
                         System.out.println("ACTUAL ENCODER READING: " + getAverageEncoderValues());
@@ -260,8 +259,8 @@ public class Auto extends JankyStateMachine {
 
                         leftLeader.set(TalonFXControlMode.PercentOutput, 0);
                         rightLeader.set(TalonFXControlMode.PercentOutput, 0);
-                        leftFollower.set(TalonFXControlMode.Follower, 4);
-                        rightFollower.set(TalonFXControlMode.Follower, 5);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                         NewState(SIMPLE_FINISH_AUTO, "reached average encoder for distance");
                     }
                     break;
@@ -300,14 +299,14 @@ public class Auto extends JankyStateMachine {
                 case CROSS_RAMP:
                     leftLeader.set(TalonFXControlMode.Velocity, -2300);
                     rightLeader.set(TalonFXControlMode.Velocity, 2300);
-                    leftFollower.set(TalonFXControlMode.Follower, 4);
-                    rightFollower.set(TalonFXControlMode.Follower, 5);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
                     if (inchesToEncoder(230) <= getAverageEncoderValues()) { 
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
-                        leftFollower.set(TalonFXControlMode.Follower, 4);
-                        rightFollower.set(TalonFXControlMode.Follower, 5);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                         NewState(CS_REVERSE_LOWER_ARM, "crossed community");
                     }   
                     break;
@@ -332,14 +331,14 @@ public class Auto extends JankyStateMachine {
                     
                     leftLeader.set(TalonFXControlMode.Velocity, 2000);
                     rightLeader.set(TalonFXControlMode.Velocity, -2000);
-                    leftFollower.set(TalonFXControlMode.Follower, 4);
-                    rightFollower.set(TalonFXControlMode.Follower, 5);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     
                     if (inchesToEncoder(160) >= getAverageEncoderValues()) { //130
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
-                        leftFollower.set(TalonFXControlMode.Follower, 4);
-                        rightFollower.set(TalonFXControlMode.Follower, 5);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                         NewState(IDLE, "crossed community");
                     }
                     break;
@@ -350,13 +349,15 @@ public class Auto extends JankyStateMachine {
                 
                     leftLeader.set(TalonFXControlMode.Velocity, 0);
                     rightLeader.set(TalonFXControlMode.Velocity, 0); 
-                    leftFollower.set(TalonFXControlMode.Follower, 4);
-                    rightFollower.set(TalonFXControlMode.Follower, 5);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     System.out.println("not moving");
+
+                    autoLED.setChasingColors(Color.kGreen, Color.kBlack, 10, 0.005);
                     
-                    if (gyroClassLevel.getYComplementaryAngle() < engageMinAngle) {
+                    if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MIN_ANGLE) {
                         NewState(GO_FRONT, "need to move forward");
-                    } else if (gyroClassLevel.getYComplementaryAngle() > engageMaxAngle) {
+                    } else if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
                         NewState(GO_BACK, "need to move back"); 
                     }
                     break;
@@ -364,13 +365,13 @@ public class Auto extends JankyStateMachine {
                 case GO_FRONT: //forward
                     leftLeader.set(TalonFXControlMode.Velocity, -500); 
                     rightLeader.set(TalonFXControlMode.Velocity, 500); //used to be 1000
-                    leftFollower.set(TalonFXControlMode.Follower, 4);
-                    rightFollower.set(TalonFXControlMode.Follower, 5);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     System.out.println("moving forward");
                     
-                    if (gyroClassLevel.getYComplementaryAngle() > engageMaxAngle) {
+                    if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
                         NewState(GO_BACK, "need to move back");
-                    } else if (gyroClassLevel.getYComplementaryAngle() < engageMaxAngle && gyroClassLevel.getYComplementaryAngle() > engageMinAngle){
+                    } else if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MAX_ANGLE && gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MIN_ANGLE){
                         NewState(IDLE, "fine!");
                     }
                     break;
@@ -378,13 +379,13 @@ public class Auto extends JankyStateMachine {
                 case GO_BACK: //backwards
                     leftLeader.set(TalonFXControlMode.Velocity, 500); 
                     rightLeader.set(TalonFXControlMode.Velocity, -500); 
-                    leftFollower.set(TalonFXControlMode.Follower, 4);
-                    rightFollower.set(TalonFXControlMode.Follower, 5);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     System.out.println("moving backward");
                     
-                    if (gyroClassLevel.getYComplementaryAngle() < engageMinAngle) {
+                    if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MIN_ANGLE) {
                         NewState(GO_FRONT, "need to move forward");
-                    } else if (gyroClassLevel.getYComplementaryAngle() < engageMaxAngle && gyroClassLevel.getYComplementaryAngle() > engageMinAngle){
+                    } else if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MAX_ANGLE && gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MIN_ANGLE){
                         NewState(IDLE, "fine!");
                     }
                     break;

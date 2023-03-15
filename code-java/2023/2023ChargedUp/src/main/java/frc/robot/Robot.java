@@ -6,6 +6,9 @@ package frc.robot;
 
 import org.janksters.jankyLib.jankyXboxJoystick;
 
+import edu.wpi.first.cameraserver.CameraServer;
+import edu.wpi.first.cscore.HttpCamera;
+import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -28,6 +31,8 @@ public class Robot extends TimedRobot {
   private jankyXboxJoystick xboxController = new jankyXboxJoystick(Constants.Controllers.XBOX_PORT);
   private Joystick leftJoystick = new Joystick(Constants.Controllers.LEFT_JOYSTICK_PORT);
   private Joystick rightJoystick = new Joystick(Constants.Controllers.RIGHT_JOYSTICK_PORT);
+  public double curLeftJsY; //deadband for left joystick (jack)
+  public double curRightJsY; //deadband for left joystick (jill)
 
   //declaring mechanism objects
   private Auto m_auto = null;
@@ -36,12 +41,14 @@ public class Robot extends TimedRobot {
   private Arm m_arm;
   
   //leds
- // private LED m_led;
+  private LED m_led;
+  
+  //limelight camera
+  private HttpCamera m_limelight;
 
   //gyro defs
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
   public double gyroAngle;
-  public double curLeftJsY;
 
   //shuffleboard
   public ShuffleboardTab m_matchTab;
@@ -59,7 +66,7 @@ public class Robot extends TimedRobot {
     //defining mechanism objects
     m_intake = new Intake();
     m_arm = new Arm();
-    //m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
+    m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
 
     m_arm.initEncoder();
     m_arm.armHoming();
@@ -68,6 +75,9 @@ public class Robot extends TimedRobot {
     m_matchTab = Shuffleboard.getTab("Match");
     m_intake.configDashboard(m_matchTab);
     m_arm.configDashboard(m_matchTab);
+    
+
+    m_matchTab.addCamera("Limelight Camera", "m_limelight", "http://10.19.67.11:5800/");
     
 
     //AUTO SELECTORS
@@ -86,11 +96,8 @@ public class Robot extends TimedRobot {
     autoPathChooser.addOption("Charge station", Constants.Auto.CHARGE_STATION);
     m_matchTab.add("Auto Path", autoPathChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
-    m_matchTab.addDouble("Auto Gyro", () -> gyroAngle);
-
     //default led sequnce- chasing red
-    //m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.001);
-    //m_led.executeSequence();
+    m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.005);
   }
 
   /**
@@ -100,7 +107,9 @@ public class Robot extends TimedRobot {
    * <p>This runs after the mode specific periodic functions, but before LiveWindow and SmartDashboard integrated updating.
    */
   @Override
-  public void robotPeriodic() {}
+  public void robotPeriodic() {
+    m_led.executeSequence();
+  }
 
   /**
    * This autonomous (along with the chooser code above) shows how to select between different
@@ -114,28 +123,28 @@ public class Robot extends TimedRobot {
    */
   @Override
   public void autonomousInit() {
-    
-    
     m_arm.armHoming();
     
     //auto- get selected delay and path
     delay = autoDelayChooser.getSelected();
     path = autoPathChooser.getSelected();
 
-    m_auto = new Auto(delay, path, m_gyro, m_arm, m_intake);
-    
+    m_auto = new Auto(delay, path, m_gyro, m_arm, m_intake, m_led);
   }
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-
-  }
+  public void autonomousPeriodic() {}
 
   /** This function is called once when teleop is enabled. */
   @Override
   public void teleopInit() {
     m_arm.armHoming();
+
+    if (m_auto != null && m_auto.isAlive()) {
+      m_auto.terminate();
+      m_auto = null;
+    }
 
     //defining m_chassis as simple or pid chassis
     if (Constants.Chassis.USE_SIMPLE_CHASSIS){
@@ -146,33 +155,27 @@ public class Robot extends TimedRobot {
 
     m_chassis.configDashboard(m_matchTab);
     m_chassis.setBrakeMode(false);
-
-    if (m_auto != null && m_auto.isAlive()) {
-      m_auto.terminate();
-    }
-
   }
 
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
-
     curLeftJsY = leftJoystick.getY();
+    curRightJsY = rightJoystick.getY();
     //chassis button triggers 
     if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) {
       m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
-      System.out.println("drive straight");
     } else if (leftJoystick.getRawButton(2) || rightJoystick.getRawButton(2)) {
        m_chassis.slowMode(leftJoystick.getY(), rightJoystick.getY());
-       System.out.println("slow mode drive");
     } else {
-      curLeftJsY = leftJoystick.getY();
-      //added for sticky left joystick 
-      if (Math.abs(curLeftJsY) < 0.1) {
+      // added for sticky joysticks
+      if (Math.abs(curLeftJsY) < Constants.Chassis.JOYSTICK_DEADBAND) {
         curLeftJsY = 0;
       }
-      m_chassis.drive(curLeftJsY, rightJoystick.getY());
-      System.out.println("normal drive");
+      if (Math.abs(curRightJsY) < Constants.Chassis.JOYSTICK_DEADBAND){
+        curRightJsY = 0;
+      }
+      m_chassis.drive(curLeftJsY, curRightJsY);
     }
 
     if (leftJoystick.getRawButton(9) || rightJoystick.getRawButton(9)) {
@@ -185,23 +188,27 @@ public class Robot extends TimedRobot {
     //intake button triggers
     if (xboxController.GetLeftThrottle() == 1 || xboxController.GetRightThrottle() == 1) {
       m_intake.runIntake();
-      //m_led.setFlashColors(Color.kPurple, Color.kBlack, 0.3);
+      m_led.setFlashColors(Color.kPurple, Color.kBlack, 0.3);
 
     } else if (xboxController.getPOV() == 0){
       m_intake.runLowEject();
-      //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.3);
+      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.3);
     
     } else if (xboxController.getPOV() == 90){
       m_intake.runMiddleEject();
-     //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.15);
+      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.15);
 
     } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
-      //m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.05);
+      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.05);
 
     } else {
       m_intake.setMotorsToZero();
-  
+      if (DriverStation.getMatchTime() > 15){
+        m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.005);
+      } else {
+        m_led.setRainbow(0);
+      }
     }
 
     //arm button triggers
@@ -222,8 +229,8 @@ public class Robot extends TimedRobot {
     }
 
     //turns on brake mode in last 15 sec - coast button should override this
-    if (DriverStation.getMatchTime() <= 15){ //changed from m_driverStation to static call
-      //m_led.setRainbow(0);
+    if (DriverStation.getMatchTime() <= 15){ 
+      // m_led.setRainbow(0);
       m_chassis.setBrakeMode(true);
     }
     

@@ -43,9 +43,7 @@ public class PIDChassis implements DriveSystem {
     }
 
     public void configDashboard(ShuffleboardTab tab){
-        //tab.addBoolean("Is Chassis in Brake Mode?", () -> inBrakeMode);
-
-        //tab.addDouble("Left Leader Velocity", () -> leftLeader.getSelectedSensorVelocity());
+        //tab.addBoolean("Is Chassis in Brake Mode?", () -> inBrakeMode); //try adding back in
     }
     
     /**

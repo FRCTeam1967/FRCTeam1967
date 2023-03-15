@@ -43,15 +43,15 @@ public class Intake {
     public void configDashboard(ShuffleboardTab tab){
         autoShootRowEntry = new SendableChooser<Integer>();
         autoShootRowEntry.addOption("Low Eject", 0);
-        autoShootRowEntry.setDefaultOption("Middle Eject", 1);
-        autoShootRowEntry.addOption("High Eject", 2);
+        autoShootRowEntry.addOption("Middle Eject", 1);
+        autoShootRowEntry.setDefaultOption("High Eject", 2);
 
         tab.add("Auto Shoot Select", autoShootRowEntry).withWidget(BuiltInWidgets.kSplitButtonChooser);
     }
     
     /**
      * Sets speeds of topRollerMotor and bottomRollerMotor to 0.0
-     * <p> Expected behavoir is top and bottom rollers stop spinning
+     * <p> Expected behavior is top and bottom rollers stop spinning
      */
     public void setMotorsToZero(){ 
         topRollerMotor.set(0.0);
@@ -60,7 +60,7 @@ public class Intake {
 
     /**
      * Sets speeds of topRollerMotor and bottomRollerMotor to intake speeds
-     * <p> Expected behavoir is top and bottom rollers bring in game piece
+     * <p> Expected behavior is top and bottom rollers bring in game piece
      */
     public void runIntake(){
         topRollerMotor.set(Constants.Intake.INTAKE_TOP_ROLLER_SPEED);
@@ -112,7 +112,7 @@ public class Intake {
     
     /**
      * Determine if shooting timer is over and stop motors
-     * <p> Expected behavoir is if shooting timer reached, stop spinning rollers
+     * <p> Expected behavior is if shooting timer reached, stop spinning rollers
      * @return boolean - Whether shooting timer has been reached
      */
     public boolean isShooterComplete(){

@@ -8,7 +8,7 @@ import edu.wpi.first.wpilibj.util.Color;
 public class LED {
     public int m_width = 1;
     public int m_height = 1;
-    public double m_brightness = 0.25;
+    public double m_brightness = 0.25; //lower this if weird
     
     private AddressableLED m_led;
     private AddressableLEDBuffer m_ledBuffer;

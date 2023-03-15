@@ -47,7 +47,7 @@ public class Constants {
         public static final int MOTOR_R_ID = 21;
 
         //arm angles, tbd
-        public static final double INTAKE_ANGLE = 77; 
+        public static final double INTAKE_ANGLE = 77.5; 
         public static final double fMIDDLE_ANGLE = 120; //[redacted]
         public static final double fTOP_ANGLE = 150;
         public static final double SAFE_ANGLE = 180;
@@ -106,6 +106,11 @@ public class Constants {
     }
 
     public static final class Auto {
+
+        //tolerance when engaging
+        public static final int MIN_ANGLE = -5;
+        public static final int MAX_ANGLE = 5;
+
         //selectors
         public static final int ZERO_DELAY = 0;
         public static final int ONE_DELAY = 1;
@@ -117,12 +122,6 @@ public class Constants {
         public static final int SIMPLE_AUTOPATH = 0;
         public static final int ONE_CUBE_AUTOPATH = 1;
         public static final int CHARGE_STATION = 2;
-
-        //Auto PID constants
-        public static final double VELOCITY_KP = 0.0; 
-        public static final double VELOCITY_KI = 0.0;
-        public static final double VELOCITY_KD = 0.0;
-        public static final double VELOCITY_KF = 0.15;
 
         //constants for distance calculation
         public static final double PULSES_PER_REVOLUTION = 4096;

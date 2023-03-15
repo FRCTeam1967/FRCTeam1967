@@ -51,7 +51,7 @@ public class SimpleChassis implements DriveSystem {
     }
 
     public void configDashboard(ShuffleboardTab tab){
-        tab.addBoolean("Is Chassis in Brake Mode?", () -> inBrakeMode);
+       //tab.addBoolean("Is Chassis in Brake Mode?", () -> inBrakeMode);
     }
     
     /**
