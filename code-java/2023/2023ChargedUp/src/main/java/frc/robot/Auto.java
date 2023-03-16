@@ -211,8 +211,8 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case OC_MOVE:
-                    leftLeader.set(TalonFXControlMode.PercentOutput, 0.4);
-                    rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
+                    leftLeader.set(TalonFXControlMode.PercentOutput, -0.4);
+                    rightLeader.set(TalonFXControlMode.PercentOutput, 0.4);
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 

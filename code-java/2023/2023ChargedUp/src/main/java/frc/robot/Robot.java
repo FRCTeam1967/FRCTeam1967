@@ -6,9 +6,9 @@ package frc.robot;
 
 import org.janksters.jankyLib.jankyXboxJoystick;
 
-import edu.wpi.first.cameraserver.CameraServer;
-import edu.wpi.first.cscore.HttpCamera;
-import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
+// import edu.wpi.first.cameraserver.CameraServer;
+// import edu.wpi.first.cscore.HttpCamera;
+// import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
@@ -44,7 +44,7 @@ public class Robot extends TimedRobot {
   private LED m_led;
   
   //limelight camera
-  private HttpCamera m_limelight;
+  //private HttpCamera m_limelight;
 
   //gyro defs
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
@@ -77,7 +77,7 @@ public class Robot extends TimedRobot {
     m_arm.configDashboard(m_matchTab);
     
 
-    m_matchTab.addCamera("Limelight Camera", "m_limelight", "http://10.19.67.11:5800/");
+    // m_matchTab.addCamera("Limelight Camera", "m_limelight", "http://10.19.67.11:5800/");
     
 
     //AUTO SELECTORS
