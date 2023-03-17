@@ -351,7 +351,6 @@ public class Auto extends JankyStateMachine {
                     rightLeader.set(TalonFXControlMode.Velocity, 0); 
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                    System.out.println("not moving");
 
                     autoLED.setChasingColors(Color.kGreen, Color.kBlack, 10, 0.005);
                     
@@ -367,7 +366,6 @@ public class Auto extends JankyStateMachine {
                     rightLeader.set(TalonFXControlMode.Velocity, 500); //used to be 1000
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                    System.out.println("moving forward");
                     
                     if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
                         NewState(GO_BACK, "need to move back");
@@ -381,7 +379,6 @@ public class Auto extends JankyStateMachine {
                     rightLeader.set(TalonFXControlMode.Velocity, -500); 
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                    System.out.println("moving backward");
                     
                     if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MIN_ANGLE) {
                         NewState(GO_FRONT, "need to move forward");

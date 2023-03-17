@@ -192,15 +192,15 @@ public class Robot extends TimedRobot {
 
     } else if (xboxController.getPOV() == 0){
       m_intake.runLowEject();
-      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.3);
+      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.6);
     
     } else if (xboxController.getPOV() == 90){
       m_intake.runMiddleEject();
-      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.15);
+      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.4);
 
     } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
-      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.05);
+      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.2);
 
     } else {
       m_intake.setMotorsToZero();
@@ -239,7 +239,6 @@ public class Robot extends TimedRobot {
   /** This function is called once when the robot is disabled. */
   @Override
   public void disabledInit() {
-    m_arm.setToCoastMode(); //TODO: take out before competition
   }
 
   /** This function is called periodically when disabled. */
