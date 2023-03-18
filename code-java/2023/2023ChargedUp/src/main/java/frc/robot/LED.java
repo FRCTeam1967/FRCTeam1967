@@ -18,7 +18,8 @@ public class LED {
     private enum LEDStatus {
         FLASHING,
         CHASING,
-        RAINBOW
+        RAINBOW,
+        SOLID
     }
     
     //sequence fields 
@@ -75,9 +76,11 @@ public class LED {
 
     //set all pixels to a standard color
     public void setColor(Color color) {
+        currentPattern = LEDStatus.SOLID;
         for (int i = 0; i < m_width * m_height; i++) {
             setPixelByID(i, (int)(color.red * 255), (int)(color.green * 255), (int)(color.blue * 255));
         }
+        commit();
     }
 
     //pass a starting hue (0-180). Will return the next hue that should be passed in if you want to make it move.
