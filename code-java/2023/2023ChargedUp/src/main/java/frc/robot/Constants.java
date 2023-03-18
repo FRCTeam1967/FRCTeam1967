@@ -18,17 +18,21 @@ public class Constants {
         public static final double INTAKE_TOP_ROLLER_SPEED = 0.25;
         public static final double INTAKE_BOTTOM_ROLLER_SPEED = 0.25;
 
-        //high row shooting speeds 
-        public static final double HIGH_EJECT_TOP_ROLLER_SPEED = 0.35; 
-        public static final double HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.35; 
+        //(autonomous) high row shooting speeds 
+        public static final double AUTO_HIGH_EJECT_TOP_ROLLER_SPEED = 0.35;
+        public static final double AUTO_HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.35;
+
+        //(teleop) high row shooting speeds 
+        public static final double HIGH_EJECT_TOP_ROLLER_SPEED = 0.30; //former: 0.35 
+        public static final double HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.30;  //0.35
 
         //middle row shooting speeds 
-        public static final double MIDDLE_EJECT_TOP_ROLLER_SPEED = 0.2; 
-        public static final double MIDDLE_EJECT_BOTTOM_ROLLER_SPEED = 0.2; 
+        public static final double MIDDLE_EJECT_TOP_ROLLER_SPEED = 0.18;  //former: 0.2
+        public static final double MIDDLE_EJECT_BOTTOM_ROLLER_SPEED = 0.18;  //0.2
 
         //low row shooting speeds
-        public static final double LOW_EJECT_TOP_ROLLER_SPEED = 0.15;
-        public static final double LOW_EJECT_BOTTOM_ROLLER_SPEED = 0.15;
+        public static final double LOW_EJECT_TOP_ROLLER_SPEED = 0.15; //0.15
+        public static final double LOW_EJECT_BOTTOM_ROLLER_SPEED = 0.15; //0.15
 
         //shooting timer for autonomous routine
         public static final double AUTO_SHOOTER_TIMER_SECONDS = 0.25; 
@@ -65,7 +69,7 @@ public class Constants {
         public static final double kI = 0.0; 
         public static final double kD = 0.8; 
         public static final double kF = 0.0; 
-        public static final double CRUISE_VELOCITY = 10000;
+        public static final double CRUISE_VELOCITY = 15000;
         public static final double ACCELERATION = 8000;
     }
 
@@ -108,8 +112,8 @@ public class Constants {
     public static final class Auto {
 
         //tolerance when engaging
-        public static final int MIN_ANGLE = -5;
-        public static final int MAX_ANGLE = 5;
+        public static final int MIN_ANGLE = -6; //5 
+        public static final int MAX_ANGLE = 6;
 
         //selectors
         public static final int ZERO_DELAY = 0;

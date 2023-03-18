@@ -194,40 +194,30 @@ public class Auto extends JankyStateMachine {
                         autoIntake.runAutoShooter();
                     } else {
                         if (autoIntake.isShooterComplete()) {
-                            NewState(OC_DELAY, "shooting done!");
+                            NewState(OC_MOVE, "shooting done!");
                         }
                     }
                     break;
 
-                case OC_DELAY:
-                    if (onStateEntered) {
-                        delayTimer.start();
-                        System.out.println("start timer");
-                    }
-                    if (isTimerReached(delay)) {
-                        System.out.println("delay timer end");
-                        NewState(OC_MOVE, "delay timer has ended");
-                    }
-                    break;
-
                 case OC_MOVE:
-                    leftLeader.set(TalonFXControlMode.PercentOutput, -0.4);
-                    rightLeader.set(TalonFXControlMode.PercentOutput, 0.4);
+                    leftLeader.set(TalonFXControlMode.Velocity, -2300);
+                    rightLeader.set(TalonFXControlMode.Velocity, 2300);
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
-                    if (inchesToEncoder(80) <= getAverageEncoderValues()) {
-                        leftLeader.set(TalonFXControlMode.PercentOutput, 0);
-                        rightLeader.set(TalonFXControlMode.PercentOutput, 0);
+                    if (inchesToEncoder(160) <= getAverageEncoderValues()) { 
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                        NewState(OC_FINISH_AUTO, "reached average encoder for distance");
-                    }
+                        NewState(OC_FINISH_AUTO, "crossed community");
+                    }   
                     break;
 
                 case OC_FINISH_AUTO:
                     Terminate();
                     break;
+                    
             }
 
         /**
@@ -237,34 +227,24 @@ public class Auto extends JankyStateMachine {
         } else if (stateMachineSelected == Constants.Auto.SIMPLE_AUTOPATH) { //leaving tarmac path
             switch (curState) {
                 case SIMPLE_DELAY:
-                    if (onStateEntered) {
-                        delayTimer.start();
-                        leftLeader.setSelectedSensorPosition(0);
-                        rightLeader.setSelectedSensorPosition(0);
-                    }
-                    if (isTimerReached(delay)) {
-                        NewState(SIMPLE_MOVE, "delay timer has ended");
-                    }
+                    NewState(SIMPLE_MOVE, "delay over");
                     break;
-
+                
                 case SIMPLE_MOVE:
-                    leftLeader.set(TalonFXControlMode.PercentOutput, 0.4);
-                    rightLeader.set(TalonFXControlMode.PercentOutput, -0.4);
+                    leftLeader.set(TalonFXControlMode.Velocity, 2300);
+                    rightLeader.set(TalonFXControlMode.Velocity, -2300);
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
-                    if (inchesToEncoder(80) <= getAverageEncoderValues()) {
-                        System.out.println("ACTUAL ENCODER READING: " + getAverageEncoderValues());
-                        System.out.println("DESIRED ENCODER READING: " + inchesToEncoder(30));
-
-                        leftLeader.set(TalonFXControlMode.PercentOutput, 0);
-                        rightLeader.set(TalonFXControlMode.PercentOutput, 0);
+                    if (inchesToEncoder(160) <= getAverageEncoderValues()) { 
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                        NewState(SIMPLE_FINISH_AUTO, "reached average encoder for distance");
-                    }
+                        NewState(CS_REVERSE_LOWER_ARM, "crossed community");
+                    }   
                     break;
-
+                
                 case SIMPLE_FINISH_AUTO:
                     Terminate();
                     break;
@@ -362,8 +342,8 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case GO_FRONT: //forward
-                    leftLeader.set(TalonFXControlMode.Velocity, -500); 
-                    rightLeader.set(TalonFXControlMode.Velocity, 500); //used to be 1000
+                    leftLeader.set(TalonFXControlMode.Velocity, -400); 
+                    rightLeader.set(TalonFXControlMode.Velocity, 400); //500
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     
@@ -375,8 +355,8 @@ public class Auto extends JankyStateMachine {
                     break;
                     
                 case GO_BACK: //backwards
-                    leftLeader.set(TalonFXControlMode.Velocity, 500); 
-                    rightLeader.set(TalonFXControlMode.Velocity, -500); 
+                    leftLeader.set(TalonFXControlMode.Velocity, 400); 
+                    rightLeader.set(TalonFXControlMode.Velocity, -400); 
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     

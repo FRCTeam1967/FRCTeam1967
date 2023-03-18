@@ -76,6 +76,14 @@ public class Intake {
     }
 
     /**
+     * Sets speeds of topRollerMotor and bottomRollerMotor to high eject speeds for autonomous
+     */
+    public void runAutoHighEject(){ 
+        topRollerMotor.set(-Constants.Intake.AUTO_HIGH_EJECT_TOP_ROLLER_SPEED);
+        bottomRollerMotor.set(-Constants.Intake.AUTO_HIGH_EJECT_BOTTOM_ROLLER_SPEED); 
+    }
+
+    /**
      * Sets speeds of topRollerMotor and bottomRollerMotor to middle eject speeds
      */
     public void runMiddleEject(){ 
@@ -105,7 +113,7 @@ public class Intake {
                 runMiddleEject();
                 break;
             case 2:
-                runHighEject();
+                runAutoHighEject();
                 break;
         }
     }
