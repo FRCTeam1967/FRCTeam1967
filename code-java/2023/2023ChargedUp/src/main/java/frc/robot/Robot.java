@@ -155,6 +155,8 @@ public class Robot extends TimedRobot {
 
     m_chassis.configDashboard(m_matchTab);
     m_chassis.setBrakeMode(false);
+
+    m_led.executeSequence();
   }
 
   /** This function is called periodically during operator control. */
@@ -188,20 +190,24 @@ public class Robot extends TimedRobot {
     //intake button triggers
     if (xboxController.GetLeftThrottle() == 1 || xboxController.GetRightThrottle() == 1) {
       m_intake.runIntake();
-      m_led.setFlashColors(Color.kPurple, Color.kBlack, 0.3);
+      m_led.setColor(Color.kBlueViolet);
+      //m_led.setFlashColors(Color.kPurple, Color.kBlack, 0.3);
 
     } else if (xboxController.getPOV() == 0){
       m_intake.runLowEject();
-      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.6);
+      //m_led.setChasingColors(Color.kPink, Color.kPink, 20, 0.005);
+      m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
     
     } else if (xboxController.getPOV() == 90){
       m_intake.runMiddleEject();
-      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.4);
+      //m_led.setChasingColors(Color.kPink, Color.kBlue, 15, 0.005);
+      m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
 
     } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
-      m_led.setFlashColors(Color.kPurple, Color.kWhite, 0.2);
-
+      //m_led.setChasingColors(Color.kPink, Color.kBlue, 10, 0.005);
+      m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
+      
     } else {
       m_intake.setMotorsToZero();
       if (DriverStation.getMatchTime() > 15){

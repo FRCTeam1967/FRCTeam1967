@@ -205,7 +205,7 @@ public class Auto extends JankyStateMachine {
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
-                    if (inchesToEncoder(160) <= getAverageEncoderValues()) { 
+                    if (inchesToEncoder(170) <= getAverageEncoderValues()) { 
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
@@ -236,7 +236,7 @@ public class Auto extends JankyStateMachine {
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
-                    if (inchesToEncoder(160) <= getAverageEncoderValues()) { 
+                    if (inchesToEncoder(170) <= getAverageEncoderValues()) { 
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
