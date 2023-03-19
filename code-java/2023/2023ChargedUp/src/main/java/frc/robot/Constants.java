@@ -19,8 +19,8 @@ public class Constants {
         public static final double INTAKE_BOTTOM_ROLLER_SPEED = 0.25;
 
         //(autonomous) high row shooting speeds 
-        public static final double AUTO_HIGH_EJECT_TOP_ROLLER_SPEED = 0.35;
-        public static final double AUTO_HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.35;
+        public static final double AUTO_HIGH_EJECT_TOP_ROLLER_SPEED = 0.3;
+        public static final double AUTO_HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.3;
 
         //(teleop) high row shooting speeds 
         public static final double HIGH_EJECT_TOP_ROLLER_SPEED = 0.30; //former: 0.35 
@@ -70,7 +70,7 @@ public class Constants {
         public static final double kD = 0.8; 
         public static final double kF = 0.0; 
         public static final double CRUISE_VELOCITY = 15000;
-        public static final double ACCELERATION = 8000;
+        public static final double ACCELERATION = 12000;
     }
 
     public static final class Chassis {
