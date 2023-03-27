@@ -25,7 +25,7 @@ public class TextCommand extends CommandBase {
      * @param color The color to use for drawing
      * @param panelSubsystem The LEDPanelSubsystem to use
      */
-    public <T extends Subsystem, BitmapDrawinContext> TextCommand(String text, BitmapFont font, Color color, T subsystem) {
+    public <T extends Subsystem & BitmapDrawingContext> TextCommand(String text, BitmapFont font, Color color, T subsystem) {
         this(text, null, font, color, subsystem);
     }
 

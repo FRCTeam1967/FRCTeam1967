@@ -17,7 +17,7 @@ public class ScrollingTextCommand extends TextCommand {
     protected int m_currentOffset;
     protected Dimension m_bounds;
 
-    public <T extends Subsystem, BitmapDrawinContext> ScrollingTextCommand(String text, Point origin, double pixelsPerSecond, BitmapFont font, Color color, T subsystem) {
+    public <T extends Subsystem & BitmapDrawingContext> ScrollingTextCommand(String text, Point origin, double pixelsPerSecond, BitmapFont font, Color color, T subsystem) {
         super(text, origin, font, color, subsystem);
         m_secPerPixel = 1.0/pixelsPerSecond;
         m_bounds = font.bounds(text);
