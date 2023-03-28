@@ -52,6 +52,34 @@ public class Robot extends TimedRobot {
         
     //configure shuffleboard
     m_intake.configDashboard(m_matchTab);
+<<<<<<< Updated upstream
+=======
+    m_arm.configDashboard(m_matchTab);
+    
+
+    // m_matchTab.addCamera("Limelight Camera", "m_limelight", "http://10.19.67.11:5800/");
+    
+
+    //AUTO SELECTORS
+    //delay timer chooser
+    autoDelayChooser.setDefaultOption("0", Constants.Auto.ZERO_DELAY);
+    autoDelayChooser.addOption("1", Constants.Auto.ONE_DELAY); 
+    autoDelayChooser.addOption("2", Constants.Auto.TWO_DELAY);
+    autoDelayChooser.addOption("3", Constants.Auto.THREE_DELAY);
+    autoDelayChooser.addOption("4", Constants.Auto.FOUR_DELAY);
+    autoDelayChooser.addOption("5", Constants.Auto.FIVE_DELAY);
+    m_matchTab.add("Auto Delay", autoDelayChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
+
+    //auto path chooser
+    autoPathChooser.setDefaultOption("Community", Constants.Auto.SIMPLE_AUTOPATH);
+    autoPathChooser.addOption("One cube", Constants.Auto.ONE_CUBE_AUTOPATH);
+    autoPathChooser.addOption("Charge station", Constants.Auto.CHARGE_STATION);
+    autoPathChooser.addOption("Charge station + Intake", Constants.Auto.DELUXE_CHARGE_STATION);
+    m_matchTab.add("Auto Path", autoPathChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
+
+    //default led sequnce- chasing red
+    m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.005);
+>>>>>>> Stashed changes
   }
 
   /**
