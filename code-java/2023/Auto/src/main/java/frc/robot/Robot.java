@@ -36,8 +36,8 @@ public class Robot extends TimedRobot {
   
   private WPI_TalonFX leftLeader = new WPI_TalonFX(4);//m2
   private WPI_TalonFX rightLeader = new WPI_TalonFX(5);
-  private WPI_TalonFX leftFollower = new WPI_TalonFX(6);//m2
-  private WPI_TalonFX rightFollower = new WPI_TalonFX(7);
+  //private WPI_TalonFX leftFollower = new WPI_TalonFX(6);//m2
+  //private WPI_TalonFX rightFollower = new WPI_TalonFX(7);
 
   private MotorControllerGroup left, right;
   private DifferentialDrive myRobot;
@@ -88,9 +88,9 @@ public class Robot extends TimedRobot {
     XboxController = new jankyXboxJoystick(2); 
 
     setUpChassisMotors(leftLeader);
-    setUpChassisMotors(leftFollower);
+    //setUpChassisMotors(leftFollower);
     setUpChassisMotors(rightLeader);
-    setUpChassisMotors(rightFollower);
+    //setUpChassisMotors(rightFollower);
 
     left = new MotorControllerGroup(leftLeader);
     right = new MotorControllerGroup(rightLeader);
@@ -121,11 +121,11 @@ public class Robot extends TimedRobot {
     
     autoSM.displayCurrentState();
 
-    SmartDashboard.putNumber("Left leader % output", leftLeader.getMotorOutputPercent());
-    SmartDashboard.putNumber("Right leader % output", rightLeader.getMotorOutputPercent());
+    //SmartDashboard.putNumber("Left leader % output", leftLeader.getMotorOutputPercent());
+    //SmartDashboard.putNumber("Right leader % output", rightLeader.getMotorOutputPercent());
 
-    SmartDashboard.putNumber("Left motor encoder:", leftLeader.getSelectedSensorPosition());
-    SmartDashboard.putNumber("Right motor encoder:", rightLeader.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("Left motor encoder:", leftLeader.getSelectedSensorPosition());
+    //SmartDashboard.putNumber("Right motor encoder:", rightLeader.getSelectedSensorPosition());
   }
 
   @Override

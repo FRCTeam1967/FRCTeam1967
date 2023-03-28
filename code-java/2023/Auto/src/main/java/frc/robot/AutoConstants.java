@@ -5,7 +5,7 @@ import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 public class AutoConstants {
     //defines
     public static final int CHASSIS_LEFT_ENCODER_CHANNEL= 3;
-    public static final int FALCON_PULSES_PER_REVOLUTION = 2048;
+    public static final int FALCON_PULSES_PER_REVOLUTION = 4096; //2048
     public static final int CHASSIS_RIGHT_ENCODER_CHANNEL = 1;
 
     public static final double CHASSIS_WIDTH = 0.686; //_m
