@@ -6,52 +6,47 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 
 public class Limelight {
     private NetworkTable limelightTable;
-    private double xOffset, yOffset;
-    
-    private double leftCommand, rightCommand;
-
-    private boolean goingLeft;
+    private double xOffset, yOffset, leftCommand, rightCommand;
 
     public Limelight(){
         limelightTable = NetworkTableInstance.getDefault().getTable("limelight");
         updateValues();
     }
 
+    /**
+     * Updates X and Y offset values from network table
+     */
     public void updateValues() {
-        //get x & y offset values from network table
         xOffset = limelightTable.getEntry("tx").getDouble(0.0);
         yOffset = limelightTable.getEntry("ty").getDouble(0.0);
     }
 
+    /**
+     * Adds camera stream and offset values to Shuffleboard
+     * @param tab - Shuffleboard tab to add values to
+     */
     public void configDashboard(ShuffleboardTab tab){
-        //add camera view to shuffleboard
         tab.addCamera("Limelight Camera", "m_limelight", "http://10.19.67.11:5800/");
 
-        tab.addDouble("xOffset", () -> limelightTable.getEntry("tx").getDouble(0.0));
-        tab.addDouble("yOffset", () -> limelightTable.getEntry("ty").getDouble(0.0));
-
-        tab.addDouble("kP_AIMING", () -> Constants.Vision.kP_AIMING);
-        tab.addDouble("Degree Error", () -> Constants.Vision.DEGREE_ERROR);
-
-        tab.addDouble("left command", () -> leftCommand);
-        tab.addDouble("right command", () -> rightCommand);
-
-        tab.addBoolean("limelight going left?", () -> goingLeft);
+        tab.addDouble("Limelight xOffset", () -> limelightTable.getEntry("tx").getDouble(0.0));
+        tab.addDouble("Limelight yOffset", () -> limelightTable.getEntry("ty").getDouble(0.0));
     }
 
+    /**
+     * Change pipeline from vision to driver and vice versa
+     * @param isVision - whether pipeline is vision or not, boolean
+     */
     public void setVisionMode(boolean isVision){
         if (isVision){
             limelightTable.getEntry("pipeline").setNumber(0);
-            //limelightTable.getEntry("camMode").setNumber(0); //CAM MODE
         } else {
             limelightTable.getEntry("pipeline").setNumber(1);
-            //limelightTable.getEntry("camMode").setNumber(1); //CAM MODE
         }
     }
 
-    //TODO possible solutions for oscillation
-    //decreasing MIN_COMMAND, increasing DEGREE_ERROR 
-    //keep kP small, adjust min_command first
+    /**
+     * If outside of error range, offset values to angle
+     */
     public void alignAngle(){
         updateValues();
         
@@ -61,23 +56,22 @@ public class Limelight {
         
         if (xOffset < -Constants.Vision.DEGREE_ERROR){ //if heading error is larger than allowed and is negative
             //need to turn right: left goes forward and right goes backward
-            goingLeft = false;
-
             steeringAdjust -= Constants.Vision.MIN_COMMAND;
             leftCommand -= steeringAdjust;
             rightCommand += steeringAdjust;
         
         } else if (xOffset > Constants.Vision.DEGREE_ERROR){  //if heading error is larger than allowed and is positive
             //need to turn left: left goes backward and right goes forward
-            goingLeft = true;
-
             steeringAdjust += Constants.Vision.MIN_COMMAND;
             leftCommand -= steeringAdjust;
             rightCommand += steeringAdjust;
         }
     }
 
-    public void adjustDistance(){ //not in use
+    /**
+     * NOT IN USE - update distance commands
+     */
+    public void adjustDistance(){
         updateValues();
         
         double distanceAdjust = Constants.Vision.kP_AIMING * yOffset;
@@ -88,10 +82,18 @@ public class Limelight {
         rightCommand -= distanceAdjust; 
     }
     
+    /**
+     * Get value of left command
+     * @return value of leftCommand, double
+     */
     public double getLeftCommand(){
         return leftCommand;
     }
 
+     /**
+     * Get value of right command
+     * @return value of rightCommand, double
+     */
     public double getRightCommand(){
         return rightCommand;
     }

@@ -44,9 +44,6 @@ public class Robot extends TimedRobot {
   //leds
   private LED m_led;
   
-  //limelight camera
-  //private HttpCamera m_limelight;
-
   //gyro defs
   public ADIS16470_IMU m_gyro = new ADIS16470_IMU();
   public double gyroAngle;
@@ -69,7 +66,7 @@ public class Robot extends TimedRobot {
     m_arm = new Arm();
     m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
     m_limelight = new Limelight();
-
+    
     m_arm.initEncoder();
     m_arm.armHoming();
 
@@ -79,10 +76,6 @@ public class Robot extends TimedRobot {
     m_arm.configDashboard(m_matchTab);
     m_limelight.configDashboard(m_matchTab);
     
-
-    // m_matchTab.addCamera("Limelight Camera", "m_limelight", "http://10.19.67.11:5800/");
-    
-
     //AUTO SELECTORS
     //delay timer chooser
     autoDelayChooser.setDefaultOption("0", Constants.Auto.ZERO_DELAY);
