@@ -133,5 +133,7 @@ public class PIDChassis implements DriveSystem {
         }
     }
     
-    public void autoAlign(){}     
+    public void autoAlign(double leftCommand, double rightCommand){
+        
+    }     
 }

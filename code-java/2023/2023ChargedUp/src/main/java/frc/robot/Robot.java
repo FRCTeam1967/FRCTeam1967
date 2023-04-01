@@ -39,7 +39,8 @@ public class Robot extends TimedRobot {
   private Intake m_intake;
   private DriveSystem m_chassis;
   private Arm m_arm;
-  
+  private Limelight m_limelight;
+
   //leds
   private LED m_led;
   
@@ -67,6 +68,7 @@ public class Robot extends TimedRobot {
     m_intake = new Intake();
     m_arm = new Arm();
     m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
+    m_limelight = new Limelight();
 
     m_arm.initEncoder();
     m_arm.armHoming();
@@ -75,6 +77,7 @@ public class Robot extends TimedRobot {
     m_matchTab = Shuffleboard.getTab("Match");
     m_intake.configDashboard(m_matchTab);
     m_arm.configDashboard(m_matchTab);
+    m_limelight.configDashboard(m_matchTab);
     
 
     // m_matchTab.addCamera("Limelight Camera", "m_limelight", "http://10.19.67.11:5800/");
@@ -164,11 +167,21 @@ public class Robot extends TimedRobot {
   public void teleopPeriodic() {
     curLeftJsY = leftJoystick.getY();
     curRightJsY = rightJoystick.getY();
-    //chassis button triggers 
+    
+    m_limelight.setVisionMode(false);
+
+    //CHASSIS BUTTON TRIGGERS
     if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) {
       m_chassis.driveStraight(leftJoystick.getY(), rightJoystick.getY());
+    
     } else if (leftJoystick.getRawButton(2) || rightJoystick.getRawButton(2)) {
        m_chassis.slowMode(leftJoystick.getY(), rightJoystick.getY());
+
+    } else if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
+      m_limelight.setVisionMode(true);
+      m_limelight.alignAngle();
+      m_chassis.drive(m_limelight.getLeftCommand(), m_limelight.getRightCommand());
+    
     } else {
       // added for sticky joysticks
       if (Math.abs(curLeftJsY) < Constants.Chassis.JOYSTICK_DEADBAND) {
@@ -187,25 +200,21 @@ public class Robot extends TimedRobot {
       m_chassis.setBrakeMode(false); //set to coast mode
     }
 
-    //intake button triggers
+    //INTAKE BUTTON TRIGGERS
     if (xboxController.GetLeftThrottle() == 1 || xboxController.GetRightThrottle() == 1) {
       m_intake.runIntake();
       m_led.setColor(Color.kBlueViolet);
-      //m_led.setFlashColors(Color.kPurple, Color.kBlack, 0.3);
-
+      
     } else if (xboxController.getPOV() == 0){
       m_intake.runLowEject();
-      //m_led.setChasingColors(Color.kPink, Color.kPink, 20, 0.005);
       m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
     
     } else if (xboxController.getPOV() == 90){
       m_intake.runMiddleEject();
-      //m_led.setChasingColors(Color.kPink, Color.kBlue, 15, 0.005);
       m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
 
     } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
-      //m_led.setChasingColors(Color.kPink, Color.kBlue, 10, 0.005);
       m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
       
     } else {
@@ -217,7 +226,7 @@ public class Robot extends TimedRobot {
       }
     }
 
-    //arm button triggers
+    //ARM BUTTON TRIGGERS
     if(xboxController.GetButtonRB()){
       m_arm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
       

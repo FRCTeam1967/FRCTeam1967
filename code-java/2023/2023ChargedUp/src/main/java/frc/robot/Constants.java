@@ -106,11 +106,15 @@ public class Constants {
     }
     
     public static final class Vision {
+        //TODO tune these values
+        public static final double kP_AIMING = 0.005; //0.005
+        public static final double kP_DISTANCE = 0.02; //0.02
+        public static final double MIN_COMMAND = 0.02; //0.02
 
+        public static final double DEGREE_ERROR = 0.5; //1.0
     }
 
     public static final class Auto {
-
         //tolerance when engaging
         public static final int MIN_ANGLE = -6; //5 
         public static final int MAX_ANGLE = 6;

@@ -57,13 +57,13 @@ public class Arm extends JankyStateMachine {
      */
     public void configDashboard(ShuffleboardTab tab){
         //updates encoder values on shuffleboard continuously
-        tab.addDouble("Abs Angle", () -> m_encoder.getAbsolutePosition()); //degrees        
+        tab.addDouble("Abs Angle", () -> m_encoder.getAbsolutePosition()); //degrees
         tab.addDouble("Falcon Angle R", () -> falconTicksToAngle(armMotorR.getSelectedSensorPosition()));
         tab.addDouble("Falcon Angle L", () -> falconTicksToAngle(armMotorL.getSelectedSensorPosition()));
         tab.addDouble("Desired Angle", () -> desiredAngle);
         
         tab.addBoolean("Is Arm In Range", () -> isArmInRangeFalcon(desiredAngle, Constants.Arm.CHECK_ENCODER_ERROR));
-
+        
         //tab.addDouble("Falcon Percent Output L ", () -> armMotorL.getMotorOutputPercent());
         //tab.addDouble("Falcon Percent Output R ", () -> armMotorR.getMotorOutputPercent());
     }

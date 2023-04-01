@@ -14,5 +14,5 @@ public interface DriveSystem {
 
     public void setBrakeMode(boolean isBrake);
 
-    public void autoAlign();
+    public void autoAlign(double leftCommand, double rightCommand);
 }

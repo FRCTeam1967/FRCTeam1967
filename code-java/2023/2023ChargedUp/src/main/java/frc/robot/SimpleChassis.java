@@ -64,7 +64,7 @@ public class SimpleChassis implements DriveSystem {
     }
     
     /**
-     * Averages left and right joystick inputs + raising inputs to a power (default = 1)
+     * Averages left and right joystick inputs + raising inputs to a power (default is 1)
      * @param leftJoystick - double value between -1.0 and 1.0
      * @param rightJoystick - double value between -1.0 and 1.0
      */
@@ -112,5 +112,5 @@ public class SimpleChassis implements DriveSystem {
         }
     }
 
-    public void autoAlign(){}
+    public void autoAlign(double leftCommand, double rightCommand){}
 }
