@@ -8,8 +8,7 @@ public class Constants {
         public static final int RIGHT_JOYSTICK_PORT = 1;
         public static final int XBOX_PORT = 2;
     }
-
-    public static final class Intake {
+     public static final class Intake {
         //neo ids
         public static final int TOP_ROLLER_MOTOR_ID = 31;
         public static final int BOTTOM_ROLLER_MOTOR_ID = 30;
@@ -42,7 +41,7 @@ public class Constants {
         //cancoder
         public static final int ARM_ABS_ENCODER_ID = 22;
         public static final double ARM_ABS_ENCODER_OFFSET = 127; //compbot, degrees
-
+        
         //encoder sanity check error constants
         public static final double CHECK_ENCODER_ERROR = 5.0; 
 
@@ -77,7 +76,7 @@ public class Constants {
         //joystick sensitivity
         public static final int JOYSTICK_EXP = 1;
         public static final double JOYSTICK_DEADBAND = 0.1;
-
+        
         //simple vs pid chassis switch
         public static final boolean USE_SIMPLE_CHASSIS = false;
 
@@ -97,7 +96,7 @@ public class Constants {
 
         //speed factor
         public static final double SLOW_MODE_FACTOR = 0.5;
-
+        
         //conversion factor
         public static final double MAX_RPM_NORMAL = 2000.0;
         public static final double MAX_RPM_SLOW = 1000.0;
@@ -106,11 +105,15 @@ public class Constants {
     }
     
     public static final class Vision {
+        //TODO tune these values
+        public static final double kP_AIMING = 0.005;
+        public static final double kP_DISTANCE = 0.02;
+        public static final double MIN_COMMAND = 0.02;
 
+        public static final double DEGREE_ERROR = 0.5;
     }
 
     public static final class Auto {
-
         //tolerance when engaging
         public static final int MIN_ANGLE = -6; //5 
         public static final int MAX_ANGLE = 6;
@@ -126,6 +129,7 @@ public class Constants {
         public static final int SIMPLE_AUTOPATH = 0;
         public static final int ONE_CUBE_AUTOPATH = 1;
         public static final int CHARGE_STATION = 2;
+        public static final int DELUXE_CHARGE_STATION = 3;
 
         //constants for distance calculation
         public static final double PULSES_PER_REVOLUTION = 4096;

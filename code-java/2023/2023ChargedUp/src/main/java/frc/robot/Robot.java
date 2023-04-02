@@ -129,7 +129,7 @@ public class Robot extends TimedRobot {
     delay = autoDelayChooser.getSelected();
     path = autoPathChooser.getSelected();
 
-    m_auto = new Auto(delay, path, m_gyro, m_arm, m_intake, m_led);
+    m_auto = new Auto(delay, 3, m_gyro, m_arm, m_intake, m_led);
   }
 
   /** This function is called periodically during autonomous. */
