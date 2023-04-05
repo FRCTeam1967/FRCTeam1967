@@ -24,7 +24,7 @@ public class Auto extends JankyStateMachine {
 
     //gyro
     public ADIS16470_IMU gyroClassLevel;
-    public double motorEncoderAverage, newEncoderValue, gyroAngle;
+    public double motorEncoderAverage, newEncoderValue, gyroAnglePitch;
 
     Timer delayTimer = new Timer();
 
@@ -36,13 +36,18 @@ public class Auto extends JankyStateMachine {
     private final int OC_ARM_MOVE = 0, OC_SHOOT = 1, OC_DELAY = 2, OC_MOVE = 3, OC_FINISH_AUTO = 4;
 
     //charge station (CS)
-    private final int ARM_TO_SHOOT = 0, CS_SHOOT = 1, CROSS_RAMP = 4, CS_REVERSE_LOWER_ARM = 5, UP_RAMP = 6, IDLE = 8, GO_BACK = 9, GO_FRONT = 10;
+    private final int CS_ARM_TO_SHOOT = 0, CS_SHOOT = 1, CS_CROSS_RAMP = 4, CS_REVERSE_LOWER_ARM = 5, CS_UP_RAMP = 6, CS_IDLE = 8, CS_GO_BACK = 9, CS_GO_FRONT = 10;
+
+
+    //deluxe charge station (with intake 1 cube) (DCS)
+    private final int DCS_ARM_TO_SHOOT = 0, DCS_SHOOT = 1, DCS_CROSS_RAMP = 4, DCS_TURN_TO_CUBE = 5, DCS_INTAKE_DOWN = 6, DCS_INTAKE_CUBE = 7, DCS_GO_TO_CS = 8, DCS_RAISE_INTAKE = 9, DCS_TURN_TO_CS = 10, DCS_REVERSE_LOWER_ARM = 11, DCS_UP_RAMP = 12, DCS_IDLE = 13, DCS_GO_BACK = 14, DCS_GO_FRONT = 15;
+
 
     public Auto(int _delay, int _path, ADIS16470_IMU m_gyro, Arm arm, Intake intake, LED led) {
         delay = _delay;
         path = _path;
         gyroClassLevel = m_gyro;
-        gyroAngle = m_gyro.getYComplementaryAngle();
+        gyroAnglePitch = m_gyro.getYComplementaryAngle();
 
         autoArm = arm;
         autoIntake = intake;
@@ -86,14 +91,32 @@ public class Auto extends JankyStateMachine {
 
         } else if (path == Constants.Auto.CHARGE_STATION) {
             SetMachineName ("chargeStation");
-            SetName (ARM_TO_SHOOT, "armToShoot");
+            SetName (CS_ARM_TO_SHOOT, "armToShoot");
             SetName(CS_SHOOT, "csShoot");
-            SetName (CROSS_RAMP, "crossRamp");
+            SetName (CS_CROSS_RAMP, "crossRamp");
             SetName (CS_REVERSE_LOWER_ARM, "csReverseLowerArm");
-            SetName (UP_RAMP, "upRamp");
-            SetName(IDLE, "noMove");
-            SetName (GO_BACK, "goBack");
-            SetName (GO_FRONT, "goFront");
+            SetName (CS_UP_RAMP, "upRamp");
+            SetName(CS_IDLE, "noMove");
+            SetName (CS_GO_BACK, "goBack");
+            SetName (CS_GO_FRONT, "goFront");
+            stateMachineSelected = Constants.Auto.CHARGE_STATION;
+            start();
+        } else if (path == Constants.Auto.DELUXE_CHARGE_STATION) {
+            SetMachineName ("deluxeChargeStation");
+            SetName (DCS_ARM_TO_SHOOT, "dcsarmToShoot");
+            SetName(DCS_SHOOT, "dcsShoot");
+            SetName (DCS_CROSS_RAMP, "crossRamp");
+            SetName (DCS_REVERSE_LOWER_ARM, "dcsReverseLowerArm");
+            SetName (DCS_TURN_TO_CUBE, "dcsTurnToCube");
+            SetName (DCS_INTAKE_DOWN, "dcsIntakeDown");
+            SetName (DCS_INTAKE_CUBE, "dcs intake cube");
+            SetName (DCS_GO_TO_CS, "dcs go to cs");
+            SetName (DCS_RAISE_INTAKE, "dcs raise intake");
+            SetName (DCS_TURN_TO_CS, "dcs turn to cs");
+            SetName (DCS_UP_RAMP, "dcs up ramp");
+            SetName(DCS_IDLE, "noMove");
+            SetName (DCS_GO_BACK, "goBack");
+            SetName (DCS_GO_FRONT, "goFront");
             stateMachineSelected = Constants.Auto.CHARGE_STATION;
             start();
         }
@@ -256,7 +279,7 @@ public class Auto extends JankyStateMachine {
          */
         } else if (stateMachineSelected == Constants.Auto.CHARGE_STATION) {
             switch(curState) {
-                case ARM_TO_SHOOT:
+                case CS_ARM_TO_SHOOT:
                     if (onStateEntered) {
                         autoArm.setDesiredPosition(Constants.Arm.fTOP_ANGLE); 
                     } else {
@@ -271,12 +294,12 @@ public class Auto extends JankyStateMachine {
                         autoIntake.runAutoShooter();
                     } else {
                         if (autoIntake.isShooterComplete()) {
-                            NewState(CROSS_RAMP, "shooting done!");
+                            NewState(CS_CROSS_RAMP, "shooting done!");
                         }
                     }
                     break;
 
-                case CROSS_RAMP:
+                case CS_CROSS_RAMP:
                     leftLeader.set(TalonFXControlMode.Velocity, -2300);
                     rightLeader.set(TalonFXControlMode.Velocity, 2300);
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
@@ -298,12 +321,12 @@ public class Auto extends JankyStateMachine {
                         autoArm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE); 
                     } else {
                         if (autoArm.GetCurrentState() == 2) {
-                            NewState(UP_RAMP, "arm in position");
+                            NewState(CS_UP_RAMP, "arm in position");
                         }
                     }
                     break;
 
-                case UP_RAMP:
+                case CS_UP_RAMP:
                     if (onStateEntered) {
                         leftLeader.setNeutralMode(NeutralMode.Coast);
                         rightLeader.setNeutralMode(NeutralMode.Coast);
@@ -319,13 +342,10 @@ public class Auto extends JankyStateMachine {
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                        NewState(IDLE, "crossed community");
+                        NewState(CS_IDLE, "crossed community");
                     }
                     break;
 
-<<<<<<< Updated upstream
-                case IDLE: //don't move
-=======
                 case CS_IDLE: //don't move
                     leftLeader.setNeutralMode(NeutralMode.Brake);
                     rightLeader.setNeutralMode(NeutralMode.Brake);
@@ -537,7 +557,6 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case DCS_IDLE: //don't move
->>>>>>> Stashed changes
                     leftLeader.setNeutralMode(NeutralMode.Brake);
                     rightLeader.setNeutralMode(NeutralMode.Brake);
                 
@@ -549,39 +568,35 @@ public class Auto extends JankyStateMachine {
                     autoLED.setChasingColors(Color.kGreen, Color.kBlack, 10, 0.005);
                     
                     if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MIN_ANGLE) {
-                        NewState(GO_FRONT, "need to move forward");
+                        NewState(DCS_GO_FRONT, "need to move forward");
                     } else if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
-                        NewState(GO_BACK, "need to move back"); 
+                        NewState(DCS_GO_BACK, "need to move back"); 
                     }
                     break;
 
-                case GO_FRONT: //forward
+                case DCS_GO_FRONT: //forward
                     leftLeader.set(TalonFXControlMode.Velocity, -400); 
                     rightLeader.set(TalonFXControlMode.Velocity, 400); //500
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     
                     if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
-                        NewState(GO_BACK, "need to move back");
+                        NewState(DCS_GO_BACK, "need to move back");
                     } else if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MAX_ANGLE && gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MIN_ANGLE){
-<<<<<<< Updated upstream
-                        NewState(IDLE, "fine!");
-=======
                         NewState(DCS_IDLE, "fine!");
->>>>>>> Stashed changes
                     }
                     break;
                     
-                case GO_BACK: //backwards
+                case DCS_GO_BACK: //backwards
                     leftLeader.set(TalonFXControlMode.Velocity, 400); 
                     rightLeader.set(TalonFXControlMode.Velocity, -400); 
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     
                     if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MIN_ANGLE) {
-                        NewState(GO_FRONT, "need to move forward");
+                        NewState(DCS_GO_FRONT, "need to move forward");
                     } else if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MAX_ANGLE && gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MIN_ANGLE){
-                        NewState(IDLE, "fine!");
+                        NewState(DCS_IDLE, "fine!");
                     }
                     break;
             }

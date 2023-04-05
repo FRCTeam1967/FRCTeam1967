@@ -6,9 +6,6 @@ package frc.robot;
 
 import org.janksters.jankyLib.jankyXboxJoystick;
 
-// import edu.wpi.first.cameraserver.CameraServer;
-// import edu.wpi.first.cscore.HttpCamera;
-// import edu.wpi.first.cscore.HttpCamera.HttpCameraKind;
 import edu.wpi.first.wpilibj.ADIS16470_IMU;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Joystick;
