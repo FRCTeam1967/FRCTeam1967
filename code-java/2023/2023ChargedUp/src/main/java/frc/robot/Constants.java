@@ -116,8 +116,8 @@ public class Constants {
 
     public static final class Auto {
         //tolerance when engaging
-        public static final int MIN_ANGLE = -6; //5 
-        public static final int MAX_ANGLE = 6;
+        public static final int MIN_ANGLE = -5; //5 //6 before 4/4
+        public static final int MAX_ANGLE = 5;
 
         //selectors
         public static final int ZERO_DELAY = 0;

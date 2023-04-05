@@ -323,7 +323,221 @@ public class Auto extends JankyStateMachine {
                     }
                     break;
 
+<<<<<<< Updated upstream
                 case IDLE: //don't move
+=======
+                case CS_IDLE: //don't move
+                    leftLeader.setNeutralMode(NeutralMode.Brake);
+                    rightLeader.setNeutralMode(NeutralMode.Brake);
+                
+                    leftLeader.set(TalonFXControlMode.Velocity, 0);
+                    rightLeader.set(TalonFXControlMode.Velocity, 0); 
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+
+                    autoLED.setChasingColors(Color.kGreen, Color.kBlack, 10, 0.005);
+                    
+                    if (gyroAnglePitch < Constants.Auto.MIN_ANGLE) {
+                        NewState(CS_GO_FRONT, "need to move forward");
+                    } else if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
+                        NewState(CS_GO_BACK, "need to move back"); 
+                    }
+                    break;
+
+                case CS_GO_FRONT: //forward
+                    leftLeader.set(TalonFXControlMode.Velocity, -400); 
+                    rightLeader.set(TalonFXControlMode.Velocity, 400); 
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                    
+                    if (gyroAnglePitch > Constants.Auto.MAX_ANGLE) {
+                        NewState(CS_GO_BACK, "need to move back");
+                    } else if (gyroAnglePitch < Constants.Auto.MAX_ANGLE && gyroAnglePitch > Constants.Auto.MIN_ANGLE){
+                        NewState(CS_IDLE, "fine!");
+                    }
+                    break;
+                    
+                case CS_GO_BACK: //backwards
+                    leftLeader.set(TalonFXControlMode.Velocity, 400); 
+                    rightLeader.set(TalonFXControlMode.Velocity, -400); 
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                    
+                    if (gyroAnglePitch < Constants.Auto.MIN_ANGLE) {
+                        NewState(CS_GO_FRONT, "need to move forward");
+                    } else if (gyroAnglePitch < Constants.Auto.MAX_ANGLE && gyroAnglePitch > Constants.Auto.MIN_ANGLE){
+                        NewState(CS_IDLE, "fine!");
+                    }
+                    break;
+            }
+        } else if (stateMachineSelected == Constants.Auto.DELUXE_CHARGE_STATION) {
+            switch(curState) {
+                case DCS_ARM_TO_SHOOT:
+                    if (onStateEntered) {
+                        autoArm.setDesiredPosition(Constants.Arm.fTOP_ANGLE); 
+                    } else {
+                        if (autoArm.GetCurrentState() == 2) {
+                            NewState(DCS_SHOOT, "arm in position");
+                        }
+                    }
+                    break;
+
+                case DCS_SHOOT:
+                    if (onStateEntered) {
+                        autoIntake.runAutoShooter();
+                    } else {
+                        if (autoIntake.isShooterComplete()) {
+                            NewState(DCS_CROSS_RAMP, "shooting done!");
+                        }
+                    }
+                    break;
+                case DCS_CROSS_RAMP:
+                    leftLeader.set(TalonFXControlMode.Velocity, -2300);
+                    rightLeader.set(TalonFXControlMode.Velocity, 2300);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+
+                    if (inchesToEncoder(250) <= getAverageEncoderValues()) { //increased from 230 to 250 for extra turning room
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(DCS_TURN_TO_CUBE, "crossed community");
+                    }   
+                    break;
+                
+                case DCS_TURN_TO_CUBE:
+                    leftLeader.set(TalonFXControlMode.Velocity, -2000);
+                    rightLeader.set(TalonFXControlMode.Velocity, -2000);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+
+                    if (gyroClassLevel.getAngle() >= 130){
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(DCS_INTAKE_DOWN, "facing cube");
+                    }
+                    break;
+                    
+                case DCS_INTAKE_DOWN:
+                    if(onStateEntered){
+                        leftLeader.setNeutralMode(NeutralMode.Brake);
+                        rightLeader.setNeutralMode(NeutralMode.Brake);
+                        autoArm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
+                    } else {
+                        if (autoArm.GetCurrentState() == 2) {
+                            NewState(DCS_INTAKE_CUBE, "intake lowered");
+                        }
+
+                    }
+                    break;
+
+                case DCS_INTAKE_CUBE:
+                    if(onStateEntered){
+                        leftLeader.setNeutralMode(NeutralMode.Coast);
+                        rightLeader.setNeutralMode(NeutralMode.Coast);
+                        delayTimer.reset();
+                        startDelayTimer();
+                    }
+                    autoIntake.runIntake();
+
+                    leftLeader.set(TalonFXControlMode.Velocity, 2000);
+                    rightLeader.set(TalonFXControlMode.Velocity, -2000);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+        
+                    if (delayTimer.get() >= 0.8) {
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(DCS_GO_TO_CS, "cube intaked");
+                    }   
+                    break;
+                
+                case DCS_GO_TO_CS:
+                    if(onStateEntered){
+                        delayTimer.reset();
+                        startDelayTimer();
+                        autoIntake.setMotorsToZero();
+                    }
+                    leftLeader.set(TalonFXControlMode.Velocity, -2300);
+                    rightLeader.set(TalonFXControlMode.Velocity, 2300);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                   
+                    if (delayTimer.get() >= 1) {
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState (DCS_TURN_TO_CS, "moved back to charge station");
+                    }   
+                    break;
+                
+                case DCS_RAISE_INTAKE:
+                    if(onStateEntered){
+                        leftLeader.setNeutralMode(NeutralMode.Brake);
+                        rightLeader.setNeutralMode(NeutralMode.Brake);
+                        autoArm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
+                    }
+                    if (autoArm.GetCurrentState() == 2) {
+                            NewState(DCS_TURN_TO_CS, "raised intake");
+                        }
+                    break;
+                
+                case DCS_TURN_TO_CS:
+                    if(onStateEntered){
+                        leftLeader.set(TalonFXControlMode.Velocity, 2000);
+                        rightLeader.set(TalonFXControlMode.Velocity, 2000);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                    }
+                    if (gyroClassLevel.getAngle() <= 30){
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(DCS_UP_RAMP, "turned to cs");
+                        }
+                    break;
+                    
+                case DCS_REVERSE_LOWER_ARM:
+                    if (onStateEntered) {
+                        leftLeader.setNeutralMode(NeutralMode.Brake);
+                        rightLeader.setNeutralMode(NeutralMode.Brake);
+                        autoArm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE); 
+                    } else {
+                        if (autoArm.GetCurrentState() == 2) {
+                            NewState(DCS_UP_RAMP, "arm in position");
+                        }
+                    }
+                    break;
+
+                case DCS_UP_RAMP:
+                    if (onStateEntered) {
+                        leftLeader.setNeutralMode(NeutralMode.Coast);
+                        rightLeader.setNeutralMode(NeutralMode.Coast);
+                    }
+                    
+                    leftLeader.set(TalonFXControlMode.Velocity, 2000);
+                    rightLeader.set(TalonFXControlMode.Velocity, -2000);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                    
+                    if (inchesToEncoder(195) >= getAverageEncoderValues()) { 
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(DCS_IDLE, "crossed community");
+                    }
+                    break;
+
+                case DCS_IDLE: //don't move
+>>>>>>> Stashed changes
                     leftLeader.setNeutralMode(NeutralMode.Brake);
                     rightLeader.setNeutralMode(NeutralMode.Brake);
                 
@@ -350,7 +564,11 @@ public class Auto extends JankyStateMachine {
                     if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
                         NewState(GO_BACK, "need to move back");
                     } else if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MAX_ANGLE && gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MIN_ANGLE){
+<<<<<<< Updated upstream
                         NewState(IDLE, "fine!");
+=======
+                        NewState(DCS_IDLE, "fine!");
+>>>>>>> Stashed changes
                     }
                     break;
                     

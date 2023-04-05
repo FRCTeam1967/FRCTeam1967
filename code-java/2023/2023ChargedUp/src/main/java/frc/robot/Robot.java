@@ -90,6 +90,7 @@ public class Robot extends TimedRobot {
     autoPathChooser.setDefaultOption("Community", Constants.Auto.SIMPLE_AUTOPATH);
     autoPathChooser.addOption("One cube", Constants.Auto.ONE_CUBE_AUTOPATH);
     autoPathChooser.addOption("Charge station", Constants.Auto.CHARGE_STATION);
+    autoPathChooser.addOption("Deluxe", Constants.Auto.DELUXE_CHARGE_STATION);
     m_matchTab.add("Auto Path", autoPathChooser).withWidget(BuiltInWidgets.kComboBoxChooser);
 
     //default led sequnce- chasing red
