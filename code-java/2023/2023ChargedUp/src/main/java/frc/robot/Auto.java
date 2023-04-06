@@ -357,7 +357,7 @@ public class Auto extends JankyStateMachine {
 
                     autoLED.setChasingColors(Color.kGreen, Color.kBlack, 10, 0.005);
                     
-                    if (gyroAnglePitch < Constants.Auto.MIN_ANGLE) {
+                    if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MIN_ANGLE) {
                         NewState(CS_GO_FRONT, "need to move forward");
                     } else if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
                         NewState(CS_GO_BACK, "need to move back"); 
@@ -370,9 +370,9 @@ public class Auto extends JankyStateMachine {
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     
-                    if (gyroAnglePitch > Constants.Auto.MAX_ANGLE) {
+                    if (gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MAX_ANGLE) {
                         NewState(CS_GO_BACK, "need to move back");
-                    } else if (gyroAnglePitch < Constants.Auto.MAX_ANGLE && gyroAnglePitch > Constants.Auto.MIN_ANGLE){
+                    } else if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MAX_ANGLE && gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MIN_ANGLE){
                         NewState(CS_IDLE, "fine!");
                     }
                     break;
@@ -383,9 +383,9 @@ public class Auto extends JankyStateMachine {
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
                     
-                    if (gyroAnglePitch < Constants.Auto.MIN_ANGLE) {
+                    if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MIN_ANGLE) {
                         NewState(CS_GO_FRONT, "need to move forward");
-                    } else if (gyroAnglePitch < Constants.Auto.MAX_ANGLE && gyroAnglePitch > Constants.Auto.MIN_ANGLE){
+                    } else if (gyroClassLevel.getYComplementaryAngle() < Constants.Auto.MAX_ANGLE && gyroClassLevel.getYComplementaryAngle() > Constants.Auto.MIN_ANGLE){
                         NewState(CS_IDLE, "fine!");
                     }
                     break;
