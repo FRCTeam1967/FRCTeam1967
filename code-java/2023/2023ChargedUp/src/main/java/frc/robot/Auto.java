@@ -117,7 +117,7 @@ public class Auto extends JankyStateMachine {
             SetName(DCS_IDLE, "noMove");
             SetName (DCS_GO_BACK, "goBack");
             SetName (DCS_GO_FRONT, "goFront");
-            stateMachineSelected = Constants.Auto.CHARGE_STATION;
+            stateMachineSelected = Constants.Auto.DELUXE_CHARGE_STATION;
             start();
         }
     }
@@ -432,7 +432,7 @@ public class Auto extends JankyStateMachine {
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
-                    if (gyroClassLevel.getAngle() >= 130){
+                    if (gyroClassLevel.getAngle() >= 125){
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
@@ -493,7 +493,7 @@ public class Auto extends JankyStateMachine {
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                        NewState (DCS_TURN_TO_CS, "moved back to charge station");
+                        NewState (DCS_RAISE_INTAKE, "moved back to charge station");
                     }   
                     break;
                 
@@ -520,7 +520,7 @@ public class Auto extends JankyStateMachine {
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                        NewState(DCS_UP_RAMP, "turned to cs");
+                        NewState(DCS_REVERSE_LOWER_ARM, "turned to cs");
                         }
                     break;
                     

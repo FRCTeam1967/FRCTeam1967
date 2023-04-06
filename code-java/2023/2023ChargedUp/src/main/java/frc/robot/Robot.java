@@ -36,7 +36,7 @@ public class Robot extends TimedRobot {
   private Intake m_intake;
   private DriveSystem m_chassis;
   private Arm m_arm;
-  private Limelight m_limelight;
+  //private Limelight m_limelight;
 
   //leds
   private LED m_led;
@@ -62,7 +62,7 @@ public class Robot extends TimedRobot {
     m_intake = new Intake();
     m_arm = new Arm();
     m_led = new LED(Constants.LED.WIDTH, Constants.LED.LENGTH, Constants.LED.PWM_PORT);
-    m_limelight = new Limelight();
+    //m_limelight = new Limelight();
     
     m_arm.initEncoder();
     m_arm.armHoming();
@@ -71,7 +71,7 @@ public class Robot extends TimedRobot {
     m_matchTab = Shuffleboard.getTab("Match");
     m_intake.configDashboard(m_matchTab);
     m_arm.configDashboard(m_matchTab);
-    m_limelight.configDashboard(m_matchTab);
+    //m_limelight.configDashboard(m_matchTab);
     
     //AUTO SELECTORS
     //delay timer chooser
@@ -159,7 +159,7 @@ public class Robot extends TimedRobot {
     curLeftJsY = leftJoystick.getY();
     curRightJsY = rightJoystick.getY();
     
-    m_limelight.setVisionMode(false);
+    //ght.setVisionMode(false);
 
     //CHASSIS BUTTON TRIGGERS
     if (leftJoystick.getRawButton(1) || rightJoystick.getRawButton(1)) {
@@ -169,9 +169,9 @@ public class Robot extends TimedRobot {
        m_chassis.slowMode(leftJoystick.getY(), rightJoystick.getY());
 
     } else if (leftJoystick.getRawButton(3) || rightJoystick.getRawButton(3)) {
-      m_limelight.setVisionMode(true);
-      m_limelight.alignAngle();
-      m_chassis.drive(m_limelight.getLeftCommand(), m_limelight.getRightCommand());
+      //m_limelight.setVisionMode(true);
+      //m_limelight.alignAngle();
+      //m_chassis.drive(m_limelight.getLeftCommand(), m_limelight.getRightCommand());
     
     } else {
       // added for sticky joysticks
