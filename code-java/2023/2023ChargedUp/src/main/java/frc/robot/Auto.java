@@ -363,7 +363,7 @@ public class Auto extends JankyStateMachine {
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
-                    if (delayTimer.get() >= 1.7) { 
+                    if (delayTimer.get() >= 1.4) { 
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
