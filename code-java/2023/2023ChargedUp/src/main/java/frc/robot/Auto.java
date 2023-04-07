@@ -35,9 +35,11 @@ public class Auto extends JankyStateMachine {
     //one cube (OC)
     private final int OC_ARM_MOVE = 0, OC_SHOOT = 1, OC_DELAY = 2, OC_MOVE = 3, OC_FINISH_AUTO = 4;
 
+    //two cube (TC)
+    private final int TC_ARM_MOVE = 0, TC_SHOOT = 1, TC_MOVE = 2, TC_INTAKE_CUBE = 3, TC_BACK_TO_GRID = 4, TC_SHOOT_SECOND = 5, TC_LEAVE = 6, TC_FINISH_AUTO = 7;
+
     //charge station (CS)
     private final int CS_ARM_TO_SHOOT = 0, CS_SHOOT = 1, CS_CROSS_RAMP = 4, CS_REVERSE_LOWER_ARM = 5, CS_UP_RAMP = 6, CS_IDLE = 8, CS_GO_BACK = 9, CS_GO_FRONT = 10;
-
 
     //deluxe charge station (with intake 1 cube) (DCS)
     private final int DCS_ARM_TO_SHOOT = 0, DCS_SHOOT = 1, DCS_CROSS_RAMP = 4, DCS_TURN_TO_CUBE = 5, DCS_INTAKE_DOWN = 6, DCS_INTAKE_CUBE = 7, DCS_GO_TO_CS = 8, DCS_RAISE_INTAKE = 9, DCS_TURN_TO_CS = 10, DCS_REVERSE_LOWER_ARM = 11, DCS_UP_RAMP = 12, DCS_IDLE = 13, DCS_GO_BACK = 14, DCS_GO_FRONT = 15;
@@ -80,6 +82,18 @@ public class Auto extends JankyStateMachine {
             SetName(OC_FINISH_AUTO, "ocFinishAuto");
             stateMachineSelected = Constants.Auto.ONE_CUBE_AUTOPATH;
             start();
+        } else if (path == Constants.Auto.TWO_CUBE_AUTOPATH) {
+            SetMachineName("twoCubeAuto");
+            SetName(TC_ARM_MOVE, "tcArmMove");
+            SetName(TC_SHOOT, "tcShoot");
+            SetName(TC_MOVE, "tcMove");
+            SetName(TC_INTAKE_CUBE, "tcIntakeCube");
+            SetName(TC_BACK_TO_GRID, "tcBackToGrid");
+            SetName(TC_SHOOT_SECOND, "tcShootSecond");
+            SetName(TC_LEAVE, "tcLeave");
+            SetName(TC_FINISH_AUTO, "tcFinishAuto");
+            stateMachineSelected = Constants.Auto.TWO_CUBE_AUTOPATH;
+            start();
 
         } else if (path == Constants.Auto.SIMPLE_AUTOPATH) { 
             SetMachineName ("simpleAuto");
@@ -101,6 +115,7 @@ public class Auto extends JankyStateMachine {
             SetName (CS_GO_FRONT, "goFront");
             stateMachineSelected = Constants.Auto.CHARGE_STATION;
             start();
+
         } else if (path == Constants.Auto.DELUXE_CHARGE_STATION) {
             SetMachineName ("deluxeChargeStation");
             SetName (DCS_ARM_TO_SHOOT, "dcsarmToShoot");
@@ -243,6 +258,126 @@ public class Auto extends JankyStateMachine {
                     
             }
 
+        } else if (stateMachineSelected == Constants.Auto.TWO_CUBE_AUTOPATH) { 
+            switch (curState) {
+                case TC_ARM_MOVE:
+                    if (onStateEntered) {
+                        autoArm.setDesiredPosition(Constants.Arm.bTOP_ANGLE); 
+                    } else {
+                        if (autoArm.GetCurrentState() == 2) {
+                            NewState(TC_SHOOT, "arm in position");
+                        }
+                    }
+                    break;
+
+                case TC_SHOOT:
+                    if (onStateEntered) {
+                        autoIntake.runAutoShooter();
+                    } else {
+                        if (autoIntake.isShooterComplete()) {
+                            NewState(TC_MOVE, "shooting done!");
+                        }
+                    }
+                    break;
+
+                case TC_MOVE:
+                    if (onStateEntered) {
+                        delayTimer.reset();
+                        startDelayTimer();
+                        autoArm.setDesiredPosition(Constants.Arm.INTAKE_ANGLE);
+                    }
+                    leftLeader.set(TalonFXControlMode.Velocity, 2300); 
+                    rightLeader.set(TalonFXControlMode.Velocity, -2300);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+
+                    if (delayTimer.get() >= 3) {  //3.5
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(TC_INTAKE_CUBE, "crossed community");
+                    }   
+                    break;
+
+                case TC_INTAKE_CUBE:
+                    if(onStateEntered){
+                        delayTimer.reset();
+                        startDelayTimer();
+                    }
+                    autoIntake.runIntake();
+
+                    leftLeader.set(TalonFXControlMode.Velocity, 2000);
+                    rightLeader.set(TalonFXControlMode.Velocity, -2000);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+        
+                    if (delayTimer.get() >= 0.8) {
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(TC_BACK_TO_GRID, "cube intaked");
+                    }   
+                    break;
+
+                case TC_BACK_TO_GRID:
+                    if (onStateEntered) {
+                        autoIntake.setMotorsToZero();
+                        autoArm.setDesiredPosition(Constants.Arm.bTOP_ANGLE);
+                        delayTimer.reset();
+                        startDelayTimer();
+                    }
+                    leftLeader.set(TalonFXControlMode.Velocity, -2300); 
+                    rightLeader.set(TalonFXControlMode.Velocity, 2300);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+
+                    if (delayTimer.get() >= 2.75) { 
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(TC_SHOOT_SECOND, "reached grid");
+                    }           
+                    break;
+
+                case TC_SHOOT_SECOND:
+                    if (onStateEntered) {
+                        autoIntake.runAutoShooter();
+                    } else {
+                        if (autoIntake.isShooterComplete()) {
+                            NewState(TC_LEAVE, "shooting done!");
+                        }
+                    }
+                    break;  
+
+                case TC_LEAVE:
+                    if (onStateEntered) {
+                        delayTimer.reset();
+                        startDelayTimer();
+                    }
+
+                    leftLeader.set(TalonFXControlMode.Velocity, 2300); 
+                    rightLeader.set(TalonFXControlMode.Velocity, -2300);
+                    leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                    rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+
+                    if (delayTimer.get() >= 1.7) { 
+                        leftLeader.set(TalonFXControlMode.Velocity, 0);
+                        rightLeader.set(TalonFXControlMode.Velocity, 0);
+                        leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
+                        rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        NewState(TC_FINISH_AUTO, "crossed community");
+                    }   
+                    break;  
+                    
+                case TC_FINISH_AUTO:
+                    Terminate();
+                    break;  
+
+            }
+        
         /**
          * SIMPLE PATH
          * delay for selected amount of time, move out of community zone
@@ -300,7 +435,7 @@ public class Auto extends JankyStateMachine {
                     break;
 
                 case CS_CROSS_RAMP:
-                    leftLeader.set(TalonFXControlMode.Velocity, -2300);
+                    leftLeader.set(TalonFXControlMode.Velocity, -2300); 
                     rightLeader.set(TalonFXControlMode.Velocity, 2300);
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
@@ -332,7 +467,7 @@ public class Auto extends JankyStateMachine {
                         rightLeader.setNeutralMode(NeutralMode.Coast);
                     }
                     
-                    leftLeader.set(TalonFXControlMode.Velocity, 2000);
+                    leftLeader.set(TalonFXControlMode.Velocity, 2000); //2000
                     rightLeader.set(TalonFXControlMode.Velocity, -2000);
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
@@ -412,8 +547,8 @@ public class Auto extends JankyStateMachine {
                     }
                     break;
                 case DCS_CROSS_RAMP:
-                    leftLeader.set(TalonFXControlMode.Velocity, -2300);
-                    rightLeader.set(TalonFXControlMode.Velocity, 2300);
+                    leftLeader.set(TalonFXControlMode.Velocity, -2700);
+                    rightLeader.set(TalonFXControlMode.Velocity, 2700);
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
 
@@ -468,7 +603,7 @@ public class Auto extends JankyStateMachine {
                     leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                     rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
         
-                    if (delayTimer.get() >= 0.8) {
+                    if (delayTimer.get() >= 0.85) {
                         leftLeader.set(TalonFXControlMode.Velocity, 0);
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
@@ -493,7 +628,7 @@ public class Auto extends JankyStateMachine {
                         rightLeader.set(TalonFXControlMode.Velocity, 0);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
-                        NewState (DCS_RAISE_INTAKE, "moved back to charge station");
+                        NewState (DCS_TURN_TO_CS, "moved back to charge station");
                     }   
                     break;
                 
@@ -514,6 +649,10 @@ public class Auto extends JankyStateMachine {
                         rightLeader.set(TalonFXControlMode.Velocity, 2000);
                         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
                         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+                        leftLeader.setNeutralMode(NeutralMode.Brake);
+                        rightLeader.setNeutralMode(NeutralMode.Brake);
+                        autoArm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
+
                     }
                     if (gyroClassLevel.getAngle() <= 30){
                         leftLeader.set(TalonFXControlMode.Velocity, 0);

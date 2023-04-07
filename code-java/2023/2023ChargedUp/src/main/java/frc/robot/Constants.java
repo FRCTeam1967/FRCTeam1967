@@ -131,6 +131,7 @@ public class Constants {
         public static final int ONE_CUBE_AUTOPATH = 1;
         public static final int CHARGE_STATION = 2;
         public static final int DELUXE_CHARGE_STATION = 3;
+        public static final int TWO_CUBE_AUTOPATH = 4;
 
         //constants for distance calculation
         public static final double PULSES_PER_REVOLUTION = 4096;
