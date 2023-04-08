@@ -23,12 +23,12 @@ public class Constants {
         public static final double AUTO_HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.3;
 
         //(teleop) high row shooting speeds 
-        public static final double HIGH_EJECT_TOP_ROLLER_SPEED = 0.30; //former: 0.35 
-        public static final double HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.30;  //0.35
+        public static final double HIGH_EJECT_TOP_ROLLER_SPEED = 0.23; //former: 0.35, 0.30
+        public static final double HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.23;  //0.35
 
         //middle row shooting speeds 
-        public static final double MIDDLE_EJECT_TOP_ROLLER_SPEED = 0.18;  //former: 0.2
-        public static final double MIDDLE_EJECT_BOTTOM_ROLLER_SPEED = 0.18;  //0.2
+        public static final double MIDDLE_EJECT_TOP_ROLLER_SPEED = 0.17;  //former: 0.2, 0.18
+        public static final double MIDDLE_EJECT_BOTTOM_ROLLER_SPEED = 0.17;  //0.2
 
         //low row shooting speeds
         public static final double LOW_EJECT_TOP_ROLLER_SPEED = 0.15; //0.15
