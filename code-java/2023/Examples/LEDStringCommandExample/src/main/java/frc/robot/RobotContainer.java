@@ -14,6 +14,7 @@ import org.janksters.ExampleCommonClasses.Commands.LEDStringRainbowCommand;
 import org.janksters.ExampleCommonClasses.Subsystems.LEDStringSubsystem;
 import org.janksters.ExampleCommonClasses.Subsystems.LEDSubstringSubsystem;
 
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -38,7 +39,7 @@ public class RobotContainer {
     configureBindings();
 
     m_ledSubsystem = new LEDStringSubsystem(16 * 16 * 3, 0);
-    m_ledSubsystem.brightness = 0.10;
+    m_ledSubsystem.brightness = RobotBase.isSimulation() ? 1.0 : 0.10;
     m_gerryRigLEDStrings = createGerryRigSubstrings();
 
     synchronizedScheduleDefaultCommands();
