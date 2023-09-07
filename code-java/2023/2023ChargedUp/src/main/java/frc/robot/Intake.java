@@ -76,6 +76,14 @@ public class Intake {
     }
 
     /**
+     * Sets speeds of topRollerMotor and bottomRollerMotor to turbo eject speeds
+     */
+    public void runTurboEject(){ 
+        topRollerMotor.set(-Constants.Intake.TURBO_EJECT_TOP_ROLLER_SPEED);
+        bottomRollerMotor.set(-Constants.Intake.TURBO_EJECT_BOTTOM_ROLLER_SPEED); 
+    }
+
+    /**
      * Sets speeds of topRollerMotor and bottomRollerMotor to high eject speeds for autonomous
      */
     public void runAutoHighEject(){ 

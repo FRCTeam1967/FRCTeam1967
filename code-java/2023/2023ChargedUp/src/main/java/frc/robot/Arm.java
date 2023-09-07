@@ -40,7 +40,7 @@ public class Arm extends JankyStateMachine {
         armMotorR = new WPI_TalonFX(Constants.Arm.MOTOR_R_ID);
         configMotors(armMotorL);
         configMotors(armMotorR);
-        armMotorR.setInverted(TalonFXInvertType.Clockwise);
+        armMotorL.setInverted(TalonFXInvertType.Clockwise);
 
         m_encoder = new WPI_CANCoder(Constants.Arm.ARM_ABS_ENCODER_ID);
 

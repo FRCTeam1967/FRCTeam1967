@@ -22,6 +22,10 @@ public class Constants {
         public static final double AUTO_HIGH_EJECT_TOP_ROLLER_SPEED = 0.3;
         public static final double AUTO_HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.3;
 
+        //(teleop) turbo row shooting speeds 
+        public static final double TURBO_EJECT_TOP_ROLLER_SPEED = 0.45; 
+        public static final double TURBO_EJECT_BOTTOM_ROLLER_SPEED = 0.45;  
+        
         //(teleop) high row shooting speeds 
         public static final double HIGH_EJECT_TOP_ROLLER_SPEED = 0.27; //former: 0.35, 0.30, 0.23
         public static final double HIGH_EJECT_BOTTOM_ROLLER_SPEED = 0.27;  //0.35
@@ -41,7 +45,7 @@ public class Constants {
     public static final class Arm {
         //cancoder
         public static final int ARM_ABS_ENCODER_ID = 22;
-        public static final double ARM_ABS_ENCODER_OFFSET = 127; //compbot, degrees
+        public static final double ARM_ABS_ENCODER_OFFSET = 6; //compbot, degrees
 
         //encoder sanity check error constants
         public static final double CHECK_ENCODER_ERROR = 5.0; 
@@ -51,11 +55,11 @@ public class Constants {
         public static final int MOTOR_R_ID = 21;
 
         //arm angles, tbd
-        public static final double INTAKE_ANGLE = 77.5; 
+        public static final double INTAKE_ANGLE = 77.5; //77.5
         public static final double fMIDDLE_ANGLE = 120; //[redacted]
-        public static final double fTOP_ANGLE = 150;
+        public static final double fTOP_ANGLE = 150;//150
         public static final double SAFE_ANGLE = 180;
-        public static final double bTOP_ANGLE = 220; 
+        public static final double bTOP_ANGLE = 220;//220
         public static final double bMIDDLE_ANGLE = 240;  //[redacted]
         
         //conversion factors
@@ -69,8 +73,8 @@ public class Constants {
         public static final double kI = 0.0; 
         public static final double kD = 0.8; 
         public static final double kF = 0.0; 
-        public static final double CRUISE_VELOCITY = 15000;
-        public static final double ACCELERATION = 12000;
+        public static final double CRUISE_VELOCITY = 21000;//15000
+        public static final double ACCELERATION = 15000;//15000
     }
 
     public static final class Chassis {

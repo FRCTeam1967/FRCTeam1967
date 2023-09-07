@@ -135,7 +135,6 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     m_arm.armHoming();
-
     if (m_auto != null && m_auto.isAlive()) {
       m_auto.terminate();
       m_auto = null;
@@ -208,7 +207,11 @@ public class Robot extends TimedRobot {
     } else if(xboxController.getPOV() == 180){
       m_intake.runHighEject();
       m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
-      
+
+    } else if(xboxController.getPOV() == 270){
+      m_intake.runTurboEject();
+      m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
+       
     } else {
       m_intake.setMotorsToZero();
       if (DriverStation.getMatchTime() > 15){
