@@ -14,6 +14,10 @@ public class Constants {
         public static final int TOP_ROLLER_MOTOR_ID = 31;
         public static final int BOTTOM_ROLLER_MOTOR_ID = 30;
 
+        //slow intake roller speeds
+        public static final double SLOW_INTAKE_TOP_ROLLER_SPEED = 0.1;
+        public static final double SLOW_INTAKE_BOTTOM_ROLLER_SPEED = 0.1;
+
         //intake roller speeds
         public static final double INTAKE_TOP_ROLLER_SPEED = 0.25;
         public static final double INTAKE_BOTTOM_ROLLER_SPEED = 0.25;
@@ -56,7 +60,7 @@ public class Constants {
 
         //arm angles, tbd
         public static final double INTAKE_ANGLE = 77.5; //77.5
-        public static final double fMIDDLE_ANGLE = 120; //[redacted]
+        public static final double fMIDDLE_ANGLE = 120; 
         public static final double fTOP_ANGLE = 150;//150
         public static final double SAFE_ANGLE = 180;
         public static final double bTOP_ANGLE = 220;//220

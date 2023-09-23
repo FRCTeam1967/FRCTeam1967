@@ -22,6 +22,8 @@ public class PIDChassis implements DriveSystem {
 
      //brake vs coast mode boolean
      private boolean inBrakeMode;
+
+     private double targetVelocityLeft;
     
     /**
      * Constructor for PID Chassis
@@ -42,9 +44,6 @@ public class PIDChassis implements DriveSystem {
         leftFollower.setInverted(TalonFXInvertType.Clockwise);
     }
 
-    public void configDashboard(ShuffleboardTab tab){
-        //tab.addBoolean("Is Chassis in Brake Mode?", () -> inBrakeMode); //try adding back in
-    }
     
     /**
      * Configures kP, kI, kD values for each Falcon
@@ -70,12 +69,17 @@ public class PIDChassis implements DriveSystem {
     public void drive(double leftJoystick, double rightJoystick){
         double targetVelocityL = leftJoystick * Constants.Chassis.MAX_RPM_NORMAL * Constants.Chassis.JOYSTICK_TO_UNITSPER100MS_FACTOR;
         double targetVelocityR = rightJoystick * Constants.Chassis.MAX_RPM_NORMAL * Constants.Chassis.JOYSTICK_TO_UNITSPER100MS_FACTOR;
-       
+        targetVelocityLeft = targetVelocityL;
         leftLeader.set(TalonFXControlMode.Velocity, targetVelocityL);
         leftFollower.set(TalonFXControlMode.Follower, Constants.Chassis.LEFT_LEADER_ID);
 
         rightLeader.set(TalonFXControlMode.Velocity, targetVelocityR);
         rightFollower.set(TalonFXControlMode.Follower, Constants.Chassis.RIGHT_LEADER_ID);
+    }
+
+    public void configDashboard(ShuffleboardTab tab){
+        //tab.addBoolean("Is Chassis in Brake Mode?", () -> inBrakeMode); //try adding back in
+        
     }
     
     /**

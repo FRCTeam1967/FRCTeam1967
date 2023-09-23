@@ -156,8 +156,11 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+
     curLeftJsY = leftJoystick.getY();
     curRightJsY = rightJoystick.getY();
+
+
     
     //ght.setVisionMode(false);
 
@@ -213,7 +216,7 @@ public class Robot extends TimedRobot {
       m_led.setFlashColors(Color.kPink, Color.kBlue, 0.6);
        
     } else {
-      m_intake.setMotorsToZero();
+      m_intake.runSlowIntake();
       if (DriverStation.getMatchTime() > 15){
         m_led.setChasingColors(Color.kRed, Color.kBlack, 10, 0.005);
       } else {
@@ -228,6 +231,9 @@ public class Robot extends TimedRobot {
     } else if(xboxController.GetButtonX() && !xboxController.GetButtonY() && !xboxController.GetButtonA() && !xboxController.GetButtonB()){
       m_arm.setDesiredPosition(Constants.Arm.fTOP_ANGLE);
       
+    }  else if(xboxController.GetButtonA() && !xboxController.GetButtonY() && !xboxController.GetButtonX() && !xboxController.GetButtonB()){
+        m_arm.setDesiredPosition(Constants.Arm.fMIDDLE_ANGLE);
+        
     } else if(xboxController.GetButtonLB()){
       m_arm.setDesiredPosition(Constants.Arm.SAFE_ANGLE);
       

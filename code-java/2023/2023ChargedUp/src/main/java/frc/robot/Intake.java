@@ -59,6 +59,15 @@ public class Intake {
     }
 
     /**
+     * Sets speeds of topRollerMotor and bottomRollerMotor to slow intake speeds
+     * <p> Expected behavior is top and bottom rollers constantly run
+     */
+    public void runSlowIntake(){
+        topRollerMotor.set(Constants.Intake.SLOW_INTAKE_TOP_ROLLER_SPEED );
+        bottomRollerMotor.set(Constants.Intake.SLOW_INTAKE_BOTTOM_ROLLER_SPEED );
+    }
+    
+    /**
      * Sets speeds of topRollerMotor and bottomRollerMotor to intake speeds
      * <p> Expected behavior is top and bottom rollers bring in game piece
      */
