@@ -29,6 +29,9 @@ public class Auto extends JankyStateMachine {
     Timer delayTimer = new Timer();
 
     //state IDs
+    //shoot - no move (SHOOT_NO_MOVE)
+    private final int SNM_ARM_MOVE = 0, SNM_SHOOT = 1, SNM_FINISH_AUTO = 2;
+    
     //simple path (SIMPLE)
     private final int SIMPLE_DELAY = 0, SIMPLE_MOVE = 1, SIMPLE_FINISH_AUTO = 2;
 
@@ -73,7 +76,14 @@ public class Auto extends JankyStateMachine {
         m_gyro.reset();
 
         //state machine set up
-        if (path == Constants.Auto.ONE_CUBE_AUTOPATH) {
+        if (path == Constants.Auto.SHOOT_NO_MOVE) {
+            SetMachineName("shootNoMove");
+            SetName(SNM_ARM_MOVE, "snmMove");
+            SetName(SNM_SHOOT, "snmShoot");
+            SetName(SNM_FINISH_AUTO, "snmFinishAuto");
+            stateMachineSelected = Constants.Auto.SHOOT_NO_MOVE;
+            start();
+        } else if (path == Constants.Auto.ONE_CUBE_AUTOPATH) {
             SetMachineName("oneCubeAuto");
             SetName(OC_ARM_MOVE, "ocArmMove");
             SetName(OC_SHOOT, "ocShoot");
@@ -94,7 +104,6 @@ public class Auto extends JankyStateMachine {
             SetName(TC_FINISH_AUTO, "tcFinishAuto");
             stateMachineSelected = Constants.Auto.TWO_CUBE_AUTOPATH;
             start();
-
         } else if (path == Constants.Auto.SIMPLE_AUTOPATH) { 
             SetMachineName ("simpleAuto");
             SetName (SIMPLE_DELAY, "simpleDelay");
@@ -215,7 +224,38 @@ public class Auto extends JankyStateMachine {
          * ONE CUBE PATH
          * move arm to front top, run shooter, move out of community zone
          */
-        if (stateMachineSelected == Constants.Auto.ONE_CUBE_AUTOPATH) {
+        if (stateMachineSelected == Constants.Auto.SHOOT_NO_MOVE) {
+            switch (curState) {
+                case SNM_ARM_MOVE:
+                    if (onStateEntered) {
+                        autoArm.setDesiredPosition(Constants.Arm.fTOP_ANGLE); 
+                    } else {
+                        if (autoArm.GetCurrentState() == 2) {
+                            NewState(SNM_SHOOT, "arm in position");
+                        }
+                    }
+                    break;
+
+                case SNM_SHOOT:
+                    if (onStateEntered) {
+                        autoIntake.runLowEject();
+                    } else {
+                        if (autoIntake.isShooterComplete()) {
+                            NewState(SNM_FINISH_AUTO, "shooting done!");
+                        }
+                    }
+                    break;
+
+                case SNM_FINISH_AUTO:
+                    Terminate();
+                    break;
+                    
+            }
+        /**
+         * ONE CUBE PATH
+         * move arm to front top, run shooter, move out of community zone
+         */
+        } else if (stateMachineSelected == Constants.Auto.ONE_CUBE_AUTOPATH) {
             switch (curState) {
                 case OC_ARM_MOVE:
                     if (onStateEntered) {
